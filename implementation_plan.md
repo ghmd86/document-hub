@@ -7,6 +7,14 @@ This document outlines the complete design and implementation plan for the Docum
 **Project Timeline**: 16-20 weeks
 **Team Size**: 6-8 members
 **Target**: Production-ready system handling millions of documents with sub-100ms query times
+**Technology Stack**: Spring Boot 3.x with WebFlux (Reactive), PostgreSQL 15+, R2DBC, Redis, React
+
+**Key Technology Decision**: This implementation uses **Spring WebFlux** with reactive programming (Project Reactor) for the backend. This choice provides:
+- Non-blocking I/O for high throughput
+- Backpressure support for handling load spikes
+- Enterprise-grade Spring ecosystem
+- R2DBC for reactive database access
+- Excellent performance for concurrent, high-volume workloads
 
 ---
 
@@ -64,18 +72,21 @@ This document outlines the complete design and implementation plan for the Docum
 
 | Component | Technology | Rationale |
 |-----------|------------|-----------|
-| **Runtime** | Node.js 20 LTS | High performance, async I/O, large ecosystem |
-| **Framework** | NestJS / Express | Structured architecture, TypeScript support |
-| **Language** | TypeScript 5.x | Type safety, better maintainability |
-| **API Style** | REST + GraphQL (optional) | RESTful for simplicity, GraphQL for flexible queries |
+| **Runtime** | JVM (Java 17+ or Kotlin) | Enterprise-grade, high performance, strong typing |
+| **Framework** | Spring Boot 3.x + WebFlux | Reactive programming, non-blocking I/O, production-ready |
+| **Language** | Java 17+ or Kotlin | Type safety, mature ecosystem, excellent tooling |
+| **Reactive Runtime** | Project Reactor | Reactive streams implementation, backpressure support |
+| **API Style** | REST + WebFlux Reactive Endpoints | RESTful with reactive streams for high throughput |
 
 ### Database
 
 | Component | Technology | Version |
 |-----------|------------|---------|
 | **Primary DB** | PostgreSQL | 15+ |
-| **Connection Pool** | PgBouncer | Latest |
-| **Caching** | Redis | 7.x |
+| **Reactive Driver** | R2DBC PostgreSQL | Latest |
+| **Connection Pool** | R2DBC Connection Pool | Built-in |
+| **Blocking Fallback** | JDBC (for migrations/admin) | Optional |
+| **Caching** | Redis (Lettuce reactive client) | 7.x |
 | **Search** | PostgreSQL Full-Text Search | Built-in |
 
 ### Infrastructure
@@ -104,11 +115,12 @@ This document outlines the complete design and implementation plan for the Docum
 
 | Type | Tool |
 |------|------|
-| **Unit Tests** | Jest |
-| **Integration Tests** | Supertest |
-| **E2E Tests** | Playwright / Cypress |
-| **Load Tests** | k6 / Artillery |
-| **API Tests** | Postman / Newman |
+| **Unit Tests** | JUnit 5 + Mockito |
+| **Integration Tests** | Spring Boot Test + WebTestClient |
+| **Reactive Testing** | Reactor Test (StepVerifier) |
+| **E2E Tests** | RestAssured / TestContainers |
+| **Load Tests** | Gatling / k6 |
+| **API Tests** | Postman / Newman / RestAssured |
 
 ---
 
@@ -118,8 +130,8 @@ This document outlines the complete design and implementation plan for the Docum
 
 | Role | Count | Responsibilities |
 |------|-------|------------------|
-| **Tech Lead** | 1 | Architecture, code reviews, technical decisions |
-| **Backend Developers** | 2-3 | API development, database integration, ECMS integration |
+| **Tech Lead** | 1 | Architecture, code reviews, technical decisions (Spring/Java expertise) |
+| **Backend Developers** | 2-3 | Reactive API development with WebFlux, R2DBC integration, ECMS integration |
 | **Frontend Developer** | 1-2 | Admin portal, customer portal UI/UX |
 | **DevOps Engineer** | 1 | Infrastructure, CI/CD, monitoring, deployment |
 | **QA Engineer** | 1 | Test planning, automation, quality assurance |
@@ -327,39 +339,102 @@ This document outlines the complete design and implementation plan for the Docum
 ### Week 5-6: Project Setup & Core Modules
 
 **Activities:**
-- [ ] Initialize NestJS/Express project
-- [ ] Set up TypeScript configuration
-- [ ] Configure database connection (TypeORM / Prisma / node-postgres)
-- [ ] Implement connection pooling
-- [ ] Set up Redis client
-- [ ] Create base error handling
-- [ ] Implement logging service
-- [ ] Set up environment configuration
+- [ ] Initialize Spring Boot 3.x project with WebFlux (Spring Initializr)
+- [ ] Configure Maven/Gradle build file
+- [ ] Configure R2DBC PostgreSQL connection
+- [ ] Set up R2DBC connection pool configuration
+- [ ] Set up Lettuce Redis reactive client
+- [ ] Create base exception handling (@ControllerAdvice)
+- [ ] Implement logging (SLF4J + Logback)
+- [ ] Set up application.yml configuration (profiles for dev/staging/prod)
+- [ ] Configure Reactor context for request tracing
 
 **Deliverables:**
-- Backend project structure
-- Database connection module
-- Logging and error handling framework
+- Spring Boot WebFlux project structure
+- R2DBC database configuration
+- Reactive Redis configuration
+- Global exception handling framework
+- Logging and tracing setup
 
 **Owner:** Backend Developers
 
-**Directory Structure:**
+**Project Structure:**
 ```
-src/
-├── modules/
-│   ├── templates/
-│   ├── documents/
-│   ├── customers/
-│   └── shared-documents/
-├── common/
-│   ├── decorators/
-│   ├── filters/
-│   ├── guards/
-│   ├── interceptors/
-│   └── pipes/
+src/main/java/com/documenthub/
+├── controller/
+│   ├── TemplateController.java
+│   ├── DocumentController.java
+│   └── SharedDocumentController.java
+├── service/
+│   ├── TemplateService.java
+│   ├── DocumentService.java
+│   └── SharedDocumentService.java
+├── repository/
+│   ├── TemplateRepository.java (R2dbcRepository)
+│   ├── DocumentRepository.java
+│   └── DocumentCustomerMappingRepository.java
+├── model/
+│   ├── entity/
+│   │   ├── Template.java
+│   │   ├── Document.java
+│   │   └── DocumentCustomerMapping.java
+│   └── dto/
+│       ├── TemplateRequest.java
+│       └── TemplateResponse.java
 ├── config/
-├── database/
-└── main.ts
+│   ├── R2dbcConfig.java
+│   ├── RedisConfig.java
+│   └── WebFluxConfig.java
+├── exception/
+│   ├── GlobalExceptionHandler.java
+│   └── custom exceptions
+└── DocumentHubApplication.java
+
+src/main/resources/
+├── application.yml
+├── application-dev.yml
+├── application-staging.yml
+└── application-prod.yml
+```
+
+**Dependencies (Maven):**
+```xml
+<dependencies>
+    <!-- Spring WebFlux -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+
+    <!-- R2DBC PostgreSQL -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>r2dbc-postgresql</artifactId>
+    </dependency>
+
+    <!-- Redis Reactive -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+    </dependency>
+
+    <!-- Validation -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- Lombok (optional) -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
 ```
 
 ---
@@ -387,8 +462,42 @@ src/
 **Owner:** Backend Developer 1
 
 **API Examples:**
-```typescript
-// POST /api/v1/templates
+
+**Controller (Java):**
+```java
+@RestController
+@RequestMapping("/api/v1/templates")
+@RequiredArgsConstructor
+public class TemplateController {
+
+    private final TemplateService templateService;
+
+    @PostMapping
+    public Mono<ResponseEntity<TemplateResponse>> createTemplate(
+            @Valid @RequestBody TemplateRequest request) {
+        return templateService.createTemplate(request)
+                .map(template -> ResponseEntity.status(HttpStatus.CREATED).body(template));
+    }
+
+    @GetMapping
+    public Flux<TemplateResponse> listTemplates(
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return templateService.findAll(status, page, size);
+    }
+
+    @GetMapping("/{id}")
+    public Mono<ResponseEntity<TemplateResponse>> getTemplate(@PathVariable UUID id) {
+        return templateService.findById(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+}
+```
+
+**Request Body (JSON):**
+```json
 {
   "template_code": "LOAN_APPLICATION",
   "template_name": "Loan Application Form",
@@ -403,6 +512,38 @@ src/
       "execution_order": 1
     }
   ]
+}
+```
+
+**Service Layer (Reactive):**
+```java
+@Service
+@RequiredArgsConstructor
+public class TemplateService {
+
+    private final TemplateRepository templateRepository;
+    private final ReactiveRedisTemplate<String, Template> redisTemplate;
+
+    public Mono<TemplateResponse> createTemplate(TemplateRequest request) {
+        return Mono.fromCallable(() -> mapToEntity(request))
+                .flatMap(templateRepository::save)
+                .flatMap(this::cacheTemplate)
+                .map(this::mapToResponse);
+    }
+
+    public Flux<TemplateResponse> findAll(String status, int page, int size) {
+        return templateRepository.findByStatus(status)
+                .skip((long) page * size)
+                .take(size)
+                .map(this::mapToResponse);
+    }
+
+    private Mono<Template> cacheTemplate(Template template) {
+        String key = "template:active:" + template.getTemplateCode();
+        return redisTemplate.opsForValue()
+                .set(key, template, Duration.ofHours(1))
+                .thenReturn(template);
+    }
 }
 ```
 
@@ -936,10 +1077,12 @@ Epic: Template Management
 ### B. Development Standards
 
 **Code Standards:**
-- Follow Airbnb JavaScript/TypeScript Style Guide
-- Use ESLint + Prettier for formatting
+- Follow Google Java Style Guide or Spring conventions
+- Use Checkstyle + SpotBugs for code quality
+- Use Prettier-Java or IntelliJ auto-formatting
 - Require PR reviews (minimum 1 approval)
-- Enforce 80%+ code coverage
+- Enforce 80%+ code coverage (JaCoCo)
+- Use SonarQube for code quality gates
 
 **Git Workflow:**
 - Main branch: `main` (production)
