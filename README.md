@@ -20,7 +20,9 @@ The Document Hub serves as a fast metadata index over an existing ECMS that stor
 ├── Requirements.md                     # Original requirements and specifications
 ├── schema_design_documentation.md      # Comprehensive design documentation
 ├── database_visualization.md           # Visual guide to data storage and retrieval
-├── implementation_plan.md              # 16-20 week implementation roadmap
+├── implementation_plan.md              # 16-20 week implementation roadmap (Spring WebFlux)
+├── api_specifications.md               # Complete RESTful API documentation (35+ endpoints)
+├── storage_capacity_planning.md        # Storage estimates and cost projections
 ├── document_hub_schema.sql             # Final PostgreSQL schema (DDL)
 └── archive/                            # Previous versions and iterations
 ```
@@ -200,12 +202,23 @@ If you're upgrading from a previous version:
   - Data flow diagrams
   - Partition structure visualization
   - Query execution paths
-- **Implementation Plan**: `implementation_plan.md` - 16-20 week roadmap
+- **Implementation Plan**: `implementation_plan.md` - 16-20 week roadmap (Spring WebFlux)
   - 8 phases from design to deployment
-  - Technology stack
+  - Spring Boot 3.x + WebFlux reactive stack
   - Team structure and roles
   - Risk management
   - Success metrics
+- **API Specifications**: `api_specifications.md` - Complete RESTful API documentation
+  - 35+ endpoints across 7 service groups
+  - Request/response schemas
+  - Authentication & authorization
+  - Error codes and rate limiting
+  - Ready for OpenAPI/Swagger conversion
+- **Storage Planning**: `storage_capacity_planning.md` - Storage and cost estimates
+  - Detailed storage calculations
+  - Growth projections (5 years)
+  - Cloud cost estimates
+  - PostgreSQL configuration
 - **Schema DDL**: `document_hub_schema.sql` - Final PostgreSQL schema
 
 ### Archive
