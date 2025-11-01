@@ -16,9 +16,11 @@ The Document Hub serves as a fast metadata index over an existing ECMS that stor
 
 ```
 .
-├── README.md                           # This file
-├── RequirementsRea.md                  # Original requirements and specifications
+├── README.md                           # This file - Quick start guide
+├── Requirements.md                     # Original requirements and specifications
 ├── schema_design_documentation.md      # Comprehensive design documentation
+├── database_visualization.md           # Visual guide to data storage and retrieval
+├── implementation_plan.md              # 16-20 week implementation roadmap
 ├── document_hub_schema.sql             # Final PostgreSQL schema (DDL)
 └── archive/                            # Previous versions and iterations
 ```
@@ -27,7 +29,7 @@ The Document Hub serves as a fast metadata index over an existing ECMS that stor
 
 ### 1. Review the Requirements
 
-See `RequirementsRea.md` for the complete problem statement and requirements.
+See `Requirements.md` for the complete problem statement and requirements.
 
 ### 2. Understand the Design
 
@@ -184,20 +186,30 @@ If you're upgrading from a previous version:
 
 ## Documentation
 
-- **Requirements**: `RequirementsRea.md`
-- **Full Design**: `schema_design_documentation.md` (includes indexing, partitioning, caching, 10+ query examples)
-- **Schema DDL**: `document_hub_schema.sql`
-- **Archive**: `archive/` (previous iterations)
+### Core Documents
+- **Requirements**: `Requirements.md` - Original problem statement and specifications
+- **Full Design**: `schema_design_documentation.md` - Comprehensive design documentation (43KB)
+  - Design principles and rationale
+  - Complete table architecture
+  - Shared document patterns
+  - Indexing and partitioning strategy
+  - Caching recommendations
+  - 10+ sample SQL queries
+- **Database Visualization**: `database_visualization.md` - Visual guide to storage and retrieval
+  - Entity relationship diagrams
+  - Data flow diagrams
+  - Partition structure visualization
+  - Query execution paths
+- **Implementation Plan**: `implementation_plan.md` - 16-20 week roadmap
+  - 8 phases from design to deployment
+  - Technology stack
+  - Team structure and roles
+  - Risk management
+  - Success metrics
+- **Schema DDL**: `document_hub_schema.sql` - Final PostgreSQL schema
 
-## Questions?
-
-Refer to `schema_design_documentation.md` for:
-- Detailed table architecture
-- Complete indexing strategy
-- Partitioning recommendations
-- Caching strategies
-- 10+ sample SQL queries
-- Performance tuning tips
+### Archive
+- **Archive**: `archive/` - Previous iterations and versions
 
 ---
 
