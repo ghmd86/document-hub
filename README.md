@@ -22,6 +22,7 @@ The Document Hub serves as a fast metadata index over an existing ECMS that stor
 ├── database_visualization.md           # Visual guide to data storage and retrieval
 ├── implementation_plan.md              # 16-20 week implementation roadmap (Spring WebFlux)
 ├── api_specifications.md               # Complete RESTful API documentation (35+ endpoints)
+├── openapi.yaml                        # OpenAPI 3.0 specification (Swagger compatible)
 ├── storage_capacity_planning.md        # Storage estimates and cost projections
 ├── document_hub_schema.sql             # Final PostgreSQL schema (DDL)
 └── archive/                            # Previous versions and iterations
@@ -213,7 +214,10 @@ If you're upgrading from a previous version:
   - Request/response schemas
   - Authentication & authorization
   - Error codes and rate limiting
-  - Ready for OpenAPI/Swagger conversion
+- **OpenAPI Specification**: `openapi.yaml` - Machine-readable API spec (OpenAPI 3.0)
+  - Swagger UI compatible
+  - Client SDK generation ready
+  - API testing and validation
 - **Storage Planning**: `storage_capacity_planning.md` - Storage and cost estimates
   - Detailed storage calculations
   - Growth projections (5 years)

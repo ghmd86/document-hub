@@ -1,0 +1,1814 @@
+openapi: 3.0.3
+info:
+  title: Document Hub API
+  description: |
+    High-performance metadata indexing and retrieval layer for Enterprise Content Management Systems (ECMS).
+
+    ## Features
+    - Customer-specific and shared document management
+    - Template versioning with business rules
+    - Sub-100ms query performance
+    - Timeline-based document retrieval
+    - Reactive Spring WebFlux backend
+
+    ## Authentication
+    All endpoints require JWT Bearer token authentication (except /auth endpoints).
+
+    ## Rate Limiting
+    - Admin: 1000 requests/minute
+    - Standard User: 500 requests/minute
+    - Public API: 100 requests/minute
+
+  version: 1.0.0
+  contact:
+    name: Document Hub Support
+    email: support@documenthub.example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.documenthub.example.com/api/v1
+    description: Production server
+  - url: https://staging-api.documenthub.example.com/api/v1
+    description: Staging server
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: User authentication and token management
+  - name: Templates
+    description: Template management and versioning
+  - name: Template Rules
+    description: Template business rules management
+  - name: Documents
+    description: Document upload and management
+  - name: Shared Documents
+    description: Shared document management across customers
+  - name: Customer Documents
+    description: Customer-specific document retrieval
+  - name: Analytics
+    description: Analytics and reporting endpoints
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ============================================================================
+  # Authentication
+  # ============================================================================
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and receive JWT access token
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Obtain a new access token using refresh token
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================================
+  # Templates
+  # ============================================================================
+  /templates:
+    post:
+      tags:
+        - Templates
+      summary: Create template
+      description: Create a new document template
+      operationId: createTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateRequest'
+      responses:
+        '201':
+          description: Template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+    get:
+      tags:
+        - Templates
+      summary: List templates
+      description: Retrieve all templates with optional filtering
+      operationId: listTemplates
+      parameters:
+        - name: status
+          in: query
+          description: Filter by template status
+          schema:
+            type: string
+            enum: [active, deprecated, draft]
+        - name: document_type
+          in: query
+          description: Filter by document type
+          schema:
+            type: string
+        - name: document_category
+          in: query
+          description: Filter by document category
+          schema:
+            type: string
+        - name: is_shared_document
+          in: query
+          description: Filter shared templates
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Search in template name and code
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatePageResponse'
+
+  /templates/{templateId}:
+    get:
+      tags:
+        - Templates
+      summary: Get template by ID
+      description: Retrieve a specific template with full details including rules
+      operationId: getTemplateById
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      responses:
+        '200':
+          description: Template retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateDetailResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Templates
+      summary: Update template
+      description: Update an existing template
+      operationId: updateTemplate
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateUpdateRequest'
+      responses:
+        '200':
+          description: Template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Templates
+      summary: Delete template
+      description: Delete a template (soft delete)
+      operationId: deleteTemplate
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      responses:
+        '204':
+          description: Template deleted successfully
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Template is in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+
+  /templates/{templateId}/publish:
+    post:
+      tags:
+        - Templates
+      summary: Publish template
+      description: Publish a draft template or create a new version
+      operationId: publishTemplate
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishTemplateRequest'
+      responses:
+        '200':
+          description: Template published successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishTemplateResponse'
+
+  /templates/code/{templateCode}/versions:
+    get:
+      tags:
+        - Templates
+      summary: Get template version history
+      description: Retrieve all versions of a template
+      operationId: getTemplateVersions
+      parameters:
+        - name: templateCode
+          in: path
+          required: true
+          description: Template code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Version history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVersionHistoryResponse'
+
+  # ============================================================================
+  # Template Rules
+  # ============================================================================
+  /templates/{templateId}/rules:
+    post:
+      tags:
+        - Template Rules
+      summary: Add rule to template
+      description: Add a new business rule to an existing template
+      operationId: addTemplateRule
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateRuleRequest'
+      responses:
+        '201':
+          description: Rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateRuleResponse'
+
+  /templates/{templateId}/rules/{ruleId}:
+    put:
+      tags:
+        - Template Rules
+      summary: Update template rule
+      description: Update an existing rule
+      operationId: updateTemplateRule
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/RuleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateRuleUpdateRequest'
+      responses:
+        '200':
+          description: Rule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateRuleResponse'
+
+    delete:
+      tags:
+        - Template Rules
+      summary: Delete template rule
+      description: Delete a rule from a template
+      operationId: deleteTemplateRule
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/RuleIdParam'
+      responses:
+        '204':
+          description: Rule deleted successfully
+
+  # ============================================================================
+  # Documents
+  # ============================================================================
+  /documents:
+    post:
+      tags:
+        - Documents
+      summary: Upload document
+      description: Upload a new document with metadata
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentUploadRequest'
+      responses:
+        '201':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentValidationErrorResponse'
+
+    get:
+      tags:
+        - Documents
+      summary: List documents
+      description: List documents with filtering and pagination
+      operationId: listDocuments
+      parameters:
+        - name: customer_id
+          in: query
+          schema:
+            type: string
+        - name: account_id
+          in: query
+          schema:
+            type: string
+        - name: document_type
+          in: query
+          schema:
+            type: string
+        - name: document_category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: is_confidential
+          in: query
+          schema:
+            type: boolean
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: tags
+          in: query
+          description: Comma-separated tags
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Full-text search in document name
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentPageResponse'
+
+  /documents/{documentId}:
+    get:
+      tags:
+        - Documents
+      summary: Get document by ID
+      description: Retrieve document metadata by ID
+      operationId: getDocumentById
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+      responses:
+        '200':
+          description: Document retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetailResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Documents
+      summary: Update document metadata
+      description: Update document metadata (not the file itself)
+      operationId: updateDocumentMetadata
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentMetadataUpdateRequest'
+      responses:
+        '200':
+          description: Document metadata updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+
+    delete:
+      tags:
+        - Documents
+      summary: Delete document
+      description: Delete a document (soft delete)
+      operationId: deleteDocument
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+      responses:
+        '204':
+          description: Document deleted successfully
+
+  /documents/{documentId}/download:
+    get:
+      tags:
+        - Documents
+      summary: Get document download URL
+      description: Get a temporary download URL for the document file
+      operationId: getDocumentDownloadUrl
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+      responses:
+        '200':
+          description: Download URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDownloadResponse'
+
+  # ============================================================================
+  # Shared Documents
+  # ============================================================================
+  /shared-documents:
+    post:
+      tags:
+        - Shared Documents
+      summary: Create shared document
+      description: Create a document that applies to multiple customers
+      operationId: createSharedDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SharedDocumentUploadRequest'
+      responses:
+        '201':
+          description: Shared document created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedDocumentResponse'
+
+    get:
+      tags:
+        - Shared Documents
+      summary: List shared documents
+      description: List all shared documents with filtering
+      operationId: listSharedDocuments
+      parameters:
+        - name: sharing_scope
+          in: query
+          schema:
+            type: string
+            enum: [all_customers, customer_segment, account_type, specific_customers]
+        - name: document_type
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: effective_as_of
+          in: query
+          description: Return documents effective at this date
+          schema:
+            type: string
+            format: date-time
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+      responses:
+        '200':
+          description: Shared documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedDocumentPageResponse'
+
+  /shared-documents/{documentId}/assign:
+    post:
+      tags:
+        - Shared Documents
+      summary: Assign shared document to customers
+      description: Assign a shared document to specific customers
+      operationId: assignSharedDocument
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignSharedDocumentRequest'
+      responses:
+        '200':
+          description: Document assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignSharedDocumentResponse'
+
+  /shared-documents/{documentId}/unassign:
+    post:
+      tags:
+        - Shared Documents
+      summary: Unassign shared document from customers
+      description: Remove shared document assignment from specific customers
+      operationId: unassignSharedDocument
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnassignSharedDocumentRequest'
+      responses:
+        '200':
+          description: Document unassigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnassignSharedDocumentResponse'
+
+  /shared-documents/{documentId}/customers:
+    get:
+      tags:
+        - Shared Documents
+      summary: Get customers assigned to shared document
+      description: Get list of customers who have access to a shared document
+      operationId: getSharedDocumentCustomers
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+      responses:
+        '200':
+          description: Customer list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedDocumentCustomersResponse'
+
+  # ============================================================================
+  # Customer Documents
+  # ============================================================================
+  /customers/{customerId}/documents:
+    get:
+      tags:
+        - Customer Documents
+      summary: Get customer documents
+      description: Retrieve all documents for a specific customer (includes customer-specific and shared)
+      operationId: getCustomerDocuments
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: document_type
+          in: query
+          schema:
+            type: string
+        - name: document_category
+          in: query
+          schema:
+            type: string
+        - name: as_of_date
+          in: query
+          description: Return documents effective at this date
+          schema:
+            type: string
+            format: date-time
+        - name: include_shared
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Customer documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDocumentsResponse'
+
+  /accounts/{accountId}/documents:
+    get:
+      tags:
+        - Customer Documents
+      summary: Get account documents
+      description: Retrieve all documents for a specific account
+      operationId: getAccountDocuments
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: document_type
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+      responses:
+        '200':
+          description: Account documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentPageResponse'
+
+  # ============================================================================
+  # Analytics
+  # ============================================================================
+  /analytics/documents/stats:
+    get:
+      tags:
+        - Analytics
+      summary: Get document statistics
+      description: Get document statistics and counts
+      operationId: getDocumentStats
+      parameters:
+        - name: customer_id
+          in: query
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: group_by
+          in: query
+          schema:
+            type: string
+            enum: [type, category, customer, month]
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentStatsResponse'
+
+  /analytics/templates/usage:
+    get:
+      tags:
+        - Analytics
+      summary: Get template usage statistics
+      description: Get template usage statistics
+      operationId: getTemplateUsageStats
+      responses:
+        '200':
+          description: Template usage statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateUsageStatsResponse'
+
+# ==============================================================================
+# Components
+# ==============================================================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number (zero-based)
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    SizeParam:
+      name: size
+      in: query
+      description: Page size
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    SortParam:
+      name: sort
+      in: query
+      description: Sort order (field,direction)
+      schema:
+        type: string
+        default: created_at,desc
+
+    TemplateIdParam:
+      name: templateId
+      in: path
+      required: true
+      description: Template UUID
+      schema:
+        type: string
+        format: uuid
+
+    DocumentIdParam:
+      name: documentId
+      in: path
+      required: true
+      description: Document UUID
+      schema:
+        type: string
+        format: uuid
+
+    RuleIdParam:
+      name: ruleId
+      in: path
+      required: true
+      description: Rule UUID
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # ========================================================================
+    # Authentication Schemas
+    # ========================================================================
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: admin@example.com
+        password:
+          type: string
+          format: password
+          example: SecurePassword123!
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+
+    # ========================================================================
+    # Template Schemas
+    # ========================================================================
+    TemplateRequest:
+      type: object
+      required:
+        - template_code
+        - template_name
+        - document_type
+        - document_category
+      properties:
+        template_code:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: LOAN_APPLICATION
+        template_name:
+          type: string
+          maxLength: 255
+          example: Loan Application Form
+        description:
+          type: string
+          example: Standard loan application template for personal loans
+        document_type:
+          type: string
+          example: APPLICATION
+        document_category:
+          type: string
+          example: LENDING
+        is_shared_document:
+          type: boolean
+          default: false
+        sharing_scope:
+          type: string
+          nullable: true
+          enum: [all_customers, customer_segment, account_type, specific_customers]
+        retention_period_days:
+          type: integer
+          example: 2555
+        requires_signature:
+          type: boolean
+          default: false
+        requires_approval:
+          type: boolean
+          default: false
+        configuration:
+          type: object
+          additionalProperties: true
+          example:
+            max_file_size_mb: 10
+            allowed_extensions: [pdf, docx]
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateRuleRequest'
+
+    TemplateResponse:
+      type: object
+      properties:
+        template_id:
+          type: string
+          format: uuid
+        template_code:
+          type: string
+        version_number:
+          type: integer
+        template_name:
+          type: string
+        description:
+          type: string
+        document_type:
+          type: string
+        document_category:
+          type: string
+        status:
+          type: string
+          enum: [active, deprecated, draft]
+        is_shared_document:
+          type: boolean
+        sharing_scope:
+          type: string
+          nullable: true
+        retention_period_days:
+          type: integer
+        requires_signature:
+          type: boolean
+        requires_approval:
+          type: boolean
+        configuration:
+          type: object
+        rules_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+          nullable: true
+
+    TemplateDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/TemplateResponse'
+        - type: object
+          properties:
+            rules:
+              type: array
+              items:
+                $ref: '#/components/schemas/TemplateRuleResponse'
+
+    TemplateUpdateRequest:
+      type: object
+      properties:
+        template_name:
+          type: string
+        description:
+          type: string
+        retention_period_days:
+          type: integer
+        configuration:
+          type: object
+
+    PublishTemplateRequest:
+      type: object
+      properties:
+        create_new_version:
+          type: boolean
+          default: true
+        deprecate_previous:
+          type: boolean
+          default: true
+
+    PublishTemplateResponse:
+      type: object
+      properties:
+        template_id:
+          type: string
+          format: uuid
+        template_code:
+          type: string
+        version_number:
+          type: integer
+        status:
+          type: string
+        previous_version:
+          type: object
+          properties:
+            template_id:
+              type: string
+              format: uuid
+            version_number:
+              type: integer
+            status:
+              type: string
+        published_at:
+          type: string
+          format: date-time
+        published_by:
+          type: string
+
+    TemplateVersionHistoryResponse:
+      type: object
+      properties:
+        template_code:
+          type: string
+        total_versions:
+          type: integer
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              template_id:
+                type: string
+                format: uuid
+              version_number:
+                type: integer
+              status:
+                type: string
+              template_name:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+              created_by:
+                type: string
+
+    TemplatePageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateResponse'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ========================================================================
+    # Template Rule Schemas
+    # ========================================================================
+    TemplateRuleRequest:
+      type: object
+      required:
+        - rule_name
+        - rule_type
+        - rule_expression
+        - execution_order
+      properties:
+        rule_name:
+          type: string
+          example: Validate File Size
+        rule_type:
+          type: string
+          enum: [validation, transformation, business_logic]
+          example: validation
+        rule_expression:
+          type: string
+          example: file_size_bytes <= 10485760
+        rule_scope:
+          type: string
+          example: upload
+        execution_order:
+          type: integer
+          minimum: 1
+          example: 1
+        is_active:
+          type: boolean
+          default: true
+        severity:
+          type: string
+          enum: [error, warning, info]
+          example: error
+        error_message:
+          type: string
+          example: File size must not exceed 10 MB
+
+    TemplateRuleResponse:
+      type: object
+      properties:
+        rule_id:
+          type: string
+          format: uuid
+        template_id:
+          type: string
+          format: uuid
+        rule_name:
+          type: string
+        rule_type:
+          type: string
+        rule_expression:
+          type: string
+        rule_scope:
+          type: string
+        execution_order:
+          type: integer
+        is_active:
+          type: boolean
+        severity:
+          type: string
+        error_message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+
+    TemplateRuleUpdateRequest:
+      type: object
+      properties:
+        rule_expression:
+          type: string
+        is_active:
+          type: boolean
+        error_message:
+          type: string
+
+    # ========================================================================
+    # Document Schemas
+    # ========================================================================
+    DocumentUploadRequest:
+      type: object
+      required:
+        - file
+        - metadata
+      properties:
+        file:
+          type: string
+          format: binary
+        metadata:
+          $ref: '#/components/schemas/DocumentMetadata'
+
+    DocumentMetadata:
+      type: object
+      required:
+        - customer_id
+        - document_name
+        - document_type
+        - document_category
+        - template_code
+      properties:
+        customer_id:
+          type: string
+          example: C123456
+        customer_name:
+          type: string
+          example: John Doe
+        account_id:
+          type: string
+          example: ACC-789012
+        account_type:
+          type: string
+          example: CHECKING
+        document_name:
+          type: string
+          example: Loan Application - John Doe
+        document_type:
+          type: string
+          example: LOAN_APPLICATION
+        document_category:
+          type: string
+          example: LENDING
+        template_code:
+          type: string
+          example: LOAN_APPLICATION
+        document_date:
+          type: string
+          format: date
+        is_confidential:
+          type: boolean
+          default: false
+        access_level:
+          type: string
+          example: CUSTOMER_ONLY
+        tags:
+          type: array
+          items:
+            type: string
+          example: [urgent, new-customer]
+        metadata:
+          type: object
+          additionalProperties: true
+          example:
+            loan_amount: 50000
+            loan_term_months: 60
+            interest_rate: 5.5
+
+    DocumentResponse:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        ecms_document_id:
+          type: string
+        customer_id:
+          type: string
+        customer_name:
+          type: string
+        account_id:
+          type: string
+        account_type:
+          type: string
+        document_name:
+          type: string
+        document_type:
+          type: string
+        document_category:
+          type: string
+        template_id:
+          type: string
+          format: uuid
+        template_code:
+          type: string
+        template_version:
+          type: integer
+        file_extension:
+          type: string
+        file_size_bytes:
+          type: integer
+          format: int64
+        mime_type:
+          type: string
+        status:
+          type: string
+        is_confidential:
+          type: boolean
+        access_level:
+          type: string
+        document_date:
+          type: string
+          format: date
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+        uploaded_at:
+          type: string
+          format: date-time
+        modified_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+        validation_results:
+          type: object
+          properties:
+            passed:
+              type: boolean
+            rules_executed:
+              type: integer
+            warnings:
+              type: array
+              items:
+                type: string
+
+    DocumentDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/DocumentResponse'
+        - type: object
+          properties:
+            template:
+              type: object
+              properties:
+                template_id:
+                  type: string
+                  format: uuid
+                template_code:
+                  type: string
+                template_name:
+                  type: string
+                version_number:
+                  type: integer
+
+    DocumentDownloadResponse:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        download_url:
+          type: string
+          format: uri
+          example: https://s3.amazonaws.com/ecms-bucket/documents/...
+        expires_at:
+          type: string
+          format: date-time
+        content_type:
+          type: string
+        file_size_bytes:
+          type: integer
+          format: int64
+
+    DocumentMetadataUpdateRequest:
+      type: object
+      properties:
+        document_name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        is_confidential:
+          type: boolean
+        metadata:
+          type: object
+
+    DocumentPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentResponse'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ========================================================================
+    # Shared Document Schemas
+    # ========================================================================
+    SharedDocumentUploadRequest:
+      type: object
+      required:
+        - file
+        - metadata
+      properties:
+        file:
+          type: string
+          format: binary
+        metadata:
+          $ref: '#/components/schemas/SharedDocumentMetadata'
+
+    SharedDocumentMetadata:
+      type: object
+      required:
+        - document_name
+        - document_type
+        - document_category
+        - template_code
+        - sharing_scope
+        - effective_from
+      properties:
+        document_name:
+          type: string
+          example: Privacy Policy 2024
+        document_type:
+          type: string
+          example: PRIVACY_POLICY
+        document_category:
+          type: string
+          example: REGULATORY
+        template_code:
+          type: string
+          example: PRIVACY_POLICY_TEMPLATE
+        sharing_scope:
+          type: string
+          enum: [all_customers, customer_segment, account_type, specific_customers]
+          example: all_customers
+        effective_from:
+          type: string
+          format: date-time
+        effective_to:
+          type: string
+          format: date-time
+          nullable: true
+        is_confidential:
+          type: boolean
+          default: false
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+
+    SharedDocumentResponse:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        ecms_document_id:
+          type: string
+        customer_id:
+          type: string
+          example: "00000000-SHARED"
+        is_shared:
+          type: boolean
+        sharing_scope:
+          type: string
+        effective_from:
+          type: string
+          format: date-time
+        effective_to:
+          type: string
+          format: date-time
+          nullable: true
+        document_name:
+          type: string
+        document_type:
+          type: string
+        document_category:
+          type: string
+        template_id:
+          type: string
+          format: uuid
+        template_code:
+          type: string
+        template_version:
+          type: integer
+        file_extension:
+          type: string
+        file_size_bytes:
+          type: integer
+          format: int64
+        status:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+        uploaded_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+
+    AssignSharedDocumentRequest:
+      type: object
+      required:
+        - customer_ids
+      properties:
+        customer_ids:
+          type: array
+          items:
+            type: string
+          example: [C123456, C789012, C345678]
+        account_ids:
+          type: array
+          items:
+            type: string
+          nullable: true
+        assigned_by:
+          type: string
+
+    AssignSharedDocumentResponse:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        assignments_created:
+          type: integer
+        assignments:
+          type: array
+          items:
+            type: object
+            properties:
+              mapping_id:
+                type: string
+                format: uuid
+              customer_id:
+                type: string
+              assigned_at:
+                type: string
+                format: date-time
+
+    UnassignSharedDocumentRequest:
+      type: object
+      required:
+        - customer_ids
+      properties:
+        customer_ids:
+          type: array
+          items:
+            type: string
+
+    UnassignSharedDocumentResponse:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        assignments_removed:
+          type: integer
+
+    SharedDocumentCustomersResponse:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        document_name:
+          type: string
+        sharing_scope:
+          type: string
+        total_customers:
+          type: integer
+        customers:
+          type: array
+          items:
+            type: object
+            properties:
+              customer_id:
+                type: string
+              customer_name:
+                type: string
+              assigned_at:
+                type: string
+                format: date-time
+              assigned_by:
+                type: string
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    SharedDocumentPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/SharedDocumentResponse'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ========================================================================
+    # Customer Documents Schemas
+    # ========================================================================
+    CustomerDocumentsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        customer_name:
+          type: string
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentResponse'
+        summary:
+          type: object
+          properties:
+            total_documents:
+              type: integer
+            customer_specific:
+              type: integer
+            shared:
+              type: integer
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ========================================================================
+    # Analytics Schemas
+    # ========================================================================
+    DocumentStatsResponse:
+      type: object
+      properties:
+        total_documents:
+          type: integer
+          format: int64
+        customer_specific_documents:
+          type: integer
+          format: int64
+        shared_documents:
+          type: integer
+        by_type:
+          type: array
+          items:
+            type: object
+            properties:
+              document_type:
+                type: string
+              count:
+                type: integer
+                format: int64
+        by_category:
+          type: array
+          items:
+            type: object
+            properties:
+              document_category:
+                type: string
+              count:
+                type: integer
+                format: int64
+        storage_usage:
+          type: object
+          properties:
+            total_bytes:
+              type: integer
+              format: int64
+            total_gb:
+              type: number
+              format: double
+        recent_activity:
+          type: object
+          properties:
+            documents_uploaded_today:
+              type: integer
+            documents_uploaded_this_week:
+              type: integer
+            documents_uploaded_this_month:
+              type: integer
+
+    TemplateUsageStatsResponse:
+      type: object
+      properties:
+        total_templates:
+          type: integer
+        active_templates:
+          type: integer
+        deprecated_templates:
+          type: integer
+        templates_with_documents:
+          type: array
+          items:
+            type: object
+            properties:
+              template_code:
+                type: string
+              template_name:
+                type: string
+              version_number:
+                type: integer
+              document_count:
+                type: integer
+                format: int64
+              status:
+                type: string
+
+    # ========================================================================
+    # Common Schemas
+    # ========================================================================
+    PageInfo:
+      type: object
+      properties:
+        number:
+          type: integer
+          description: Current page number (zero-based)
+        size:
+          type: integer
+          description: Page size
+        total_elements:
+          type: integer
+          format: int64
+          description: Total number of elements
+        total_pages:
+          type: integer
+          description: Total number of pages
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: RESOURCE_NOT_FOUND
+        message:
+          type: string
+          example: Resource not found
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+          example: /api/v1/documents/123
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Request validation failed
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+
+    ConflictErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: TEMPLATE_IN_USE
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+
+    DocumentValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: VALIDATION_FAILED
+        message:
+          type: string
+          example: Document validation failed
+        validation_errors:
+          type: array
+          items:
+            type: object
+            properties:
+              rule_name:
+                type: string
+              rule_type:
+                type: string
+              severity:
+                type: string
+              message:
+                type: string
+              actual_value:
+                type: string
