@@ -1,5 +1,7 @@
 # Shared Document Creation & Assignment Flow - Sequence Diagram
 
+**Note:** Authentication is handled by the API Gateway before requests reach the API.
+
 This sequence diagram illustrates the creation of shared documents and their assignment to customers in the Document Hub API.
 
 ## Mermaid Sequence Diagram - Create Shared Document
@@ -10,7 +12,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Portal
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant SharedDocService as Shared Document<br/>Service
     participant TemplateService as Template<br/>Service
     participant RuleEngine as Rule<br/>Engine
@@ -22,8 +23,7 @@ sequenceDiagram
     Admin->>Client: Upload Shared Document<br/>(e.g., Privacy Policy)
     Client->>+API: POST /shared-documents<br/>Authorization: Bearer <token><br/>multipart/form-data:<br/>- file: privacy_policy.pdf<br/>- metadata: {<br/>    document_name,<br/>    sharing_scope: "all_customers",<br/>    effective_from, effective_to<br/>  }
 
-    API->>+Auth: Validate JWT & Permissions<br/>(requires: shared_document:create)
-    Auth-->>-API: Authorized (Admin Role)
+    API->>API: Validate Permissions<br/>(requires: shared_document:create)
 
     alt Insufficient Permissions
         API-->>Client: 403 Forbidden
@@ -95,7 +95,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Portal
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant SharedDocService as Shared Document<br/>Service
     participant NotificationService as Notification<br/>Service
     participant DB as PostgreSQL<br/>Database
@@ -105,8 +104,7 @@ sequenceDiagram
     Admin->>Client: Select Customers<br/>(e.g., California residents)
     Client->>+API: POST /shared-documents/{documentId}/assign<br/>Authorization: Bearer <token><br/>{<br/>  customer_ids: [<br/>    "C123456", "C789012",<br/>    "C345678", ... (1000 customers)<br/>  ],<br/>  assigned_by: "admin@example.com"<br/>}
 
-    API->>+Auth: Validate JWT & Permissions<br/>(requires: shared_document:assign)
-    Auth-->>-API: Authorized
+    API->>API: Validate Permissions<br/>(requires: shared_document:assign)
 
     API->>+SharedDocService: Get Shared Document
     SharedDocService->>+DB: SELECT FROM documents<br/>WHERE document_id = ?<br/>AND is_shared = true
@@ -169,7 +167,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Portal
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant SharedDocService as Shared Document<br/>Service
     participant CacheService as Redis<br/>Cache
     participant DB as PostgreSQL<br/>Database
@@ -179,8 +176,7 @@ sequenceDiagram
     Admin->>Client: Select Customers to Unassign<br/>(e.g., moved out of California)
     Client->>+API: POST /shared-documents/{documentId}/unassign<br/>Authorization: Bearer <token><br/>{<br/>  customer_ids: [<br/>    "C123456", "C789012"<br/>  ]<br/>}
 
-    API->>+Auth: Validate JWT & Permissions<br/>(requires: shared_document:unassign)
-    Auth-->>-API: Authorized
+    API->>API: Validate Permissions<br/>(requires: shared_document:unassign)
 
     API->>+SharedDocService: Unassign Customers
 
@@ -267,30 +263,30 @@ sequenceDiagram
 
 ### Create Shared Document Flow
 
-1. **Authentication & Authorization** (Steps 1-4)
+1. **Authorization** (Step 1)
    - Admin uploads shared document
-   - Validate JWT token and permissions
+   - API Gateway validates JWT token before request reaches API
    - Require `shared_document:create` permission
    - If unauthorized → 403 Forbidden
 
-2. **Request Validation** (Steps 5-6)
+2. **Request Validation** (Steps 2-3)
    - Validate file present
    - Validate sharing_scope (required)
    - Validate effective_from (required)
    - If invalid → 400 Bad Request
 
-3. **Template & Rule Validation** (Steps 7-11)
+3. **Template & Rule Validation** (Steps 4-7)
    - Retrieve template by template_code
    - Execute validation rules
    - Check file size, extension, metadata
    - If validation fails → 422 Unprocessable Entity
 
-4. **File Storage** (Steps 12-13)
+4. **File Storage** (Steps 8-9)
    - Upload file to S3/ECMS
    - Generate shared document ID (ECMS-SHARED-*)
    - Store file in shared documents path
 
-5. **Database Creation** (Steps 14-20)
+5. **Database Creation** (Steps 10-16)
    - Begin transaction
    - Create document record with:
      - `customer_id = '00000000-SHARED'` (special ID for shared docs)
@@ -300,87 +296,87 @@ sequenceDiagram
    - Log audit trail
    - Commit transaction
 
-6. **Response** (Steps 21-22)
+6. **Response** (Steps 17-18)
    - Return created shared document
    - Document immediately available based on scope
 
 ### Assign Shared Document Flow
 
-1. **Authorization** (Steps 1-3)
+1. **Authorization** (Step 1)
    - Admin selects customers to assign
-   - Validate permissions
+   - API Gateway validates JWT token before request reaches API
    - Require `shared_document:assign` permission
 
-2. **Document Validation** (Steps 4-8)
+2. **Document Validation** (Steps 2-6)
    - Retrieve shared document
    - Verify `is_shared = true`
    - Verify `sharing_scope = 'specific_customers'`
    - If wrong scope → 400 Bad Request
 
-3. **Customer Validation** (Steps 9-10)
+3. **Customer Validation** (Steps 7-8)
    - Validate all customer IDs exist
    - Check customers are active
    - Report invalid customer IDs
 
-4. **Assignment Logic** (Steps 11-17)
+4. **Assignment Logic** (Steps 9-15)
    - Check for existing assignments (avoid duplicates)
    - Calculate new assignments needed
    - Batch insert mappings (100 at a time)
    - Log audit trail
    - Commit transaction
 
-5. **Notifications** (Steps 18-19)
+5. **Notifications** (Steps 16-17)
    - Queue background job to notify customers
    - Send email/SMS notifications
    - Non-blocking, async operation
 
-6. **Response** (Steps 20-22)
+6. **Response** (Steps 18-20)
    - Return assignment results
    - Show created, skipped, invalid counts
    - Return first 100 assignments for confirmation
 
 ### Unassign Shared Document Flow
 
-1. **Authorization** (Steps 1-3)
+1. **Authorization** (Step 1)
    - Admin selects customers to remove
-   - Validate permissions
+   - API Gateway validates JWT token before request reaches API
 
-2. **Document Validation** (Steps 4-7)
+2. **Document Validation** (Steps 2-5)
    - Verify document exists and is shared
    - Verify can unassign (not all_customers scope)
    - If invalid → 400 Bad Request
 
-3. **Unassignment** (Steps 8-12)
+3. **Unassignment** (Steps 6-10)
    - Delete mapping records
    - Log audit trail
    - Commit transaction
 
-4. **Cache Invalidation** (Steps 13-14)
+4. **Cache Invalidation** (Steps 11-12)
    - Invalidate affected customer document caches
    - Ensure customers don't see stale data
 
-5. **Response** (Steps 15-17)
+5. **Response** (Steps 13-15)
    - Return removal count
    - Customers immediately lose access
 
 ### Get Assigned Customers Flow
 
-1. **Request** (Steps 1-3)
+1. **Request** (Step 1)
    - Admin views assigned customers
-   - Query specific shared document
+   - API Gateway validates JWT token before request reaches API
 
-2. **Scope Check** (Steps 4-6)
+2. **Scope Check** (Steps 2-4)
    - Check sharing_scope
    - If 'all_customers', return special response
    - If 'specific_customers', proceed with query
 
-3. **Count & List** (Steps 7-11)
+3. **Count & List** (Steps 5-9)
    - Get total customer count
    - Query paginated customer list
    - Join with customers table for names
    - Use index for performance
 
-4. **Response** (Steps 12-14)
+4. **Response** (Steps 10-12)
    - Return paginated customer list
    - Include assignment metadata
    - Show total and pages
@@ -565,7 +561,7 @@ WHERE is_shared = true;
 
 | Scenario | HTTP Status | Error Code | Action |
 |----------|-------------|------------|--------|
-| Unauthorized | 401 | UNAUTHORIZED | Login required |
+| Authentication (401 Unauthorized) | 401 | UNAUTHORIZED | Handled by API Gateway; not shown in this diagram |
 | Insufficient permissions | 403 | INSUFFICIENT_PERMISSIONS | Need admin role |
 | Invalid sharing scope | 400 | INVALID_SHARING_SCOPE | Use specific_customers |
 | Cannot unassign all_customers | 400 | INVALID_OPERATION | Scope doesn't support unassign |

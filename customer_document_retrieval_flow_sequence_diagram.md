@@ -1,5 +1,7 @@
 # Customer Document Retrieval Flow - Sequence Diagram
 
+**Note:** Authentication is handled by the API Gateway before requests reach the API.
+
 This sequence diagram illustrates how the Document Hub API retrieves all documents for a specific customer, combining both customer-specific documents and shared documents with timeline-based filtering.
 
 ## Mermaid Sequence Diagram - Customer Documents Retrieval
@@ -10,7 +12,6 @@ sequenceDiagram
     actor Customer
     participant Client as Customer Portal
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant DocService as Document<br/>Service
     participant SharedDocService as Shared Document<br/>Service
     participant DB as PostgreSQL<br/>Database
@@ -19,9 +20,6 @@ sequenceDiagram
 
     Customer->>Client: View My Documents
     Client->>+API: GET /customers/{customerId}/documents?<br/>document_type=LOAN_APPLICATION<br/>&as_of_date=2024-11-01T12:00:00Z<br/>&include_shared=true<br/>&page=0&size=20<br/>Authorization: Bearer <token>
-
-    API->>+Auth: Validate JWT Token
-    Auth-->>-API: Token Valid<br/>(user_id: U123, customer_id: C123456)
 
     API->>API: Verify Authorization<br/>- User can only access own customer_id<br/>- Or has ADMIN role
 
@@ -85,7 +83,6 @@ sequenceDiagram
     actor Customer
     participant Client as Customer Portal
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant DocService as Document<br/>Service
     participant DB as PostgreSQL<br/>Database
 
@@ -93,9 +90,6 @@ sequenceDiagram
 
     Customer->>Client: View Account Documents<br/>(e.g., Checking Account)
     Client->>+API: GET /accounts/{accountId}/documents?<br/>document_type=ACCOUNT_STATEMENT<br/>&page=0&size=20<br/>Authorization: Bearer <token>
-
-    API->>+Auth: Validate JWT Token
-    Auth-->>-API: Token Valid<br/>(user_id, customer_id)
 
     API->>+DocService: Get Account Documents
 
@@ -130,54 +124,53 @@ sequenceDiagram
 
 ### Customer Documents Retrieval Flow
 
-1. **Authentication & Authorization** (Steps 1-4)
+1. **Authorization** (Step 1)
    - Customer requests their documents via portal
-   - API validates JWT token
-   - Extract customer_id from token
+   - API Gateway validates JWT token before request reaches API
    - Verify user can only access own customer data
    - Admins can access any customer's documents
    - If unauthorized → 403 Forbidden
 
-2. **Parallel Document Retrieval** (Steps 5-21)
+2. **Parallel Document Retrieval** (Steps 2-17)
 
-   **Customer-Specific Documents (Steps 6-9):**
+   **Customer-Specific Documents (Steps 3-6):**
    - Query documents table for customer_id match
    - Filter by document_type if specified
    - Exclude deleted documents
    - Exclude shared documents (is_shared = false)
    - Use optimized index on (customer_id, document_type)
 
-   **Shared Documents - Multiple Queries (Steps 10-21):**
+   **Shared Documents - Multiple Queries (Steps 7-17):**
 
-   - **Query 1: All Customers Scope** (Steps 12-14)
+   - **Query 1: All Customers Scope** (Steps 9-11)
      - Documents with `sharing_scope='all_customers'`
      - Check effective date range (effective_from, effective_to)
      - Match document_type filter
      - Active status only
 
-   - **Query 2: Specific Customers** (Steps 16-18)
+   - **Query 2: Specific Customers** (Steps 13-15)
      - Documents with `sharing_scope='specific_customers'`
      - JOIN with `shared_document_mappings` table
      - Check customer_id assignment
      - Check effective date range
 
-   - **Query 3: Account Type Scope** (Steps 20-21)
+   - **Query 3: Account Type Scope** (Steps 16-17)
      - Documents with `sharing_scope='account_type'`
      - Match customer's account type
      - Check effective date range
 
-   - **Merge and Deduplicate** (Step 22)
+   - **Merge and Deduplicate** (Step 18)
      - Combine results from all shared document queries
      - Remove duplicates
      - Total shared documents found
 
-3. **Result Aggregation** (Steps 23-25)
+3. **Result Aggregation** (Steps 19-21)
    - Merge customer-specific and shared documents
    - Calculate totals (customer_specific: 154, shared: 2)
    - Apply global sorting (uploaded_at DESC)
    - Apply pagination (page 0, size 20)
 
-4. **Response** (Steps 26-27)
+4. **Response** (Steps 22-23)
    - Return paginated results
    - Include summary statistics
    - Mark documents as shared or customer-specific
@@ -185,22 +178,22 @@ sequenceDiagram
 
 ### Account Documents Retrieval Flow
 
-1. **Authentication** (Steps 1-3)
+1. **Document Access** (Steps 1-2)
    - Customer requests documents for specific account
-   - Validate JWT token
+   - API Gateway validates JWT token before request reaches API
 
-2. **Account Ownership Verification** (Steps 4-6)
+2. **Account Ownership Verification** (Steps 3-5)
    - Lookup account owner (customer_id)
    - Verify requesting user owns the account
    - If not owner and not admin → 403 Forbidden
 
-3. **Document Query** (Steps 7-9)
+3. **Document Query** (Steps 6-8)
    - Query documents by account_id
    - Filter by document_type if specified
    - Use account_id index for performance
    - Sort by document_date (most recent first)
 
-4. **Response** (Steps 10-12)
+4. **Response** (Steps 9-11)
    - Return account-specific documents
    - Paginated results
    - Display to customer
@@ -409,6 +402,7 @@ if (user.customer_id !== requestedCustomerId && !user.hasRole('ADMIN')) {
 
 | Scenario | HTTP Status | Error Code | Action |
 |----------|-------------|------------|--------|
+| Authentication (401 Unauthorized) | 401 | UNAUTHORIZED | Handled by API Gateway; not shown in this diagram |
 | Unauthorized customer access | 403 | ACCESS_DENIED | Users can only access own data |
 | Customer not found | 404 | CUSTOMER_NOT_FOUND | Check customer ID |
 | Account not found | 404 | ACCOUNT_NOT_FOUND | Check account ID |

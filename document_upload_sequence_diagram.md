@@ -1,6 +1,6 @@
 # Document Upload Flow - Sequence Diagram
 
-This sequence diagram illustrates the complete document upload flow in the Document Hub API, including authentication, validation, rule execution, and storage.
+This sequence diagram illustrates the complete document upload flow in the Document Hub API, including validation, rule execution, and storage. Authentication is handled by the API Gateway before requests reach the API.
 
 ## Mermaid Sequence Diagram
 
@@ -9,7 +9,6 @@ sequenceDiagram
     autonumber
     actor Client
     participant API as Document Hub API<br/>(Spring WebFlux)
-    participant Auth as Authentication<br/>Service
     participant TemplateService as Template<br/>Service
     participant RuleEngine as Rule<br/>Engine
     participant Storage as ECMS/S3<br/>Storage
@@ -17,10 +16,8 @@ sequenceDiagram
 
     Note over Client,DB: Document Upload Flow with Validation
 
-    %% Authentication Check
-    Client->>+API: POST /documents<br/>(multipart/form-data)<br/>Authorization: Bearer <token>
-    API->>+Auth: Validate JWT Token
-    Auth-->>-API: Token Valid (User Info)
+    %% Request starts (authentication handled by gateway)
+    Client->>+API: POST /documents<br/>(multipart/form-data)
 
     %% Request Validation
     Note over API: Validate Request Structure<br/>(file, metadata required)
@@ -81,22 +78,21 @@ sequenceDiagram
 
 ### Steps Breakdown
 
-1. **Authentication** (Steps 1-2)
+1. **Request Initiation** (Step 1)
    - Client sends POST request with multipart form data (file + metadata JSON)
-   - API validates JWT Bearer token with Authentication Service
-   - If token invalid → 401 Unauthorized
+   - Authentication handled by API Gateway (not shown in diagram)
 
-2. **Request Validation** (Step 3)
+2. **Request Validation** (Step 2)
    - API validates request structure
    - Checks file and metadata are present
    - If invalid → 400 Bad Request
 
-3. **Template Retrieval** (Steps 4-6)
+3. **Template Retrieval** (Steps 3-5)
    - API fetches template by `template_code` from metadata
    - Retrieves active template version with associated rules
    - If template not found → 404 Not Found
 
-4. **Rule Execution** (Steps 7-9)
+4. **Rule Execution** (Steps 6-8)
    - Rule Engine executes validation rules in order:
      1. **File Size Validation**: `file_size_bytes <= 10485760` (10 MB)
      2. **File Extension Validation**: `file_extension IN ('pdf', 'docx')`
@@ -105,17 +101,17 @@ sequenceDiagram
      5. **Access Level Validation**: Verify user permissions
    - If any rule fails → 422 Unprocessable Entity with validation errors
 
-5. **File Storage** (Steps 10-11)
+5. **File Storage** (Steps 9-10)
    - Upload file to ECMS/S3 storage
    - Generate unique ECMS Document ID (e.g., `ECMS-2024-11-01-12345`)
    - Store file in organized path structure
 
-6. **Metadata Storage** (Steps 12-14)
+6. **Metadata Storage** (Steps 11-13)
    - Insert document record into PostgreSQL database
    - Store all metadata (customer_id, template_id, file info, custom metadata)
    - Store document tags in separate table
 
-7. **Success Response** (Step 15)
+7. **Success Response** (Step 14)
    - Return 201 Created with complete document details
    - Include validation results, document IDs, timestamps
 
@@ -123,11 +119,12 @@ sequenceDiagram
 
 | Condition | HTTP Status | Response |
 |-----------|-------------|----------|
-| Invalid JWT Token | 401 Unauthorized | `{error: "UNAUTHORIZED"}` |
 | Missing file/metadata | 400 Bad Request | `{error: "VALIDATION_ERROR"}` |
 | Template not found | 404 Not Found | `{error: "TEMPLATE_NOT_FOUND"}` |
 | Rule validation failed | 422 Unprocessable Entity | `{error: "VALIDATION_FAILED", validation_errors: [...]}` |
 | File upload error | 500 Internal Server Error | `{error: "INTERNAL_ERROR"}` |
+
+**Note:** Authentication (401 Unauthorized) is handled by the API Gateway and not shown in this diagram.
 
 ## Key Components
 

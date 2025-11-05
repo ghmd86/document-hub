@@ -1,5 +1,7 @@
 # Analytics & Reporting Flow - Sequence Diagram
 
+**Note:** Authentication is handled by the API Gateway before requests reach the API.
+
 This sequence diagram illustrates the analytics and reporting capabilities of the Document Hub API, including document statistics, template usage analytics, and performance monitoring.
 
 ## Mermaid Sequence Diagram - Document Statistics
@@ -10,7 +12,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Dashboard
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant AnalyticsService as Analytics<br/>Service
     participant CacheService as Redis<br/>Cache
     participant DB as PostgreSQL<br/>Database
@@ -20,8 +21,7 @@ sequenceDiagram
     Admin->>Client: View Dashboard<br/>(Document Statistics)
     Client->>+API: GET /analytics/documents/stats?<br/>date_from=2024-01-01<br/>&date_to=2024-11-01<br/>&group_by=type<br/>Authorization: Bearer <token>
 
-    API->>+Auth: Validate JWT & Permissions<br/>(requires: analytics:read)
-    Auth-->>-API: Authorized (Admin Role)
+    API->>API: Validate Permissions<br/>(requires: analytics:read)
 
     alt Insufficient Permissions
         API-->>Client: 403 Forbidden
@@ -88,7 +88,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Dashboard
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant AnalyticsService as Analytics<br/>Service
     participant CacheService as Redis<br/>Cache
     participant DB as PostgreSQL<br/>Database
@@ -98,8 +97,7 @@ sequenceDiagram
     Admin->>Client: View Template Analytics
     Client->>+API: GET /analytics/templates/usage<br/>Authorization: Bearer <token>
 
-    API->>+Auth: Validate JWT & Permissions
-    Auth-->>-API: Authorized
+    API->>API: Validate Permissions
 
     API->>+AnalyticsService: Get Template Usage Stats
 
@@ -215,20 +213,19 @@ sequenceDiagram
 
 ### Document Statistics Flow
 
-1. **Authentication & Authorization** (Steps 1-4)
+1. **Authorization** (Step 1)
    - Admin opens analytics dashboard
-   - Request document statistics with filters
-   - Validate JWT token and permissions
+   - API Gateway validates JWT token before request reaches API
    - Require `analytics:read` permission
    - If unauthorized → 403 Forbidden
 
-2. **Cache Check** (Steps 5-7)
+2. **Cache Check** (Steps 2-4)
    - Check Redis cache for recent results
    - Cache key includes date range and grouping
    - If cache hit (< 15 min old), return immediately
    - If cache miss, proceed to database queries
 
-3. **Parallel Analytical Queries** (Steps 8-18)
+3. **Parallel Analytical Queries** (Steps 5-15)
    Execute multiple queries in parallel for performance:
 
    - **Total Document Count**: Count all non-deleted documents
@@ -238,32 +235,32 @@ sequenceDiagram
    - **Storage Usage**: Sum, average, and max file sizes
    - **Recent Activity**: Counts for today, this week, this month
 
-4. **Aggregation** (Steps 19-20)
+4. **Aggregation** (Steps 16-17)
    - Combine all query results
    - Calculate percentages and derived metrics
    - Format for API response
 
-5. **Cache Storage** (Steps 21-22)
+5. **Cache Storage** (Steps 18-19)
    - Store results in Redis cache
    - Set TTL to 15 minutes
    - Subsequent requests are much faster
 
-6. **Response & Visualization** (Steps 23-26)
+6. **Response & Visualization** (Steps 20-23)
    - Return comprehensive statistics
    - Client renders interactive charts
    - Display to admin
 
 ### Template Usage Statistics Flow
 
-1. **Authorization** (Steps 1-3)
+1. **Authorization** (Step 1)
    - Admin requests template analytics
-   - Validate permissions
+   - API Gateway validates JWT token before request reaches API
 
-2. **Cache Check** (Steps 4-7)
+2. **Cache Check** (Steps 2-4)
    - Check for cached template statistics
    - 30-minute TTL (templates change less frequently)
 
-3. **Template Queries** (Steps 8-16)
+3. **Template Queries** (Steps 5-13)
    Execute specialized template queries:
 
    - **Template Counts**: Total, active, deprecated, draft
@@ -271,35 +268,34 @@ sequenceDiagram
    - **Unused Templates**: Active templates with no documents
    - **Version Distribution**: Templates with multiple versions
 
-4. **Analysis** (Steps 17-18)
+4. **Analysis** (Steps 14-15)
    - Calculate adoption rates
    - Identify optimization opportunities
    - Version complexity metrics
 
-5. **Cache & Response** (Steps 19-22)
+5. **Cache & Response** (Steps 16-19)
    - Cache results for 30 minutes
    - Return detailed template analytics
    - Render visualizations
 
 ### Real-time Dashboard Flow
 
-1. **WebSocket Connection** (Steps 1-4)
+1. **WebSocket Connection** (Step 1)
    - Admin opens dashboard
    - Establish WebSocket connection
-   - Validate JWT token via WebSocket
-   - Connection confirmed
+   - API Gateway validates JWT token before connection is established
 
-2. **Channel Subscription** (Steps 5-8)
+2. **Channel Subscription** (Steps 2-4)
    - Client subscribes to analytics channel
    - Server subscribes to event bus
    - Listen for document and template events
 
-3. **Initial Data Load** (Steps 9-14)
+3. **Initial Data Load** (Steps 5-10)
    - Fetch current statistics via REST API
    - Render initial dashboard state
    - Display to admin
 
-4. **Real-time Event Processing** (Steps 15-26)
+4. **Real-time Event Processing** (Steps 11-22)
    - Document uploaded/deleted/updated events published
    - Event bus forwards to WebSocket server
    - Server calculates incremental updates
@@ -513,11 +509,11 @@ ON templates(status, created_at);
 
 | Scenario | HTTP Status | Error Code | Action |
 |----------|-------------|------------|--------|
-| Unauthorized | 401 | UNAUTHORIZED | Login required |
+| Authentication (401 Unauthorized) | 401 | UNAUTHORIZED | Handled by API Gateway; not shown in this diagram |
 | Insufficient permissions | 403 | INSUFFICIENT_PERMISSIONS | Need analytics:read role |
 | Invalid date range | 400 | INVALID_DATE_RANGE | Check date format |
 | Query timeout | 504 | QUERY_TIMEOUT | Simplify query or use cache |
-| WebSocket auth failed | 403 | WS_AUTH_FAILED | Invalid token |
+| WebSocket auth failed | 403 | WS_AUTH_FAILED | Invalid token (checked at gateway) |
 
 ## Best Practices
 

@@ -1,6 +1,6 @@
 # Document Retrieval & Download Flow - Sequence Diagram
 
-This sequence diagram illustrates the document retrieval and secure download URL generation flow in the Document Hub API.
+This sequence diagram illustrates the document retrieval and secure download URL generation flow in the Document Hub API. Authentication is handled by the API Gateway before requests reach the API.
 
 ## Mermaid Sequence Diagram - Get Document Metadata
 
@@ -10,7 +10,6 @@ sequenceDiagram
     actor User
     participant Client as Client Application
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant DocService as Document<br/>Service
     participant CacheService as Redis<br/>Cache
     participant DB as PostgreSQL<br/>Database
@@ -18,10 +17,7 @@ sequenceDiagram
     Note over User,DB: Retrieve Document Metadata by ID
 
     User->>Client: View Document Details<br/>(click on document)
-    Client->>+API: GET /documents/{documentId}<br/>Authorization: Bearer <token>
-
-    API->>+Auth: Validate JWT Token
-    Auth-->>-API: Token Valid<br/>(user_id, roles)
+    Client->>+API: GET /documents/{documentId}
 
     API->>+DocService: Get Document by ID
     DocService->>+CacheService: Check Cache<br/>GET document:{documentId}
@@ -72,7 +68,6 @@ sequenceDiagram
     actor User
     participant Client as Client Application
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant DocService as Document<br/>Service
     participant DB as PostgreSQL<br/>Database
     participant StorageService as Storage<br/>Service
@@ -81,10 +76,7 @@ sequenceDiagram
     Note over User,S3: Generate Secure Pre-signed Download URL
 
     User->>Client: Click "Download" Button
-    Client->>+API: GET /documents/{documentId}/download<br/>Authorization: Bearer <token>
-
-    API->>+Auth: Validate JWT Token
-    Auth-->>-API: Token Valid<br/>(user_id, roles)
+    Client->>+API: GET /documents/{documentId}/download
 
     API->>+DocService: Get Document for Download
     DocService->>+DB: SELECT document<br/>WHERE document_id = ?<br/>AND deleted_at IS NULL
@@ -140,17 +132,13 @@ sequenceDiagram
     actor User
     participant Client as Client Application
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant DocService as Document<br/>Service
     participant DB as PostgreSQL<br/>Database
 
     Note over User,DB: List Documents with Filtering & Pagination
 
     User->>Client: Search/Filter Documents<br/>(by type, date, customer, tags)
-    Client->>+API: GET /documents?<br/>customer_id=C123456<br/>&document_type=LOAN_APPLICATION<br/>&date_from=2024-01-01<br/>&tags=urgent<br/>&page=0&size=20<br/>Authorization: Bearer <token>
-
-    API->>+Auth: Validate JWT Token
-    Auth-->>-API: Token Valid<br/>(user_id, roles)
+    Client->>+API: GET /documents?<br/>customer_id=C123456<br/>&document_type=LOAN_APPLICATION<br/>&date_from=2024-01-01<br/>&tags=urgent<br/>&page=0&size=20
 
     API->>+DocService: List Documents with Filters
 
@@ -177,69 +165,68 @@ sequenceDiagram
 
 ### Get Document Metadata Flow
 
-1. **Authentication** (Steps 1-3)
+1. **Request Initiation** (Steps 1-2)
    - User requests document details
-   - API validates JWT token
-   - Extract user identity and roles
+   - Authentication handled by API Gateway (not shown)
 
-2. **Cache Check** (Steps 4-6)
+2. **Cache Check** (Steps 3-5)
    - Check Redis cache for document metadata
    - If found, return from cache (faster response)
    - If not found, query database
 
-3. **Database Query** (Steps 7-8)
+3. **Database Query** (Steps 6-7)
    - Query documents with JOIN to templates table
    - Get complete document metadata
    - If not found → 404 Not Found
 
-4. **Cache Update** (Steps 9-10)
+4. **Cache Update** (Steps 8-9)
    - Store result in Redis cache
    - Set TTL to 15 minutes
    - Subsequent requests are faster
 
-5. **Permission Check** (Steps 11-12)
+5. **Permission Check** (Steps 10-11)
    - Verify user owns the document (customer_id match)
    - Check role-based permissions
    - Verify access_level (CUSTOMER_ONLY, INTERNAL, PUBLIC)
    - If denied → 403 Forbidden
 
-6. **Response** (Steps 13-15)
+6. **Response** (Steps 12-14)
    - Return complete document metadata
    - Include template information
    - Display to user
 
 ### Download URL Generation Flow
 
-1. **Authentication & Retrieval** (Steps 1-5)
+1. **Request & Retrieval** (Steps 1-4)
    - User clicks download button
-   - Validate JWT token
+   - Authentication handled by API Gateway (not shown)
    - Retrieve document from database
    - If not found → 404 Not Found
 
-2. **Access Control** (Steps 6-8)
+2. **Access Control** (Steps 5-7)
    - Verify user has download permission
    - Check customer_id ownership
    - Verify confidential document access
    - Check role-based permissions
    - If denied → 403 Forbidden
 
-3. **Pre-signed URL Generation** (Steps 9-11)
+3. **Pre-signed URL Generation** (Steps 8-10)
    - Request pre-signed URL from Storage Service
    - Generate AWS S3 pre-signed URL (1 hour expiration)
    - URL includes signature for security
    - No additional authentication needed for download
 
-4. **Audit Logging** (Steps 12-13)
+4. **Audit Logging** (Steps 11-12)
    - Log download URL generation
    - Record user_id, timestamp, IP address
    - Track document access for compliance
 
-5. **Response** (Steps 14-16)
+5. **Response** (Steps 13-15)
    - Return download URL with expiration time
    - User can download within 1 hour
    - URL is single-use or time-limited
 
-6. **File Download** (Steps 17-20)
+6. **File Download** (Steps 16-19)
    - User downloads file directly from S3
    - S3 validates signature and expiration
    - Stream file to user
@@ -247,29 +234,29 @@ sequenceDiagram
 
 ### List Documents Flow
 
-1. **Filter Request** (Steps 1-3)
+1. **Filter Request** (Steps 1-2)
    - User applies filters (type, date, customer, tags)
    - Client builds query parameters
-   - API validates token
+   - Authentication handled by API Gateway (not shown)
 
-2. **Dynamic Query Building** (Steps 4-5)
+2. **Dynamic Query Building** (Steps 3-4)
    - Build SQL query based on filters
    - Apply pagination (page, size)
    - Add sorting (default: uploaded_at DESC)
    - Include user permission filters
 
-3. **Optimized Database Query** (Steps 6-8)
+3. **Optimized Database Query** (Steps 5-7)
    - Execute query with indexes
    - Use covering indexes for performance
    - Get results and total count
    - Target: <100ms query time
 
-4. **Permission Filtering** (Steps 9-10)
+4. **Permission Filtering** (Steps 8-9)
    - Post-query permission check
    - Remove confidential documents if needed
    - Apply role-based filtering
 
-5. **Paginated Response** (Steps 11-13)
+5. **Paginated Response** (Steps 10-12)
    - Return document list with pagination metadata
    - Include total count and page info
    - Display to user
@@ -413,7 +400,8 @@ CREATE INDEX idx_documents_uploaded_at ON documents(uploaded_at DESC);
 | Access denied | 403 | ACCESS_DENIED | Insufficient permissions |
 | Document deleted | 410 | DOCUMENT_DELETED | Document no longer available |
 | URL expired | 403 | DOWNLOAD_URL_EXPIRED | Generate new URL |
-| Invalid token | 401 | UNAUTHORIZED | Re-authenticate |
+
+**Note:** Authentication (401 Unauthorized) is handled by the API Gateway and not shown in these diagrams.
 
 ## Best Practices
 

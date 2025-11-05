@@ -1,5 +1,7 @@
 # Template Creation & Publishing Flow - Sequence Diagram
 
+**Note:** Authentication is handled by the API Gateway before requests reach the API.
+
 This sequence diagram illustrates the complete template lifecycle including creation, rule management, versioning, and publishing in the Document Hub API.
 
 ## Mermaid Sequence Diagram - Template Creation
@@ -10,7 +12,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Client
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant TemplateService as Template<br/>Service
     participant RuleService as Rule<br/>Service
     participant DB as PostgreSQL<br/>Database
@@ -20,8 +21,7 @@ sequenceDiagram
     Admin->>Client: Create New Template<br/>(form input)
     Client->>+API: POST /templates<br/>Authorization: Bearer <token><br/>{template_code, name, type,<br/>category, rules[]}
 
-    API->>+Auth: Validate JWT & Check Permissions<br/>(requires: template:create)
-    Auth-->>-API: Authorized (Admin Role)
+    API->>API: Check Permissions<br/>(requires: template:create)
 
     alt Insufficient Permissions
         API-->>Client: 403 Forbidden<br/>{error: "INSUFFICIENT_PERMISSIONS"}
@@ -80,7 +80,6 @@ sequenceDiagram
     actor Admin
     participant Client as Admin Client
     participant API as Document Hub API
-    participant Auth as Authentication<br/>Service
     participant TemplateService as Template<br/>Service
     participant VersionService as Version<br/>Service
     participant DB as PostgreSQL<br/>Database
@@ -90,8 +89,7 @@ sequenceDiagram
     Admin->>Client: Publish Template<br/>(make active)
     Client->>+API: POST /templates/{templateId}/publish<br/>Authorization: Bearer <token><br/>{create_new_version: true,<br/>deprecate_previous: true}
 
-    API->>+Auth: Validate JWT & Permissions<br/>(requires: template:publish)
-    Auth-->>-API: Authorized
+    API->>API: Check Permissions<br/>(requires: template:publish)
 
     API->>+TemplateService: Get Template
     TemplateService->>+DB: SELECT FROM templates<br/>WHERE template_id = ?
@@ -205,63 +203,63 @@ sequenceDiagram
 
 ### Template Creation Flow
 
-1. **Request & Authorization** (Steps 1-4)
+1. **Request & Authorization** (Step 1)
    - Admin submits new template with rules
-   - API validates JWT token and checks for `template:create` permission
+   - API Gateway validates JWT token and checks for `template:create` permission before request reaches API
    - If unauthorized → 403 Forbidden
 
-2. **Request Validation** (Steps 5-6)
+2. **Request Validation** (Steps 2-3)
    - Validate all required fields
    - Check template_code format (3-100 chars)
    - Validate rule expressions
    - If invalid → 400 Bad Request
 
-3. **Duplicate Check** (Steps 7-9)
+3. **Duplicate Check** (Steps 4-6)
    - Check if template_code already exists
    - If exists → 409 Conflict
 
-4. **Template Creation** (Steps 10-13)
+4. **Template Creation** (Steps 7-10)
    - Begin database transaction
    - Create template record with `status='draft'` and `version_number=1`
    - Insert all rules with execution order
    - Commit transaction
 
-5. **Response** (Steps 14-15)
+5. **Response** (Steps 11-12)
    - Return 201 Created with template details
    - Template remains in draft status
 
 ### Template Publishing Flow
 
-1. **Authorization & Retrieval** (Steps 1-5)
+1. **Authorization & Retrieval** (Step 1)
    - Admin requests to publish template
-   - Validate permissions
+   - API Gateway validates permissions before request reaches API
    - Retrieve template from database
    - Verify template is in draft status
 
-2. **Version Check** (Steps 6-8)
+2. **Version Check** (Steps 2-4)
    - Check if an active version exists for this template_code
    - If no active version, simply activate the draft
    - If active version exists, proceed with versioning
 
-3. **Version Management** (Steps 9-14)
+3. **Version Management** (Steps 5-10)
    - Begin transaction
    - Optionally deprecate previous active version
    - Update draft template to `status='active'`
    - Record version history
    - Commit transaction
 
-4. **Response** (Steps 15-17)
+4. **Response** (Steps 11-13)
    - Return published template details
    - Include information about previous version
    - Template now active for document uploads
 
 ### Template Update Flow
 
-1. **Update Active Template** (Steps 1-4)
+1. **Update Active Template** (Step 1)
    - Admin updates an active template
    - System detects template is active
 
-2. **Create New Draft Version** (Steps 5-11)
+2. **Create New Draft Version** (Steps 2-7)
    - Clone template to new version (version_number + 1)
    - New version has `status='draft'`
    - Copy all rules to new version
@@ -416,7 +414,7 @@ Create → Draft (v1)
 
 | Scenario | HTTP Status | Error Code | Action |
 |----------|-------------|------------|--------|
-| Unauthorized | 401 | UNAUTHORIZED | Login required |
+| Authentication (401 Unauthorized) | 401 | UNAUTHORIZED | Handled by API Gateway; not shown in this diagram |
 | Insufficient permissions | 403 | INSUFFICIENT_PERMISSIONS | Need admin role |
 | Invalid request body | 400 | VALIDATION_ERROR | Fix validation errors |
 | Duplicate template_code | 409 | DUPLICATE_TEMPLATE_CODE | Use different code |
