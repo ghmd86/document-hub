@@ -1,0 +1,64 @@
+{
+  "ruleType": "composite",
+  "description": "Include document for customers with balance between $1000-$10000 AND tenure > 2 years",
+  "logicOperator": "AND",
+  "rules": [
+    {
+      "ruleType": "balance_based",
+      "extractionStrategy": [
+        {
+          "id": "getBalance",
+          "endpoint": {
+            "url": "/accounts-service/accounts/${$input.accountId}/balance",
+            "method": "GET",
+            "timeout": 2000
+          },
+          "responseMapping": {
+            "extract": {
+              "currentBalance": "$.currentBalance"
+            }
+          }
+        }
+      ],
+      "eligibilityCriteria": {
+        "currentBalance": {
+          "operator": "between",
+          "minValue": 1000,
+          "maxValue": 10000,
+          "dataType": "number"
+        }
+      }
+    },
+    {
+      "ruleType": "tenure_based",
+      "extractionStrategy": [
+        {
+          "id": "getTenure",
+          "endpoint": {
+            "url": "/customer-service/customers/${$input.customerId}/profile",
+            "method": "GET",
+            "timeout": 3000
+          },
+          "responseMapping": {
+            "extract": {
+              "customerSinceDate": "$.customerSince"
+            }
+          }
+        }
+      ],
+      "eligibilityCriteria": {
+        "tenureYears": {
+          "operator": "greaterThan",
+          "value": 2,
+          "dataType": "duration",
+          "unit": "years",
+          "compareField": "customerSinceDate"
+        }
+      }
+    }
+  ],
+  "errorHandling": {
+    "onExtractionFailure": "exclude",
+    "onTimeout": "exclude"
+  }
+}

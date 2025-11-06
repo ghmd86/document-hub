@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: document-hub-postgres
+    environment:
+      POSTGRES_DB: document_hub
+      POSTGRES_USER: document_hub_user
+      POSTGRES_PASSWORD: document_hub_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database_init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U document_hub_user -d document_hub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - document-hub-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: document-hub-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - document-hub-network
+
+  # pgAdmin - Optional web UI for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: document-hub-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@documenthub.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - document-hub-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  document-hub-network:
+    driver: bridge

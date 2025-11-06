@@ -1,0 +1,26 @@
+# Application configuration for testing with Mock Services
+# Use this profile to test with mock external services
+# Run with: mvn spring-boot:run -Dspring-boot.run.profiles=mock
+
+spring:
+  config:
+    activate:
+      on-profile: mock
+
+# Integration with Mock Services
+integration:
+  customer-service:
+    base-url: http://localhost:8090  # Mock service
+    timeout: 3000
+  account-service:
+    base-url: http://localhost:8090  # Mock service
+    timeout: 3000
+  transaction-service:
+    base-url: http://localhost:8090  # Mock service
+    timeout: 3000
+
+logging:
+  level:
+    com.documenthub: DEBUG
+    com.documenthub.rules: TRACE
+    com.documenthub.service: DEBUG

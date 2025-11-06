@@ -1,0 +1,24 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: mock-services
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.documenthub.mock: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [MOCK-API] %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

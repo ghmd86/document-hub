@@ -1,0 +1,45 @@
+{
+  "ruleType": "location_based",
+  "description": "Include document for customers in specific zipcodes (California regions)",
+  "extractionStrategy": [
+    {
+      "id": "getCustomerAddress",
+      "description": "Fetch customer address and location details",
+      "endpoint": {
+        "url": "/customer-service/customers/${$input.customerId}/profile",
+        "method": "GET",
+        "headers": {
+          "x-correlation-Id": "${x-correlation-Id}",
+          "Accept": "application/json"
+        },
+        "timeout": 3000
+      },
+      "cache": {
+        "enabled": true,
+        "ttl": 1800,
+        "keyPattern": "customer:address:${$input.customerId}"
+      },
+      "responseMapping": {
+        "extract": {
+          "zipcode": "$.primaryAddress.postalCode",
+          "state": "$.primaryAddress.state",
+          "city": "$.primaryAddress.city"
+        }
+      }
+    }
+  ],
+  "eligibilityCriteria": {
+    "zipcode": {
+      "operator": "in",
+      "values": ["90001", "90002", "90003", "90210", "90211", "94102", "94103"],
+      "dataType": "string"
+    }
+  },
+  "errorHandling": {
+    "onExtractionFailure": "exclude",
+    "onTimeout": "exclude",
+    "fallbackBehavior": "cache_then_exclude",
+    "maxRetries": 2,
+    "timeoutMs": 3000
+  }
+}

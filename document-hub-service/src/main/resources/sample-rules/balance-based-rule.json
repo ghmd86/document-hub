@@ -1,0 +1,43 @@
+{
+  "ruleType": "balance_based",
+  "description": "Include document for customers with balance less than $5000",
+  "extractionStrategy": [
+    {
+      "id": "getAccountBalance",
+      "description": "Fetch current account balance",
+      "endpoint": {
+        "url": "/accounts-service/accounts/${$input.accountId}/balance",
+        "method": "GET",
+        "headers": {
+          "x-correlation-Id": "${x-correlation-Id}",
+          "Accept": "application/json"
+        },
+        "timeout": 2000
+      },
+      "cache": {
+        "enabled": true,
+        "ttl": 300,
+        "keyPattern": "account:balance:${$input.accountId}"
+      },
+      "responseMapping": {
+        "extract": {
+          "currentBalance": "$.currentBalance",
+          "availableBalance": "$.availableBalance",
+          "outstandingBalance": "$.outstandingBalance"
+        }
+      }
+    }
+  ],
+  "eligibilityCriteria": {
+    "currentBalance": {
+      "operator": "lessThan",
+      "value": 5000,
+      "dataType": "number"
+    }
+  },
+  "errorHandling": {
+    "onExtractionFailure": "exclude",
+    "onTimeout": "exclude",
+    "fallbackBehavior": "cache_then_exclude"
+  }
+}

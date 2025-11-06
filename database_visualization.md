@@ -294,8 +294,8 @@ Benefits:
 │    effective_to = NULL,                                      │
 │    document_name = 'Privacy_Policy_2024.pdf',                │
 │    document_type = 'PRIVACY_POLICY',                         │
-│    ...                                                        │
-│  );                                                           │
+│    ...                                                       │
+│  );                                                          │
 └──────┬──────────────────────────────────────────────────────┘
        │ 3. Insert into partition based on hash('00000000-SHARED')
        │    → documents_p5

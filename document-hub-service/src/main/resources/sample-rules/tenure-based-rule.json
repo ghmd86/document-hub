@@ -1,0 +1,44 @@
+{
+  "ruleType": "tenure_based",
+  "description": "Include document for customers with more than 5 years relationship",
+  "extractionStrategy": [
+    {
+      "id": "getCustomerProfile",
+      "description": "Fetch customer profile with tenure information",
+      "endpoint": {
+        "url": "/customer-service/customers/${$input.customerId}/profile",
+        "method": "GET",
+        "headers": {
+          "x-correlation-Id": "${x-correlation-Id}",
+          "Accept": "application/json"
+        },
+        "timeout": 3000
+      },
+      "cache": {
+        "enabled": true,
+        "ttl": 3600,
+        "keyPattern": "customer:profile:${$input.customerId}"
+      },
+      "responseMapping": {
+        "extract": {
+          "customerSinceDate": "$.customerSince",
+          "relationshipStartDate": "$.relationships[0].startDate"
+        }
+      }
+    }
+  ],
+  "eligibilityCriteria": {
+    "tenureYears": {
+      "operator": "greaterThan",
+      "value": 5,
+      "dataType": "duration",
+      "unit": "years",
+      "compareField": "customerSinceDate"
+    }
+  },
+  "errorHandling": {
+    "onExtractionFailure": "exclude",
+    "onTimeout": "exclude",
+    "fallbackBehavior": "cache_then_exclude"
+  }
+}
