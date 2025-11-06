@@ -9,7 +9,7 @@ We have the following core tables:
 Refer to database_schema.md for table details.
 
 ## Endpoint definition:
-	POST /documents-enquiry: Other details are in schema.yml file.
+	POST /documents-enquiry: Other details are in the schema.yml file.
 
 ## Endpoint Features
 ### Account-Specific Documents
@@ -20,16 +20,13 @@ Refer to database_schema.md for table details.
 ### Shared Documents
 
 - Identify templates from master_template_definition where isSharedDocument = true.
-	- Evaluate sharing_scope:
+- Evaluate sharing_scope:
 	- All → Include for everyone.
-	- All_accounts → Include for all account holders.
-- digital_bank_customer_only → Include only if accountId belongs to digital banking customers.
-- enterprise_customer_only → Include only if accountId belongs to enterprise accounts.
-- custom_rule → Apply rules from metadata (e.g., region-based or account-type based).
+	- credit_card_account_only → Include for credit card account holders.
+	- digital_bank_customer_only → Include only if the accountId belongs to digital banking customers.
+	- enterprise_customer_only → Include only if the accountId belongs to enterprise accounts.
+	- custom_rule → Apply rules from metadata (e.g., region-based or account-type based).
+  		- For custom rules, we have to look at the extractor logic that will be associated with each category+doc_type in the master table.
+    	- Based on the logic, we need to determine if we need to pick a document for this accountId/customer or not.
 - Merge the shared documents with account-specific ones, avoiding duplicates.
 
-			- All
-			- All_accounts
-			- digital_bank_customer_only
-			- enterprise_customer_only
-			- custom_rule
