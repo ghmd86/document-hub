@@ -27,6 +27,6 @@ Refer to database_schema.md for table details.
 	- enterprise_customer_only → Include only if the accountId belongs to enterprise accounts.
 	- custom_rule → Apply rules from metadata (e.g., region-based or account-type based).
   		- For custom rules, we have to look at the extractor logic that will be associated with each category+doc_type in the master table.
-    	- Based on the logic, we need to determine if we need to pick a document for this accountId/customer or not.
+    	- Based on the logic, we need to determine if we need to pick the document(s) associated with the master_template_id or not. 
 - Merge the shared documents with account-specific ones, avoiding duplicates.
 
