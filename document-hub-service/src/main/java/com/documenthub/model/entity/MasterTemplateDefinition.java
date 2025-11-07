@@ -1,5 +1,6 @@
 package com.documenthub.model.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,12 +9,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
  * Entity representing the master_template_definition table.
- * Stores master metadata and configuration details of each document template.
+ * Stores master metadata and configuration details of each document template with versioning support.
+ * Uses composite primary key (template_id, version).
  */
 @Data
 @Builder
@@ -22,13 +24,16 @@ import java.util.UUID;
 @Table("master_template_definition")
 public class MasterTemplateDefinition {
 
+    // Composite Primary Key
     @Id
     @Column("template_id")
     private UUID templateId;
 
+    @Id
     @Column("version")
     private Integer version;
 
+    // Template Identification
     @Column("legacy_template_id")
     private String legacyTemplateId;
 
@@ -38,11 +43,15 @@ public class MasterTemplateDefinition {
     @Column("description")
     private String description;
 
+    // Business Classification (Denormalized - no category lookup table)
     @Column("line_of_business")
     private String lineOfBusiness;
 
-    @Column("category")
-    private String category;
+    @Column("category_code")
+    private String categoryCode;
+
+    @Column("category_name")
+    private String categoryName;
 
     @Column("doc_type")
     private String docType;
@@ -53,11 +62,9 @@ public class MasterTemplateDefinition {
     @Column("owning_dept")
     private String owningDept;
 
+    // Flags and Settings
     @Column("notification_needed")
     private Boolean notificationNeeded;
-
-    @Column("doc_supporting_data")
-    private String docSupportingData;
 
     @Column("is_regulatory")
     private Boolean isRegulatory;
@@ -65,53 +72,60 @@ public class MasterTemplateDefinition {
     @Column("is_message_center_doc")
     private Boolean isMessageCenterDoc;
 
-    @Column("document_channel")
-    private String documentChannel;
-
-    @Column("template_variables")
-    private String templateVariables;
-
-    @Column("template_status")
-    private String templateStatus;
-
-    @Column("effective_date")
-    private Long effectiveDate;
-
-    @Column("valid_until")
-    private Long validUntil;
-
-    // Sharing configuration
     @Column("is_shared_document")
     private Boolean isSharedDocument;
 
     @Column("sharing_scope")
     private String sharingScope;
 
-    @Column("data_extraction_schema")
-    private String dataExtractionSchema;
+    // Status and Lifecycle
+    @Column("template_status")
+    private String templateStatus;
 
-    // DBA Required columns
+    @Column("effective_date")
+    private OffsetDateTime effectiveDate;
+
+    @Column("valid_until")
+    private OffsetDateTime validUntil;
+
+    @Column("retention_days")
+    private Integer retentionDays;
+
+    // JSONB Fields (Optimized Structure)
+    @Column("access_control")
+    private JsonNode accessControl;
+
+    @Column("required_fields")
+    private JsonNode requiredFields;
+
+    @Column("channels")
+    private JsonNode channels;
+
+    @Column("template_variables")
+    private JsonNode templateVariables;
+
+    @Column("data_extraction_config")
+    private JsonNode dataExtractionConfig;
+
+    // Audit Fields (DBA Required)
     @Column("created_by")
     private String createdBy;
 
-    @Column("created_timestamp")
-    private Instant createdTimestamp;
+    @Column("created_at")
+    private OffsetDateTime createdAt;
 
-    @Column("update_by")
-    private String updateBy;
+    @Column("updated_by")
+    private String updatedBy;
 
-    @Column("updated_timestamp")
-    private Instant updatedTimestamp;
+    @Column("updated_at")
+    private OffsetDateTime updatedAt;
+
+    @Column("archived_at")
+    private OffsetDateTime archivedAt;
 
     @Column("archive_indicator")
     private Boolean archiveIndicator;
 
-    @Column("archive_timestamp")
-    private Instant archiveTimestamp;
-
     @Column("version_number")
     private Long versionNumber;
-
-    @Column("record_status")
-    private Long recordStatus;
 }

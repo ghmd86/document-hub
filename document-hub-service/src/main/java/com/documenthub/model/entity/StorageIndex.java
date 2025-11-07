@@ -9,12 +9,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
  * Entity representing the storage_index table.
- * Stores actual document-related data and indexing information.
+ * Index for stored documents with denormalized template data for zero-join queries.
  */
 @Data
 @Builder
@@ -23,30 +23,43 @@ import java.util.UUID;
 @Table("storage_index")
 public class StorageIndex {
 
+    // Primary Key
     @Id
     @Column("storage_index_id")
     private UUID storageIndexId;
 
+    // Template Reference (with version)
     @Column("template_id")
     private UUID templateId;
+
+    @Column("template_version")
+    private Integer templateVersion;
+
+    // Denormalized Template Data (for zero-join queries)
+    @Column("template_name")
+    private String templateName;
+
+    @Column("category_code")
+    private String categoryCode;
+
+    @Column("category_name")
+    private String categoryName;
 
     @Column("doc_type")
     private String docType;
 
+    @Column("line_of_business")
+    private String lineOfBusiness;
+
+    @Column("language_code")
+    private String languageCode;
+
+    @Column("is_regulatory")
+    private Boolean isRegulatory;
+
+    // Storage Information
     @Column("storage_vendor")
     private String storageVendor;
-
-    @Column("reference_key")
-    private String referenceKey;
-
-    @Column("reference_key_type")
-    private String referenceKeyType;
-
-    @Column("account_key")
-    private UUID accountKey;
-
-    @Column("customer_key")
-    private UUID customerKey;
 
     @Column("storage_document_key")
     private UUID storageDocumentKey;
@@ -54,43 +67,75 @@ public class StorageIndex {
     @Column("file_name")
     private String fileName;
 
+    @Column("file_size_bytes")
+    private Long fileSizeBytes;
+
+    @Column("mime_type")
+    private String mimeType;
+
+    @Column("file_hash")
+    private String fileHash;
+
+    // Reference Keys (flexible key system)
+    @Column("reference_key")
+    private String referenceKey;
+
+    @Column("reference_key_type")
+    private String referenceKeyType;
+
+    // Customer/Account Information
+    @Column("account_id")
+    private UUID accountId;
+
+    @Column("customer_id")
+    private UUID customerId;
+
+    // Document Lifecycle
     @Column("doc_creation_date")
-    private Long docCreationDate;
+    private OffsetDateTime docCreationDate;
 
     @Column("is_accessible")
     private Boolean isAccessible;
 
-    @Column("last_referenced")
-    private Long lastReferenced;
+    @Column("last_accessed_at")
+    private OffsetDateTime lastAccessedAt;
 
-    @Column("time_referenced")
-    private Integer timeReferenced;
+    @Column("access_count")
+    private Integer accessCount;
 
-    @Column("doc_info")
-    private JsonNode docInfo;
+    // JSONB Fields (Document-Specific Data)
+    @Column("doc_metadata")
+    private JsonNode docMetadata;
 
-    // DBA Required columns
+    @Column("access_control")
+    private JsonNode accessControl;
+
+    @Column("compliance_tags")
+    private JsonNode complianceTags;
+
+    // Retention and Compliance
+    @Column("retention_until")
+    private OffsetDateTime retentionUntil;
+
+    // Audit Fields (DBA Required)
     @Column("created_by")
     private String createdBy;
 
-    @Column("created_timestamp")
-    private Instant createdTimestamp;
+    @Column("created_at")
+    private OffsetDateTime createdAt;
 
-    @Column("update_by")
-    private String updateBy;
+    @Column("updated_by")
+    private String updatedBy;
 
-    @Column("updated_timestamp")
-    private Instant updatedTimestamp;
+    @Column("updated_at")
+    private OffsetDateTime updatedAt;
+
+    @Column("archived_at")
+    private OffsetDateTime archivedAt;
 
     @Column("archive_indicator")
     private Boolean archiveIndicator;
 
-    @Column("archive_timestamp")
-    private Instant archiveTimestamp;
-
     @Column("version_number")
     private Long versionNumber;
-
-    @Column("record_status")
-    private Long recordStatus;
 }

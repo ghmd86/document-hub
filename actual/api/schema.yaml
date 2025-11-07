@@ -1,0 +1,1466 @@
+openapi: 3.0.3
+info:
+  title: Document Hub Service API
+  description: |
+    Document Hub Service provides comprehensive document template management,
+    document storage, and retrieval capabilities with support for multiple
+    vendor integrations and multi-service data aggregation.
+
+    ## Key Features
+    - Template versioning with composite keys (template_id + version)
+    - Zero-join denormalized queries for performance
+    - Multi-service data source configuration for document generation
+    - Vendor-agnostic document generation workflow
+    - JSONB-based flexible metadata storage
+    - Support for regulatory and compliance documents
+
+    ## Database Schema
+    Based on denormalized PostgreSQL schema with:
+    - master_template_definition (composite PK: template_id, version)
+    - storage_index (denormalized document metadata)
+    - template_vendor_mapping (vendor-specific configurations with template_fields)
+
+  version: 2.0.0
+  contact:
+    name: Document Hub Team
+    email: document-hub@company.com
+
+servers:
+  - url: https://test.com/private/enterprise/documenthub/document-service/services
+    description: Production Server
+  - url: http://localhost:8080/document-hub/v2
+    description: Local Development Server
+
+tags:
+  - name: Document List Retrieval
+    description: Search and retrieve document lists with filtering
+  - name: Document Management
+    description: Upload, download, delete, and manage documents
+  - name: Templates
+    description: Template definition and versioning management
+  - name: Vendor Mapping
+    description: Template-to-vendor mapping configuration with field definitions
+  - name: Template Fields
+    description: Template field definitions and data source configuration
+  - name: Categories
+    description: Document category management
+
+# ========================================
+# PATHS
+# ========================================
+
+paths:
+
+  # ========================================
+  # Document Retrieval & Management (Existing)
+  # ========================================
+
+  /documents-enquiry:
+    post:
+      tags:
+        - Document List Retrieval
+      summary: Retrieve document list with filtering
+      description: Returns a list of documents according to given parameters. Uses denormalized storage_index table for zero-join performance.
+      operationId: documents-enquiry
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - $ref: '#/components/parameters/XRequestorIdHeader'
+        - $ref: '#/components/parameters/XRequestorTypeHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentListRequest'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentRetrievalResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  /documents:
+    post:
+      tags:
+        - Document Management
+      summary: Upload and store a document
+      description: |
+        Uploads a document for storage in ECMS and creates a storage_index entry.
+        Files are not scanned for viruses on the server end currently.
+        For text-based files, Byte Order Mark (BOM) is preserved if present.
+      operationId: add-document
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - $ref: '#/components/parameters/XRequestorIdHeader'
+        - $ref: '#/components/parameters/XRequestorTypeHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentUploadRequest'
+      responses:
+        '200':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: Storage index ID (storage_index_id)
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Cannot be processed. Antivirus scan failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  /documents/{documentId}:
+    get:
+      tags:
+        - Document Management
+      summary: Download document content
+      description: Downloads the document binary content from storage (ECMS/S3)
+      operationId: document-download
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - $ref: '#/components/parameters/XRequestorIdHeader'
+        - $ref: '#/components/parameters/XRequestorTypeHeader'
+        - name: documentId
+          in: path
+          required: true
+          description: Document ID (storage_index_id or storage_document_key)
+          schema:
+            type: string
+            maxLength: 500
+      responses:
+        '200':
+          description: Document file
+          headers:
+            Content-Type:
+              description: The MIME type of the file (e.g., application/pdf)
+              schema:
+                type: string
+            Content-Disposition:
+              description: Controls browser behavior (inline for VIEW, attachment for DOWNLOAD)
+              schema:
+                type: string
+                example: 'inline; filename=document.pdf'
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+    delete:
+      tags:
+        - Document Management
+      summary: Delete document
+      description: Soft-deletes the document (sets archive_indicator = true)
+      operationId: document-delete
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - $ref: '#/components/parameters/XRequestorIdHeader'
+        - name: X-requestorType
+          in: header
+          required: true
+          schema:
+            $ref: '#/components/schemas/XRequestorType'
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 500
+      responses:
+        '204':
+          description: Document deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  /documents/{documentId}/metadata:
+    get:
+      tags:
+        - Document Management
+      summary: Get document metadata
+      description: Retrieves metadata from storage_index table (zero-join query)
+      operationId: document-metadata
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - $ref: '#/components/parameters/XRequestorIdHeader'
+        - $ref: '#/components/parameters/XRequestorTypeHeader'
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 500
+        - name: includeDownloadUrl
+          in: query
+          description: Include ECMS document download URL in response
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Document metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetailsNode'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  # ========================================
+  # Template Management (New)
+  # ========================================
+
+  /templates:
+    get:
+      tags:
+        - Templates
+      summary: List all templates
+      description: Retrieve templates with optional filtering from master_template_definition table
+      operationId: listTemplates
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - name: lineOfBusiness
+          in: query
+          schema:
+            type: string
+            enum: [credit_card, enterprise, digital_banking]
+        - name: categoryCode
+          in: query
+          schema:
+            type: string
+        - name: docType
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, APPROVED, REJECTED, PENDING, ARCHIVED]
+        - name: activeOnly
+          in: query
+          description: Return only active/approved templates
+          schema:
+            type: boolean
+            default: true
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Templates
+      summary: Create new template
+      description: Create a new template (version 1)
+      operationId: createTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersionHeader'
+        - $ref: '#/components/parameters/XCorrelationIdHeader'
+        - $ref: '#/components/parameters/XRequestorIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          description: Template name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/versions:
+    get:
+      tags:
+        - Templates
+      summary: List template versions
+      description: Get all versions of a template
+      operationId: listTemplateVersions
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      responses:
+        '200':
+          description: List of versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TemplateResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - Templates
+      summary: Create new template version
+      description: Create a new version of existing template
+      operationId: createTemplateVersion
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateVersionRequest'
+      responses:
+        '201':
+          description: Version created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+
+  /templates/{templateId}/versions/{version}:
+    get:
+      tags:
+        - Templates
+      summary: Get specific template version
+      operationId: getTemplateVersion
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/VersionParam'
+      responses:
+        '200':
+          description: Template version details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      tags:
+        - Templates
+      summary: Update template version
+      description: Update template (only DRAFT status can be updated)
+      operationId: updateTemplateVersion
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/VersionParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+
+  # ========================================
+  # Vendor Mapping (New)
+  # ========================================
+
+  /vendor-mappings:
+    get:
+      tags:
+        - Vendor Mapping
+      summary: List vendor mappings
+      operationId: listVendorMappings
+      parameters:
+        - name: templateId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: vendor
+          in: query
+          schema:
+            type: string
+            enum: [SMARTCOMM, ASSENTIS, HANDLEBAR, CUSTOM]
+        - name: activeOnly
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: List of vendor mappings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VendorMappingResponse'
+
+    post:
+      tags:
+        - Vendor Mapping
+      summary: Create vendor mapping
+      description: Create vendor mapping with template fields configuration
+      operationId: createVendorMapping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVendorMappingRequest'
+      responses:
+        '201':
+          description: Vendor mapping created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorMappingResponse'
+
+  /templates/{templateId}/versions/{version}/vendor-mappings/primary:
+    get:
+      tags:
+        - Vendor Mapping
+      summary: Get primary vendor mapping
+      description: Get primary vendor for template version with all field definitions
+      operationId: getPrimaryVendorMapping
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/VersionParam'
+      responses:
+        '200':
+          description: Primary vendor mapping
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorMappingResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ========================================
+  # Template Fields (New)
+  # ========================================
+
+  /templates/{templateId}/versions/{version}/fields:
+    get:
+      tags:
+        - Template Fields
+      summary: Get template fields
+      description: Get all field definitions with data sources from template_vendor_mapping.template_fields
+      operationId: getTemplateFields
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/VersionParam'
+        - name: requiredOnly
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of template fields
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TemplateField'
+
+  /templates/{templateId}/versions/{version}/fields/by-service:
+    get:
+      tags:
+        - Template Fields
+      summary: Get fields grouped by service
+      description: Returns fields organized by their data source service name
+      operationId: getFieldsByService
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/VersionParam'
+      responses:
+        '200':
+          description: Fields grouped by service
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TemplateField'
+
+  /templates/{templateId}/versions/{version}/data-sources:
+    get:
+      tags:
+        - Template Fields
+      summary: Get all data sources
+      description: Get unique services/APIs used by this template
+      operationId: getTemplateDataSources
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdParam'
+        - $ref: '#/components/parameters/VersionParam'
+      responses:
+        '200':
+          description: List of data sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataSourceInfo'
+
+  # ========================================
+  # Categories (New)
+  # ========================================
+
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: List categories
+      description: Get all document categories
+      operationId: listCategories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+# ========================================
+# COMPONENTS
+# ========================================
+
+components:
+
+  # ========================================
+  # Parameters
+  # ========================================
+
+  parameters:
+    XVersionHeader:
+      name: X-version
+      in: header
+      description: API version
+      required: true
+      schema:
+        type: integer
+        format: int32
+        example: 1
+        default: 1
+
+    XCorrelationIdHeader:
+      name: X-correlation-id
+      in: header
+      description: Correlation ID for request tracing
+      required: true
+      schema:
+        type: string
+        maxLength: 36
+        example: '550e8400-e29b-41d4-a716-446655440000'
+
+    XRequestorIdHeader:
+      name: X-requestor-id
+      in: header
+      description: ID of the requestor
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    XRequestorTypeHeader:
+      name: X-requestor-type
+      in: header
+      description: Type of the requestor
+      required: true
+      schema:
+        $ref: '#/components/schemas/XRequestorType'
+
+    TemplateIdParam:
+      name: templateId
+      in: path
+      required: true
+      description: Template UUID
+      schema:
+        type: string
+        format: uuid
+
+    VersionParam:
+      name: version
+      in: path
+      required: true
+      description: Template version number
+      schema:
+        type: integer
+        minimum: 1
+
+    PageNumberParam:
+      name: pageNumber
+      in: query
+      schema:
+        type: integer
+        default: 0
+
+    PageSizeParam:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+
+  # ========================================
+  # Schemas
+  # ========================================
+
+  schemas:
+
+    # --- Existing Schemas ---
+
+    XRequestorType:
+      type: string
+      enum: [CUSTOMER, AGENT, SYSTEM]
+
+    DocumentListRequest:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+          description: Filter by customer ID (maps to storage_index.customer_id)
+        accountId:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Filter by account IDs (maps to storage_index.account_id)
+        documentTypeCategoryGroup:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentCategoryGroup'
+        postedFromDate:
+          $ref: '#/components/schemas/EpochDate'
+        postedToDate:
+          $ref: '#/components/schemas/EpochDate'
+        pageNumber:
+          type: number
+        pageSize:
+          type: number
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+
+    DocumentCategoryGroup:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/DocumentCategory'
+        documentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentTypes'
+
+    DocumentCategory:
+      type: string
+      example: PaymentConfirmationNotice
+
+    DocumentTypes:
+      type: string
+      example: PaymentLetter
+
+    DocumentRetrievalResponse:
+      required:
+        - documentList
+        - pagination
+        - _links
+      type: object
+      properties:
+        documentList:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentDetailsNode'
+        pagination:
+          $ref: '#/components/schemas/PaginationResponse'
+        _links:
+          $ref: '#/components/schemas/DocumentRetrievalResponseLinks'
+
+    DocumentDetailsNode:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: storage_index_id from storage_index table
+        sizeInMb:
+          type: integer
+          format: int64
+        languageCode:
+          $ref: '#/components/schemas/LanguageCode'
+        displayName:
+          type: string
+        mimeType:
+          type: string
+          example: application/pdf
+        description:
+          type: string
+        lineOfBusiness:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          description: category_name from storage_index (denormalized)
+        documentType:
+          type: string
+          description: doc_type from storage_index
+        datePosted:
+          $ref: '#/components/schemas/EpochDate'
+          description: doc_creation_date from storage_index
+        lastDownloaded:
+          $ref: '#/components/schemas/EpochDate'
+          description: last_accessed_at from storage_index
+        lastClientDownload:
+          type: string
+          format: uuid
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+          description: doc_metadata JSONB field from storage_index
+        _links:
+          $ref: '#/components/schemas/Links'
+
+    DocumentUploadRequest:
+      required:
+        - documentType
+        - createdBy
+        - content
+        - metadata
+      type: object
+      properties:
+        documentType:
+          $ref: '#/components/schemas/DocumentTypes'
+        createdBy:
+          type: string
+          format: uuid
+        templateId:
+          type: string
+          format: uuid
+          description: References master_template_definition.template_id
+        templateVersion:
+          type: integer
+          description: References master_template_definition.version
+        referenceKey:
+          type: string
+        referenceKeyType:
+          $ref: '#/components/schemas/ReferenceKeyType'
+        accountKey:
+          type: string
+          format: uuid
+          description: Will be stored as account_id in storage_index
+        customerKey:
+          type: string
+          format: uuid
+          description: Will be stored as customer_id in storage_index
+        category:
+          type: string
+        fileName:
+          type: string
+        activeStartDate:
+          $ref: '#/components/schemas/EpochDate'
+        activeEndDate:
+          $ref: '#/components/schemas/EpochDate'
+        threadId:
+          type: string
+          format: uuid
+        correlationId:
+          type: string
+          format: uuid
+        content:
+          type: string
+          format: binary
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+          description: Stored in doc_metadata JSONB field
+
+    ReferenceKeyType:
+      type: string
+      enum: [STATEMENT_ID, DISCLOSURE_CODE, ACCOUNT_ID, LETTER_NAME, THREAD_ID, CORRELATION_ID, TRANSACTION_ID, CUSTOMER_ID]
+
+    Metadata:
+      type: array
+      description: Key-value pairs stored in doc_metadata JSONB field
+      items:
+        $ref: '#/components/schemas/MetadataNode'
+
+    MetadataNode:
+      required:
+        - key
+        - value
+      type: object
+      properties:
+        key:
+          type: string
+          maxLength: 64
+          pattern: '^[a-zA-Z0-9_]+'
+        value:
+          type: string
+          maxLength: 1024
+        dataType:
+          type: string
+          enum: [STRING, NUMBER, BOOLEAN, DATE]
+          default: STRING
+
+    # --- New Template Schemas ---
+
+    CreateTemplateRequest:
+      required:
+        - templateName
+        - lineOfBusiness
+        - categoryCode
+        - docType
+        - languageCode
+      type: object
+      properties:
+        templateName:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        lineOfBusiness:
+          type: string
+          enum: [credit_card, enterprise, digital_banking]
+        categoryCode:
+          type: string
+        docType:
+          type: string
+        languageCode:
+          type: string
+          default: en_us
+        owningDept:
+          type: string
+        notificationNeeded:
+          type: boolean
+          default: false
+        isRegulatory:
+          type: boolean
+          default: false
+        isMessageCenterDoc:
+          type: boolean
+          default: false
+        isSharedDocument:
+          type: boolean
+          default: false
+        sharingScope:
+          type: string
+          enum: [all, credit_card_accounts_only, digital_bank_customer_only, enterprise_customer_only, custom_rule]
+        retentionDays:
+          type: integer
+          default: 365
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlRule'
+        requiredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequiredField'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+        templateVariables:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/TemplateVariable'
+
+    CreateTemplateVersionRequest:
+      type: object
+      properties:
+        basedOnVersion:
+          type: integer
+          description: Copy from this version
+        description:
+          type: string
+
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlRule'
+
+    TemplateResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        templateName:
+          type: string
+        description:
+          type: string
+        lineOfBusiness:
+          type: string
+        categoryCode:
+          type: string
+        categoryName:
+          type: string
+        docType:
+          type: string
+        languageCode:
+          type: string
+        templateStatus:
+          type: string
+          enum: [DRAFT, APPROVED, REJECTED, PENDING, ARCHIVED]
+        effectiveDate:
+          type: string
+          format: date-time
+        validUntil:
+          type: string
+          format: date-time
+          nullable: true
+        retentionDays:
+          type: integer
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlRule'
+        requiredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequiredField'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+        templateVariables:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/TemplateVariable'
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        versionNumber:
+          type: integer
+
+    TemplateListResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateResponse'
+        pagination:
+          $ref: '#/components/schemas/PaginationResponse'
+
+    AccessControlRule:
+      required:
+        - role
+        - actions
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin, backOffice, customer, agent, system]
+        actions:
+          type: array
+          items:
+            type: string
+            enum: [View, Update, Delete, Download, Print, Share]
+
+    RequiredField:
+      required:
+        - field
+        - type
+        - required
+      type: object
+      properties:
+        field:
+          type: string
+        type:
+          type: string
+          enum: [string, integer, decimal, boolean, date, datetime, uuid]
+        required:
+          type: boolean
+
+    Channel:
+      required:
+        - type
+        - enabled
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [PRINT, EMAIL, WEB, MOBILE, SMS, PUSH]
+        enabled:
+          type: boolean
+        config:
+          type: object
+          additionalProperties: true
+
+    TemplateVariable:
+      required:
+        - type
+        - source
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [string, integer, decimal, boolean, date, array, object]
+        source:
+          type: string
+        endpoint:
+          type: string
+        method:
+          type: string
+          enum: [GET, POST]
+        jsonPath:
+          type: string
+        required:
+          type: boolean
+        transformation:
+          type: string
+        cacheableFor:
+          type: integer
+
+    # --- Vendor Mapping Schemas ---
+
+    CreateVendorMappingRequest:
+      required:
+        - templateId
+        - templateVersion
+        - vendor
+        - vendorTemplateKey
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        templateVersion:
+          type: integer
+        vendor:
+          type: string
+          enum: [SMARTCOMM, ASSENTIS, HANDLEBAR, CUSTOM]
+        vendorTemplateKey:
+          type: string
+        apiEndpoint:
+          type: string
+          format: uri
+        templateContentUri:
+          type: string
+          format: uri
+          description: URI to template in ECMS (not BLOB storage)
+        isPrimary:
+          type: boolean
+          default: false
+        effectiveDate:
+          type: string
+          format: date-time
+        templateFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateField'
+          description: Field definitions with data sources
+
+    VendorMappingResponse:
+      type: object
+      properties:
+        templateVendorId:
+          type: string
+          format: uuid
+        templateId:
+          type: string
+          format: uuid
+        templateVersion:
+          type: integer
+        templateName:
+          type: string
+          description: Denormalized from master_template_definition
+        docType:
+          type: string
+          description: Denormalized
+        vendor:
+          type: string
+        vendorTemplateKey:
+          type: string
+        apiEndpoint:
+          type: string
+        templateContentUri:
+          type: string
+        isPrimary:
+          type: boolean
+        isActive:
+          type: boolean
+        effectiveDate:
+          type: string
+          format: date-time
+        templateFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateField'
+
+    # --- Template Field Schemas ---
+
+    TemplateField:
+      required:
+        - fieldName
+        - fieldType
+        - vendorFieldName
+        - required
+        - dataSource
+      type: object
+      properties:
+        fieldName:
+          type: string
+          example: customerName
+        fieldType:
+          type: string
+          enum: [string, integer, decimal, boolean, date, datetime, array, object]
+        vendorFieldName:
+          type: string
+          example: Customer.Name
+          description: Field name expected by vendor
+        required:
+          type: boolean
+        dataSource:
+          $ref: '#/components/schemas/DataSource'
+        transformation:
+          $ref: '#/components/schemas/Transformation'
+        defaultValue:
+          description: Fallback value
+        conditionalInclusion:
+          type: object
+          properties:
+            condition:
+              type: string
+
+    DataSource:
+      required:
+        - serviceName
+        - serviceUrl
+        - endpoint
+        - method
+        - jsonPath
+      type: object
+      properties:
+        serviceName:
+          type: string
+          example: customer-service
+        serviceUrl:
+          type: string
+          format: uri
+        endpoint:
+          type: string
+          example: /api/v1/customers/{customerId}
+        method:
+          type: string
+          enum: [GET, POST]
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        queryParams:
+          type: object
+          additionalProperties:
+            type: string
+        requestBody:
+          type: object
+          additionalProperties: true
+        jsonPath:
+          type: string
+          example: $.data.name
+        timeout:
+          type: integer
+          default: 5000
+        retryPolicy:
+          type: object
+          properties:
+            maxAttempts:
+              type: integer
+            backoffMs:
+              type: integer
+        cacheConfig:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            ttlSeconds:
+              type: integer
+            cacheKey:
+              type: string
+        fallbackChain:
+          type: array
+          items:
+            type: object
+            properties:
+              serviceName:
+                type: string
+              endpoint:
+                type: string
+
+    Transformation:
+      required:
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [uppercase, mask, formatCurrency, formatPercentage, formatAddress]
+        maxLength:
+          type: integer
+        maskPattern:
+          type: string
+        locale:
+          type: string
+        currencyCode:
+          type: string
+
+    DataSourceInfo:
+      type: object
+      properties:
+        serviceName:
+          type: string
+        serviceUrl:
+          type: string
+        fieldCount:
+          type: integer
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              fieldName:
+                type: string
+              endpoint:
+                type: string
+
+    Category:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        categoryCode:
+          type: string
+        displayOrder:
+          type: integer
+        isActive:
+          type: boolean
+
+    # --- Common Schemas ---
+
+    ErrorResponse:
+      type: object
+      properties:
+        errorMsg:
+          type: array
+          items:
+            type: string
+        statusCode:
+          type: integer
+          format: int32
+        timestamp:
+          type: string
+          example: '1736770074'
+
+    PaginationResponse:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        pageNumber:
+          type: integer
+
+    EpochDate:
+      type: integer
+      format: int64
+      description: Epoch time in seconds
+      example: 1740523843
+
+    LanguageCode:
+      type: string
+      enum: [EN_US, EN_UK]
+
+    Links:
+      type: object
+      properties:
+        download:
+          type: object
+          properties:
+            href:
+              type: string
+            type:
+              type: string
+            rel:
+              type: string
+        delete:
+          type: object
+          properties:
+            href:
+              type: string
+            type:
+              type: string
+
+    DocumentRetrievalResponseLinks:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+            rel:
+              type: string
+        next:
+          type: object
+          properties:
+            href:
+              type: string
+        prev:
+          type: object
+          properties:
+            href:
+              type: string
+
+    SortOrder:
+      type: array
+      items:
+        type: object
+        properties:
+          orderBy:
+            type: string
+          sortBy:
+            type: string
+            enum: [asc, desc]
+
+  # ========================================
+  # Responses
+  # ========================================
+
+  responses:
+    BadRequestError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ForbiddenError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFoundError:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ServiceUnavailableError:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

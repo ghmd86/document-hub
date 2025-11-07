@@ -1,14 +1,63 @@
 # Document Hub Service
 
-A reactive Spring WebFlux microservice for document enquiry with advanced custom rule engine capabilities.
+A reactive Spring WebFlux microservice for document management with advanced template versioning, multi-vendor support, and comprehensive analytics tracking.
 
 ## Overview
 
-This service provides the `/documents-enquiry` endpoint that retrieves documents based on:
+This service provides comprehensive document management capabilities:
+- **Document Storage & Retrieval** - Upload, download, and manage documents
+- **Template Management** - Versioned templates with multi-service data sources
+- **Vendor Integration** - Vendor-agnostic document generation
+- **Analytics Tracking** - View, download, print, and share analytics
 - **Account-specific documents** from the storage_index table
-- **Shared documents** based on eligibility rules including:
-  - Basic scopes (all, credit_card_account_only, digital_bank_customer_only, enterprise_customer_only)
-  - **Custom rules** with dynamic data extraction and complex eligibility criteria
+- **Shared documents** based on eligibility rules with custom rule engine
+
+## 📁 Project Structure
+
+```
+document-hub-service/
+├── README.md                    # This file
+├── pom.xml                      # Maven configuration
+├── docker-compose.yml           # Docker services setup
+│
+├── src/                         # Java source code
+│   ├── main/
+│   └── test/
+│
+├── docs/                        # Documentation
+│   ├── deployment/             # Deployment guides
+│   │   ├── DEPLOYMENT_GUIDE.md
+│   │   ├── DEPLOYMENT_STATUS.md
+│   │   ├── FINAL_DEPLOYMENT_SUMMARY.md
+│   │   └── MANUAL_SETUP.md
+│   └── guides/                 # User guides
+│       ├── IMPLEMENTATION_SUMMARY.md
+│       ├── MOCK_SERVICES_GUIDE.md
+│       ├── QUICKSTART.md
+│       └── START_SERVICES.md
+│
+├── scripts/                     # Build and deployment scripts
+│   ├── deploy.sh               # Linux/Mac deployment
+│   ├── deploy.bat              # Windows deployment
+│   ├── test-api.bat            # API testing
+│   └── test-with-mocks.bat     # Mock service testing
+│
+├── database_init/              # Database initialization
+│   └── init.sql
+│
+├── mock-services/              # Mock services for testing
+│   └── README.md
+│
+└── target/                     # Build output (generated)
+```
+
+## 🎯 Quick Links
+
+- **[Quickstart Guide](docs/guides/QUICKSTART.md)** - Get started in 5 minutes
+- **[API Specification](actual/api/schema.yaml)** - OpenAPI 3.0 spec
+- **[Database Schema](actual/database/database_schema_denormalized.md)** - Production schema
+- **[Analytics Schema](actual/database/analytics_schema_simple.md)** - Analytics tracking
+- **[Deployment Guide](docs/deployment/DEPLOYMENT_GUIDE.md)** - Production deployment
 
 ## Features
 
