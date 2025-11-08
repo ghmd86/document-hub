@@ -5,8 +5,8 @@
 This sequence diagram shows the **complete** flow for retrieving documents including:
 1. Account-specific documents from storage_index
 2. Shared documents based on sharing_scope evaluation
-3. Custom rule evaluation using disclosure extraction logic
-4. Multi-service data aggregation for custom rules
+3. Custom rule evaluation with **embedded** disclosure extraction logic
+4. Multi-service data aggregation executed **internally** by the Document Hub API
 
 ## API Endpoint
 
@@ -24,7 +24,6 @@ sequenceDiagram
     participant Validator as Request Validator
     participant StorageDB as PostgreSQL<br/>(storage_index)
     participant TemplateDB as PostgreSQL<br/>(master_template_definition)
-    participant ExtractorSvc as Disclosure Extractor<br/>Service
     participant Cache as Redis Cache
     participant ArrangementsAPI as Arrangements API
     participant PricingAPI as Pricing API
@@ -106,91 +105,177 @@ sequenceDiagram
                 end
 
             else sharing_scope = 'custom_rule'
-                Note right of API: Complex evaluation using extraction logic
+                Note right of API: Execute extraction logic internally
 
                 API->>API: Get data_extraction_schema from template
-                API->>API: Parse extraction configuration<br/>(category + doc_type specific logic)
+                API->>API: Parse extraction configuration<br/>extractionStrategy steps
 
                 rect rgb(255, 240, 240)
-                    Note over API,PricingAPI: 4a. Execute Disclosure Extraction Logic
+                    Note over API,PricingAPI: 4a. Execute Disclosure Extraction Logic Internally
 
-                    API->>API: Build extraction context:<br/>accountId, customerId, category, doc_type
-
-                    API->>+ExtractorSvc: POST /extract<br/>extractionConfig: data_extraction_schema<br/>input: (accountId, customerId)
+                    API->>API: Build extraction context:<br/>accountId, customerId, correlationId
 
                     rect rgb(245, 250, 255)
-                        Note over ExtractorSvc,PricingAPI: Step 1: Get Account Arrangements
+                        Note over API,ArrangementsAPI: Step 1: Get Account Arrangements
 
-                        ExtractorSvc->>Cache: Check cache: arrangements:(accountId)
+                        API->>Cache: Check cache: arrangements:(accountId)
 
                         alt Cache Hit
-                            Cache-->>ExtractorSvc: Cached arrangements data
+                            Cache-->>API: Cached arrangements data
+                            API->>API: Increment cacheHitCounter
                         else Cache Miss
-                            ExtractorSvc->>+ArrangementsAPI: GET /accounts/accountId/arrangements<br/>Headers: (apikey, x-correlation-Id)
+                            Cache-->>API: null
+                            API->>API: Increment cacheMissCounter
 
-                            alt Success (200 OK)
-                                ArrangementsAPI-->>-ExtractorSvc: arrangements response<br/>(content: [(domain, domainId, status)])
+                            API->>API: Apply circuit breaker check<br/>for Arrangements API
 
-                                ExtractorSvc->>ExtractorSvc: Apply JSONPath extraction<br/>$.content[?(@.domain == 'PRICING')].domainId | [0]
-                                ExtractorSvc->>ExtractorSvc: Extract pricingId
+                            alt Circuit CLOSED
+                                API->>API: Build request with retry policy<br/>(max 3 attempts, exponential backoff)
 
-                                ExtractorSvc->>ExtractorSvc: Validate pricingId<br/>(required, pattern match)
+                                API->>+ArrangementsAPI: GET /accounts/accountId/arrangements<br/>Headers: (apikey, x-correlation-Id)
 
-                                ExtractorSvc->>Cache: Store with TTL=1800s
+                                alt Success (200 OK)
+                                    ArrangementsAPI-->>-API: arrangements response<br/>(content: [(domain, domainId, status)])
 
-                            else Error (404/5xx)
-                                ArrangementsAPI-->>ExtractorSvc: Error response
-                                ExtractorSvc->>ExtractorSvc: Apply error handling<br/>(retry or return default)
+                                    API->>API: Parse JSON response
+                                    API->>API: Apply JSONPath extraction<br/>$.content[?(@.domain == 'PRICING' && @.status == 'ACTIVE')].domainId | [0]
+                                    API->>API: Extract pricingId = "PRICING_789"
+
+                                    API->>API: Validate pricingId:<br/>- required: true<br/>- pattern: ^[A-Z0-9_-]+$
+
+                                    alt Validation Passes
+                                        API->>API: Store in execution context<br/>pricingId = "PRICING_789"
+                                        API->>Cache: Set cache with TTL=1800s<br/>Key: arrangements:(accountId)
+                                    else Validation Fails
+                                        API->>Logger: Log validation error
+                                        API->>API: Mark extraction as failed
+                                    end
+
+                                else Error (404 Not Found)
+                                    ArrangementsAPI-->>API: 404 Not Found
+                                    API->>Logger: Log: Account arrangements not found
+                                    API->>API: Apply error handling (on404: fail)
+                                    API->>API: Mark extraction as failed
+
+                                else Error (5xx Server Error)
+                                    ArrangementsAPI-->>API: 500/502/503/504
+                                    API->>API: Retry with exponential backoff<br/>Attempt 2: wait 100ms<br/>Attempt 3: wait 200ms
+
+                                    alt Retry Succeeds
+                                        ArrangementsAPI-->>API: 200 OK on retry
+                                        Note right of API: Continue with success path
+                                    else All Retries Failed
+                                        API->>API: Update circuit breaker failure count
+                                        API->>Logger: Log: Max retries exceeded
+                                        API->>API: Mark extraction as failed
+                                    end
+                                end
+
+                            else Circuit OPEN
+                                API->>Logger: Log: Circuit breaker open for Arrangements API
+                                API->>API: Fail fast, mark extraction as failed
                             end
                         end
                     end
 
                     rect rgb(245, 255, 245)
-                        Note over ExtractorSvc,PricingAPI: Step 2: Get Pricing Data (Conditional)
+                        Note over API,PricingAPI: Step 2: Get Pricing Data (Conditional)
 
-                        alt pricingId exists
-                            ExtractorSvc->>Cache: Check cache: pricing:(pricingId)
+                        alt pricingId extracted successfully
+                            API->>Cache: Check cache: pricing:(pricingId)
 
                             alt Cache Hit
-                                Cache-->>ExtractorSvc: Cached pricing data
+                                Cache-->>API: Cached pricing data
+                                API->>API: Increment cacheHitCounter
                             else Cache Miss
-                                ExtractorSvc->>+PricingAPI: GET /prices/pricingId<br/>Headers: (apikey, x-correlation-Id)
+                                Cache-->>API: null
+                                API->>API: Increment cacheMissCounter
 
-                                alt Success (200 OK)
-                                    PricingAPI-->>-ExtractorSvc: pricing response<br/>(disclosureCode, version, effectiveDate)
+                                API->>API: Apply circuit breaker check<br/>for Pricing API
 
-                                    ExtractorSvc->>ExtractorSvc: Extract disclosureCode<br/>$.cardholderAgreementsTncCode
-                                    ExtractorSvc->>ExtractorSvc: Validate disclosureCode<br/>(required, pattern: ^DISC_)
+                                alt Circuit CLOSED
+                                    API->>API: Build request with retry policy
 
-                                    ExtractorSvc->>Cache: Store with TTL=3600s
+                                    API->>+PricingAPI: GET /prices/PRICING_789<br/>Headers: (apikey, x-correlation-Id)
 
-                                else Error
-                                    PricingAPI-->>ExtractorSvc: Error response
-                                    ExtractorSvc->>ExtractorSvc: Apply error handling
+                                    alt Success (200 OK)
+                                        PricingAPI-->>-API: pricing response<br/>(cardholderAgreementsTncCode, version,<br/>effectiveDate, expirationDate)
+
+                                        API->>API: Parse JSON response
+                                        API->>API: Apply JSONPath extraction:<br/>- disclosureCode: $.cardholderAgreementsTncCode<br/>- pricingVersion: $.version<br/>- effectiveDate: $.effectiveDate
+
+                                        API->>API: Extract:<br/>disclosureCode = "DISC_CC_CA_001"<br/>pricingVersion = "2.1"<br/>effectiveDate = "2024-01-01"
+
+                                        API->>API: Validate disclosureCode:<br/>- required: true<br/>- pattern: ^DISC_[A-Z0-9_]+$
+
+                                        alt Validation Passes
+                                            API->>API: Store in execution context<br/>disclosureCode, pricingVersion, effectiveDate
+                                            API->>Cache: Set cache with TTL=3600s<br/>Key: pricing:(pricingId)
+                                        else Validation Fails
+                                            API->>Logger: Log validation error
+                                            API->>API: Mark extraction as failed
+                                        end
+
+                                    else Error (404 Not Found)
+                                        PricingAPI-->>API: 404 Not Found
+                                        API->>Logger: Log: Pricing data not found
+                                        API->>API: Mark extraction as failed
+
+                                    else Error (5xx)
+                                        PricingAPI-->>API: 500/502/503/504
+                                        API->>API: Retry with exponential backoff
+
+                                        alt Retry Succeeds
+                                            PricingAPI-->>API: 200 OK on retry
+                                        else All Retries Failed
+                                            API->>API: Update circuit breaker
+                                            API->>API: Mark extraction as failed
+                                        end
+                                    end
+
+                                else Circuit OPEN
+                                    API->>Logger: Log: Circuit breaker open for Pricing API
+                                    API->>API: Fail fast, mark extraction as failed
                                 end
                             end
-                        else pricingId is null
-                            ExtractorSvc->>ExtractorSvc: Skip pricing call<br/>Return default or fail
+
+                        else pricingId not found
+                            API->>Logger: Log: No pricingId, skipping pricing call
+                            API->>API: Mark extraction as failed
                         end
                     end
 
                     rect rgb(255, 250, 245)
-                        Note over ExtractorSvc,API: Step 3: Evaluate Custom Rule Condition
+                        Note over API,API: Step 3: Evaluate Custom Rule Condition
 
-                        ExtractorSvc->>ExtractorSvc: Build extraction result:<br/>(success, disclosureCode, metadata)
+                        API->>API: Build extraction result metadata<br/>(success, disclosureCode, pricingId,<br/>executionTimeMs, cacheHits, apiCalls)
 
-                        ExtractorSvc->>ExtractorSvc: Apply custom rule logic from template:<br/>IF disclosureCode MATCHES pattern<br/>AND effectiveDate <= NOW()<br/>THEN include document
+                        alt Extraction Successful
+                            API->>API: Apply custom rule logic:<br/>IF disclosureCode EXISTS<br/>AND disclosureCode MATCHES template pattern<br/>AND effectiveDate <= NOW()<br/>THEN shouldInclude = true
 
-                        ExtractorSvc-->>-API: Extraction result:<br/>(shouldInclude: true/false,<br/>extractedData: disclosureCode, metadata)
+                            API->>API: Evaluate rule condition
+
+                            alt Rule Condition Met
+                                API->>API: shouldInclude = true
+                                API->>API: Store extractedDisclosureCode<br/>for document filtering
+                            else Rule Condition Not Met
+                                API->>API: shouldInclude = false
+                                API->>Logger: Log: Rule condition not met
+                            end
+
+                        else Extraction Failed
+                            API->>API: shouldInclude = false
+                            API->>Logger: Log extraction failure<br/>(templateId, accountId, reason)
+                        end
                     end
                 end
 
-                alt Extraction Success AND Rule Matches
-                    API->>API: Include template with extracted metadata
-                    API->>API: Add to includedTemplates list<br/>Store extracted disclosureCode
-                else Extraction Failed OR Rule Not Matched
-                    API->>API: Skip template
-                    API->>Logger: Log exclusion reason<br/>(templateId, customerId, rule evaluation)
+                alt shouldInclude = true
+                    API->>API: Include template in includedTemplates list
+                    API->>API: Store extracted metadata:<br/>(disclosureCode, pricingId, extractionSource)
+                else shouldInclude = false
+                    API->>API: Skip template (do not include)
+                    API->>Logger: Log exclusion reason<br/>(templateId, customerId, rule evaluation result)
                 end
             end
         end
@@ -261,11 +346,18 @@ sequenceDiagram
             API->>Logger: Log warning (no documents for account)
             API-->>Client: 200 OK (empty documentList)
 
-        else Extraction Service Error
-            ExtractorSvc-->>API: 503 Service Unavailable
-            API->>Logger: Log error (extraction service down)
+        else External API Error (Arrangements/Pricing)
+            ArrangementsAPI-->>API: 503 Service Unavailable
+            API->>Logger: Log error (external API unavailable)
+            API->>API: Mark extraction as failed
             API->>API: Continue with non-custom_rule templates only
-            API-->>Client: 200 OK (partial results + warning)
+            API-->>Client: 200 OK (partial results, custom_rule templates excluded)
+
+        else Circuit Breaker Open
+            API->>API: Circuit breaker prevents API calls
+            API->>Logger: Log warning (circuit open for external API)
+            API->>API: Skip custom_rule templates
+            API-->>Client: 200 OK (without custom_rule templates)
 
         else Database Connection Error
             StorageDB-->>API: Connection timeout
@@ -425,31 +517,34 @@ sequenceDiagram
 - **enterprise_customer_only**: Enterprise account check
 - **custom_rule**: Dynamic evaluation using extraction logic
 
-### 3. **Custom Rule Evaluation with Disclosure Extraction**
-- Parse data_extraction_schema from template
-- Execute multi-step API calls (Arrangements → Pricing)
+### 3. **Custom Rule Evaluation with Embedded Disclosure Extraction**
+- Parse data_extraction_schema from template (stored in master_template_definition)
+- **Execute extraction logic internally** within Document Hub API service
+- Multi-step API calls to external services (Arrangements → Pricing)
 - JSONPath-based field extraction
-- Redis caching for performance
-- Retry logic with exponential backoff
-- Circuit breaker for resilience
+- Redis caching for performance (30min/1hr TTL)
+- Retry logic with exponential backoff (3 attempts)
+- Circuit breaker for resilience (per external API)
 - Conditional execution based on extracted data
 
-### 4. **Extraction Logic Flow**
+### 4. **Internal Extraction Logic Flow**
 ```
-custom_rule template
+Document Hub API receives custom_rule template
   ↓
-Parse data_extraction_schema
+Parse data_extraction_schema from master_template_definition
   ↓
-Call Arrangements API → Extract pricingId
+API internally calls Arrangements API → Extract pricingId (with cache check)
   ↓ (if pricingId exists)
-Call Pricing API → Extract disclosureCode
+API internally calls Pricing API → Extract disclosureCode (with cache check)
   ↓
-Evaluate rule condition (disclosureCode matches pattern)
+API evaluates rule condition (disclosureCode matches pattern, effectiveDate valid)
   ↓
-Fetch document from storage_index WHERE reference_key = disclosureCode
+API fetches document from storage_index WHERE reference_key = disclosureCode
   ↓
-Include in response with extraction metadata
+API includes in response with extraction metadata
 ```
+
+**Note:** All extraction logic executes within the Document Hub API service. No separate extractor service is required.
 
 ### 5. **Performance Optimizations**
 - **Redis caching**:
@@ -463,11 +558,11 @@ Include in response with extraction metadata
 - **Pagination**: Limit result sets
 
 ### 6. **Error Handling**
-- Graceful degradation if extraction service is down
-- Continue with non-custom_rule templates
-- Return partial results with warnings
-- Circuit breaker prevents cascading failures
-- Comprehensive logging for troubleshooting
+- Graceful degradation if external APIs (Arrangements/Pricing) are unavailable
+- Circuit breaker per external API prevents cascading failures
+- Continue with non-custom_rule templates if extraction fails
+- Return partial results (account + simple shared documents only)
+- Comprehensive logging for troubleshooting extraction failures
 
 ---
 
@@ -559,17 +654,17 @@ ORDER BY si.doc_creation_date DESC;
    - **custom_rule**: Execute extraction logic
 
 ### Phase 3: Custom Rule Extraction (if applicable)
-1. Parse data_extraction_schema from template
-2. Call Disclosure Extractor Service with:
-   - Extraction configuration
-   - Account/Customer context
-3. Extractor executes:
-   - Step 1: Get Arrangements (with cache check)
-   - Step 2: Get Pricing (if pricingId exists)
-   - Apply JSONPath extraction
-   - Validate extracted data
-4. Evaluate custom rule condition
-5. Return shouldInclude + extractedData
+1. Parse data_extraction_schema from template (stored in master_template_definition)
+2. **Document Hub API internally executes** extraction logic:
+   - Build extraction context (accountId, customerId, correlationId)
+   - Step 1: Call Arrangements API (with Redis cache check, retry, circuit breaker)
+   - Extract pricingId using JSONPath
+   - Validate pricingId
+   - Step 2: Call Pricing API (with cache check, retry, circuit breaker)
+   - Extract disclosureCode, effectiveDate using JSONPath
+   - Validate disclosureCode
+3. Evaluate custom rule condition internally
+4. Determine shouldInclude (true/false) + extractedData
 
 ### Phase 4: Fetch Shared Documents
 1. Get template IDs that passed evaluation
@@ -648,16 +743,41 @@ ORDER BY si.doc_creation_date DESC;
 
 ---
 
+## Architecture Note
+
+**Important:** The disclosure extraction logic is **embedded within the Document Hub API service** itself. It is NOT a separate microservice.
+
+The Document Hub API includes:
+- Extraction logic executor (internal component)
+- JSONPath parser and evaluator
+- WebClient for calling external APIs (Arrangements, Pricing)
+- Redis cache manager
+- Circuit breaker registry (per external API)
+- Retry policy handler
+
+The reactive-disclosure-extractor was created as a **reference implementation** to understand and validate the extraction logic. The actual production implementation embeds this same logic directly into the Document Hub service.
+
+---
+
 ## Conclusion
 
 This complete implementation includes:
 ✅ Account-specific document retrieval
 ✅ Shared document evaluation (all scopes)
-✅ Custom rule execution with disclosure extraction
-✅ Multi-service data aggregation
+✅ **Custom rule execution with embedded disclosure extraction logic**
+✅ Multi-service data aggregation (executed internally)
 ✅ Redis caching for performance
 ✅ Error handling and graceful degradation
 ✅ Comprehensive logging and monitoring
 ✅ Security and access control
 
 The flow ensures that customers see all relevant documents (both personal and shared) with intelligent filtering based on their account characteristics and extracted disclosure codes.
+
+### Technology Stack for Document Hub API
+- **Spring WebFlux** - Reactive, non-blocking I/O
+- **Jayway JsonPath** - JSONPath extraction
+- **Spring Data Redis (Reactive)** - Caching
+- **Resilience4j** - Circuit breaker, retry, rate limiting
+- **Spring WebClient** - Reactive HTTP client for external APIs
+- **Micrometer** - Metrics and monitoring
+- **PostgreSQL** - Primary data store
