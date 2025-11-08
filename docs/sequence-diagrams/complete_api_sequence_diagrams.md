@@ -29,7 +29,7 @@ sequenceDiagram
     participant Auth as Auth Service
     participant DB as PostgreSQL<br/>(storage_index)
 
-    Client->>+API: POST /documents-enquiry<br/>{customerId, accountIds, filters}
+    Client->>+API: POST /documents-enquiry<br/>(customerId, accountIds, filters)
     API->>+Auth: Validate token
     Auth-->>-API: Valid (roles, permissions)
 
@@ -42,7 +42,7 @@ sequenceDiagram
 
     API->>API: Transform to DTOs<br/>Parse JSONB metadata<br/>Generate HATEOAS links
 
-    API-->>-Client: 200 OK<br/>{documentList, pagination, _links}
+    API-->>-Client: 200 OK<br/>(documentList, pagination, _links)
 ```
 
 **Key Points:**
@@ -73,7 +73,7 @@ sequenceDiagram
     participant ECMS as ECMS/S3 Storage
     participant Virus as Antivirus Service
 
-    Client->>+API: POST /documents<br/>multipart/form-data<br/>{file, metadata, templateId, templateVersion}
+    Client->>+API: POST /documents<br/>multipart/form-data<br/>(file, metadata, templateId, templateVersion)
 
     API->>+Auth: Validate token
     Auth-->>-API: Valid
@@ -88,7 +88,7 @@ sequenceDiagram
             API->>API: Check file size, extension, MIME type
         else Template Not Found
             TemplateDB-->>API: Not found
-            API-->>Client: 404 Not Found<br/>{error: "TEMPLATE_NOT_FOUND"}
+            API-->>Client: 404 Not Found<br/>(error: "TEMPLATE_NOT_FOUND")
         end
     end
 
@@ -100,7 +100,7 @@ sequenceDiagram
             Virus-->>-API: Clean
         else Virus Detected
             Virus-->>API: Virus found
-            API-->>Client: 409 Conflict<br/>{error: "ANTIVIRUS_SCAN_FAILED"}
+            API-->>Client: 409 Conflict<br/>(error: "ANTIVIRUS_SCAN_FAILED")
         end
     end
 
@@ -158,10 +158,10 @@ sequenceDiagram
     participant ECMS as ECMS/S3 Storage
     participant Logger as Audit Logger
 
-    Client->>+API: GET /documents/{documentId}<br/>Headers: {Authorization, X-correlation-id}
+    Client->>+API: GET /documents/documentId<br/>Headers: Authorization, X-correlation-id
 
     API->>+Auth: Validate token
-    Auth-->>-API: Valid {userId, roles}
+    Auth-->>-API: Valid (userId, roles)
 
     rect rgb(255, 250, 240)
         Note over API,DB: Fetch Document Metadata
@@ -172,16 +172,16 @@ sequenceDiagram
 
             API->>API: Check archive_indicator
             alt Archived
-                API-->>Client: 404 Not Found<br/>{error: "DOCUMENT_ARCHIVED"}
+                API-->>Client: 404 Not Found<br/>(error: "DOCUMENT_ARCHIVED")
             end
 
             API->>API: Check access permissions<br/>Verify user can access customer_id
             alt No Access
-                API-->>Client: 403 Forbidden<br/>{error: "ACCESS_DENIED"}
+                API-->>Client: 403 Forbidden<br/>(error: "ACCESS_DENIED")
             end
         else Document Not Found
             DB-->>API: Not found
-            API-->>Client: 404 Not Found<br/>{error: "DOCUMENT_NOT_FOUND"}
+            API-->>Client: 404 Not Found<br/>(error: "DOCUMENT_NOT_FOUND")
         end
     end
 
@@ -194,26 +194,26 @@ sequenceDiagram
 
             API->>API: Determine Content-Disposition:<br/>- Query param "action=VIEW" → inline<br/>- Query param "action=DOWNLOAD" → attachment
 
-            API->>API: Set response headers:<br/>- Content-Type: {mime_type}<br/>- Content-Disposition: {inline|attachment}; filename={name}.{ext}<br/>- Content-Length: {size}
+            API->>API: Set response headers:<br/>Content-Type, Content-Disposition,<br/>Content-Length
 
         else File Not Found in ECMS
             ECMS-->>API: 404 Not Found
             API->>Logger: Log ERROR: File in index but not in ECMS
-            API-->>Client: 503 Service Unavailable<br/>{error: "FILE_RETRIEVAL_FAILED"}
+            API-->>Client: 503 Service Unavailable<br/>(error: "FILE_RETRIEVAL_FAILED")
         end
     end
 
     rect rgb(245, 245, 255)
         Note over API,DB: Update Access Tracking
-        API->>DB: UPDATE storage_index<br/>SET last_accessed_at = {now}<br/>WHERE storage_index_id = $1
+        API->>DB: UPDATE storage_index<br/>SET last_accessed_at = NOW()<br/>WHERE storage_index_id = $1
     end
 
     rect rgb(245, 255, 245)
         Note over API,Logger: Audit Logging
-        API->>Logger: Log access:<br/>{userId, documentId, customerId,<br/>action: "DOWNLOAD", timestamp, correlationId}
+        API->>Logger: Log access:<br/>(userId, documentId, customerId,<br/>action: DOWNLOAD, timestamp, correlationId)
     end
 
-    API-->>-Client: 200 OK<br/>Content-Type: {mime_type}<br/>Binary file content
+    API-->>-Client: 200 OK<br/>Content-Type: application/pdf<br/>Binary file content
 ```
 
 **Key Points:**
@@ -242,10 +242,10 @@ sequenceDiagram
     participant DB as PostgreSQL<br/>(storage_index)
     participant AuditLog as Audit Service
 
-    Client->>+API: DELETE /documents/{documentId}<br/>Headers: {Authorization, X-requestor-type}
+    Client->>+API: DELETE /documents/{documentId}<br/>Headers: (Authorization, X-requestor-type)
 
     API->>+Auth: Validate token
-    Auth-->>-API: Valid {userId, roles}
+    Auth-->>-API: Valid (userId, roles)
 
     rect rgb(255, 250, 240)
         Note over API,DB: Verify Document Exists and Access
@@ -256,17 +256,17 @@ sequenceDiagram
 
             API->>API: Check if already archived
             alt Already Archived
-                API-->>Client: 404 Not Found<br/>{error: "DOCUMENT_ALREADY_DELETED"}
+                API-->>Client: 404 Not Found<br/>(error: "DOCUMENT_ALREADY_DELETED")
             end
 
             API->>API: Verify access permissions<br/>Based on requestor-type and customer_id
             alt No Permission
-                API-->>Client: 403 Forbidden<br/>{error: "INSUFFICIENT_PERMISSIONS"}
+                API-->>Client: 403 Forbidden<br/>(error: "INSUFFICIENT_PERMISSIONS")
             end
 
         else Document Not Found
             DB-->>API: Not found
-            API-->>Client: 404 Not Found<br/>{error: "DOCUMENT_NOT_FOUND"}
+            API-->>Client: 404 Not Found<br/>(error: "DOCUMENT_NOT_FOUND")
         end
     end
 
@@ -279,7 +279,7 @@ sequenceDiagram
 
     rect rgb(245, 255, 245)
         Note over API,AuditLog: Audit Trail
-        API->>+AuditLog: Log deletion event:<br/>{<br/>  userId, documentId, customerId,<br/>  action: "DELETE", timestamp,<br/>  correlationId, requestorType<br/>}
+        API->>+AuditLog: Log deletion event<br/>(userId, documentId, customerId,<br/>action: DELETE, timestamp,<br/>correlationId, requestorType)
         AuditLog-->>-API: Logged
     end
 
@@ -364,7 +364,7 @@ sequenceDiagram
     participant TemplateDB as PostgreSQL<br/>(master_template_definition)
     participant CategoryDB as PostgreSQL<br/>(categories)
 
-    Client->>+API: POST /templates<br/>{templateName, lineOfBusiness,<br/>categoryCode, docType, ...}
+    Client->>+API: POST /templates<br/>(templateName, lineOfBusiness,<br/>categoryCode, docType, ...)
 
     API->>+Validator: Validate CreateTemplateRequest
 
@@ -380,7 +380,7 @@ sequenceDiagram
 
         alt Category Not Found
             CategoryDB-->>-API: Not found
-            API-->>Client: 400 Bad Request<br/>{error: "INVALID_CATEGORY"}
+            API-->>Client: 400 Bad Request<br/>(error: "INVALID_CATEGORY")
         else Category Found
             CategoryDB-->>API: Category details<br/>{categoryId, categoryName}
         end
@@ -392,7 +392,7 @@ sequenceDiagram
 
         alt Duplicate Found
             TemplateDB-->>-API: count > 0
-            API-->>Client: 409 Conflict<br/>{error: "TEMPLATE_NAME_EXISTS"}
+            API-->>Client: 409 Conflict<br/>(error: "TEMPLATE_NAME_EXISTS")
         end
     end
 
@@ -447,7 +447,7 @@ sequenceDiagram
     participant API
     participant DB as PostgreSQL
 
-    Client->>+API: POST /templates/{templateId}/versions<br/>{basedOnVersion: 2}
+    Client->>+API: POST /templates/{templateId}/versions<br/>(basedOnVersion: 2)
 
     API->>+DB: SELECT * FROM master_template_definition<br/>WHERE template_id = $1 AND version = $2
 
@@ -506,7 +506,7 @@ sequenceDiagram
             TemplateDB-->>-API: Template details<br/>{templateName, docType}
         else Not Found
             TemplateDB-->>API: Not found
-            API-->>Client: 404 Not Found<br/>{error: "TEMPLATE_NOT_FOUND"}
+            API-->>Client: 404 Not Found<br/>(error: "TEMPLATE_NOT_FOUND")
         end
     end
 
@@ -516,13 +516,13 @@ sequenceDiagram
 
         alt Duplicate Found
             VendorDB-->>-API: Existing mapping
-            API-->>Client: 409 Conflict<br/>{error: "VENDOR_MAPPING_EXISTS"}
+            API-->>Client: 409 Conflict<br/>(error: "VENDOR_MAPPING_EXISTS")
         end
     end
 
     rect rgb(240, 248, 255)
         Note over API,VendorDB: Create Vendor Mapping
-        API->>API: Validate template_fields array:<br/>Each field must have:<br/>- fieldName, fieldType<br/>- vendorFieldName<br/>- dataSource {serviceName, endpoint, jsonPath}
+        API->>API: Validate template_fields array<br/>Each field must have fieldName,<br/>fieldType, vendorFieldName,<br/>dataSource with serviceName, endpoint, jsonPath
 
         API->>API: Denormalize from template:<br/>- template_name<br/>- doc_type
 
@@ -600,7 +600,7 @@ sequenceDiagram
             API->>API: Filter fields where required = true
         end
 
-        API->>API: For each field:<br/>{<br/>  fieldName, fieldType, vendorFieldName,<br/>  required, dataSource: {<br/>    serviceName, serviceUrl, endpoint,<br/>    method, jsonPath, timeout, cacheConfig<br/>  },<br/>  transformation, defaultValue<br/>}
+        API->>API: For each field return:<br/>fieldName, fieldType, vendorFieldName,<br/>required, dataSource properties,<br/>transformation, defaultValue
 
         API-->>Client: 200 OK<br/>TemplateField[] array
 
@@ -628,7 +628,7 @@ sequenceDiagram
 
     DB-->>-API: template_fields JSONB
 
-    API->>API: Parse and group fields by dataSource.serviceName:<br/>{<br/>  "customer-service": [field1, field2],<br/>  "account-service": [field3, field4],<br/>  "pricing-service": [field5]<br/>}
+    API->>API: Parse and group fields by service:<br/>customer-service with fields,<br/>account-service with fields,<br/>pricing-service with fields
 
     API-->>-Client: 200 OK<br/>Map<String, TemplateField[]>
 ```
@@ -655,7 +655,7 @@ sequenceDiagram
 
     API->>API: Count fields per service
 
-    API->>API: Build DataSourceInfo[]:<br/>[<br/>  {<br/>    serviceName: "customer-service",<br/>    serviceUrl: "https://api.../customers",<br/>    fieldCount: 5,<br/>    fields: [{fieldName, endpoint}]<br/>  }<br/>]
+    API->>API: Build DataSourceInfo array<br/>with serviceName, serviceUrl,<br/>fieldCount, and field details
 
     API-->>-Client: 200 OK<br/>DataSourceInfo[] array
 ```
@@ -686,7 +686,7 @@ sequenceDiagram
     participant Vendor as Vendor System<br/>(SMARTCOMM/ASSENTIS)
     participant ECMS as ECMS Storage
 
-    Client->>+DocGen: POST /generate-document<br/>{templateId, version,<br/>customerId, accountId}
+    Client->>+DocGen: POST /generate-document<br/>(templateId, version,<br/>customerId, accountId)
 
     rect rgb(255, 250, 240)
         Note over DocGen,TemplateDB: 1. Load Template Configuration
@@ -708,7 +708,7 @@ sequenceDiagram
                 Cache-->>DocGen: Cached customer data
             else Cache Miss
                 DocGen->>+CustomerAPI: GET /customers/{customerId}
-                CustomerAPI-->>-DocGen: {name, address, ssn, ...}
+                CustomerAPI-->>-DocGen: (name, address, ssn, ...)
                 DocGen->>Cache: Store with TTL=3600s
             end
 
@@ -718,7 +718,7 @@ sequenceDiagram
             DocGen->>Cache: Check cache: account:{accountId}
             alt Cache Miss
                 DocGen->>+AccountAPI: GET /accounts/{accountId}
-                AccountAPI-->>-DocGen: {accountNumber, balance, type, ...}
+                AccountAPI-->>-DocGen: (accountNumber, balance, type, ...)
                 DocGen->>Cache: Store with TTL=1800s
             end
 
@@ -728,10 +728,10 @@ sequenceDiagram
             DocGen->>Cache: Check cache: pricing:{accountId}
             alt Cache Miss
                 DocGen->>+AccountAPI: GET /accounts/{accountId}/arrangements
-                AccountAPI-->>-DocGen: {pricingId: "PRICING_789"}
+                AccountAPI-->>-DocGen: (pricingId: PRICING_789)
 
                 DocGen->>+PricingAPI: GET /prices/PRICING_789
-                PricingAPI-->>-DocGen: {disclosureCode, apr, fees, ...}
+                PricingAPI-->>-DocGen: (disclosureCode, apr, fees, ...)
                 DocGen->>Cache: Store with TTL=3600s
             end
         end
@@ -745,12 +745,12 @@ sequenceDiagram
 
         DocGen->>DocGen: Handle missing fields:<br/>- Use defaultValue if provided<br/>- Fallback chain to secondary services
 
-        DocGen->>DocGen: Build vendor payload:<br/>{<br/>  Customer.Name: "John Doe",<br/>  Account.Balance: "$1,250.00",<br/>  Disclosure.Code: "DISC_CC_CA_001"<br/>}
+        DocGen->>DocGen: Build vendor payload with<br/>Customer.Name, Account.Balance,<br/>Disclosure.Code mapped fields
     end
 
     rect rgb(255, 245, 255)
         Note over DocGen,Vendor: 4. Call Vendor to Generate Document
-        DocGen->>+Vendor: POST /generate<br/>{<br/>  vendorTemplateKey: "TEMPLATE_CC_DISCLOSURE_001",<br/>  data: {mapped fields}<br/>}
+        DocGen->>+Vendor: POST /generate<br/>vendorTemplateKey and mapped data
 
         Vendor->>Vendor: Merge data with template<br/>Generate PDF/HTML
 
@@ -769,7 +769,7 @@ sequenceDiagram
         TemplateDB-->>-DocGen: storage_index_id
     end
 
-    DocGen-->>-Client: 200 OK<br/>{<br/>  documentId: storage_index_id,<br/>  downloadUrl: ".../documents/{id}"<br/>}
+    DocGen-->>-Client: 200 OK<br/>documentId and downloadUrl
 ```
 
 **Key Points - Document Generation:**
