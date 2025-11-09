@@ -16,6 +16,16 @@ spring:
       max-idle-time: 30m
       validation-query: SELECT 1
 
+  # Flyway Configuration (JDBC for migrations)
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5433/documenthub
+    user: postgres
+    password: postgres123
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+
   # Redis Configuration (for caching)
   data:
     redis:
