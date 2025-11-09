@@ -95,7 +95,16 @@ record_status	bigint	(DBA Required column)
 isSharedDocument	bit	Flag to indicate if the documents of this kind is shared	
 sharing_scope	varchar	"Scope of sharing: all, credit_card_accounts_only,
  digital_bank_customer_only, enterprise_customer_only, custom_rule."	
-data_extraction_schema	varchar	Data extraction configuration	
+data_extraction_schema	varchar	Data extraction configuration
+template_config	jsonb	Operational configuration for the template including vendor preferences and upload settings	"{
+    ""defaultPrintVendor"": ""SMARTCOMM"",
+    ""defaultEmailVendor"": ""SENDGRID"",
+    ""printVendorFailover"": {
+        ""action"": ""SWITCH_TO_SECONDARY"",
+        ""secondaryVendor"": ""ASSENTIS""
+    },
+    ""uploadReferenceKeyField"": ""disclosureCode""
+}"
 <img width="822" height="1667" alt="image" src="https://github.com/user-attachments/assets/e372d4b1-127e-495d-a639-7658713cb48d" />
 
 

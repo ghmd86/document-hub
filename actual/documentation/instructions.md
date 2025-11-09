@@ -29,5 +29,10 @@ Refer to database_schema.md for table details.
   		- For custom rules, we have to look at the extractor logic that will be associated with each category+doc_type in the master table.
     	- Based on the logic, we need to determine if we need to pick the document(s) associated with the master_template_id or not. 
 - Merge the shared documents with account-specific ones, avoiding duplicates.
+- I would like to add a new column at master_template table level that named template_config it holds different types of configurations like:
+	- Who would be the default print vendor. (This will be used by printing service)
+	- Who would be the default email vendor. (This will be used by email notification service when ready)
+	- What should happen if default print vendor is down. (This will be used by printing service when ready)
+	- While uploading what field should be used to store reference_key?
 
 Need to build an reactive webflux application based on the above requirements.

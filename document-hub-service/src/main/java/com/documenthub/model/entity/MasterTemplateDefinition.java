@@ -107,6 +107,16 @@ public class MasterTemplateDefinition {
     @Column("data_extraction_config")
     private JsonNode dataExtractionConfig;
 
+    /**
+     * Operational configuration for the template including:
+     * - defaultPrintVendor: Vendor to use for print delivery
+     * - defaultEmailVendor: Vendor to use for email delivery
+     * - printVendorFailover: Failover strategy when primary vendor is down
+     * - uploadReferenceKeyField: Field to use for reference_key during upload
+     */
+    @Column("template_config")
+    private JsonNode templateConfig;
+
     // Audit Fields (DBA Required)
     @Column("created_by")
     private String createdBy;

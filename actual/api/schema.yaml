@@ -944,6 +944,9 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/TemplateVariable'
+        templateConfig:
+          $ref: '#/components/schemas/TemplateConfig'
+          description: Operational configuration for vendor preferences and upload settings
 
     CreateTemplateVersionRequest:
       type: object
@@ -1014,6 +1017,9 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/TemplateVariable'
+        templateConfig:
+          $ref: '#/components/schemas/TemplateConfig'
+          description: Operational configuration for vendor preferences and upload settings
         createdBy:
           type: string
         createdAt:
@@ -1101,6 +1107,38 @@ components:
           type: string
         cacheableFor:
           type: integer
+
+    TemplateConfig:
+      type: object
+      description: Operational configuration for template including vendor preferences and upload settings
+      properties:
+        defaultPrintVendor:
+          type: string
+          enum: [SMARTCOMM, ASSENTIS, HANDLEBAR, CUSTOM]
+          description: Default vendor for print delivery
+          example: SMARTCOMM
+        defaultEmailVendor:
+          type: string
+          description: Default vendor for email delivery
+          example: SENDGRID
+        printVendorFailover:
+          type: object
+          description: Failover strategy when default print vendor is unavailable
+          properties:
+            action:
+              type: string
+              enum: [SWITCH_TO_SECONDARY, QUEUE_FOR_RETRY, ALERT_ONLY, FAIL]
+              description: Action to take when primary vendor fails
+              example: SWITCH_TO_SECONDARY
+            secondaryVendor:
+              type: string
+              enum: [SMARTCOMM, ASSENTIS, HANDLEBAR, CUSTOM]
+              description: Secondary vendor to use for failover
+              example: ASSENTIS
+        uploadReferenceKeyField:
+          type: string
+          description: Field name to use as reference_key when uploading documents
+          example: disclosureCode
 
     # --- Vendor Mapping Schemas ---
 

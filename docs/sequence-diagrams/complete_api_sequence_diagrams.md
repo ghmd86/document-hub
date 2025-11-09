@@ -83,9 +83,10 @@ sequenceDiagram
         API->>+TemplateDB: SELECT * FROM master_template_definition<br/>WHERE template_id = $1 AND version = $2
 
         alt Template Found
-            TemplateDB-->>-API: Template definition<br/>{categoryCode, docType, requiredFields, accessControl}
+            TemplateDB-->>-API: Template definition<br/>{categoryCode, docType, requiredFields,<br/>accessControl, templateConfig}
             API->>API: Validate metadata against template.requiredFields
             API->>API: Check file size, extension, MIME type
+            API->>API: Extract reference_key from metadata<br/>using templateConfig.uploadReferenceKeyField
         else Template Not Found
             TemplateDB-->>API: Not found
             API-->>Client: 404 Not Found<br/>(error: "TEMPLATE_NOT_FOUND")
@@ -120,7 +121,7 @@ sequenceDiagram
 
     rect rgb(255, 245, 255)
         Note over API,StorageDB: Create Storage Index Entry
-        API->>API: Build storage_index row:<br/>- customer_id, account_id<br/>- template_id, template_version<br/>- Denormalized: category_name, doc_type, template_name<br/>- file_extension, file_size_kb, mime_type<br/>- doc_metadata (JSONB)<br/>- storage_document_key, ecms_document_id, storage_uri
+        API->>API: Build storage_index row:<br/>- customer_id, account_id<br/>- template_id, template_version<br/>- Denormalized: category_name, doc_type, template_name<br/>- reference_key, reference_key_type (from templateConfig)<br/>- file_extension, file_size_kb, mime_type<br/>- doc_metadata (JSONB)<br/>- storage_document_key, ecms_document_id, storage_uri
 
         API->>+StorageDB: INSERT INTO storage_index VALUES (...)
         StorageDB-->>-API: storage_index_id (UUID)
@@ -364,13 +365,13 @@ sequenceDiagram
     participant TemplateDB as PostgreSQL<br/>(master_template_definition)
     participant CategoryDB as PostgreSQL<br/>(categories)
 
-    Client->>+API: POST /templates<br/>(templateName, lineOfBusiness,<br/>categoryCode, docType, ...)
+    Client->>+API: POST /templates<br/>(templateName, lineOfBusiness,<br/>categoryCode, docType,<br/>templateConfig, ...)
 
     API->>+Validator: Validate CreateTemplateRequest
 
     Validator->>Validator: Check required fields:<br/>- templateName (max 255)<br/>- lineOfBusiness (enum)<br/>- categoryCode, docType<br/>- languageCode (default: en_us)
 
-    Validator->>Validator: Validate optional fields:<br/>- accessControl rules<br/>- requiredFields definitions<br/>- channels configuration
+    Validator->>Validator: Validate optional fields:<br/>- accessControl rules<br/>- requiredFields definitions<br/>- channels configuration<br/>- templateConfig (vendor settings)
 
     Validator-->>-API: Valid
 
@@ -402,7 +403,7 @@ sequenceDiagram
 
         API->>API: Denormalize category_name from lookup
 
-        API->>+TemplateDB: INSERT INTO master_template_definition<br/>(template_id, version, template_name,<br/>line_of_business, category_code, category_name,<br/>doc_type, template_status, effective_date,<br/>access_control, required_fields, channels, ...)<br/>VALUES (...)
+        API->>+TemplateDB: INSERT INTO master_template_definition<br/>(template_id, version, template_name,<br/>line_of_business, category_code, category_name,<br/>doc_type, template_status, effective_date,<br/>access_control, required_fields, channels,<br/>template_config, ...)<br/>VALUES (...)
 
         TemplateDB-->>-API: Created (template_id, version 1)
     end
