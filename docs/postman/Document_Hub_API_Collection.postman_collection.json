@@ -1,0 +1,867 @@
+{
+  "info": {
+    "name": "Document Hub Service API",
+    "description": "Comprehensive API collection for Document Hub Service including document management, template management, and dynamic extraction flows",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/document-hub/v2",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string"
+    },
+    {
+      "key": "accountId",
+      "value": "660e8400-e29b-41d4-a716-446655440001",
+      "type": "string"
+    },
+    {
+      "key": "correlationId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "documentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "templateId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "templateVersion",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Document Retrieval & Management",
+      "item": [
+        {
+          "name": "1. Documents Enquiry (Basic)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1",
+                "type": "text"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"accountId\": [\n    \"{{accountId}}\"\n  ],\n  \"documentTypeCategoryGroup\": [\n    {\n      \"category\": \"Statements\",\n      \"documentTypes\": [\"monthly_statement\"]\n    }\n  ],\n  \"postedFromDate\": 1704067200,\n  \"postedToDate\": 1735689600,\n  \"pageNumber\": 0,\n  \"pageSize\": 20,\n  \"sortOrder\": [\n    {\n      \"orderBy\": \"datePosted\",\n      \"sortBy\": \"desc\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents-enquiry",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents-enquiry"]
+            },
+            "description": "Retrieve documents for customer/account with basic filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Documents Enquiry (With Shared Documents)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"accountId\": [\n    \"{{accountId}}\"\n  ],\n  \"pageNumber\": 0,\n  \"pageSize\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents-enquiry",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents-enquiry"]
+            },
+            "description": "Retrieve all documents including shared documents (custom_rule evaluation)"
+          },
+          "response": [
+            {
+              "name": "Success Response with Extraction Metadata",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"accountId\": [\"660e8400-e29b-41d4-a716-446655440001\"],\n  \"pageNumber\": 0,\n  \"pageSize\": 20\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/documents-enquiry",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["documents-enquiry"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"documentList\": [\n    {\n      \"documentId\": \"doc-123\",\n      \"displayName\": \"Monthly Statement - January 2024\",\n      \"category\": \"Statements\",\n      \"documentType\": \"monthly_statement\",\n      \"datePosted\": 1704153600,\n      \"isShared\": false\n    },\n    {\n      \"documentId\": \"doc-456\",\n      \"displayName\": \"Cardholder Agreement Disclosure\",\n      \"category\": \"Legal\",\n      \"documentType\": \"Disclosure\",\n      \"isShared\": true,\n      \"sharingScope\": \"custom_rule\",\n      \"extractionMetadata\": {\n        \"extractedVariables\": {\n          \"pricingId\": \"PRICING_789\",\n          \"disclosureCode\": \"DISC_CC_CA_001\",\n          \"effectiveDate\": \"2024-01-01\"\n        },\n        \"ruleEvaluation\": {\n          \"result\": true,\n          \"matchedConditions\": [\n            {\n              \"field\": \"disclosureCode\",\n              \"operator\": \"exists\",\n              \"result\": true\n            }\n          ]\n        },\n        \"matchingCriteria\": {\n          \"matchBy\": \"reference_key\",\n          \"referenceKeyType\": \"DISCLOSURE_CODE\",\n          \"referenceKeyValue\": \"DISC_CC_CA_001\"\n        },\n        \"executionMetrics\": {\n          \"totalApiCalls\": 2,\n          \"cacheHits\": 2,\n          \"executionTimeMs\": 15\n        }\n      }\n    }\n  ],\n  \"summary\": {\n    \"totalDocuments\": 2,\n    \"accountSpecificDocuments\": 1,\n    \"sharedDocuments\": 1,\n    \"sharedBreakdown\": {\n      \"custom_rule\": 1\n    }\n  },\n  \"pagination\": {\n    \"pageSize\": 20,\n    \"totalItems\": 2,\n    \"totalPages\": 1,\n    \"pageNumber\": 0\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "3. Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "SYSTEM"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documentType",
+                  "value": "monthly_statement",
+                  "type": "text"
+                },
+                {
+                  "key": "createdBy",
+                  "value": "{{customerId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "templateId",
+                  "value": "{{templateId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "templateVersion",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "referenceKey",
+                  "value": "DISC_CC_CA_001",
+                  "type": "text"
+                },
+                {
+                  "key": "referenceKeyType",
+                  "value": "DISCLOSURE_CODE",
+                  "type": "text"
+                },
+                {
+                  "key": "accountKey",
+                  "value": "{{accountId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "customerKey",
+                  "value": "{{customerId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Legal",
+                  "type": "text"
+                },
+                {
+                  "key": "fileName",
+                  "value": "cardholder_agreement.pdf",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "type": "file",
+                  "src": "/path/to/document.pdf"
+                },
+                {
+                  "key": "metadata",
+                  "value": "[{\"key\":\"disclosureCode\",\"value\":\"DISC_CC_CA_001\",\"dataType\":\"STRING\"},{\"key\":\"effectiveDate\",\"value\":\"2024-01-01\",\"dataType\":\"DATE\"}]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents"]
+            },
+            "description": "Upload a document with metadata"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Download Document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/documents/{{documentId}}?action=DOWNLOAD",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "{{documentId}}"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "DOWNLOAD",
+                  "description": "VIEW or DOWNLOAD"
+                }
+              ]
+            },
+            "description": "Download document binary content"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Document Metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/documents/{{documentId}}/metadata?includeDownloadUrl=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "{{documentId}}", "metadata"],
+              "query": [
+                {
+                  "key": "includeDownloadUrl",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get document metadata without downloading file"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "{{documentId}}"]
+            },
+            "description": "Soft delete document (archive)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Template Management",
+      "item": [
+        {
+          "name": "1. List Templates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/templates?lineOfBusiness=credit_card&status=APPROVED&activeOnly=true&pageNumber=0&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates"],
+              "query": [
+                {
+                  "key": "lineOfBusiness",
+                  "value": "credit_card"
+                },
+                {
+                  "key": "status",
+                  "value": "APPROVED"
+                },
+                {
+                  "key": "activeOnly",
+                  "value": "true"
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "0"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List all templates with filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Create Template",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"templateId\", jsonData.templateId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateName\": \"Credit Card Disclosure - CA Residents\",\n  \"description\": \"Cardholder agreement disclosure for California residents\",\n  \"lineOfBusiness\": \"credit_card\",\n  \"categoryCode\": \"LEGAL\",\n  \"docType\": \"Disclosure\",\n  \"languageCode\": \"en_us\",\n  \"isSharedDocument\": true,\n  \"sharingScope\": \"custom_rule\",\n  \"retentionDays\": 365,\n  \"accessControl\": [\n    {\n      \"role\": \"customer\",\n      \"actions\": [\"View\", \"Download\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates"]
+            },
+            "description": "Create a new template (version 1)"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Template Version",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/versions/{{templateVersion}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", "{{templateId}}", "versions", "{{templateVersion}}"]
+            },
+            "description": "Get specific template version"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Create Template Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"basedOnVersion\": 1,\n  \"description\": \"Updated disclosure for 2025\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/versions",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", "{{templateId}}", "versions"]
+            },
+            "description": "Create new version of template"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vendor Mapping & Fields",
+      "item": [
+        {
+          "name": "1. Create Vendor Mapping with Extraction Config",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateId\": \"{{templateId}}\",\n  \"templateVersion\": 1,\n  \"vendor\": \"SMARTCOMM\",\n  \"vendorTemplateKey\": \"TEMPLATE_CC_DISCLOSURE_001\",\n  \"isPrimary\": true,\n  \"templateFields\": [\n    {\n      \"fieldName\": \"customerName\",\n      \"fieldType\": \"string\",\n      \"vendorFieldName\": \"Customer.Name\",\n      \"required\": true,\n      \"dataSource\": {\n        \"serviceName\": \"customer-service\",\n        \"serviceUrl\": \"https://api.example.com\",\n        \"endpoint\": \"/customers/{{customerId}}\",\n        \"method\": \"GET\",\n        \"jsonPath\": \"$.name\",\n        \"timeout\": 5000,\n        \"cacheConfig\": {\n          \"enabled\": true,\n          \"ttlSeconds\": 3600,\n          \"cacheKey\": \"customer:{{customerId}}\"\n        }\n      }\n    },\n    {\n      \"fieldName\": \"disclosureCode\",\n      \"fieldType\": \"string\",\n      \"vendorFieldName\": \"Disclosure.Code\",\n      \"required\": true,\n      \"dataSource\": {\n        \"serviceName\": \"pricing-service\",\n        \"serviceUrl\": \"https://api.example.com\",\n        \"endpoint\": \"/prices/{{pricingId}}\",\n        \"method\": \"GET\",\n        \"jsonPath\": \"$.cardholderAgreementsTncCode\",\n        \"timeout\": 5000\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendor-mappings",
+              "host": ["{{baseUrl}}"],
+              "path": ["vendor-mappings"]
+            },
+            "description": "Create vendor mapping with field definitions and data sources"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Primary Vendor Mapping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/versions/{{templateVersion}}/vendor-mappings/primary",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", "{{templateId}}", "versions", "{{templateVersion}}", "vendor-mappings", "primary"]
+            },
+            "description": "Get primary vendor for template"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Template Fields",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/versions/{{templateVersion}}/fields",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", "{{templateId}}", "versions", "{{templateVersion}}", "fields"]
+            },
+            "description": "Get all field definitions with data sources"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Fields Grouped by Service",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/versions/{{templateVersion}}/fields/by-service",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", "{{templateId}}", "versions", "{{templateVersion}}", "fields", "by-service"]
+            },
+            "description": "Get fields organized by service name"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Data Sources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/versions/{{templateVersion}}/data-sources",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", "{{templateId}}", "versions", "{{templateVersion}}", "data-sources"]
+            },
+            "description": "Get unique services/APIs used by template"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dynamic Extraction Examples",
+      "item": [
+        {
+          "name": "Example 1: Disclosure Code Extraction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"accountId\": [\"{{accountId}}\"],\n  \"documentTypeCategoryGroup\": [\n    {\n      \"category\": \"Legal\",\n      \"documentTypes\": [\"Disclosure\"]\n    }\n  ],\n  \"pageNumber\": 0,\n  \"pageSize\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents-enquiry",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents-enquiry"]
+            },
+            "description": "Retrieves disclosure documents using extraction logic:\n1. Calls Arrangements API → extracts pricingId\n2. Calls Pricing API → extracts disclosureCode\n3. Matches documents WHERE reference_key = disclosureCode"
+          },
+          "response": []
+        },
+        {
+          "name": "Example 2: Age-Based Documents (Seniors)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"accountId\": [\"{{accountId}}\"],\n  \"documentTypeCategoryGroup\": [\n    {\n      \"category\": \"Financial Planning\",\n      \"documentTypes\": [\"Retirement Guide\"]\n    }\n  ],\n  \"pageNumber\": 0,\n  \"pageSize\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents-enquiry",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents-enquiry"]
+            },
+            "description": "Retrieves age-based documents using extraction logic:\n1. Calls Customer API → extracts dateOfBirth\n2. Transforms: age = calculateAge(dateOfBirth)\n3. Transforms: ageGroup = classify(age) → SENIOR if >= 65\n4. Evaluates rule: age >= 65\n5. Matches documents WHERE doc_info @> {ageGroup: SENIOR}"
+          },
+          "response": []
+        },
+        {
+          "name": "Example 3: Balance-Based Offers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-version",
+                "value": "1"
+              },
+              {
+                "key": "X-correlation-id",
+                "value": "{{correlationId}}"
+              },
+              {
+                "key": "X-requestor-id",
+                "value": "{{customerId}}"
+              },
+              {
+                "key": "X-requestor-type",
+                "value": "CUSTOMER"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"accountId\": [\"{{accountId}}\"],\n  \"documentTypeCategoryGroup\": [\n    {\n      \"category\": \"Marketing\",\n      \"documentTypes\": [\"Upgrade Offer\"]\n    }\n  ],\n  \"pageNumber\": 0,\n  \"pageSize\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents-enquiry",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents-enquiry"]
+            },
+            "description": "Retrieves balance-based offers using extraction logic:\n1. Calls Account API → extracts currentBalance, accountStatus\n2. Transforms: productTier = classifyTier(currentBalance)\n3. Evaluates rules:\n   - currentBalance >= 10000\n   - accountStatus == ACTIVE\n4. Matches documents WHERE doc_info @> {productTier: PREFERRED}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test External APIs (Mock)",
+      "item": [
+        {
+          "name": "Mock - Arrangements API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.example.com/creditcard/accounts/{{accountId}}/arrangements",
+              "protocol": "https",
+              "host": ["api", "example", "com"],
+              "path": ["creditcard", "accounts", "{{accountId}}", "arrangements"]
+            },
+            "description": "Mock response for Arrangements API (for testing extraction logic)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://api.example.com/creditcard/accounts/{{accountId}}/arrangements",
+                  "protocol": "https",
+                  "host": ["api", "example", "com"],
+                  "path": ["creditcard", "accounts", "{{accountId}}", "arrangements"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"content\": [\n    {\n      \"domain\": \"PRICING\",\n      \"domainId\": \"PRICING_789\",\n      \"status\": \"ACTIVE\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mock - Pricing API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.example.com/pricing-service/prices/PRICING_789",
+              "protocol": "https",
+              "host": ["api", "example", "com"],
+              "path": ["pricing-service", "prices", "PRICING_789"]
+            },
+            "description": "Mock response for Pricing API"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://api.example.com/pricing-service/prices/PRICING_789",
+                  "protocol": "https",
+                  "host": ["api", "example", "com"],
+                  "path": ["pricing-service", "prices", "PRICING_789"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"cardholderAgreementsTncCode\": \"DISC_CC_CA_001\",\n  \"version\": \"2.1\",\n  \"effectiveDate\": \"2024-01-01T00:00:00Z\",\n  \"expirationDate\": \"2025-12-31T23:59:59Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mock - Customer API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.example.com/customer-service/customers/{{customerId}}",
+              "protocol": "https",
+              "host": ["api", "example", "com"],
+              "path": ["customer-service", "customers", "{{customerId}}"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://api.example.com/customer-service/customers/{{customerId}}",
+                  "protocol": "https",
+                  "host": ["api", "example", "com"],
+                  "path": ["customer-service", "customers", "{{customerId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"personalInfo\": {\n    \"name\": \"John Doe\",\n    \"dateOfBirth\": \"1957-03-15\"\n  },\n  \"address\": {\n    \"state\": \"CA\",\n    \"city\": \"San Francisco\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mock - Account API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.example.com/account-service/accounts/{{accountId}}",
+              "protocol": "https",
+              "host": ["api", "example", "com"],
+              "path": ["account-service", "accounts", "{{accountId}}"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://api.example.com/account-service/accounts/{{accountId}}",
+                  "protocol": "https",
+                  "host": ["api", "example", "com"],
+                  "path": ["account-service", "accounts", "{{accountId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"balances\": {\n    \"current\": 25000,\n    \"available\": 23000\n  },\n  \"product\": {\n    \"type\": \"CHECKING\"\n  },\n  \"status\": \"ACTIVE\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
