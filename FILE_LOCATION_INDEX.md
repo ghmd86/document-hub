@@ -5,15 +5,44 @@
 
 ---
 
+## 🚀 START HERE - Session Management Files
+
+**⚠️ READ THESE FILES FIRST AT THE START OF EVERY SESSION:**
+
+1. **SESSION_SUMMARY.md** ⭐ MOST IMPORTANT
+   - Location: `C:\Users\ghmd8\Documents\AI\SESSION_SUMMARY.md`
+   - What: Summary of last session, current state, next steps
+   - When: Read this FIRST before doing anything
+
+2. **CURRENT_TASK.md** ⭐ IMPORTANT
+   - Location: `C:\Users\ghmd8\Documents\AI\CURRENT_TASK.md`
+   - What: Active tasks, backlog, blocked tasks
+   - When: Read this SECOND to know what to work on
+
+3. **FILE_LOCATION_INDEX.md** (This File)
+   - Location: `C:\Users\ghmd8\Documents\AI\FILE_LOCATION_INDEX.md`
+   - What: Where everything is located
+   - When: Reference as needed to find files
+
+4. **.claude/instructions.md**
+   - Location: `C:\Users\ghmd8\Documents\AI\.claude\instructions.md`
+   - What: Instructions for Claude on session management
+   - When: Reference for understanding session protocols
+
+---
+
 ## Project Root Structure
 
 ```
 C:\Users\ghmd8\Documents\AI\
-├── document-hub-service/          # Main Spring Boot application
-├── reactive-disclosure-extractor/  # Reactive extraction engine service
-├── actual/                        # API specs and database documentation
-├── docs/                          # All documentation
-└── FILE_LOCATION_INDEX.md         # This file
+├── SESSION_SUMMARY.md              # ⭐ Read FIRST every session
+├── CURRENT_TASK.md                 # ⭐ Read SECOND every session
+├── FILE_LOCATION_INDEX.md          # This file
+├── .claude/
+│   └── instructions.md             # Session management instructions
+├── document-hub-service/           # Main Spring Boot application
+├── actual/                         # API specs and database documentation
+└── docs/                           # All documentation
 ```
 
 ---
