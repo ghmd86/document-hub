@@ -1,0 +1,448 @@
+{
+	"info": {
+		"_postman_id": "d4f5e6a7-b8c9-4d3e-a1b2-c3d4e5f6a7b8",
+		"name": "Document Hub API",
+		"description": "Comprehensive API collection for Document Hub Service - Document storage, retrieval, and management system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Health & Status",
+			"item": [
+				{
+					"name": "Health Check - Test Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"test",
+								"health"
+							]
+						},
+						"description": "Health check endpoint for the test controller"
+					},
+					"response": []
+				}
+			],
+			"description": "Health check and status endpoints"
+		},
+		{
+			"name": "Document Enquiry",
+			"item": [
+				{
+					"name": "Get Documents - Test Endpoint",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{testAccountId}}\",\n  \"customerId\": \"{{testCustomerId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test/documents-enquiry",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"test",
+								"documents-enquiry"
+							]
+						},
+						"description": "Retrieves documents for a specific account and customer. Returns both account-specific documents and applicable shared documents.\n\n**Features:**\n- Account-specific document retrieval from storage_index\n- Shared document retrieval with multiple scopes (all, credit_card_account_only)\n- Document merging and deduplication\n- Summary statistics (total, account-specific, shared counts)\n\n**Test Data:**\n- Account ID: 770e8400-e29b-41d4-a716-446655440001\n- Customer ID: 880e8400-e29b-41d4-a716-446655440001\n- Expected: 6 documents (4 account-specific + 2 shared)"
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"accountId\": \"770e8400-e29b-41d4-a716-446655440001\",\n  \"customerId\": \"880e8400-e29b-41d4-a716-446655440001\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/test/documents-enquiry",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"test",
+										"documents-enquiry"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"summary\": {\n    \"accountSpecificDocuments\": 4,\n    \"totalDocuments\": 6,\n    \"sharedDocuments\": 2\n  },\n  \"documentList\": [\n    {\n      \"document_id\": \"660e8400-e29b-41d4-a716-446655440003\",\n      \"display_name\": \"Monthly Statement Template\",\n      \"category\": \"Statement\",\n      \"doc_type\": \"monthly_statement\",\n      \"date_posted\": 1762403484,\n      \"is_shared\": false\n    },\n    {\n      \"document_id\": \"660e8400-e29b-41d4-a716-446655440004\",\n      \"display_name\": \"Payment Confirmation Letter\",\n      \"category\": \"PaymentConfirmationNotice\",\n      \"doc_type\": \"PaymentLetter\",\n      \"date_posted\": 1761107484,\n      \"is_shared\": false\n    },\n    {\n      \"document_id\": \"660e8400-e29b-41d4-a716-446655440002\",\n      \"display_name\": \"Monthly Statement Template\",\n      \"category\": \"Statement\",\n      \"doc_type\": \"monthly_statement\",\n      \"date_posted\": 1759811484,\n      \"is_shared\": false\n    },\n    {\n      \"document_id\": \"660e8400-e29b-41d4-a716-446655440001\",\n      \"display_name\": \"Monthly Statement Template\",\n      \"category\": \"Statement\",\n      \"doc_type\": \"monthly_statement\",\n      \"date_posted\": 1757219484,\n      \"is_shared\": false\n    },\n    {\n      \"document_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"display_name\": \"Privacy Policy 2024\",\n      \"category\": \"PrivacyPolicy\",\n      \"doc_type\": \"PrivacyNotice\",\n      \"is_shared\": true,\n      \"sharing_scope\": \"all\"\n    },\n    {\n      \"document_id\": \"550e8400-e29b-41d4-a716-446655440002\",\n      \"display_name\": \"Cardholder Agreement\",\n      \"category\": \"CardholderAgreement\",\n      \"doc_type\": \"CardholderAgreement\",\n      \"is_shared\": true,\n      \"sharing_scope\": \"credit_card_account_only\"\n    }\n  ]\n}"
+						}
+					]
+				}
+			],
+			"description": "Document enquiry and retrieval endpoints"
+		},
+		{
+			"name": "Template Management",
+			"item": [
+				{
+					"name": "Create Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"templateName\": \"Credit Card Disclosure Template\",\n  \"description\": \"Standard disclosure document for credit card accounts\",\n  \"lineOfBusiness\": \"CreditCard\",\n  \"categoryCode\": \"DISC\",\n  \"categoryName\": \"Disclosure\",\n  \"docType\": \"disclosure\",\n  \"languageCode\": \"en\",\n  \"owningDept\": \"Compliance\",\n  \"notificationNeeded\": true,\n  \"isRegulatory\": true,\n  \"isMessageCenterDoc\": true,\n  \"isSharedDocument\": false,\n  \"templateStatus\": \"ACTIVE\",\n  \"retentionDays\": 2555,\n  \"templateConfig\": {\n    \"defaultPrintVendor\": \"SMARTCOMM\",\n    \"defaultEmailVendor\": \"SENDGRID\",\n    \"printVendorFailover\": {\n      \"action\": \"SWITCH_TO_SECONDARY\",\n      \"secondaryVendor\": \"ASSENTIS\"\n    },\n    \"uploadReferenceKeyField\": \"disclosureCode\"\n  },\n  \"accessControl\": {\n    \"requiredRole\": \"CUSTOMER\",\n    \"allowedChannels\": [\"WEB\", \"MOBILE\", \"EMAIL\"]\n  },\n  \"requiredFields\": [\"accountNumber\", \"customerName\", \"disclosureCode\"],\n  \"channels\": {\n    \"print\": {\n      \"enabled\": true,\n      \"vendor\": \"SMARTCOMM\"\n    },\n    \"email\": {\n      \"enabled\": true,\n      \"vendor\": \"SENDGRID\"\n    },\n    \"web\": {\n      \"enabled\": true\n    },\n    \"mobile\": {\n      \"enabled\": true\n    }\n  },\n  \"templateVariables\": {\n    \"accountNumber\": \"string\",\n    \"customerName\": \"string\",\n    \"disclosureCode\": \"string\",\n    \"effectiveDate\": \"date\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"templates"
+							]
+						},
+						"description": "Creates a new document template with configuration.\n\n**New Field: templateConfig**\n- defaultPrintVendor: Vendor for print delivery (SMARTCOMM, ASSENTIS, HANDLEBAR, CUSTOM)\n- defaultEmailVendor: Vendor for email delivery (SENDGRID, MAILGUN, AWS_SES, CUSTOM)\n- printVendorFailover: Failover strategy when primary vendor is down\n  - action: SWITCH_TO_SECONDARY, QUEUE_FOR_RETRY, ALERT_ONLY, FAIL\n  - secondaryVendor: Secondary vendor to use\n- uploadReferenceKeyField: Field name to use as reference_key during upload"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Template by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/templates/:templateId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"templates",
+								":templateId"
+							],
+							"variable": [
+								{
+									"key": "templateId",
+									"value": "550e8400-e29b-41d4-a716-446655440001",
+									"description": "Template UUID"
+								}
+							]
+						},
+						"description": "Retrieves a specific template by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Template",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"templateName\": \"Updated Template Name\",\n  \"description\": \"Updated description\",\n  \"templateStatus\": \"ACTIVE\",\n  \"templateConfig\": {\n    \"defaultPrintVendor\": \"ASSENTIS\",\n    \"defaultEmailVendor\": \"MAILGUN\",\n    \"printVendorFailover\": {\n      \"action\": \"QUEUE_FOR_RETRY\",\n      \"secondaryVendor\": \"SMARTCOMM\"\n    },\n    \"uploadReferenceKeyField\": \"referenceNumber\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/templates/:templateId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"templates",
+								":templateId"
+							],
+							"variable": [
+								{
+									"key": "templateId",
+									"value": "550e8400-e29b-41d4-a716-446655440001"
+								}
+							]
+						},
+						"description": "Updates an existing template including templateConfig"
+					},
+					"response": []
+				}
+			],
+			"description": "Template creation, retrieval, and management endpoints"
+		},
+		{
+			"name": "Document Upload",
+			"item": [
+				{
+					"name": "Upload Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"templateId\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"accountId\": \"770e8400-e29b-41d4-a716-446655440001\",\n  \"customerId\": \"880e8400-e29b-41d4-a716-446655440001\",\n  \"metadata\": {\n    \"disclosureCode\": \"CCPA_2024\",\n    \"accountNumber\": \"1234567890\",\n    \"customerName\": \"John Doe\",\n    \"effectiveDate\": \"2024-01-01\"\n  },\n  \"documentData\": \"base64EncodedPDFContent...\",\n  \"fileName\": \"disclosure_CCPA_2024.pdf\",\n  \"fileSize\": 1048576,\n  \"mimeType\": \"application/pdf\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/documents/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"documents",
+								"upload"
+							]
+						},
+						"description": "Uploads a new document to the system.\n\n**Note:** The upload service uses templateConfig.uploadReferenceKeyField to determine which metadata field to use as reference_key.\n\nFor example, if templateConfig.uploadReferenceKeyField = \"disclosureCode\", the service will extract metadata.disclosureCode and use it as the reference_key in storage_index."
+					},
+					"response": []
+				}
+			],
+			"description": "Document upload endpoints"
+		},
+		{
+			"name": "Document Retrieval",
+			"item": [
+				{
+					"name": "Download Document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/documents/:documentId/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"documents",
+								":documentId",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "documentId",
+									"value": "660e8400-e29b-41d4-a716-446655440001",
+									"description": "Document UUID (storage_index_id)"
+								}
+							]
+						},
+						"description": "Downloads a document by its ID. Returns the binary document content."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document Metadata",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/documents/:documentId/metadata",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"documents",
+								":documentId",
+								"metadata"
+							],
+							"variable": [
+								{
+									"key": "documentId",
+									"value": "660e8400-e29b-41d4-a716-446655440001"
+								}
+							]
+						},
+						"description": "Retrieves metadata for a specific document without downloading the content"
+					},
+					"response": []
+				}
+			],
+			"description": "Document download and metadata retrieval endpoints"
+		},
+		{
+			"name": "Printing & Email",
+			"item": [
+				{
+					"name": "Send Document for Printing",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentId\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"deliveryAddress\": {\n    \"name\": \"John Doe\",\n    \"addressLine1\": \"123 Main St\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"zipCode\": \"94102\"\n  },\n  \"printOptions\": {\n    \"color\": false,\n    \"duplex\": true,\n    \"paperSize\": \"LETTER\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/documents/print",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"documents",
+								"print"
+							]
+						},
+						"description": "Sends a document to the print vendor.\n\n**Vendor Selection:**\n- The service queries templateConfig.defaultPrintVendor to determine which vendor to use\n- If primary vendor fails, uses templateConfig.printVendorFailover strategy\n- Supported vendors: SMARTCOMM, ASSENTIS, HANDLEBAR, CUSTOM"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Document via Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentId\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"recipientEmail\": \"customer@example.com\",\n  \"subject\": \"Your Credit Card Disclosure Document\",\n  \"bodyText\": \"Please find attached your disclosure document.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/documents/email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"documents",
+								"email"
+							]
+						},
+						"description": "Sends a document via email.\n\n**Vendor Selection:**\n- The service queries templateConfig.defaultEmailVendor to determine which vendor to use\n- Supported vendors: SENDGRID, MAILGUN, AWS_SES, CUSTOM"
+					},
+					"response": []
+				}
+			],
+			"description": "Document printing and email delivery endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "testAccountId",
+			"value": "770e8400-e29b-41d4-a716-446655440001",
+			"type": "string"
+		},
+		{
+			"key": "testCustomerId",
+			"value": "880e8400-e29b-41d4-a716-446655440001",
+			"type": "string"
+		}
+	]
+}

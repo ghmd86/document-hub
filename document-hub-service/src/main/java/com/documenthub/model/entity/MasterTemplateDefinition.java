@@ -24,12 +24,11 @@ import java.util.UUID;
 @Table("master_template_definition")
 public class MasterTemplateDefinition {
 
-    // Composite Primary Key
+    // Composite Primary Key (template_id, version)
     @Id
     @Column("template_id")
     private UUID templateId;
 
-    @Id
     @Column("version")
     private Integer version;
 
