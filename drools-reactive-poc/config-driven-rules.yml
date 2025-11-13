@@ -1,0 +1,451 @@
+# Configuration-Driven Rule Engine Example
+# This configuration allows adding new APIs and rules WITHOUT code changes
+
+# ============================================================================
+# DATA SOURCES - External API Configuration
+# ============================================================================
+# Add new APIs here without creating Java classes!
+
+data_sources:
+  # Step 1: Get arrangement details (to extract pricingId)
+  - id: arrangements_api
+    name: "Arrangements API"
+    type: REST_API
+    method: GET
+    base_url: ${ARRANGEMENTS_API_URL:http://localhost:8081}
+    endpoint: /api/v1/arrangements/{arrangementId}
+    timeout_ms: 5000
+    retry_count: 2
+
+    # Map API response fields to internal field names
+    response_mapping:
+      - field_name: pricingId
+        json_path: $.pricingId
+        data_type: STRING
+      - field_name: productCode
+        json_path: $.productCode
+        data_type: STRING
+      - field_name: arrangementStatus
+        json_path: $.status
+        data_type: STRING
+
+  # Step 2: Get cardholder agreement (CHAINED - depends on arrangements_api)
+  - id: cardholder_agreements_api
+    name: "Cardholder Agreements API"
+    type: REST_API
+    method: GET
+    base_url: ${CARDHOLDER_AGREEMENTS_API_URL:http://localhost:8082}
+    endpoint: /api/v1/cardholder-agreements/{pricingId}
+    timeout_ms: 5000
+    retry_count: 2
+
+    # ⭐ DEPENDENCY: This API depends on data from arrangements_api
+    depends_on:
+      - source_id: arrangements_api
+        field: pricingId  # Use pricingId from arrangements_api
+
+    response_mapping:
+      - field_name: cardholderAgreementsTNCCode
+        json_path: $.cardholderAgreementsTNCCode
+        data_type: STRING
+      - field_name: tncEffectiveDate
+        json_path: $.effectiveDate
+        data_type: DATE
+      - field_name: tncExpiryDate
+        json_path: $.expiryDate
+        data_type: DATE
+
+  # Step 3: Get account details (PARALLEL with above)
+  - id: account_service_api
+    name: "Account Service API"
+    type: REST_API
+    method: GET
+    base_url: ${ACCOUNT_SERVICE_API_URL:http://localhost:8083}
+    endpoint: /api/v1/accounts/{accountId}
+    timeout_ms: 5000
+    retry_count: 2
+
+    response_mapping:
+      - field_name: accountBalance
+        json_path: $.balance
+        data_type: DECIMAL
+      - field_name: accountStatus
+        json_path: $.status
+        data_type: STRING
+      - field_name: accountType
+        json_path: $.accountType
+        data_type: STRING
+      - field_name: creditLimit
+        json_path: $.creditLimit
+        data_type: DECIMAL
+      - field_name: state
+        json_path: $.state
+        data_type: STRING
+
+  # Step 4: Get customer details (PARALLEL)
+  - id: customer_service_api
+    name: "Customer Service API"
+    type: REST_API
+    method: GET
+    base_url: ${CUSTOMER_SERVICE_API_URL:http://localhost:8084}
+    endpoint: /api/v1/customers/{customerId}
+    timeout_ms: 5000
+    retry_count: 2
+
+    response_mapping:
+      - field_name: customerTier
+        json_path: $.tier
+        data_type: STRING
+      - field_name: creditScore
+        json_path: $.creditScore
+        data_type: INTEGER
+      - field_name: customerStatus
+        json_path: $.status
+        data_type: STRING
+      - field_name: enrollmentDate
+        json_path: $.enrollmentDate
+        data_type: DATE
+
+# ============================================================================
+# RULES - Document Eligibility Rules
+# ============================================================================
+# Add new rules here without code changes!
+
+rules:
+  # Rule 1: Gold TNC Code specific document
+  - rule_id: RULE-001
+    name: "Gold TNC Specific Document"
+    description: "Customers with Gold TNC are eligible for gold benefits document"
+    priority: 100
+    enabled: true
+
+    conditions:
+      type: ALL  # ALL conditions must be true (AND logic)
+
+      expressions:
+        - source: cardholder_agreements_api
+          field: cardholderAgreementsTNCCode
+          operator: EQUALS
+          value: "TNC_GOLD_2024"
+
+    actions:
+      add_documents:
+        - document_id: DOC-TNC-GOLD-2024-BENEFITS
+          document_name: "Gold TNC Benefits 2024"
+
+  # Rule 2: Platinum TNC Code specific document
+  - rule_id: RULE-002
+    name: "Platinum TNC Specific Document"
+    description: "Customers with Platinum TNC are eligible for platinum benefits"
+    priority: 95
+    enabled: true
+
+    conditions:
+      type: ALL
+
+      expressions:
+        - source: cardholder_agreements_api
+          field: cardholderAgreementsTNCCode
+          operator: EQUALS
+          value: "TNC_PLATINUM_2024"
+
+    actions:
+      add_documents:
+        - document_id: DOC-TNC-PLATINUM-2024-BENEFITS
+          document_name: "Platinum TNC Benefits 2024"
+
+  # Rule 3: Premium Pricing Package
+  - rule_id: RULE-003
+    name: "Premium Pricing Package"
+    description: "Accounts with premium pricing get premium benefits documentation"
+    priority: 90
+    enabled: true
+
+    conditions:
+      type: ALL
+
+      expressions:
+        - source: arrangements_api
+          field: pricingId
+          operator: MATCHES
+          value: "PRICING_PREMIUM_.*"  # Regex pattern
+
+    actions:
+      add_documents:
+        - document_id: DOC-PREMIUM-PRICING-BENEFITS
+          document_name: "Premium Pricing Benefits"
+
+  # Rule 4: High Balance Gold TNC Exclusive (COMBINED conditions from multiple APIs)
+  - rule_id: RULE-004
+    name: "High Balance Gold TNC Exclusive"
+    description: "High balance customers with Gold TNC get exclusive document"
+    priority: 85
+    enabled: true
+
+    conditions:
+      type: ALL  # Both conditions must be true
+
+      expressions:
+        # Condition 1: From chained API call
+        - source: cardholder_agreements_api
+          field: cardholderAgreementsTNCCode
+          operator: EQUALS
+          value: "TNC_GOLD_2024"
+
+        # Condition 2: From account API
+        - source: account_service_api
+          field: accountBalance
+          operator: GREATER_THAN
+          value: 50000
+
+    actions:
+      add_documents:
+        - document_id: DOC-HIGH-BALANCE-GOLD-EXCLUSIVE
+          document_name: "High Balance Gold Exclusive Benefits"
+
+  # Rule 5: VIP Customer with Platinum TNC (MULTI-SOURCE)
+  - rule_id: RULE-005
+    name: "VIP Customer with Platinum TNC"
+    description: "VIP tier customers with Platinum TNC get VIP documentation"
+    priority: 80
+    enabled: true
+
+    conditions:
+      type: ALL
+
+      expressions:
+        # From cardholder agreements API (chained)
+        - source: cardholder_agreements_api
+          field: cardholderAgreementsTNCCode
+          operator: EQUALS
+          value: "TNC_PLATINUM_2024"
+
+        # From customer API
+        - source: customer_service_api
+          field: customerTier
+          operator: IN
+          value: ["PLATINUM", "BLACK"]  # Array of values
+
+    actions:
+      add_documents:
+        - document_id: DOC-VIP-PLATINUM-TNC
+          document_name: "VIP Platinum TNC Benefits"
+
+  # Rule 6: 2024 TNC Version Documents (PATTERN MATCHING)
+  - rule_id: RULE-006
+    name: "2024 TNC Version Documents"
+    description: "All customers with 2024 TNC versions get update documentation"
+    priority: 70
+    enabled: true
+
+    conditions:
+      type: ALL
+
+      expressions:
+        - source: cardholder_agreements_api
+          field: cardholderAgreementsTNCCode
+          operator: MATCHES
+          value: "TNC_.*_2024"  # Pattern: any TNC ending with _2024
+
+    actions:
+      add_documents:
+        - document_id: DOC-2024-TNC-UPDATE
+          document_name: "2024 TNC Update Documentation"
+
+  # Rule 7: California Premium Pricing
+  - rule_id: RULE-007
+    name: "California Premium Pricing"
+    description: "California accounts with premium pricing get CA-specific disclosure"
+    priority: 60
+    enabled: true
+
+    conditions:
+      type: ALL
+
+      expressions:
+        - source: arrangements_api
+          field: pricingId
+          operator: MATCHES
+          value: "PRICING_PREMIUM_.*"
+
+        - source: account_service_api
+          field: state
+          operator: EQUALS
+          value: "CA"
+
+    actions:
+      add_documents:
+        - document_id: DOC-CA-PREMIUM-DISCLOSURE
+          document_name: "California Premium Pricing Disclosure"
+
+  # Rule 8: Ultimate Premium Package (COMPLEX - Multiple sources, multiple conditions)
+  - rule_id: RULE-008
+    name: "Ultimate Premium Package"
+    description: "Ultra-premium customers get ultimate benefits package"
+    priority: 50
+    enabled: true
+
+    conditions:
+      type: ALL  # All 6 conditions must be true
+
+      expressions:
+        # From chained API (cardholder agreements)
+        - source: cardholder_agreements_api
+          field: cardholderAgreementsTNCCode
+          operator: MATCHES
+          value: "TNC_(PLATINUM|BLACK)_.*"
+
+        # From arrangements API
+        - source: arrangements_api
+          field: pricingId
+          operator: MATCHES
+          value: "PRICING_PREMIUM_.*"
+
+        # From account API
+        - source: account_service_api
+          field: accountBalance
+          operator: GREATER_THAN
+          value: 100000
+
+        - source: account_service_api
+          field: accountStatus
+          operator: EQUALS
+          value: "ACTIVE"
+
+        # From customer API
+        - source: customer_service_api
+          field: customerTier
+          operator: IN
+          value: ["PLATINUM", "BLACK"]
+
+        - source: customer_service_api
+          field: creditScore
+          operator: GREATER_THAN_OR_EQUAL
+          value: 800
+
+    actions:
+      add_documents:
+        - document_id: DOC-ULTIMATE-PREMIUM-PACKAGE
+          document_name: "Ultimate Premium Benefits Package"
+
+  # Rule 9: OR Logic Example - Active or Premium accounts
+  - rule_id: RULE-009
+    name: "Active OR Premium Account Benefits"
+    description: "Accounts that are either active OR have premium pricing"
+    priority: 40
+    enabled: true
+
+    conditions:
+      type: ANY  # ⭐ ANY (OR logic) - at least one condition must be true
+
+      expressions:
+        - source: account_service_api
+          field: accountStatus
+          operator: EQUALS
+          value: "ACTIVE"
+
+        - source: arrangements_api
+          field: pricingId
+          operator: MATCHES
+          value: "PRICING_PREMIUM_.*"
+
+    actions:
+      add_documents:
+        - document_id: DOC-ACTIVE-OR-PREMIUM
+          document_name: "Active or Premium Account Benefits"
+
+  # Rule 10: Complex Nested Logic (AND + OR)
+  - rule_id: RULE-010
+    name: "Complex Nested Eligibility"
+    description: "Demonstrates nested AND/OR logic"
+    priority: 30
+    enabled: true
+
+    conditions:
+      type: ALL  # Top-level AND
+
+      expressions:
+        # Must have Gold or Platinum TNC
+        - type: ANY  # Nested OR
+          expressions:
+            - source: cardholder_agreements_api
+              field: cardholderAgreementsTNCCode
+              operator: EQUALS
+              value: "TNC_GOLD_2024"
+
+            - source: cardholder_agreements_api
+              field: cardholderAgreementsTNCCode
+              operator: EQUALS
+              value: "TNC_PLATINUM_2024"
+
+        # AND must have high balance OR high credit score
+        - type: ANY  # Nested OR
+          expressions:
+            - source: account_service_api
+              field: accountBalance
+              operator: GREATER_THAN
+              value: 75000
+
+            - source: customer_service_api
+              field: creditScore
+              operator: GREATER_THAN_OR_EQUAL
+              value: 750
+
+    actions:
+      add_documents:
+        - document_id: DOC-COMPLEX-ELIGIBILITY
+          document_name: "Complex Eligibility Benefits"
+
+# ============================================================================
+# OPERATORS SUPPORTED
+# ============================================================================
+# - EQUALS: Exact match
+# - NOT_EQUALS: Not equal to
+# - GREATER_THAN: >
+# - GREATER_THAN_OR_EQUAL: >=
+# - LESS_THAN: <
+# - LESS_THAN_OR_EQUAL: <=
+# - IN: Value in array
+# - NOT_IN: Value not in array
+# - MATCHES: Regex pattern match
+# - CONTAINS: String contains substring
+# - STARTS_WITH: String starts with
+# - ENDS_WITH: String ends with
+
+# ============================================================================
+# HOW TO ADD NEW CONFIGURATION
+# ============================================================================
+
+# TO ADD A NEW API (without code changes):
+# 1. Add a new entry under data_sources
+# 2. Configure endpoint, response_mapping, and optional dependencies
+# 3. Restart application to reload configuration
+# 4. Use the source ID in rules
+
+# TO ADD A NEW RULE (without code changes):
+# 1. Add a new entry under rules
+# 2. Reference data sources by their ID
+# 3. Define conditions and actions
+# 4. Save and reload configuration (or hot-reload from database)
+
+# EXAMPLE - Adding a new "Rewards API":
+# - id: rewards_api
+#   type: REST_API
+#   endpoint: /api/v1/rewards/{customerId}
+#   response_mapping:
+#     - field_name: rewardsPoints
+#       json_path: $.points
+#       data_type: INTEGER
+
+# EXAMPLE - Adding a rule using the new API:
+# - rule_id: RULE-011
+#   name: "High Rewards Points"
+#   conditions:
+#     expressions:
+#       - source: rewards_api
+#         field: rewardsPoints
+#         operator: GREATER_THAN
+#         value: 10000
+#   actions:
+#     add_documents:
+#       - document_id: DOC-REWARDS-BENEFITS

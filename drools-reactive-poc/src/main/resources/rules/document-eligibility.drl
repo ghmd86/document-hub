@@ -1,0 +1,136 @@
+package com.example.droolspoc.rules;
+
+import com.example.droolspoc.model.AccountFact;
+import com.example.droolspoc.model.CustomerFact;
+import com.example.droolspoc.model.DocumentEligibilityResult;
+import java.time.LocalDate;
+
+/**
+ * Document Eligibility Rules
+ *
+ * These rules determine which documents a customer/account is eligible to receive.
+ * Rules use pattern matching to evaluate facts and add eligible documents.
+ */
+
+// Rule 1: Premium Credit Card Benefits
+rule "Premium Credit Card Benefits"
+    salience 100
+    when
+        $account: AccountFact(
+            accountType == "CREDIT_CARD",
+            balance > 10000,
+            status == "ACTIVE"
+        )
+        $customer: CustomerFact(
+            tier in ("GOLD", "PLATINUM", "BLACK")
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] Premium Credit Card Benefits");
+        $result.addEligibleDocument("DOC-PREMIUM-CC-BENEFITS");
+end
+
+// Rule 2: High Balance Account Disclosure
+rule "High Balance Account Disclosure"
+    salience 90
+    when
+        $account: AccountFact(
+            balance > 50000,
+            status == "ACTIVE"
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] High Balance Account Disclosure");
+        $result.addEligibleDocument("DOC-HIGH-BALANCE-DISCLOSURE");
+end
+
+// Rule 3: California State-Specific Disclosure
+rule "California State Disclosure"
+    salience 80
+    when
+        $account: AccountFact(
+            state == "CA"
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] California State Disclosure");
+        $result.addEligibleDocument("DOC-CA-STATE-DISCLOSURE");
+end
+
+// Rule 4: Gold Tier Customer Benefits
+rule "Gold Tier Customer Benefits"
+    salience 70
+    when
+        $customer: CustomerFact(
+            tier == "GOLD"
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] Gold Tier Customer Benefits");
+        $result.addEligibleDocument("DOC-GOLD-TIER-BENEFITS");
+end
+
+// Rule 5: Excellent Credit Score Offers
+rule "Excellent Credit Score Offers"
+    salience 60
+    when
+        $customer: CustomerFact(
+            creditScore >= 750
+        )
+        $account: AccountFact(
+            status == "ACTIVE"
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] Excellent Credit Score Offers");
+        $result.addEligibleDocument("DOC-EXCELLENT-CREDIT-OFFERS");
+end
+
+// Rule 6: New Customer Welcome Package
+rule "New Customer Welcome Package"
+    salience 50
+    when
+        $customer: CustomerFact(
+            enrollmentDate >= "2024-01-01"
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] New Customer Welcome Package");
+        $result.addEligibleDocument("DOC-WELCOME-PACKAGE");
+end
+
+// Rule 7: Platinum/Black Card Exclusive
+rule "Platinum Black Card Exclusive"
+    salience 40
+    when
+        $customer: CustomerFact(
+            tier in ("PLATINUM", "BLACK")
+        )
+        $account: AccountFact(
+            creditLimit > 20000
+        )
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] Platinum/Black Card Exclusive");
+        $result.addEligibleDocument("DOC-PLATINUM-EXCLUSIVE");
+end
+
+// Rule 8: Universal Privacy Policy (everyone gets this)
+rule "Universal Privacy Policy"
+    salience 10
+    when
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] Universal Privacy Policy");
+        $result.addEligibleDocument("DOC-PRIVACY-POLICY");
+end
+
+// Rule 9: Terms and Conditions (everyone gets this)
+rule "Universal Terms and Conditions"
+    salience 10
+    when
+        $result: DocumentEligibilityResult()
+    then
+        System.out.println("[RULE FIRED] Universal Terms and Conditions");
+        $result.addEligibleDocument("DOC-TERMS-CONDITIONS");
+end
