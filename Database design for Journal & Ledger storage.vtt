@@ -1,0 +1,4391 @@
+WEBVTT
+
+a24af1ca-382d-43ae-809f-8701819ac378/12-0
+00:00:27.288 --> 00:00:32.069
+<v Taher Ghulam Mohammed>OK, let me share my screen.
+So we're we're going to review the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/12-1
+00:00:32.069 --> 00:00:35.408
+<v Taher Ghulam Mohammed>database schemas, right? John,
+this column.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/13-0
+00:00:36.088 --> 00:00:39.408
+<v John Drum>Uh, yeah, I'd like to review the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/14-0
+00:00:41.208 --> 00:00:45.574
+<v John Drum>The tables and schema,
+at least as far as what they what they</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/14-1
+00:00:45.574 --> 00:00:47.968
+<v John Drum>are, what they're doing, so forth.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/15-0
+00:00:47.928 --> 00:00:51.405
+<v Taher Ghulam Mohammed>OK,
+shall we start with the document hub</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/15-1
+00:00:51.405 --> 00:00:52.168
+<v Taher Ghulam Mohammed>database?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/16-0
+00:00:52.888 --> 00:00:53.768
+<v John Drum>Let's start with the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/17-0
+00:00:57.128 --> 00:00:59.688
+<v John Drum>Uh, let's start with the print.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/19-0
+00:01:05.648 --> 00:01:07.488
+<v Taher Ghulam Mohammed>And OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/20-0
+00:01:07.328 --> 00:01:09.528
+<v John Drum>That's the beginning of the system, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/22-0
+00:01:11.288 --> 00:01:13.048
+<v Cyrus Bajracharya>The rapper or the?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/21-0
+00:01:11.448 --> 00:01:12.248
+<v Taher Ghulam Mohammed>One second.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/23-0
+00:01:13.128 --> 00:01:14.448
+<v John Drum>All of it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/24-0
+00:01:15.128 --> 00:01:15.488
+<v Cyrus Bajracharya>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/25-0
+00:01:16.248 --> 00:01:17.768
+<v Taher Ghulam Mohammed>Uh, do you have?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/26-0
+00:01:18.888 --> 00:01:20.328
+<v Taher Ghulam Mohammed>OK, one second. Let me open that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/27-0
+00:01:25.328 --> 00:01:29.288
+<v Taher Ghulam Mohammed>Platform, right.
+That's that's in the platform, right,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/27-1
+00:01:29.288 --> 00:01:29.648
+<v Taher Ghulam Mohammed>Raji?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/28-0
+00:01:30.848 --> 00:01:31.568
+<v Taher Ghulam Mohammed>Latform.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/30-0
+00:01:31.888 --> 00:01:35.208
+<v Prachi Kulkarni>You're talking about document,
+general table.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/29-0
+00:01:35.408 --> 00:01:35.728
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/31-0
+00:01:37.368 --> 00:01:40.368
+<v Prachi Kulkarni>Uh, give me a second.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/40-0
+00:02:16.008 --> 00:02:22.128
+<v Prachi Kulkarni>It's in communication document
+communication, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/42-0
+00:02:20.568 --> 00:02:23.888
+<v Taher Ghulam Mohammed>Service. OK, I got it. OK, let me share.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/41-0
+00:02:24.008 --> 00:02:24.168
+<v Prachi Kulkarni>2.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/43-0
+00:02:26.328 --> 00:02:27.008
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/46-0
+00:02:33.128 --> 00:02:40.168
+<v Taher Ghulam Mohammed>This one is from the old doc audit log,
+right? This this is the proxy one, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/45-0
+00:02:38.608 --> 00:02:39.328
+<v Cyrus Bajracharya>Oh yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/47-0
+00:02:40.328 --> 00:02:42.408
+<v Cyrus Bajracharya>Yeah, that's the.net.net one.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/49-0
+00:02:45.008 --> 00:02:46.128
+<v Taher Ghulam Mohammed>OK and this.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/50-0
+00:02:45.048 --> 00:02:47.648
+<v Cyrus Bajracharya>Later microservice one so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/51-0
+00:02:48.808 --> 00:02:50.848
+<v Cyrus Bajracharya>On the right side it should be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/53-0
+00:02:53.208 --> 00:02:56.008
+<v Cyrus Bajracharya>So that was what we, I think, left.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/52-0
+00:02:53.368 --> 00:02:54.768
+<v Taher Ghulam Mohammed>This one this is.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/54-0
+00:02:56.048 --> 00:02:59.376
+<v Taher Ghulam Mohammed>Is yeah,
+we designed this new what you call ledger</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/54-1
+00:02:59.376 --> 00:02:59.768
+<v Taher Ghulam Mohammed>table.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/55-0
+00:03:01.248 --> 00:03:03.488
+<v Taher Ghulam Mohammed>So we had that would be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/56-0
+00:03:05.568 --> 00:03:06.288
+<v Taher Ghulam Mohammed>Having like.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/57-0
+00:03:05.688 --> 00:03:08.754
+<v Cyrus Bajracharya>It's yeah,
+it's slightly different from what we have</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/57-1
+00:03:08.754 --> 00:03:12.168
+<v Cyrus Bajracharya>currently been using in the wrapper.
+There's a few things.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/58-0
+00:03:12.168 --> 00:03:16.168
+<v Taher Ghulam Mohammed>OK, OK. So the wrapper one is this.
+Which one is that one?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/59-0
+00:03:15.888 --> 00:03:19.728
+<v Cyrus Bajracharya>It's the proxy tab, not the platform.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/60-0
+00:03:20.848 --> 00:03:22.128
+<v Taher Ghulam Mohammed>OK, proxy, OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/61-0
+00:03:22.368 --> 00:03:27.888
+<v Cyrus Bajracharya>Yeah,
+so on the first first one over there left.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/62-0
+00:03:29.208 --> 00:03:32.768
+<v Cyrus Bajracharya>Zoom in on the left near that start.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/63-0
+00:03:34.848 --> 00:03:37.008
+<v Cyrus Bajracharya>So yeah, that ticket. Yeah, that one.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/65-0
+00:03:38.408 --> 00:03:40.772
+<v Cyrus Bajracharya>So there's three more columns.
+I think it's missing from here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/65-1
+00:03:40.772 --> 00:03:41.448
+<v Cyrus Bajracharya>I added right now.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/66-0
+00:03:43.088 --> 00:03:48.611
+<v Taher Ghulam Mohammed>OK, so John, John,
+this is the the wrap what you call proxy</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/66-1
+00:03:48.611 --> 00:03:50.728
+<v Taher Ghulam Mohammed>1 oxygen table we have.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/67-0
+00:03:53.168 --> 00:03:53.328
+<v Taher Ghulam Mohammed>Like.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/68-0
+00:03:55.728 --> 00:03:58.368
+<v Taher Ghulam Mohammed>Document journal ID ECMS key.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/69-0
+00:03:59.688 --> 00:04:01.488
+<v Taher Ghulam Mohammed>The process is key.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/70-0
+00:04:02.968 --> 00:04:07.728
+<v Taher Ghulam Mohammed>Processor description. OK,
+is it visible to you or is it very small?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/73-0
+00:04:08.808 --> 00:04:12.621
+<v John Drum>I can sort of see it.
+It's it's better now,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/71-0
+00:04:09.008 --> 00:04:09.608
+<v Taher Ghulam Mohammed>Doing.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/72-0
+00:04:11.568 --> 00:04:11.688
+<v Taher Ghulam Mohammed>Huh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/73-1
+00:04:12.621 --> 00:04:15.568
+<v John Drum>but this is the legacy one, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/74-0
+00:04:16.328 --> 00:04:18.168
+<v Taher Ghulam Mohammed>This is the proxy one.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/75-0
+00:04:20.368 --> 00:04:21.408
+<v Taher Ghulam Mohammed>Proxy which way?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/76-0
+00:04:20.728 --> 00:04:23.328
+<v Cyrus Bajracharya>The one currently being used by the
+clients.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/77-0
+00:04:21.608 --> 00:04:23.968
+<v Prachi Kulkarni>No, it's not it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/78-0
+00:04:25.048 --> 00:04:30.248
+<v John Drum>And there we it's got an ECMS key in here.
+We actually putting anything in this.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/79-0
+00:04:29.168 --> 00:04:33.985
+<v Cyrus Bajracharya>No, it's a empty column.
+We're gonna change that to document hub</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/79-1
+00:04:33.985 --> 00:04:34.208
+<v Cyrus Bajracharya>ID.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/81-0
+00:04:35.488 --> 00:04:37.763
+<v John Drum>OK.
+And do we have a column that defines</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/81-1
+00:04:37.763 --> 00:04:39.928
+<v John Drum>whether these are required or optional?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/82-0
+00:04:40.208 --> 00:04:44.768
+<v Cyrus Bajracharya>Required or optional which?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/83-0
+00:04:45.408 --> 00:04:45.888
+<v John Drum>These fields.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/84-0
+00:04:45.848 --> 00:04:47.408
+<v Taher Ghulam Mohammed>We have not null columns.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/85-0
+00:04:46.728 --> 00:04:49.848
+<v Cyrus Bajracharya>We have not know, but.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/86-0
+00:04:54.808 --> 00:04:55.128
+<v John Drum>You have.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/87-0
+00:04:56.568 --> 00:04:56.848
+<v John Drum>What?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/89-0
+00:04:57.288 --> 00:05:02.328
+<v Taher Ghulam Mohammed>Not null columns that that means we have
+to have a value in this column.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/90-0
+00:05:03.928 --> 00:05:09.273
+<v John Drum>What doesn't necessarily mean that it
+could have a default value that gets put</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/90-1
+00:05:09.273 --> 00:05:12.048
+<v John Drum>in there if you don't pass something. Um.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/91-0
+00:05:15.088 --> 00:05:15.568
+<v John Drum>So.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/92-0
+00:05:17.128 --> 00:05:20.692
+<v John Drum>Like ECMS key,
+you said you're not putting anything in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/92-1
+00:05:20.692 --> 00:05:24.451
+<v John Drum>there. It's a UUID.
+You don't have anything in here about</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/92-2
+00:05:24.451 --> 00:05:27.756
+<v John Drum>that at all.
+So how do I know that that's if not a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/92-3
+00:05:27.756 --> 00:05:28.728
+<v John Drum>required field?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/93-0
+00:05:30.648 --> 00:05:33.288
+<v John Drum>Because you said it's empty at the moment,
+right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/94-0
+00:05:33.608 --> 00:05:35.991
+<v Taher Ghulam Mohammed>Yeah,
+that will be null value if you don't put</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/94-1
+00:05:35.991 --> 00:05:36.448
+<v Taher Ghulam Mohammed>anything.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/95-0
+00:05:36.888 --> 00:05:38.048
+<v John Drum>It'll what?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/96-0
+00:05:38.128 --> 00:05:43.994
+<v Taher Ghulam Mohammed>It would in what you call it,
+just keep a null value out there if you</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/97-0
+00:05:43.928 --> 00:05:46.848
+<v John Drum>OK,
+so that means that's not a required field.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/96-1
+00:05:43.994 --> 00:05:45.168
+<v Taher Ghulam Mohammed>don't add any.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/98-0
+00:05:46.648 --> 00:05:48.128
+<v Taher Ghulam Mohammed>Not record for yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/99-0
+00:05:49.208 --> 00:05:51.690
+<v John Drum>OK,
+there should be something indicating that</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/99-1
+00:05:51.690 --> 00:05:54.928
+<v John Drum>because when I look at this I have no
+idea if it is or not.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/100-0
+00:05:56.288 --> 00:05:56.808
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/101-0
+00:05:58.488 --> 00:06:02.934
+<v John Drum>So I said we need to start cleaning up
+our database definitions and these little</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/101-1
+00:06:02.934 --> 00:06:06.448
+<v John Drum>screenshots that we put in these diagrams.
+That's not a proper.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/103-0
+00:06:07.568 --> 00:06:15.138
+<v John Drum>Database table diagram.
+We should have these tables build out in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/102-0
+00:06:07.968 --> 00:06:09.208
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/103-1
+00:06:15.138 --> 00:06:15.488
+<v John Drum>um.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/105-0
+00:06:19.248 --> 00:06:20.488
+<v John Drum>And this also.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/106-0
+00:06:24.328 --> 00:06:28.199
+<v John Drum>You know what I'm saying?
+You should have an entity diagram created</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/107-0
+00:06:27.928 --> 00:06:31.288
+<v Taher Ghulam Mohammed>Mm-hmm. OK. Yeah, I'll.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/106-1
+00:06:28.199 --> 00:06:28.768
+<v John Drum>for these.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/109-0
+00:06:30.048 --> 00:06:31.825
+<v John Drum>Otherwise,
+how are we ever gonna do a data</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/109-1
+00:06:31.825 --> 00:06:33.685
+<v John Drum>dictionary?
+Because there needs to be a data</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/109-2
+00:06:33.685 --> 00:06:35.008
+<v John Drum>dictionary for all these tables.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/108-0
+00:06:35.608 --> 00:06:35.728
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/110-0
+00:06:36.488 --> 00:06:39.343
+<v John Drum>Um, anyway,
+so let's go with what we got to here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/110-1
+00:06:39.343 --> 00:06:43.226
+<v John Drum>This is a document journal ID.
+Is this the same document journal ID</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/110-2
+00:06:43.226 --> 00:06:44.768
+<v John Drum>that's in the other tables?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/112-0
+00:06:46.328 --> 00:06:47.928
+<v John Drum>The one we've seen for the reprint.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/111-0
+00:06:46.488 --> 00:06:48.168
+<v Taher Ghulam Mohammed>And this is the primary good.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/113-0
+00:06:49.008 --> 00:06:49.248
+<v Prachi Kulkarni>Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/114-0
+00:06:50.768 --> 00:06:50.888
+<v John Drum>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/115-0
+00:06:52.128 --> 00:06:53.808
+<v Prachi Kulkarni>Then you see.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/116-0
+00:06:52.728 --> 00:06:53.648
+<v John Drum>Processor key.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/117-0
+00:06:56.528 --> 00:06:57.648
+<v John Drum>Who's a processor?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/118-0
+00:06:59.168 --> 00:07:01.985
+<v Cyrus Bajracharya>Downstream service.
+So in this case for authentis,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/118-1
+00:07:01.985 --> 00:07:06.128
+<v Cyrus Bajracharya>it's returning us our reference number.
+We're storing it as processor key.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/121-0
+00:07:06.608 --> 00:07:12.408
+<v John Drum>So it's the consumer, the the renderer,
+right? OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/119-0
+00:07:08.408 --> 00:07:10.208
+<v Cyrus Bajracharya>Contumer cracking ID.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/120-0
+00:07:11.288 --> 00:07:11.808
+<v Cyrus Bajracharya>Yeah, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/122-0
+00:07:13.608 --> 00:07:19.918
+<v John Drum>Description, individual key,
+customer identifier, account key,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/122-1
+00:07:19.918 --> 00:07:25.528
+<v John Drum>account agent.
+I take it those are not required fields.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/123-0
+00:07:29.888 --> 00:07:31.728
+<v John Drum>The main key.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/124-0
+00:07:33.328 --> 00:07:35.088
+<v John Drum>What's the domain key?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/125-0
+00:07:36.408 --> 00:07:41.318
+<v Cyrus Bajracharya>So domain key in in case like the
+processor description was application.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/125-1
+00:07:41.318 --> 00:07:46.699
+<v Cyrus Bajracharya>I I mean the if the application type was
+application instead of an account then</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/125-2
+00:07:46.699 --> 00:07:51.677
+<v Cyrus Bajracharya>instead of passing a account ID for
+authentis they would be passing us an</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/125-3
+00:07:51.677 --> 00:07:52.888
+<v Cyrus Bajracharya>application ID so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/126-0
+00:07:52.968 --> 00:07:57.902
+<v Cyrus Bajracharya>We would use domain key for any other
+primary keys or application IDs or</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/128-0
+00:07:57.208 --> 00:08:02.358
+<v John Drum>So you're you're saying this is like
+customer service acquisitions,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/126-1
+00:07:57.902 --> 00:07:58.848
+<v Cyrus Bajracharya>anything else.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/128-1
+00:08:02.358 --> 00:08:08.342
+<v John Drum>is that what you're saying the domain is
+because the domain is typically not a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/127-0
+00:08:06.128 --> 00:08:06.608
+<v Cyrus Bajracharya>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/129-0
+00:08:07.808 --> 00:08:11.288
+<v Cyrus Bajracharya>No,
+it was supposed to be more general like I</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/128-2
+00:08:08.342 --> 00:08:10.008
+<v John Drum>product you're you're.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/129-1
+00:08:11.288 --> 00:08:17.037
+<v Cyrus Bajracharya>I I haven't kept it specifically as
+domain key to use as an extra column in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/129-2
+00:08:17.037 --> 00:08:18.928
+<v Cyrus Bajracharya>case anything was needed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/131-0
+00:08:18.648 --> 00:08:24.050
+<v John Drum>I understand,
+but typically a domain is like accounts,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/130-0
+00:08:23.448 --> 00:08:24.768
+<v Cyrus Bajracharya>Yeah, yeah, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/131-1
+00:08:24.050 --> 00:08:29.648
+<v John Drum>right? Or payments.
+Is that what's being passed in here?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/132-0
+00:08:30.648 --> 00:08:34.771
+<v Cyrus Bajracharya>Currently it's only being used for
+application IDs.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/132-1
+00:08:34.771 --> 00:08:39.528
+<v Cyrus Bajracharya>Which application is calling it if they
+have a specific ID?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/133-0
+00:08:39.848 --> 00:08:45.842
+<v John Drum>So you're actually putting the ID in here
+or you're putting the the fact that it's</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/133-1
+00:08:45.842 --> 00:08:47.648
+<v John Drum>from application process?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/134-0
+00:08:47.688 --> 00:08:50.048
+<v Cyrus Bajracharya>We're putting the IDs in there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/135-0
+00:08:50.448 --> 00:08:55.964
+<v John Drum>So how do you know which type it is?
+How do you know it's an application ID</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/135-1
+00:08:55.964 --> 00:08:57.488
+<v John Drum>versus a customer ID?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/136-0
+00:08:57.848 --> 00:09:03.515
+<v Cyrus Bajracharya>We have a field for customer ID and a
+separate parameter for accepting customer</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/136-1
+00:09:03.515 --> 00:09:03.728
+<v Cyrus Bajracharya>ID.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/138-0
+00:09:04.408 --> 00:09:09.003
+<v John Drum>You're missing my point.
+You you have a a key that you're putting</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/137-0
+00:09:04.808 --> 00:09:05.928
+<v Cyrus Bajracharya>In the request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/138-1
+00:09:09.003 --> 00:09:11.928
+<v John Drum>in here that you're saying is application.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/139-0
+00:09:14.528 --> 00:09:14.928
+<v Cyrus Bajracharya>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/142-0
+00:09:14.808 --> 00:09:17.656
+<v John Drum>But it could be something else.
+If it's something else,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/142-1
+00:09:17.656 --> 00:09:18.928
+<v John Drum>how do I know what it is?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/140-0
+00:09:18.368 --> 00:09:18.848
+<v Prachi Kulkarni>That's OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/144-0
+00:09:20.808 --> 00:09:24.328
+<v Cyrus Bajracharya>If application type column the one below
+that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/143-0
+00:09:22.448 --> 00:09:23.568
+<v Prachi Kulkarni>Right. Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/146-0
+00:09:26.248 --> 00:09:30.728
+<v Cyrus Bajracharya>Right now it's only accounts for
+application and accounts so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/145-0
+00:09:26.968 --> 00:09:27.328
+<v John Drum>Application.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/147-0
+00:09:34.328 --> 00:09:36.808
+<v John Drum>And what if it's from digital banking?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/148-0
+00:09:37.128 --> 00:09:43.728
+<v Cyrus Bajracharya>We'll need to update application type and
+use the any.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/149-0
+00:09:42.968 --> 00:09:44.848
+<v John Drum>Wait, is this an Enum?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/150-0
+00:09:46.928 --> 00:09:47.168
+<v Cyrus Bajracharya>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/152-0
+00:09:48.408 --> 00:09:50.369
+<v John Drum>We shouldn't have an enum in there,
+remember,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/151-0
+00:09:48.848 --> 00:09:49.728
+<v Cyrus Bajracharya>Oh, it's.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/152-1
+00:09:50.369 --> 00:09:52.928
+<v John Drum>because I don't want enums for things
+that can be added to.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/153-0
+00:09:53.288 --> 00:09:57.780
+<v Cyrus Bajracharya>It's enforced to Swagger hub right now,
+but I don't think the database column is</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/153-1
+00:09:57.780 --> 00:09:59.888
+<v Cyrus Bajracharya>a, you know, it's a character bearing.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/155-0
+00:10:02.848 --> 00:10:08.128
+<v Cyrus Bajracharya>Yeah, it's enforced through open API spec,
+so we can change that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/159-0
+00:10:08.168 --> 00:10:10.812
+<v John Drum>Yeah,
+because they're gonna actually do an</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/159-1
+00:10:10.812 --> 00:10:15.423
+<v John Drum>audit against the API specs against the
+actual stuff and grade us on that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/159-2
+00:10:15.423 --> 00:10:18.128
+<v John Drum>So we need to make sure everything
+matches.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/157-0
+00:10:15.808 --> 00:10:15.888
+<v Cyrus Bajracharya>Uh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/160-0
+00:10:21.688 --> 00:10:22.848
+<v John Drum>The data.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/163-0
+00:10:36.088 --> 00:10:40.488
+<v John Drum>So OK, so metadata in this case has more.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/164-0
+00:10:40.808 --> 00:10:44.048
+<v Cyrus Bajracharya>Entirety of the payload request payload.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/165-0
+00:10:44.688 --> 00:10:46.968
+<v John Drum>OK, status.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/167-0
+00:10:49.768 --> 00:10:55.728
+<v John Drum>This is the OK,
+this is the actual table created by.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/168-0
+00:11:01.048 --> 00:11:05.208
+<v John Drum>So isn't this this is a Ledger table or
+is this a regular table?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/169-0
+00:11:06.368 --> 00:11:10.528
+<v Cyrus Bajracharya>Not a Ledger table.
+We updated the status in the same column.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/170-0
+00:11:11.248 --> 00:11:11.368
+<v John Drum>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/172-0
+00:11:12.248 --> 00:11:17.368
+<v Cyrus Bajracharya>So it's a audit, audit log, audit table.
+That's what we were calling it previously.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/173-0
+00:11:17.888 --> 00:11:18.208
+<v John Drum>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/174-0
+00:11:29.448 --> 00:11:32.968
+<v Taher Ghulam Mohammed>So what are these three columns?
+Document request number?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/175-0
+00:11:31.888 --> 00:11:38.155
+<v Cyrus Bajracharya>Yeah, those were recently added new ones.
+There's one more for actor type as well.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/175-1
+00:11:38.155 --> 00:11:39.968
+<v Cyrus Bajracharya>I'm just adding it here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/176-0
+00:11:45.168 --> 00:11:48.008
+<v John Drum>Template code. What is that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/178-0
+00:11:48.928 --> 00:11:53.009
+<v Cyrus Bajracharya>Oh, the letter template code.
+In this case it would be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/177-0
+00:11:51.008 --> 00:11:53.568
+<v John Drum>We didn't have that in there already.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/178-1
+00:11:53.009 --> 00:11:57.528
+<v Cyrus Bajracharya>It wasn't there previously,
+so we added it a few months back.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/179-0
+00:12:00.168 --> 00:12:01.968
+<v John Drum>But it wasn't there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/181-0
+00:12:01.128 --> 00:12:05.119
+<v Cyrus Bajracharya>Yes, previously it wasn't there.
+We would need to check in the metadata,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/181-1
+00:12:05.119 --> 00:12:07.088
+<v Cyrus Bajracharya>so we we wanted to get the template.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/180-0
+00:12:06.528 --> 00:12:07.048
+<v John Drum>Mm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/183-0
+00:12:09.128 --> 00:12:11.088
+<v John Drum>Why is our card left for?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/182-0
+00:12:09.168 --> 00:12:09.768
+<v Cyrus Bajracharya>Insight.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/184-0
+00:12:11.288 --> 00:12:15.806
+<v Cyrus Bajracharya>That was I think SA needed the card last
+four to be displayed for the UCRM</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/184-1
+00:12:15.806 --> 00:12:19.842
+<v Cyrus Bajracharya>requirement for their UI.
+They were displaying the card last four,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/184-2
+00:12:19.842 --> 00:12:24.601
+<v Cyrus Bajracharya>so we needed a column specifically for
+this and we that's why we were fetching</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/184-3
+00:12:24.601 --> 00:12:26.288
+<v Cyrus Bajracharya>it at the very beginning of.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/185-0
+00:12:26.728 --> 00:12:29.088
+<v Cyrus Bajracharya>Any process if.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/186-0
+00:12:27.608 --> 00:12:29.439
+<v John Drum>Yeah,
+I wish you to talk to me about that</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/186-1
+00:12:29.439 --> 00:12:31.008
+<v John Drum>because that doesn't belong in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/187-0
+00:12:32.768 --> 00:12:33.008
+<v Cyrus Bajracharya>Right.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/190-0
+00:12:34.008 --> 00:12:39.199
+<v John Drum>If they need to know the card last four,
+they should go query it for that account.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/188-0
+00:12:34.168 --> 00:12:36.208
+<v Cyrus Bajracharya>But yeah, UCRMCUI.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/189-0
+00:12:38.808 --> 00:12:39.448
+<v Cyrus Bajracharya>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/190-1
+00:12:39.199 --> 00:12:40.888
+<v John Drum>It's not part of the print.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/191-0
+00:12:42.848 --> 00:12:49.008
+<v Cyrus Bajracharya>Yeah, UCRM's UI is using it and like,
+I think that, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/192-0
+00:12:47.848 --> 00:12:50.824
+<v John Drum>I don't care.
+It still doesn't belong there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/192-1
+00:12:50.824 --> 00:12:53.998
+<v John Drum>If they need it,
+then there should have been an</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/192-2
+00:12:53.998 --> 00:12:59.288
+<v John Drum>orchestration API that when they pull the
+data, goes out and joins the account.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/194-0
+00:13:00.248 --> 00:13:04.195
+<v John Drum>to that information before it returns it
+to there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/194-1
+00:13:04.195 --> 00:13:09.768
+<v John Drum>That's what their whole BFF layers for.
+It doesn't belong in the print.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/193-0
+00:13:04.968 --> 00:13:05.768
+<v Cyrus Bajracharya>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/195-0
+00:13:10.768 --> 00:13:12.688
+<v John Drum>Is actor type? What is that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/197-0
+00:13:13.848 --> 00:13:18.615
+<v John Drum>Because there can be letters and stuff in
+here that we print that have no card</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/196-0
+00:13:14.568 --> 00:13:15.608
+<v Cyrus Bajracharya>It's a.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/197-1
+00:13:18.615 --> 00:13:20.848
+<v John Drum>number can be lots of correspondence.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/198-0
+00:13:19.128 --> 00:13:23.186
+<v Cyrus Bajracharya>Right. For that we keep a -,
+1 default value through the process,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/198-1
+00:13:23.186 --> 00:13:27.368
+<v Cyrus Bajracharya>not through the database,
+but through the business logic right now.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/200-0
+00:13:26.488 --> 00:13:29.295
+<v John Drum>We need to get, yeah,
+that doesn't belong in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/200-1
+00:13:29.295 --> 00:13:32.928
+<v John Drum>That needs to come out and that needs to
+be done through the API.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/199-0
+00:13:29.968 --> 00:13:30.128
+<v Cyrus Bajracharya>Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/201-0
+00:13:36.408 --> 00:13:40.528
+<v John Drum>Actor type. That's right about OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/202-0
+00:13:43.488 --> 00:13:46.688
+<v John Drum>Where's the Ledger database definition?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/203-0
+00:13:47.168 --> 00:13:47.408
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/204-0
+00:13:53.648 --> 00:13:54.448
+<v John Drum>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/205-0
+00:14:08.168 --> 00:14:14.368
+<v John Drum>Why is there two of the? Oh, this is.
+What is the one on the right represent?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/207-0
+00:14:13.928 --> 00:14:21.063
+<v Taher Ghulam Mohammed>This is the description I've added like
+before we got to just the description.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/207-1
+00:14:21.063 --> 00:14:25.488
+<v Taher Ghulam Mohammed>This is the what we call. Yeah, yeah,
+yeah, yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/206-0
+00:14:21.128 --> 00:14:24.808
+<v John Drum>Call for the fields on the left.
+That's the description on the right.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/212-0
+00:14:48.088 --> 00:14:50.128
+<v John Drum>So for this Ledger, there's missing stuff.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/214-0
+00:14:51.208 --> 00:14:57.328
+<v John Drum>So remember on any Ledger there should be
+a a column that says the entry type is.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/215-0
+00:15:02.608 --> 00:15:04.928
+<v John Drum>Remember we talked about that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/216-0
+00:15:08.688 --> 00:15:08.728
+<v John Drum>Uh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/218-0
+00:15:20.768 --> 00:15:21.488
+<v Taher Ghulam Mohammed>Enter it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/219-0
+00:15:21.168 --> 00:15:24.312
+<v John Drum>So this Ledger should be the same.
+You know,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/219-1
+00:15:24.312 --> 00:15:27.665
+<v John Drum>I don't want to have a dozen different
+ledgers.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/219-2
+00:15:27.665 --> 00:15:31.648
+<v John Drum>There should be 1 Ledger or whether it's
+print, reprint.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/221-0
+00:15:32.968 --> 00:15:38.089
+<v John Drum>Document hub retrieval, whatever.
+So there needs to be 1 Ledger table and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/220-0
+00:15:37.448 --> 00:15:37.568
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/221-1
+00:15:38.089 --> 00:15:41.480
+<v John Drum>then different columns added to
+distinguish. OK,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/221-2
+00:15:41.480 --> 00:15:46.533
+<v John Drum>what wrote the Ledger entry? You know,
+did it come from a print request?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/221-3
+00:15:46.533 --> 00:15:52.208
+<v John Drum>Did it come from a document hub request?
+Did it come from a read or send request?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/222-0
+00:15:52.568 --> 00:15:59.631
+<v John Drum>And there should be a a column that
+defines what type of for that given row</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/222-1
+00:15:59.631 --> 00:16:06.137
+<v John Drum>in the Ledger, what is it? In other words,
+is this the initial entry?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/222-2
+00:16:06.137 --> 00:16:08.368
+<v John Drum>Is this a status change?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/223-0
+00:16:08.808 --> 00:16:13.358
+<v John Drum>Is this, you know, a final entry there?
+I don't know off the top of my head.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/223-1
+00:16:13.358 --> 00:16:16.785
+<v John Drum>I don't have all the different types that
+would be there,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/223-2
+00:16:16.785 --> 00:16:21.571
+<v John Drum>but because if I come into this Ledger
+and I want to see the original entry that</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/223-3
+00:16:21.571 --> 00:16:24.408
+<v John Drum>has all the payloads,
+because this should have.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/224-0
+00:16:24.408 --> 00:16:30.088
+<v John Drum>That a record in it that has the payload
+from the other record also, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/225-0
+00:16:33.128 --> 00:16:33.488
+<v Taher Ghulam Mohammed>Hmm, Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/226-0
+00:16:33.768 --> 00:16:35.688
+<v John Drum>The answer is yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/227-0
+00:16:37.608 --> 00:16:42.225
+<v John Drum>So that's the initial entry record and if
+I want to go in there and query that,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/227-1
+00:16:42.225 --> 00:16:45.861
+<v John Drum>I should build a filter on the this
+Ledger row type, you know,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/227-2
+00:16:45.861 --> 00:16:49.554
+<v John Drum>for whatever we call it,
+let's say it's the initial entry and I</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/227-3
+00:16:49.554 --> 00:16:53.248
+<v John Drum>should be able to just filter on that and
+then not see all the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/228-0
+00:16:53.648 --> 00:16:58.700
+<v John Drum>Update ledger entries after that or I
+should be able to just go filter and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/228-1
+00:16:58.700 --> 00:17:02.608
+<v John Drum>retrieve all the ledger entries for a
+given rint request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/229-0
+00:17:04.568 --> 00:17:07.128
+<v Taher Ghulam Mohammed>The initial entry would contain the
+request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/234-0
+00:17:08.568 --> 00:17:13.640
+<v John Drum>Of course this this Ledger has everything
+that happens to this request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/230-0
+00:17:10.048 --> 00:17:10.528
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/234-1
+00:17:13.640 --> 00:17:17.937
+<v John Drum>So you have a table on the left here.
+That's not the Ledger,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/234-2
+00:17:17.937 --> 00:17:22.164
+<v John Drum>but the other table we just looked at.
+It's a status table.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/231-0
+00:17:18.848 --> 00:17:19.168
+<v Taher Ghulam Mohammed>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/232-0
+00:17:20.648 --> 00:17:20.768
+<v Taher Ghulam Mohammed>Uh huh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/234-3
+00:17:22.164 --> 00:17:25.968
+<v John Drum>It gets updated and stuff,
+but the Ledger everything.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/233-0
+00:17:22.848 --> 00:17:23.448
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/235-0
+00:17:26.248 --> 00:17:30.705
+<v John Drum>That happens should have a Ledger entry,
+because all you're doing is added entries</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/235-1
+00:17:30.705 --> 00:17:33.819
+<v John Drum>to this. You don't have to search, find,
+update anything.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/235-2
+00:17:33.819 --> 00:17:36.772
+<v John Drum>You're adding a new role every time
+something happens,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/235-3
+00:17:36.772 --> 00:17:40.048
+<v John Drum>and that's happening for the entire life
+cycle of something.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/235-4
+00:17:40.048 --> 00:17:44.021
+<v John Drum>So the first time it's created,
+it gets put in here when it gets added to</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/235-5
+00:17:44.021 --> 00:17:46.008
+<v John Drum>when the producer creates topic item.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/236-0
+00:17:46.128 --> 00:17:50.834
+<v John Drum>It gets added in here when the you know
+we should be able to trace the the life</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/236-1
+00:17:50.834 --> 00:17:55.306
+<v John Drum>cycle of this print request all the way
+through the system until the end by</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/236-2
+00:17:55.306 --> 00:17:59.954
+<v John Drum>seeing journal entry Ledger entries in
+here where on the other one all you see</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/236-3
+00:17:59.954 --> 00:18:01.248
+<v John Drum>is the current status.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/237-0
+00:18:01.728 --> 00:18:06.507
+<v John Drum>You don't see what happened to get to
+that status. To see that whole path,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/237-1
+00:18:06.507 --> 00:18:11.223
+<v John Drum>you look in the Ledger, you know,
+cause it'll show the current entry when</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/237-2
+00:18:11.223 --> 00:18:15.621
+<v John Drum>it went through the producer,
+when it got picked up by the consumer,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/237-3
+00:18:15.621 --> 00:18:20.528
+<v John Drum>you know when it got saved in the
+document hub, when it got pulled from the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/238-0
+00:18:21.808 --> 00:18:26.781
+<v John Drum>Delivery hub, you know,
+when it got sent out the door for HOV</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/238-1
+00:18:26.781 --> 00:18:31.513
+<v John Drum>versus Broadridge,
+all of those things has a journal entry</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/238-2
+00:18:31.513 --> 00:18:37.448
+<v John Drum>and there should be an identifier to say,
+OK, what type of entry is this?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/239-0
+00:18:37.568 --> 00:18:44.038
+<v John Drum>Where did it come from? You know?
+So not every column in that that Ledger</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/239-1
+00:18:44.038 --> 00:18:49.547
+<v John Drum>will be there every time,
+but there'll be a row for every time</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/239-2
+00:18:49.547 --> 00:18:51.208
+<v John Drum>something happened.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/240-0
+00:18:52.848 --> 00:18:56.366
+<v John Drum>And then we can filter on the grouping of
+those ledgers,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/240-1
+00:18:56.366 --> 00:19:00.686
+<v John Drum>because there's also has to be some kind
+of identifier that says, OK,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/240-2
+00:19:00.686 --> 00:19:04.018
+<v John Drum>these are all the ledger entries for a
+given request,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/240-3
+00:19:04.018 --> 00:19:07.968
+<v John Drum>whether it be a print request or a a
+reprint request, you know.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/241-0
+00:19:09.048 --> 00:19:14.014
+<v John Drum>So that you can just go back and say, OK,
+give me all the Ledger entries for this</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/241-1
+00:19:14.014 --> 00:19:17.042
+<v John Drum>reprint. Oh,
+I see this got put into Kafka topic,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/241-2
+00:19:17.042 --> 00:19:21.644
+<v John Drum>but nothing has ever picked it up yet.
+So you can trace the history of what</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/241-3
+00:19:21.644 --> 00:19:25.763
+<v John Drum>happened at that request in there.
+And currently there's not enough</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/241-4
+00:19:25.763 --> 00:19:28.488
+<v John Drum>information in this Ledger table to do
+that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/243-0
+00:19:28.728 --> 00:19:35.225
+<v John Drum>At you have event origin service.
+I take it that's what says where it came</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/243-1
+00:19:35.225 --> 00:19:39.990
+<v John Drum>from. Maybe event status. OK,
+that's request received,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/242-0
+00:19:35.688 --> 00:19:37.728
+<v Taher Ghulam Mohammed>Mm-hmm. Yes. Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/243-2
+00:19:39.990 --> 00:19:44.408
+<v John Drum>document generated. OK,
+that could be used to put.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/244-0
+00:19:44.888 --> 00:19:49.710
+<v John Drum>The types in there,
+although I prefer it to be a number</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/244-1
+00:19:49.710 --> 00:19:51.088
+<v John Drum>instead of text.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/245-0
+00:19:52.488 --> 00:19:54.848
+<v John Drum>Template type uh but.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/246-0
+00:19:56.248 --> 00:19:58.944
+<v John Drum>Vendor,
+they're they're just missing things in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/246-1
+00:19:58.944 --> 00:20:01.984
+<v John Drum>here because if you go back and look in
+this Ledger,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/246-2
+00:20:01.984 --> 00:20:05.368
+<v John Drum>it should have everything in it to
+reproduce that request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/247-0
+00:20:06.328 --> 00:20:08.653
+<v John Drum>And it's currently missing that
+information.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/247-1
+00:20:08.653 --> 00:20:11.288
+<v John Drum>You would have to go to the other table
+to get it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/248-0
+00:20:12.288 --> 00:20:12.768
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/249-0
+00:20:13.408 --> 00:20:16.939
+<v John Drum>But the ledger's a stand alone entity.
+You should have everything from the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/249-1
+00:20:16.939 --> 00:20:17.928
+<v John Drum>beginning to the end.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/250-0
+00:20:18.928 --> 00:20:22.333
+<v Cyrus Bajracharya>A quick question, John,
+where do you want to store the request</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/250-1
+00:20:22.333 --> 00:20:24.766
+<v Cyrus Bajracharya>payload? So that metadata Jason BLOB,
+right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/250-2
+00:20:24.766 --> 00:20:28.928
+<v Cyrus Bajracharya>That's where we're storing the request.
+Do you want it in the Ledger or the?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/253-0
+00:20:27.168 --> 00:20:31.571
+<v John Drum>Well, if it doesn't have it in there,
+there needs to be one because it's just</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/253-1
+00:20:31.571 --> 00:20:35.748
+<v John Drum>it's going to be a Jason object.
+So it could if that's what's going to go</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/251-0
+00:20:33.968 --> 00:20:35.288
+<v Cyrus Bajracharya>Alright, alright.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/253-2
+00:20:35.748 --> 00:20:38.740
+<v John Drum>into metadata,
+then that's fine because the metadata</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/254-0
+00:20:36.688 --> 00:20:41.435
+<v Cyrus Bajracharya>Right, it's in the, it's in the audit log,
+right? But if you put it in the ledger,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/253-3
+00:20:38.740 --> 00:20:39.248
+<v John Drum>could be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/254-1
+00:20:41.435 --> 00:20:43.208
+<v Cyrus Bajracharya>there's gonna be duplicate, so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/257-0
+00:20:42.448 --> 00:20:45.817
+<v John Drum>Well, well, yes,
+there's going to be a duplicate there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/257-1
+00:20:45.817 --> 00:20:50.088
+<v John Drum>That's fine. That's all right.
+There is a metadata in the Ledger here,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/257-2
+00:20:50.088 --> 00:20:55.141
+<v John Drum>but the metadata is going to be different
+depending upon the type and the source of</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/257-3
+00:20:55.141 --> 00:20:57.968
+<v John Drum>the Ledger entry,
+right for a reprint request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/256-0
+00:20:57.808 --> 00:20:58.608
+<v Cyrus Bajracharya>Mm-hmm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/259-0
+00:20:58.528 --> 00:21:03.112
+<v John Drum>It will look different than a print
+request because the reprint request and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/259-1
+00:21:03.112 --> 00:21:06.008
+<v John Drum>the metadata could have an extra address
+in it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/258-0
+00:21:07.208 --> 00:21:07.648
+<v Cyrus Bajracharya>M.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/260-0
+00:21:08.128 --> 00:21:12.943
+<v John Drum>The print request may or may not,
+so even for the same letter,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/260-1
+00:21:12.943 --> 00:21:18.598
+<v John Drum>a reprint metadata is going to be
+different and it won't have an entry in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/260-2
+00:21:18.598 --> 00:21:21.961
+<v John Drum>the document journal ledger. No,
+excuse me,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/260-3
+00:21:21.961 --> 00:21:26.088
+<v John Drum>it won't have a a reprint won't have an
+entry in the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/261-0
+00:21:26.368 --> 00:21:29.928
+<v John Drum>Rent table that we were looking at
+earlier.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/263-0
+00:21:31.288 --> 00:21:33.808
+<v Cyrus Bajracharya>Currently it does about.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/262-0
+00:21:32.568 --> 00:21:32.928
+<v John Drum>Because.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/264-0
+00:21:33.808 --> 00:21:36.290
+<v John Drum>Why? It's not a print request.
+It's a the print.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/264-1
+00:21:36.290 --> 00:21:39.786
+<v John Drum>It's already been generated.
+The print table was only for generation</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/264-2
+00:21:39.786 --> 00:21:40.648
+<v John Drum>of new documents.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/266-0
+00:21:42.128 --> 00:21:45.448
+<v John Drum>It would have a Ledger entry,
+but it shouldn't have a.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/265-0
+00:21:42.888 --> 00:21:43.048
+<v Cyrus Bajracharya>Right.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/267-0
+00:21:47.008 --> 00:21:49.977
+<v John Drum>Rendering table entry because it's
+already been rendered.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/267-1
+00:21:49.977 --> 00:21:53.816
+<v John Drum>All's we're doing is resending it to the
+customer so that there would be a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/267-2
+00:21:53.816 --> 00:21:57.348
+<v John Drum>document journal Ledger entry,
+but there's not going to be the other</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/267-3
+00:21:57.348 --> 00:22:01.187
+<v John Drum>table that shows the status of a print
+request because you're not printing</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/267-4
+00:22:01.187 --> 00:22:01.648
+<v John Drum>anything.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/269-0
+00:22:02.288 --> 00:22:05.550
+<v John Drum>And when I say print,
+I'm talking about rendering the PDF</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/268-0
+00:22:05.368 --> 00:22:07.888
+<v Cyrus Bajracharya>OK. OK. OK. Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/269-1
+00:22:05.550 --> 00:22:09.488
+<v John Drum>because it's already been rendered,
+not actual printing of the paper.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/271-0
+00:22:10.768 --> 00:22:16.753
+<v John Drum>We got to be careful not to confuse when
+we say print because the first table that</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/271-1
+00:22:16.753 --> 00:22:20.646
+<v John Drum>we enters into the system simply renders
+the the PDF.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/271-2
+00:22:20.646 --> 00:22:26.415
+<v John Drum>It doesn't actually print anything and
+that has its own table with statuses and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/270-0
+00:22:24.608 --> 00:22:25.928
+<v Cyrus Bajracharya>Mm-hmm. Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/271-3
+00:22:26.415 --> 00:22:27.208
+<v John Drum>everything.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/272-0
+00:22:27.648 --> 00:22:32.533
+<v John Drum>But this document Ledger is shared
+between the rendering, the resending,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/272-1
+00:22:32.533 --> 00:22:36.950
+<v John Drum>all those different systems.
+So that's why it has a source to say</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/272-2
+00:22:36.950 --> 00:22:41.702
+<v John Drum>where this entry's coming from,
+and then the metadata is going to look</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/272-3
+00:22:41.702 --> 00:22:45.048
+<v John Drum>different depending upon those different
+sources.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/273-0
+00:22:46.408 --> 00:22:51.951
+<v John Drum>And that's one table that we can see all
+the communications that is happening from</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/273-1
+00:22:51.951 --> 00:22:56.025
+<v John Drum>all these different systems.
+Otherwise you have to go to the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/273-2
+00:22:56.025 --> 00:23:00.900
+<v John Drum>individual system like you know,
+the document rendering part and look in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/273-3
+00:23:00.900 --> 00:23:01.768
+<v John Drum>those tables.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/274-0
+00:23:02.328 --> 00:23:07.511
+<v John Drum>And then go to the document hub and look
+at its tables and then go to the delivery</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/274-1
+00:23:07.511 --> 00:23:11.321
+<v John Drum>hub and look at its tables.
+There there's you got a bunch of</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/274-2
+00:23:11.321 --> 00:23:16.317
+<v John Drum>disparate systems with different statuses,
+whereas the document journal Ledger,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/274-3
+00:23:16.317 --> 00:23:19.128
+<v John Drum>it has the entries for all of those
+systems.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/275-0
+00:23:19.648 --> 00:23:25.185
+<v John Drum>So you can you can easily come in here
+and query and see you know what the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/275-1
+00:23:25.185 --> 00:23:31.313
+<v John Drum>initial entry points were and see that OK,
+this was initial initial entry from the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/275-2
+00:23:31.313 --> 00:23:35.448
+<v John Drum>delivery hub,
+so we know that is a resend or a reprint.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/276-0
+00:23:36.048 --> 00:23:37.448
+<v John Drum>And uh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/277-0
+00:23:40.928 --> 00:23:45.894
+<v John Drum>An initial request to render the PDF and
+then from there it went to the document</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/277-1
+00:23:45.894 --> 00:23:50.798
+<v John Drum>hub to be saved and then from there it
+went to the delivery hub to be delivered</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/277-2
+00:23:50.798 --> 00:23:53.128
+<v John Drum>and it got printed and it went to HOV.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/278-0
+00:23:54.368 --> 00:23:55.808
+<v John Drum>And you can see that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/279-0
+00:23:56.688 --> 00:23:59.755
+<v John Drum>All from the document journal Ledger.
+You're you're not.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/279-1
+00:23:59.755 --> 00:24:03.844
+<v John Drum>You're only going to see parts of that
+from the individual table. Like you,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/279-2
+00:24:03.844 --> 00:24:08.041
+<v John Drum>you might see who the print vendor was
+done and you might say it was printed,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/279-3
+00:24:08.041 --> 00:24:11.807
+<v John Drum>but you don't know all the steps that
+happened along the path, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/279-4
+00:24:11.807 --> 00:24:13.368
+<v John Drum>That comes from this journal.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/281-0
+00:24:13.808 --> 00:24:20.974
+<v Cyrus Bajracharya>Right, yes. So for the reprint one,
+currently in the wrapper we are storing</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/280-0
+00:24:16.128 --> 00:24:19.808
+<v John Drum>That makes sense what I'm describing?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/281-1
+00:24:20.974 --> 00:24:28.139
+<v Cyrus Bajracharya>the reprint request as well for our
+statement and disclosures and that same</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/281-2
+00:24:28.139 --> 00:24:33.608
+<v Cyrus Bajracharya>that same request payload is being
+retried again by UCRM.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/282-0
+00:24:33.808 --> 00:24:36.648
+<v Cyrus Bajracharya>For the requirement for that front end UI
+of theirs.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/284-0
+00:24:38.288 --> 00:24:40.610
+<v John Drum>OK,
+I really don't care what it's doing right</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/284-1
+00:24:40.610 --> 00:24:42.932
+<v John Drum>now.
+I'm just defining what it needs to do in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/283-0
+00:24:41.648 --> 00:24:43.688
+<v Cyrus Bajracharya>Yeah, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/284-2
+00:24:42.932 --> 00:24:43.488
+<v John Drum>the future.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/285-0
+00:24:44.848 --> 00:24:47.688
+<v Cyrus Bajracharya>We need to move that somewhere else.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/288-0
+00:24:45.328 --> 00:24:48.988
+<v John Drum>That what happens,
+what we're doing now is when we go to the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/288-1
+00:24:48.988 --> 00:24:52.888
+<v John Drum>migration of the data that we have now to
+what it's going to be,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/288-2
+00:24:52.888 --> 00:24:57.628
+<v John Drum>then we'll have to figure out how to
+transform that data into the the new look</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/288-3
+00:24:57.628 --> 00:24:59.368
+<v John Drum>and feel of these new tables.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/286-0
+00:24:57.928 --> 00:24:58.408
+<v Cyrus Bajracharya>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/287-0
+00:25:00.608 --> 00:25:01.648
+<v Cyrus Bajracharya>OK, understood.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/289-0
+00:25:03.288 --> 00:25:06.895
+<v John Drum>But if we don't have the structure
+correct for the new platform,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/289-1
+00:25:06.895 --> 00:25:10.668
+<v John Drum>that transformation piece is going to be
+a nightmare. So as I said,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/289-2
+00:25:10.668 --> 00:25:14.553
+<v John Drum>this document journal Ledger,
+it's going to be a common Ledger that's</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/289-3
+00:25:14.553 --> 00:25:17.549
+<v John Drum>shared by all of those systems and that's
+the Ledger.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/289-4
+00:25:17.549 --> 00:25:20.768
+<v John Drum>This is the item also that we're talking
+about, you know?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/290-0
+00:25:21.328 --> 00:25:26.228
+<v John Drum>When everything is dropping event status
+updates to the topic that updates,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/290-1
+00:25:26.228 --> 00:25:31.128
+<v John Drum>this Ledger should have an entry for
+everything that gets dropped in there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/291-0
+00:25:32.768 --> 00:25:35.286
+<v John Drum>You know,
+it may also update some other tables,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/291-1
+00:25:35.286 --> 00:25:38.328
+<v John Drum>but there should always be a journal
+entry, Ledger entry.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/292-0
+00:25:40.328 --> 00:25:40.728
+<v John Drum>Every time.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/293-0
+00:25:43.368 --> 00:25:44.968
+<v John Drum>Just as an FYI.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/295-0
+00:25:46.168 --> 00:25:50.941
+<v Taher Ghulam Mohammed>So the journal entry would be originate
+from this table, right John?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/295-1
+00:25:50.941 --> 00:25:55.368
+<v Taher Ghulam Mohammed>This is the origin of this the one which
+we are using in proxy.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/294-0
+00:25:50.968 --> 00:25:52.408
+<v John Drum>Which table is this?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/297-0
+00:25:56.648 --> 00:26:02.048
+<v John Drum>OK, this is for the initial. OK,
+So what was your question?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/296-0
+00:25:58.688 --> 00:25:58.968
+<v Taher Ghulam Mohammed>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/302-0
+00:26:01.568 --> 00:26:07.456
+<v Taher Ghulam Mohammed>So this this is the one originating this
+particular journal ID and from there</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/299-0
+00:26:06.568 --> 00:26:06.688
+<v John Drum>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/302-1
+00:26:07.456 --> 00:26:12.739
+<v Taher Ghulam Mohammed>we'll be appending this tables for that
+particular journal ID, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/300-0
+00:26:11.928 --> 00:26:12.368
+<v John Drum>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/302-2
+00:26:12.739 --> 00:26:15.608
+<v Taher Ghulam Mohammed>Keep on adding. OK so but this is for.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/301-0
+00:26:14.808 --> 00:26:18.008
+<v John Drum>There should be a correlation ID in there
+too, but I don't see it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/303-0
+00:26:18.248 --> 00:26:18.368
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/304-0
+00:26:20.768 --> 00:26:22.008
+<v Taher Ghulam Mohammed>Correlation on UK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/305-0
+00:26:27.408 --> 00:26:31.219
+<v Taher Ghulam Mohammed>So OK,
+so but there would be multiple entries</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/305-1
+00:26:31.219 --> 00:26:38.096
+<v Taher Ghulam Mohammed>right for or different types of requests
+like for getting the uploading a document</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/305-2
+00:26:38.096 --> 00:26:42.488
+<v Taher Ghulam Mohammed>that that will hit the document hub
+directly, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/307-0
+00:26:43.608 --> 00:26:51.288
+<v Taher Ghulam Mohammed>So how so so would that put a information
+here in this table and then start?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/306-0
+00:26:44.368 --> 00:26:45.048
+<v John Drum>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/309-0
+00:26:50.128 --> 00:26:53.121
+<v John Drum>Well,
+this table you just told me was when the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/309-1
+00:26:53.121 --> 00:26:54.968
+<v John Drum>initial print request, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/308-0
+00:26:55.608 --> 00:26:55.808
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/311-0
+00:26:56.048 --> 00:26:59.888
+<v John Drum>So this table doesn't get any entry in it
+for a reprint.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/310-0
+00:26:57.888 --> 00:26:58.328
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/312-0
+00:27:01.248 --> 00:27:05.728
+<v John Drum>Or from a document hub.
+This table is only used when you render</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/312-1
+00:27:05.728 --> 00:27:06.288
+<v John Drum>the PDF.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/313-0
+00:27:07.448 --> 00:27:08.968
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/315-0
+00:27:09.888 --> 00:27:16.251
+<v John Drum>Once that PDFS are rendered,
+this status goes to whatever your final</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/315-1
+00:27:16.251 --> 00:27:22.890
+<v John Drum>status is completed, whatever.
+But every single time something changes,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/314-0
+00:27:16.728 --> 00:27:17.288
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/315-2
+00:27:22.890 --> 00:27:25.288
+<v John Drum>you get an entry into the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/316-0
+00:27:25.488 --> 00:27:26.808
+<v John Drum>Journal Ledger.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/320-0
+00:27:28.128 --> 00:27:33.376
+<v John Drum>You know when it was submitted for print
+after it was complete that then it gets</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/317-0
+00:27:29.048 --> 00:27:29.208
+<v Taher Ghulam Mohammed>Sure.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/318-0
+00:27:31.368 --> 00:27:31.488
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/320-1
+00:27:33.376 --> 00:27:36.745
+<v John Drum>transferred into document hub that gets a
+an entry.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/320-2
+00:27:36.745 --> 00:27:41.928
+<v John Drum>The document hub saves that data to ECMS
+that gets a journal Ledger entry then.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/319-0
+00:27:37.608 --> 00:27:38.088
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/321-0
+00:27:43.768 --> 00:27:49.833
+<v John Drum>The value gets dropped into the topic
+that gets a journal over in a journal</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/321-1
+00:27:49.833 --> 00:27:56.218
+<v John Drum>entry. You know every step of the way.
+Think of it almost as a logger of what's</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/321-2
+00:27:56.218 --> 00:28:00.608
+<v John Drum>happening as a as something passes
+through the system.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/322-0
+00:28:00.928 --> 00:28:03.864
+<v John Drum>You know,
+when it gets picked up from the topic and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/322-1
+00:28:03.864 --> 00:28:07.703
+<v John Drum>processed, it gets a journal entry.
+I should be able to use this to</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/322-2
+00:28:07.703 --> 00:28:11.712
+<v John Drum>troubleshoot what happened to the
+document by simply going in here and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/322-3
+00:28:11.712 --> 00:28:15.721
+<v John Drum>looking for a given request.
+What was the last step that was completed</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/322-4
+00:28:15.721 --> 00:28:16.568
+<v John Drum>in this Ledger?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/323-0
+00:28:17.088 --> 00:28:20.893
+<v John Drum>I have a a very quick,
+easy way to see the whole life cycle of</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/323-1
+00:28:20.893 --> 00:28:24.638
+<v John Drum>what happened to a either a print request,
+a reprint request,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/323-2
+00:28:24.638 --> 00:28:28.262
+<v John Drum>or somebody just pulling something out of
+the document hub.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/323-3
+00:28:28.262 --> 00:28:32.248
+<v John Drum>All that should be in here.
+Now what I don't want to put in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/324-0
+00:28:32.608 --> 00:28:36.398
+<v John Drum>Is every time somebody requests something
+from the document hub,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/324-1
+00:28:36.398 --> 00:28:40.888
+<v John Drum>but anytime something is saved to the
+document hub, we will put it in there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/325-0
+00:28:41.968 --> 00:28:46.363
+<v John Drum>But I don't want to put the request to
+retrieve anything from the document hub</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/325-1
+00:28:46.363 --> 00:28:46.808
+<v John Drum>in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/326-0
+00:28:47.888 --> 00:28:49.248
+<v John Drum>So there is that difference.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/327-0
+00:28:51.048 --> 00:28:56.133
+<v Taher Ghulam Mohammed>Mm-hmm. But John,
+we have in a requirement, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/327-1
+00:28:56.133 --> 00:29:02.017
+<v Taher Ghulam Mohammed>Like for the UI shows what was the last
+time that who? OK,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/327-2
+00:29:02.017 --> 00:29:05.208
+<v Taher Ghulam Mohammed>who request viewed the document?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/329-0
+00:29:04.448 --> 00:29:07.644
+<v John Drum>That's fine.
+We're talking about creating an analytics</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/329-1
+00:29:07.644 --> 00:29:09.968
+<v John Drum>table for that. That doesn't go in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/328-0
+00:29:07.648 --> 00:29:08.328
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/330-0
+00:29:10.008 --> 00:29:12.048
+<v Taher Ghulam Mohammed>Doesn't worry in here, OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/331-0
+00:29:13.048 --> 00:29:13.168
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/333-0
+00:29:13.968 --> 00:29:17.159
+<v John Drum>Because that if it's just the last time
+it was documented,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/333-1
+00:29:17.159 --> 00:29:21.377
+<v John Drum>you could do an update on a column for a
+given document and you don't need to</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/332-0
+00:29:20.648 --> 00:29:21.488
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/333-2
+00:29:21.377 --> 00:29:24.568
+<v John Drum>create 10 million records for every time
+somebody used it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/334-0
+00:29:25.728 --> 00:29:29.483
+<v John Drum>Because remember,
+we create a new row every time we write</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/334-1
+00:29:29.483 --> 00:29:30.648
+<v John Drum>something to this.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/335-0
+00:29:32.128 --> 00:29:35.688
+<v John Drum>And every time somebody looks at a
+document, I don't want to write a new row.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/337-0
+00:29:39.248 --> 00:29:43.989
+<v Taher Ghulam Mohammed>Mm-hmm. Not in here, you're saying,
+but we need to have an in the analytic</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/336-0
+00:29:41.208 --> 00:29:42.248
+<v John Drum>Not in this.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/338-0
+00:29:43.408 --> 00:29:47.008
+<v John Drum>That can be updated in a different
+analytic table for that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/337-1
+00:29:43.989 --> 00:29:44.368
+<v Taher Ghulam Mohammed>build.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/339-0
+00:29:46.808 --> 00:29:46.928
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/340-0
+00:29:53.248 --> 00:29:57.848
+<v Taher Ghulam Mohammed>Think I have that somewhere capture that
+thing, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/341-0
+00:29:59.968 --> 00:30:02.168
+<v Taher Ghulam Mohammed>I think this is the table energy.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/342-0
+00:30:03.728 --> 00:30:05.488
+<v Taher Ghulam Mohammed>Document events table.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/343-0
+00:30:07.208 --> 00:30:07.248
+<v Taher Ghulam Mohammed>I.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/344-0
+00:30:09.008 --> 00:30:15.504
+<v John Drum>Now do you have one record in here or do
+you that you keep updating or is it like</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/344-1
+00:30:15.504 --> 00:30:21.128
+<v John Drum>for any given document event or storage
+index or you just updating it?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/345-0
+00:30:21.168 --> 00:30:24.368
+<v Taher Ghulam Mohammed>Maybe Ledger kind of table like every
+request to get in.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/346-0
+00:30:25.768 --> 00:30:27.368
+<v Taher Ghulam Mohammed>Oh, you did that? Who created?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/348-0
+00:30:30.608 --> 00:30:36.128
+<v Taher Ghulam Mohammed>OK, I think I will let your that will be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/347-0
+00:30:31.568 --> 00:30:32.168
+<v John Drum>So viewed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/349-0
+00:30:37.848 --> 00:30:42.511
+<v John Drum>So this is going to be a problem because
+if you use viewed and you have a shared</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/349-1
+00:30:42.511 --> 00:30:47.231
+<v John Drum>document, you're going to get millions,
+literally millions of entries in here for</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/349-2
+00:30:47.231 --> 00:30:48.728
+<v John Drum>viewing a shared document.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/350-0
+00:30:52.928 --> 00:30:54.808
+<v John Drum>If you write a record every single time
+it's viewed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/353-0
+00:30:58.688 --> 00:31:02.229
+<v John Drum>And what would be the purpose of it?
+Because what you really want to know is</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/353-1
+00:31:02.229 --> 00:31:05.126
+<v John Drum>who viewed it, right?
+Not the fact that that document was just</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/352-0
+00:31:03.848 --> 00:31:04.128
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/353-2
+00:31:05.126 --> 00:31:05.448
+<v John Drum>viewed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/355-0
+00:31:06.568 --> 00:31:10.688
+<v Taher Ghulam Mohammed>Yeah, that that would be like actor ID,
+right? Who? Who gave that request?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/356-0
+00:31:12.208 --> 00:31:14.168
+<v Taher Ghulam Mohammed>And bugs.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/359-0
+00:31:12.768 --> 00:31:17.114
+<v John Drum>Well, I don't know.
+I don't just see descriptions in here,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/357-0
+00:31:15.208 --> 00:31:16.808
+<v Taher Ghulam Mohammed>OK, OK. OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/359-1
+00:31:17.114 --> 00:31:21.608
+<v John Drum>so half the time I don't understand what
+you're subtle hint.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/358-0
+00:31:18.328 --> 00:31:18.368
+Uh.
+
+a24af1ca-382d-43ae-809f-8701819ac378/360-0
+00:31:18.568 --> 00:31:22.848
+<v Taher Ghulam Mohammed>OK, yeah,
+I didn't get a chance to do that actually.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/361-0
+00:31:22.728 --> 00:31:24.608
+<v Veda Behera>Yeah, you you can add a column there and.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/362-0
+00:31:26.528 --> 00:31:27.448
+<v Taher Ghulam Mohammed>That would be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/363-0
+00:31:27.208 --> 00:31:27.288
+<v John Drum>So.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/364-0
+00:31:29.448 --> 00:31:30.488
+<v Veda Behera>Did the things.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/365-0
+00:31:31.088 --> 00:31:34.408
+<v Taher Ghulam Mohammed>So I have only three three options like 3
+columns.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/366-0
+00:31:36.568 --> 00:31:36.848
+<v Taher Ghulam Mohammed>2.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/369-0
+00:31:39.528 --> 00:31:42.561
+<v John Drum>And if it's for the person that's doing
+it,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/369-1
+00:31:42.561 --> 00:31:47.869
+<v John Drum>is it the customer ID you put in there?
+What what information you put in the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/367-0
+00:31:43.368 --> 00:31:43.608
+<v Taher Ghulam Mohammed>Hmm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/369-2
+00:31:47.869 --> 00:31:51.384
+<v John Drum>actor type?
+Because typically a type tells me it's</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/369-3
+00:31:51.384 --> 00:31:53.728
+<v John Drum>like an agent customer, not their.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/368-0
+00:31:52.608 --> 00:31:53.608
+<v Taher Ghulam Mohammed>Agent. Yeah, agent.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/370-0
+00:31:55.648 --> 00:31:58.368
+<v John Drum>OK, so if it's an agent, uh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/372-0
+00:31:59.648 --> 00:32:03.620
+<v John Drum>What if it's a customer and then the if
+it's if it's an agent,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/372-1
+00:32:03.620 --> 00:32:08.348
+<v John Drum>you you don't know what they're what,
+who they're viewing that for, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/372-2
+00:32:08.348 --> 00:32:12.131
+<v John Drum>And you're not going to display that for
+an agent anywhere.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/371-0
+00:32:09.248 --> 00:32:09.608
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/372-3
+00:32:12.131 --> 00:32:14.968
+<v John Drum>So I'm not sure what the purpose of that
+is.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/376-0
+00:32:15.448 --> 00:32:19.355
+<v John Drum>It only makes sense when you're talking
+about for a customer.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/373-0
+00:32:18.408 --> 00:32:18.728
+<v Taher Ghulam Mohammed>Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/376-1
+00:32:19.355 --> 00:32:24.269
+<v John Drum>So let's say it is for a customer and
+then you're putting the customer ID in.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/374-0
+00:32:20.328 --> 00:32:20.728
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/376-2
+00:32:24.269 --> 00:32:28.932
+<v John Drum>Wouldn't you really want to do the
+account because you can have different</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/375-0
+00:32:24.328 --> 00:32:24.728
+<v Taher Ghulam Mohammed>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/376-3
+00:32:28.932 --> 00:32:31.768
+<v John Drum>shared documents for the different
+accounts.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/377-0
+00:32:32.928 --> 00:32:36.703
+<v John Drum>So when you're looking at it that this
+customer looked at this shared document,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/377-1
+00:32:36.703 --> 00:32:39.488
+<v John Drum>you don't know which account it was
+associated to, do you?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/378-0
+00:32:41.048 --> 00:32:41.488
+<v Taher Ghulam Mohammed>Hmm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/379-0
+00:32:42.768 --> 00:32:45.368
+<v Taher Ghulam Mohammed>Yeah, should we go?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/380-0
+00:32:47.048 --> 00:32:48.648
+<v Taher Ghulam Mohammed>Source app device OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/381-0
+00:32:48.448 --> 00:32:52.888
+<v Sai Krishnam Raju Potturi>But a particular document is associated
+with only with a certain account, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/382-0
+00:32:54.168 --> 00:32:57.084
+<v John Drum>Yeah,
+but you got to re re-engineer the path</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/382-1
+00:32:57.084 --> 00:33:01.036
+<v John Drum>that would associate it.
+People use these Ledger entries for</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/382-2
+00:33:01.036 --> 00:33:04.276
+<v John Drum>analytics.
+That's why it's in an analytics scheme</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/382-3
+00:33:04.276 --> 00:33:08.488
+<v John Drum>and that does that means they don't want
+to have to go back and.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/383-0
+00:33:08.808 --> 00:33:12.760
+<v John Drum>Do some kind of algorithm to figure out
+who called it. You know,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/383-1
+00:33:12.760 --> 00:33:17.077
+<v John Drum>they know it was this customer,
+but that customer's got five accounts.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/383-2
+00:33:17.077 --> 00:33:21.637
+<v John Drum>So do they they really have to go through
+and figure out which account was</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/383-3
+00:33:21.637 --> 00:33:24.008
+<v John Drum>associated to this particular document?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/384-0
+00:33:24.448 --> 00:33:27.266
+<v John Drum>Or should it just say that when they're
+doing their analytics?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/384-1
+00:33:27.266 --> 00:33:30.488
+<v John Drum>Because if you have to figure it out,
+then they can't do it in a query.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/385-0
+00:33:32.048 --> 00:33:34.048
+<v John Drum>So their analytics has failed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/386-0
+00:33:34.648 --> 00:33:34.728
+<v Taher Ghulam Mohammed>Oh.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/388-0
+00:33:35.208 --> 00:33:38.088
+<v John Drum>Without a bunch of joins for different
+types of lookups.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/387-0
+00:33:35.608 --> 00:33:35.928
+<v Sai Krishnam Raju Potturi>On.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/391-0
+00:33:38.888 --> 00:33:44.232
+<v Sai Krishnam Raju Potturi>The transactional web has the requirement
+even in legacy wherein they need to</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/391-1
+00:33:44.232 --> 00:33:49.713
+<v Sai Krishnam Raju Potturi>display the first time like the timestamp
+the document was downloaded the first</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/390-0
+00:33:49.608 --> 00:33:50.088
+<v John Drum>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/391-2
+00:33:49.713 --> 00:33:51.768
+<v Sai Krishnam Raju Potturi>time or viewed the first time.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/392-0
+00:33:51.328 --> 00:33:54.552
+<v John Drum>And that's fine.
+I'm not saying that you don't put a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/392-1
+00:33:54.552 --> 00:33:57.594
+<v John Drum>record in here.
+All I'm saying is you have enough</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/392-2
+00:33:57.594 --> 00:34:02.156
+<v John Drum>information to actually retrieve it
+without going out and doing a bunch of</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/392-3
+00:34:02.156 --> 00:34:05.928
+<v John Drum>other queries for each entry that you're
+trying to pull back.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/394-0
+00:34:09.168 --> 00:34:14.878
+<v Taher Ghulam Mohammed>We could just dump if you can just,
+we could just dump the request payload</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/393-0
+00:34:09.808 --> 00:34:12.568
+<v John Drum>So that's why the account ID is.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/394-1
+00:34:14.878 --> 00:34:20.587
+<v Taher Ghulam Mohammed>inside the event data, right? Whatever,
+say what do you call fluid column.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/394-2
+00:34:20.587 --> 00:34:23.328
+<v Taher Ghulam Mohammed>We could add those information here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/397-0
+00:34:26.288 --> 00:34:30.084
+<v Taher Ghulam Mohammed>For any even type like who requested who,
+what?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/395-0
+00:34:26.328 --> 00:34:26.648
+<v John Drum>For what?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/397-1
+00:34:30.084 --> 00:34:33.168
+<v Taher Ghulam Mohammed>What are the parameters of the payload?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/396-0
+00:34:32.208 --> 00:34:32.768
+<v John Drum>Kemari.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/398-0
+00:34:34.208 --> 00:34:38.488
+<v John Drum>Sure, once you get the data back,
+but that's not what analytics is used for.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/399-0
+00:34:39.328 --> 00:34:42.328
+<v John Drum>So let's say that the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/401-0
+00:34:44.008 --> 00:34:48.728
+<v John Drum>The person in that's doing this analytics
+they want to see.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/400-0
+00:34:44.048 --> 00:34:44.248
+<v Taher Ghulam Mohammed>2.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/402-0
+00:34:51.248 --> 00:34:53.368
+<v John Drum>How many accounts and which accounts?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/403-0
+00:34:54.928 --> 00:34:58.688
+<v John Drum>View the disclosure for this month.
+A specific disclosure.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/404-0
+00:34:59.488 --> 00:34:59.928
+<v Taher Ghulam Mohammed>Hmm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/405-0
+00:35:00.328 --> 00:35:02.808
+<v John Drum>So the query against the um.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/406-0
+00:35:05.648 --> 00:35:09.928
+<v John Drum>I don't even know where you have what
+they viewed is in here. Let's see.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/408-0
+00:35:12.968 --> 00:35:16.808
+<v John Drum>So you've got a viewed record.
+How do you know what they viewed?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/407-0
+00:35:14.528 --> 00:35:14.888
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/409-0
+00:35:17.328 --> 00:35:21.528
+<v Taher Ghulam Mohammed>This is the Suresh index ID, right?
+So that would be the document.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/410-0
+00:35:21.488 --> 00:35:24.180
+<v John Drum>But that still doesn't tell them what it
+is.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/410-1
+00:35:24.180 --> 00:35:28.608
+<v John Drum>It just shows them is that storage index
+from ECMS or is it document hub?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/411-0
+00:35:29.288 --> 00:35:33.488
+<v Taher Ghulam Mohammed>It's it's on the ECMS. This is the no,
+this is the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/412-0
+00:35:34.608 --> 00:35:36.328
+<v Taher Ghulam Mohammed>Storage index from here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/416-0
+00:35:41.048 --> 00:35:48.105
+<v John Drum>OK, so to find out what this document is,
+we have to do a join from our analytics</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/416-1
+00:35:48.105 --> 00:35:55.162
+<v John Drum>table to our document or to our document
+hub instance table to our template table</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/414-0
+00:35:52.968 --> 00:35:53.088
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/415-0
+00:35:54.848 --> 00:35:58.328
+<v Veda Behera>That will be a expensive join, John.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/416-2
+00:35:55.162 --> 00:35:58.088
+<v John Drum>to find out what the document was.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/418-0
+00:35:58.608 --> 00:36:00.568
+<v John Drum>Yeah, it's mine.
+That's what I'm trying to get at.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/417-0
+00:36:01.728 --> 00:36:02.528
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/419-0
+00:36:03.568 --> 00:36:09.768
+<v John Drum>If this is a analytic schema specifically
+for documents, you should denormalize it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/424-0
+00:36:11.728 --> 00:36:15.812
+<v John Drum>Or am I saying that backwards?
+You should put more information in here</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/420-0
+00:36:11.768 --> 00:36:11.888
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/424-1
+00:36:15.812 --> 00:36:20.587
+<v John Drum>rather than less and put the document or
+the template type at least in here so you</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/421-0
+00:36:17.488 --> 00:36:17.968
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/424-2
+00:36:20.587 --> 00:36:23.924
+<v John Drum>know what it is.
+Because you think about what what's this</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/422-0
+00:36:21.048 --> 00:36:21.528
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/424-3
+00:36:23.924 --> 00:36:27.088
+<v John Drum>table being used for?
+It's being used to do analytics.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/423-0
+00:36:27.168 --> 00:36:28.248
+<v Taher Ghulam Mohammed>Mm-hmm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/425-0
+00:36:27.648 --> 00:36:32.031
+<v John Drum>So that means I want to just in my where
+clause for when I'm querying things,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/425-1
+00:36:32.031 --> 00:36:35.009
+<v John Drum>there's certain things I'm going to query
+on, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/425-2
+00:36:35.009 --> 00:36:39.673
+<v John Drum>The whole purpose of a document is to be
+able to say which document I want to look</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/425-3
+00:36:39.673 --> 00:36:43.888
+<v John Drum>at. So I want to define that without,
+you know, joining 3 tables together.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/426-0
+00:36:44.288 --> 00:36:46.160
+<v John Drum>Um,
+especially when they could be in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/426-1
+00:36:46.160 --> 00:36:47.728
+<v John Drum>completely different databases.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/427-0
+00:36:49.248 --> 00:36:52.275
+<v John Drum>In this case they're not,
+but you know they could be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/427-1
+00:36:52.275 --> 00:36:55.918
+<v John Drum>So at least the things you're going to
+put in your where clause,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/427-2
+00:36:55.918 --> 00:36:58.048
+<v John Drum>you want to put a fields in the table.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/428-0
+00:37:01.088 --> 00:37:03.528
+<v John Drum>And that way your your query is a lot
+less expensive.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/429-0
+00:37:03.848 --> 00:37:04.408
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/430-0
+00:37:05.008 --> 00:37:06.328
+<v John Drum>Am I?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/432-0
+00:37:08.048 --> 00:37:12.208
+<v John Drum>I mean, I'm not a database designer,
+but this just makes sense to me.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/431-0
+00:37:12.808 --> 00:37:13.088
+<v Taher Ghulam Mohammed>Mm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/435-0
+00:37:13.968 --> 00:37:17.451
+<v John Drum>So you have an event type, which is good.
+You say viewed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/435-1
+00:37:17.451 --> 00:37:22.076
+<v John Drum>Now you have an account ID in there.
+So you have what account it belongs to.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/435-2
+00:37:22.076 --> 00:37:24.959
+<v John Drum>Then you should have some kind of,
+like I said,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/433-0
+00:37:23.328 --> 00:37:23.448
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/435-3
+00:37:24.959 --> 00:37:29.704
+<v John Drum>that identifies because the instance
+record doesn't tell you what the document</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/435-4
+00:37:29.704 --> 00:37:33.728
+<v John Drum>was. It's the template that it belongs to,
+right? Should there be?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/434-0
+00:37:33.848 --> 00:37:34.128
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/441-0
+00:37:33.888 --> 00:37:38.459
+<v John Drum>So there should be some kind of field
+from the template that gets put in here</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/436-0
+00:37:38.128 --> 00:37:38.648
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/441-1
+00:37:38.459 --> 00:37:41.330
+<v John Drum>to say what this is. Like,
+was this a statement?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/437-0
+00:37:40.968 --> 00:37:41.088
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/441-2
+00:37:41.330 --> 00:37:45.022
+<v John Drum>Was it a shared document? You know,
+was it a regular document?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/438-0
+00:37:43.728 --> 00:37:44.208
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/441-3
+00:37:45.022 --> 00:37:47.601
+<v John Drum>You got to have enough information in
+here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/439-0
+00:37:46.568 --> 00:37:47.048
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/441-4
+00:37:47.601 --> 00:37:50.414
+<v John Drum>We're going to make a table and put data
+in it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/441-5
+00:37:50.414 --> 00:37:53.168
+<v John Drum>You got to have enough data to make it
+useful.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/440-0
+00:37:53.608 --> 00:37:54.008
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/442-0
+00:37:58.248 --> 00:38:00.168
+<v Taher Ghulam Mohammed>OK, I think. Mm-hmm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/443-0
+00:37:58.688 --> 00:38:02.063
+<v John Drum>That's all I'm saying.
+And you got to think about that a little</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/443-1
+00:38:02.063 --> 00:38:04.490
+<v John Drum>bit.
+How is this going to be used in a query?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/443-2
+00:38:04.490 --> 00:38:04.648
+<v John Drum>So.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/447-0
+00:38:05.808 --> 00:38:08.139
+<v John Drum>This,
+this is the reason I wanted to review</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/447-1
+00:38:08.139 --> 00:38:12.271
+<v John Drum>these tables because because a lot of
+times I think we just sit down and say,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/444-0
+00:38:08.968 --> 00:38:09.568
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/447-2
+00:38:12.271 --> 00:38:14.655
+<v John Drum>OK,
+let's slap together something real quick</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/447-3
+00:38:14.655 --> 00:38:17.145
+<v John Drum>and without really analyzing what we're
+doing.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/447-4
+00:38:17.145 --> 00:38:20.695
+<v John Drum>So this is used specifically for
+analytics that they're using for,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/445-0
+00:38:19.968 --> 00:38:20.008
+<v Taher Ghulam Mohammed>I.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/447-5
+00:38:20.695 --> 00:38:23.768
+<v John Drum>you know, back office, the website,
+things like that, so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/446-0
+00:38:21.728 --> 00:38:21.848
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/449-0
+00:38:25.248 --> 00:38:28.612
+<v John Drum>You got to put the information in here
+that can easily be retrieved.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/449-1
+00:38:28.612 --> 00:38:31.829
+<v John Drum>Because also you got to remember if this
+is going on the website,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/449-2
+00:38:31.829 --> 00:38:33.974
+<v John Drum>if you're retrieving information from
+here,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/449-3
+00:38:33.974 --> 00:38:36.168
+<v John Drum>you don't want that query to take 5
+minutes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/448-0
+00:38:37.248 --> 00:38:37.448
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/450-0
+00:38:39.048 --> 00:38:41.328
+<v John Drum>It needs to happen pretty quick.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/451-0
+00:38:43.488 --> 00:38:48.391
+<v John Drum>And without the proper fields to query
+against and the proper indexes,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/451-1
+00:38:48.391 --> 00:38:50.808
+<v John Drum>that's just not going to happen so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/453-0
+00:39:04.288 --> 00:39:07.516
+<v John Drum>So let's add,
+go ahead and think about this table for a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/453-1
+00:39:07.516 --> 00:39:10.456
+<v John Drum>little bit.
+I just want you guys to go through the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/453-2
+00:39:10.456 --> 00:39:13.454
+<v John Drum>exercise.
+If you were going to use this table to do</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/452-0
+00:39:10.848 --> 00:39:11.328
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/453-3
+00:39:13.454 --> 00:39:17.720
+<v John Drum>reporting or information on stuff,
+what fields would you need in there so</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/453-4
+00:39:17.720 --> 00:39:22.448
+<v John Drum>that if you didn't have any other tables
+to go against and you only had this one?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/455-0
+00:39:23.168 --> 00:39:25.008
+<v John Drum>What would you need to do to do that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/454-0
+00:39:26.008 --> 00:39:26.248
+<v Taher Ghulam Mohammed>Mm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/457-0
+00:39:27.728 --> 00:39:32.235
+<v John Drum>And then I'll just review that because I
+still think there's a couple of things</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/457-1
+00:39:32.235 --> 00:39:32.968
+<v John Drum>missing here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/456-0
+00:39:32.848 --> 00:39:33.488
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/458-0
+00:39:34.208 --> 00:39:38.991
+<v John Drum>But I want you guys to go through that
+exercise because I'm not going to be here</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/458-1
+00:39:38.991 --> 00:39:43.066
+<v John Drum>forever to do this for you.
+So you guys need to start thinking along</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/458-2
+00:39:43.066 --> 00:39:46.727
+<v John Drum>this way to say, OK,
+if I'm creating this and this is part of</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/458-3
+00:39:46.727 --> 00:39:50.448
+<v John Drum>our platform and people from all
+different areas like risk or.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/459-0
+00:39:50.448 --> 00:39:56.263
+<v John Drum>Data warehouse or you know the business
+people and they want to analyze this data.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/459-1
+00:39:56.263 --> 00:40:01.448
+<v John Drum>What kind of data do I need to put in
+here and then how do they query it?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/460-0
+00:40:04.888 --> 00:40:09.452
+<v John Drum>Because this has a different purpose than
+our other Ledger,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/460-1
+00:40:09.452 --> 00:40:15.842
+<v John Drum>our our other journal Ledger that lets us
+track the beginning to the end life cycle</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/460-2
+00:40:15.842 --> 00:40:17.288
+<v John Drum>of a given request.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/461-0
+00:40:18.688 --> 00:40:21.834
+<v John Drum>This is specific types of things that
+you're doing for,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/461-1
+00:40:21.834 --> 00:40:25.093
+<v John Drum>and that other one is not for analytics
+either. It's not.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/461-2
+00:40:25.093 --> 00:40:29.082
+<v John Drum>It could be used for analytics,
+but it's not really designed for that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/461-3
+00:40:29.082 --> 00:40:33.520
+<v John Drum>This you're saying you're specifically
+designing this for analytics for people</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/461-4
+00:40:33.520 --> 00:40:35.768
+<v John Drum>to do reporting on it to get statistics.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/462-0
+00:40:35.808 --> 00:40:38.298
+<v John Drum>Right.
+When was the first time something</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/462-1
+00:40:38.298 --> 00:40:41.517
+<v John Drum>happened?
+When was the last time something happened?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/462-2
+00:40:41.517 --> 00:40:46.497
+<v John Drum>How many times did it happen? You know,
+that's what your different view types and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/462-3
+00:40:46.497 --> 00:40:47.408
+<v John Drum>stuff would be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/463-0
+00:40:48.688 --> 00:40:52.073
+<v John Drum>And for is it for a given person or is it
+just for a given document type?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/463-1
+00:40:52.073 --> 00:40:55.505
+<v John Drum>Like if I just want to know how many
+people went out and viewed statements</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/463-2
+00:40:55.505 --> 00:40:56.008
+<v John Drum>this month?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/464-0
+00:40:57.648 --> 00:41:00.397
+<v John Drum>Was it 10 or was it a 10 million?
+You know,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/464-1
+00:41:00.397 --> 00:41:05.333
+<v John Drum>I should be able to just come in here and
+say I want to see a document type of</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/464-2
+00:41:05.333 --> 00:41:10.519
+<v John Drum>statements and then give it a time range
+from your event time stamp and then get a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/464-3
+00:41:10.519 --> 00:41:13.768
+<v John Drum>count back for viewed event type and then
+get that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/465-0
+00:41:13.968 --> 00:41:14.808
+<v John Drum>You know, count.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/467-0
+00:41:16.288 --> 00:41:19.512
+<v John Drum>Or I might want to say, oh,
+how many times did, you know,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/467-1
+00:41:19.512 --> 00:41:23.793
+<v John Drum>Joe Dawson go out and view his statements?
+You know, seven times this month.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/467-2
+00:41:23.793 --> 00:41:27.684
+<v John Drum>He must be nervous for some reason.
+He keeps checking his statements.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/467-3
+00:41:27.684 --> 00:41:31.965
+<v John Drum>Maybe he's got an ambitious wife and
+she's going out and charging everything</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/467-4
+00:41:31.965 --> 00:41:32.688
+<v John Drum>all the time.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/468-0
+00:41:32.808 --> 00:41:37.128
+<v John Drum>So he's he's trying to see what she's
+charging. So you know.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/469-0
+00:41:38.368 --> 00:41:38.488
+So.
+
+a24af1ca-382d-43ae-809f-8701819ac378/470-0
+00:41:38.528 --> 00:41:41.128
+<v John Drum>We need that kind of information in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/472-0
+00:41:40.928 --> 00:41:45.741
+<v Sai Krishnam Raju Potturi>So one more question.
+So we don't need any counter columns in</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/472-1
+00:41:45.741 --> 00:41:49.467
+<v Sai Krishnam Raju Potturi>here, right?
+Something that keeps incrementing,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/474-0
+00:41:48.608 --> 00:41:51.600
+<v John Drum>Account.
+If you're gonna if it's on Ledger and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/472-2
+00:41:49.467 --> 00:41:51.408
+<v Sai Krishnam Raju Potturi>no counter, some sort of.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/474-1
+00:41:51.600 --> 00:41:56.248
+<v John Drum>you're putting an entry in here,
+then you can just do a count on the Um.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/473-0
+00:41:55.208 --> 00:41:55.368
+<v Sai Krishnam Raju Potturi>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/475-0
+00:41:57.448 --> 00:42:00.568
+<v John Drum>On the number of rows for that view type.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/476-0
+00:41:59.888 --> 00:42:04.381
+<v Sai Krishnam Raju Potturi>But earlier you had this,
+I mean like a while back you mentioned</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/476-1
+00:42:04.381 --> 00:42:10.187
+<v Sai Krishnam Raju Potturi>there might also be this concern where in
+this table might get really bloated up if</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/476-2
+00:42:10.187 --> 00:42:15.026
+<v Sai Krishnam Raju Potturi>we were to record each each time a
+document is viewed by a particular</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/476-3
+00:42:15.026 --> 00:42:15.648
+<v Sai Krishnam Raju Potturi>customer.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/478-0
+00:42:16.048 --> 00:42:18.799
+<v John Drum>Yes,
+when you when you're when you're not</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/477-0
+00:42:16.648 --> 00:42:16.928
+<v Sai Krishnam Raju Potturi>And.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/478-1
+00:42:18.799 --> 00:42:20.568
+<v John Drum>putting the customer in it.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-0
+00:42:21.648 --> 00:42:23.970
+<v John Drum>But if you're going to put the customer
+in it,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-1
+00:42:23.970 --> 00:42:27.724
+<v John Drum>then that data now makes sense before
+just putting something that's viewed,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-2
+00:42:27.724 --> 00:42:29.947
+<v John Drum>but you don't know who it's being viewed
+by.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-3
+00:42:29.947 --> 00:42:32.862
+<v John Drum>It makes no sense to just keep writing a
+bunch of records.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-4
+00:42:32.862 --> 00:42:36.764
+<v John Drum>It's not that I was trying to say that
+what I was trying to get at is it's not</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-5
+00:42:36.764 --> 00:42:40.370
+<v John Drum>that that information is not helpful,
+but you need to make it so that it</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/479-6
+00:42:40.370 --> 00:42:41.408
+<v John Drum>actually makes sense.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/480-0
+00:42:41.528 --> 00:42:47.672
+<v John Drum>So if if you're just going to say that
+somebody viewed this, and it was 10,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/480-1
+00:42:47.672 --> 00:42:53.331
+<v John Drum>000 times, that's useless.
+Other for except very niche type of query.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/480-2
+00:42:53.331 --> 00:42:56.808
+<v John Drum>It's more saying, okay,
+I want to know who</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/481-0
+00:42:57.168 --> 00:43:01.368
+<v John Drum>Viewed their statements this month.
+Return me a list of which accounts.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/482-0
+00:43:03.928 --> 00:43:10.264
+<v John Drum>Now you can actually go in there and from
+the viewed entries say OK for each person</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/482-1
+00:43:10.264 --> 00:43:16.449
+<v John Drum>these are the persons and then for each
+person they had five views or three views</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/482-2
+00:43:16.449 --> 00:43:17.128
+<v John Drum>you know.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/483-0
+00:43:19.328 --> 00:43:20.688
+<v John Drum>And it's.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/484-0
+00:43:22.288 --> 00:43:26.455
+<v John Drum>It becomes a little bit more problematic
+if they want to say, OK,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/484-1
+00:43:26.455 --> 00:43:30.749
+<v John Drum>if they have 10 statements,
+which statement did they view that many</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/484-2
+00:43:30.749 --> 00:43:33.716
+<v John Drum>times?
+This said this Ledger doesn't have that</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/484-3
+00:43:33.716 --> 00:43:37.568
+<v John Drum>information in it,
+but I don't know that that's necessarily.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/485-0
+00:43:37.568 --> 00:43:42.024
+<v John Drum>Needed either at that point,
+because I can't imagine any statistical</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/485-1
+00:43:42.024 --> 00:43:44.608
+<v John Drum>query that they would need to know that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/486-0
+00:43:52.368 --> 00:43:56.681
+<v John Drum>So that's an action item.
+I want you guys to think about what</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/486-1
+00:43:56.681 --> 00:44:00.368
+<v John Drum>should be in here,
+which columns need to be indexed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/487-0
+00:44:04.128 --> 00:44:10.456
+<v John Drum>And if you're going to partition this
+table, say, let's only keep, uh let's say,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/487-1
+00:44:10.456 --> 00:44:14.128
+<v John Drum>a year's worth of data,
+how would you do that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/488-0
+00:44:15.568 --> 00:44:17.928
+<v Taher Ghulam Mohammed>Would be on even time step.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/489-0
+00:44:19.608 --> 00:44:20.168
+<v John Drum>What's that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/491-0
+00:44:20.208 --> 00:44:25.008
+<v Taher Ghulam Mohammed>Even timestamp like when the when the
+records were created like.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/492-0
+00:44:24.528 --> 00:44:29.019
+<v John Drum>Okay.
+But let's say that you have an event</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/492-1
+00:44:29.019 --> 00:44:34.554
+<v John Drum>timestamp.
+But there were thirty records written for</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/492-2
+00:44:34.554 --> 00:44:35.808
+<v John Drum>that that um</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/494-0
+00:44:37.808 --> 00:44:41.698
+<v John Drum>Well, I guess that doesn't matter.
+You can just use the event timestamp.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/494-1
+00:44:41.698 --> 00:44:45.748
+<v John Drum>So you can have a partition on the event
+timestamp and then when you go to,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/494-2
+00:44:45.748 --> 00:44:49.585
+<v John Drum>let's say it's a month partition,
+you got to be careful because I don't</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/494-3
+00:44:49.585 --> 00:44:53.742
+<v John Drum>know if you can do a your event timestamp
+actually goes out to the minute and</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/494-4
+00:44:53.742 --> 00:44:54.488
+<v John Drum>second, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/493-0
+00:44:54.528 --> 00:44:54.808
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/496-0
+00:44:55.008 --> 00:44:59.655
+<v John Drum>But when you're doing a partition,
+you typically only do it down to the date</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/496-1
+00:44:59.655 --> 00:45:03.336
+<v John Drum>level, not the time.
+So you may you have to check to see if.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/496-2
+00:45:03.336 --> 00:45:08.285
+<v John Drum>I don't know if you can do a partition on
+just the date part of a date time stamp</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/496-3
+00:45:08.285 --> 00:45:11.122
+<v John Drum>field.
+You may have to have another date field</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/496-4
+00:45:11.122 --> 00:45:12.208
+<v John Drum>in here somewhere.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/495-0
+00:45:13.168 --> 00:45:13.648
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/497-0
+00:45:14.848 --> 00:45:18.583
+<v John Drum>You might be able to.
+I just don't know off the top of my head</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/497-1
+00:45:18.583 --> 00:45:22.081
+<v John Drum>if you can or not.
+I don't know enough about partitions to</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/497-2
+00:45:22.081 --> 00:45:25.164
+<v John Drum>say that,
+but the easiest way to do mass operations</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/497-3
+00:45:25.164 --> 00:45:29.729
+<v John Drum>against tables and not affect their
+operation is to put partitions in and by</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/497-4
+00:45:29.729 --> 00:45:31.448
+<v John Drum>partitioning against a month.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/499-0
+00:45:31.728 --> 00:45:35.619
+<v John Drum>For a bunch of records, you can just say,
+OK,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/499-1
+00:45:35.619 --> 00:45:40.609
+<v John Drum>I want to go through and delete all the
+records, you know,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/499-2
+00:45:40.609 --> 00:45:45.008
+<v John Drum>past November of 2023 and it'll just drop
+them all.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/498-0
+00:45:41.528 --> 00:45:42.008
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/500-0
+00:45:45.648 --> 00:45:47.328
+<v John Drum>Regardless of all the other fields.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/501-0
+00:45:48.688 --> 00:45:49.328
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/503-0
+00:45:48.928 --> 00:45:51.883
+<v John Drum>Yes, it's this is a Ledger table.
+It's another one that will grow very</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/503-1
+00:45:51.883 --> 00:45:53.964
+<v John Drum>quickly,
+so we have to have a way to manage it so</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/503-2
+00:45:53.964 --> 00:45:55.088
+<v John Drum>it just doesn't go forever.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/502-0
+00:45:57.128 --> 00:45:57.248
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/504-0
+00:45:59.248 --> 00:46:01.909
+<v Taher Ghulam Mohammed>Yeah,
+I think we can have for if you are</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/504-1
+00:46:01.909 --> 00:46:06.128
+<v Taher Ghulam Mohammed>planning to have a partition in it month
+or year, we could have.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/505-0
+00:46:07.608 --> 00:46:10.128
+<v Taher Ghulam Mohammed>Anthony error column, something like that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/509-0
+00:46:11.088 --> 00:46:13.551
+<v John Drum>I would,
+I would probably actually talk to a</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/509-1
+00:46:13.551 --> 00:46:17.219
+<v John Drum>database architect and get some advice on
+the best way to do that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/506-0
+00:46:15.688 --> 00:46:18.168
+<v Taher Ghulam Mohammed>Huh. OK, OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/509-2
+00:46:17.219 --> 00:46:19.738
+<v John Drum>We don't have to invent everything
+ourselves,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/509-3
+00:46:19.738 --> 00:46:22.968
+<v John Drum>but we should use resources to come up
+with those designs.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/507-0
+00:46:19.928 --> 00:46:20.168
+<v Taher Ghulam Mohammed>Sure.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/508-0
+00:46:24.328 --> 00:46:24.888
+<v Taher Ghulam Mohammed>Sure.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/511-0
+00:46:28.848 --> 00:46:34.054
+<v John Drum>But I do expect you guys to think through
+the scenarios to say what information we</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/510-0
+00:46:31.848 --> 00:46:32.448
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/511-1
+00:46:34.054 --> 00:46:34.368
+<v John Drum>need.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/512-0
+00:46:36.928 --> 00:46:42.440
+<v John Drum>And create descriptions and the data
+dictionaries with entity diagrams for all</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/512-1
+00:46:42.440 --> 00:46:43.208
+<v John Drum>this stuff.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/513-0
+00:46:45.688 --> 00:46:48.293
+<v John Drum>Otherwise,
+you guys are still going to try to go</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/513-1
+00:46:48.293 --> 00:46:52.599
+<v John Drum>through recordings from six months ago in
+the future when I'm gone to figure out</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/513-2
+00:46:52.599 --> 00:46:53.928
+<v John Drum>what everything is doing.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/515-0
+00:46:54.928 --> 00:46:58.546
+<v John Drum>If we document it correctly,
+anybody can come in and look at this</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/515-1
+00:46:58.546 --> 00:47:02.932
+<v John Drum>table designs with the data or the data
+descriptions and stuff and know exactly</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/515-2
+00:47:02.932 --> 00:47:04.248
+<v John Drum>how everything operates.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/514-0
+00:47:04.608 --> 00:47:05.128
+<v Taher Ghulam Mohammed>Mhm.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/517-0
+00:47:07.688 --> 00:47:11.414
+<v Taher Ghulam Mohammed>OK, John,
+another thing we want to discuss is</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/516-0
+00:47:09.448 --> 00:47:09.968
+<v John Drum>Sure.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/517-1
+00:47:11.414 --> 00:47:17.328
+<v Taher Ghulam Mohammed>yesterday me and Sai were looking at the
+UI. Sai, do you have that open?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/518-0
+00:47:18.848 --> 00:47:22.568
+<v Taher Ghulam Mohammed>OK, I'll let me open this.
+See if I it would log in here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/519-0
+00:47:23.528 --> 00:47:26.648
+<v John Drum>Got 10 minutes guys and I got another
+meeting I gotta jump to so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/521-0
+00:47:27.608 --> 00:47:29.608
+<v Taher Ghulam Mohammed>Oh, here you are.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/520-0
+00:47:27.648 --> 00:47:28.928
+<v John Drum>Hopefully we can get through that.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/522-0
+00:47:29.808 --> 00:47:31.848
+<v Sai Krishnam Raju Potturi>I'll I'll share the payload just one
+second.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/523-0
+00:47:40.608 --> 00:47:41.488
+<v Taher Ghulam Mohammed>Have the.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/524-0
+00:47:42.528 --> 00:47:44.088
+<v Sai Krishnam Raju Potturi>Yes, one moment.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/525-0
+00:47:44.928 --> 00:47:50.288
+<v Sai Krishnam Raju Potturi>Yeah, or probably, yeah, just OK,
+try logging to one of those accounts.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/526-0
+00:47:56.008 --> 00:47:56.448
+<v Taher Ghulam Mohammed>Still.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/527-0
+00:48:00.088 --> 00:48:00.648
+<v Taher Ghulam Mohammed>Statements.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/528-0
+00:48:07.408 --> 00:48:07.928
+<v Sai Krishnam Raju Potturi>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/529-0
+00:48:10.328 --> 00:48:14.328
+<v Sai Krishnam Raju Potturi>You go to the document statements,
+create account ID.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/530-0
+00:48:13.488 --> 00:48:13.768
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/531-0
+00:48:15.768 --> 00:48:18.008
+<v Sai Krishnam Raju Potturi>Could you expand on general
+communications?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/533-0
+00:48:20.128 --> 00:48:22.648
+<v Sai Krishnam Raju Potturi>Uh, yeah. Can you please expand on that?
+Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/532-0
+00:48:20.368 --> 00:48:21.728
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/536-0
+00:48:23.208 --> 00:48:26.731
+<v Taher Ghulam Mohammed>So, John, we have what? Is this the one?
+Yeah,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/536-1
+00:48:26.731 --> 00:48:30.705
+<v Taher Ghulam Mohammed>general communication is at the bottom,
+right? Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/534-0
+00:48:27.448 --> 00:48:27.528
+<v Sai Krishnam Raju Potturi>It.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/536-2
+00:48:30.705 --> 00:48:35.728
+<v Taher Ghulam Mohammed>So we have what we called miscreant
+statements as categories here.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/535-0
+00:48:36.048 --> 00:48:36.888
+<v John Drum>Yep, Yep.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/537-0
+00:48:37.368 --> 00:48:41.305
+<v Taher Ghulam Mohammed>And under that we have doc type as
+paperless.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/537-1
+00:48:41.305 --> 00:48:44.728
+<v Taher Ghulam Mohammed>So for paperless we are seeing multiple.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/538-0
+00:48:42.888 --> 00:48:45.824
+<v John Drum>Hold it, hold it.
+What do you mean a document type is</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/538-1
+00:48:45.824 --> 00:48:46.368
+<v John Drum>paperless?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/539-0
+00:48:47.368 --> 00:48:53.208
+<v Taher Ghulam Mohammed>So as per the UI what you call
+categorization, this is the type.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/540-0
+00:48:54.208 --> 00:48:56.768
+<v Sai Krishnam Raju Potturi>Yeah,
+the document type is being written as</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/540-1
+00:48:56.768 --> 00:48:59.328
+<v Sai Krishnam Raju Potturi>paperless letter currently from legacy,
+so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/541-0
+00:48:58.808 --> 00:49:02.816
+<v John Drum>What does that mean?
+Because paperless is a option,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/541-1
+00:49:02.816 --> 00:49:05.128
+<v John Drum>it's it's not a document type.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/542-0
+00:49:09.728 --> 00:49:14.496
+<v John Drum>There is no given document that's a
+paperless document unless it's designed</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/542-1
+00:49:14.496 --> 00:49:16.128
+<v John Drum>to never, ever be printed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/543-0
+00:49:18.168 --> 00:49:19.688
+<v John Drum>Which was the document?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/545-0
+00:49:22.648 --> 00:49:27.286
+<v Sai Krishnam Raju Potturi>So if you look here right,
+we have two HTML letters names right</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/545-1
+00:49:27.286 --> 00:49:31.128
+<v Sai Krishnam Raju Potturi>FF083 and if you can Scroll down we also
+have FF518.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/544-0
+00:49:30.688 --> 00:49:31.928
+<v John Drum>FF 083.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/546-0
+00:49:31.408 --> 00:49:36.621
+<v Veda Behera>And they are the latest John,
+which are like AEM generates on the fly</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/547-0
+00:49:36.608 --> 00:49:40.654
+<v John Drum>I under. I understand that,
+but they can also be printed too, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/546-1
+00:49:36.621 --> 00:49:38.408
+<v Veda Behera>from the template, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/547-1
+00:49:40.654 --> 00:49:43.879
+<v John Drum>Because you're going to LPS to pull out
+those letters,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/547-2
+00:49:43.879 --> 00:49:48.335
+<v John Drum>and the fact that they're enrolled in
+paperless just means it showed in the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/547-3
+00:49:48.335 --> 00:49:51.208
+<v John Drum>document area,
+but it could actually be printed.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/548-0
+00:49:53.568 --> 00:49:58.098
+<v John Drum>That's why I'm saying something this this
+is screwed up because it shouldn't be</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/548-1
+00:49:58.098 --> 00:50:01.326
+<v John Drum>returning the type as paperless.
+The it's not paperless,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/548-2
+00:50:01.326 --> 00:50:05.460
+<v John Drum>they're enrolled in paperless.
+So we're pulling the values for those LPS</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/548-3
+00:50:05.460 --> 00:50:08.688
+<v John Drum>letters, the variables,
+so they can be displayed as PDF.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/549-0
+00:50:09.168 --> 00:50:14.755
+<v John Drum>But the type is not paperless,
+so whatever's in the legacy system that's</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/549-1
+00:50:14.755 --> 00:50:17.128
+<v John Drum>returning that is is incorrect.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/551-0
+00:50:20.048 --> 00:50:22.168
+<v John Drum>Because what does it mean?
+It means nothing.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/550-0
+00:50:20.528 --> 00:50:20.848
+<v Taher Ghulam Mohammed>S.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/553-0
+00:50:23.328 --> 00:50:28.645
+<v Sai Krishnam Raju Potturi>So one question so so the letter FF083
+right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/553-1
+00:50:28.645 --> 00:50:37.430
+<v Sai Krishnam Raju Potturi>And the FF518V V 001 so those so those
+would be would belong to a different</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/552-0
+00:50:32.608 --> 00:50:33.048
+<v John Drum>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/553-2
+00:50:37.430 --> 00:50:39.048
+<v Sai Krishnam Raju Potturi>document type.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/554-0
+00:50:39.288 --> 00:50:39.448
+<v Sai Krishnam Raju Potturi>Type.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/556-0
+00:50:41.168 --> 00:50:45.287
+<v John Drum>Well, in this particular case,
+I imagine they probably reference the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/556-1
+00:50:45.287 --> 00:50:49.048
+<v John Drum>HTML template that you're using to
+generate the letter, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/555-0
+00:50:49.568 --> 00:50:50.208
+<v Sai Krishnam Raju Potturi>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/557-0
+00:50:52.208 --> 00:50:55.128
+<v Veda Behera>These are the letters which you you
+worked on, Sai.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/559-0
+00:50:56.168 --> 00:51:00.744
+<v Sai Krishnam Raju Potturi>No, right.
+So when we're trying to map this to</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/559-1
+00:51:00.744 --> 00:51:03.568
+<v Sai Krishnam Raju Potturi>document hub, right? So each.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/562-0
+00:51:04.528 --> 00:51:10.228
+<v Sai Krishnam Raju Potturi>So each category and document type would
+be at least as per the current definition.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/560-0
+00:51:05.408 --> 00:51:05.888
+<v Taher Ghulam Mohammed>Each.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/562-1
+00:51:10.228 --> 00:51:15.046
+<v Sai Krishnam Raju Potturi>Each each document type would be
+associated with one with a particular</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/562-2
+00:51:15.046 --> 00:51:18.846
+<v Sai Krishnam Raju Potturi>template, right?
+But yesterday when we're going by this</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/561-0
+00:51:17.968 --> 00:51:18.368
+<v John Drum>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/562-3
+00:51:18.846 --> 00:51:23.528
+<v Sai Krishnam Raju Potturi>definition, like you know,
+just seeing how it's currently in legacy.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/564-0
+00:51:23.808 --> 00:51:27.398
+<v Sai Krishnam Raju Potturi>It it looked like one document type at
+least.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/564-1
+00:51:27.398 --> 00:51:33.565
+<v Sai Krishnam Raju Potturi>I mean you mentioned it's incorrect,
+but one one document type having multiple</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/564-2
+00:51:33.565 --> 00:51:38.248
+<v Sai Krishnam Raju Potturi>templates, right?
+In this case it would be FF083 and FF518.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/563-0
+00:51:38.688 --> 00:51:38.808
+<v John Drum>So.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/565-0
+00:51:38.968 --> 00:51:41.888
+<v Sai Krishnam Raju Potturi>So will there be a case like that?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/567-0
+00:51:41.368 --> 00:51:44.758
+<v John Drum>Let me let me explain what's going to
+happen.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/567-1
+00:51:44.758 --> 00:51:50.286
+<v John Drum>So the reason this even came about is
+because the legacy system used those</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/567-2
+00:51:50.286 --> 00:51:55.887
+<v John Drum>bloody HTML letters for some of the
+letters to be displayed in the document</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/567-3
+00:51:55.887 --> 00:51:58.688
+<v John Drum>or document message center in the web.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/568-0
+00:51:59.608 --> 00:52:02.848
+<v John Drum>The new platform that's going away.
+Everything is a PDF.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/569-0
+00:52:04.888 --> 00:52:09.845
+<v John Drum>And we have an interim solution in there
+that can still go back and pull the</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/569-1
+00:52:09.845 --> 00:52:13.193
+<v John Drum>values from LPS to create a PDF.
+But in the future,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/569-2
+00:52:13.193 --> 00:52:16.928
+<v John Drum>when it's all on the new platform,
+there will be no HTML.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/571-0
+00:52:18.168 --> 00:52:23.537
+<v John Drum>Letters. It's all going to be a PDF.
+So you're not going to have these HTML</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/571-1
+00:52:23.537 --> 00:52:28.553
+<v John Drum>letter names. There will be no HTML.
+It's only going to be the letter,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/571-2
+00:52:28.553 --> 00:52:31.733
+<v John Drum>and that'll be the document type,
+basically.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/571-3
+00:52:31.733 --> 00:52:34.488
+<v John Drum>Now we have an interim problem because.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/570-0
+00:52:32.328 --> 00:52:32.408
+<v Sai Krishnam Raju Potturi>Um.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/572-0
+00:52:35.168 --> 00:52:38.934
+<v John Drum>We still have some of these that are LPS
+that haven't been generated with a new</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/572-1
+00:52:38.934 --> 00:52:39.688
+<v John Drum>platform, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/573-0
+00:52:41.088 --> 00:52:47.286
+<v John Drum>O that format that says HTML,
+what's the other value that it could be</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/573-1
+00:52:47.286 --> 00:52:48.968
+<v John Drum>to say PDF or what?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/575-0
+00:52:51.928 --> 00:52:54.648
+<v Taher Ghulam Mohammed>OK, format. You're saying format using.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/574-0
+00:52:52.368 --> 00:52:53.288
+<v Sai Krishnam Raju Potturi>Yes, it can be.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/576-0
+00:52:56.688 --> 00:52:58.608
+<v Taher Ghulam Mohammed>Yeah, we did. We did.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/577-0
+00:52:56.928 --> 00:53:00.888
+<v John Drum>Yeah, what's this?
+So you have PDF or you have HTML, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/578-0
+00:53:02.848 --> 00:53:05.033
+<v Taher Ghulam Mohammed>Yeah,
+that's the that's the tool which we are</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/578-1
+00:53:05.033 --> 00:53:05.888
+<v Taher Ghulam Mohammed>seeing here, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/579-0
+00:53:05.888 --> 00:53:09.978
+<v John Drum>So for when it's PDF,
+that would be the regular document name,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/579-1
+00:53:09.978 --> 00:53:10.368
+<v John Drum>right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/582-0
+00:53:11.568 --> 00:53:16.702
+<v John Drum>They're document type. Excuse me,
+you you're scrolling way faster than I</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/580-0
+00:53:13.528 --> 00:53:13.728
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/581-0
+00:53:15.448 --> 00:53:17.488
+<v Taher Ghulam Mohammed>Oh, oh, sorry. OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/582-1
+00:53:16.702 --> 00:53:20.008
+<v John Drum>can follow. You're making my stomach sick,
+so.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/584-0
+00:53:20.408 --> 00:53:24.208
+<v Taher Ghulam Mohammed>OK, cardholder agreement type is.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/583-0
+00:53:21.608 --> 00:53:21.728
+<v John Drum>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/587-0
+00:53:23.328 --> 00:53:28.073
+<v John Drum>And then HTML letter name is null for
+those types that are PDF.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/585-0
+00:53:26.768 --> 00:53:26.888
+<v Taher Ghulam Mohammed>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/587-1
+00:53:28.073 --> 00:53:33.634
+<v John Drum>So for the ones that are format HTML,
+you have an HTML letter name, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/587-2
+00:53:33.634 --> 00:53:35.488
+<v John Drum>They go sort of together.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/586-0
+00:53:35.288 --> 00:53:35.448
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/588-0
+00:53:37.448 --> 00:53:38.408
+<v John Drum>Now.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/589-0
+00:53:39.648 --> 00:53:42.568
+<v John Drum>Do all your HTML say paperless?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/590-0
+00:53:43.968 --> 00:53:46.448
+<v Taher Ghulam Mohammed>This one is paperless, yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/591-0
+00:53:45.968 --> 00:53:52.121
+<v John Drum>I imagine all the HTML was what paper was
+right because you can only see the HTML</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/591-1
+00:53:52.121 --> 00:53:56.248
+<v John Drum>ones on the message or the document
+center in the web.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/592-0
+00:53:59.488 --> 00:54:01.448
+<v Taher Ghulam Mohammed>Yeah, looks like it, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/593-0
+00:54:03.208 --> 00:54:08.304
+<v John Drum>So basically that type is worthless
+because it it means the same thing as</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/593-1
+00:54:08.304 --> 00:54:08.648
+<v John Drum>HTML.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/594-0
+00:54:10.768 --> 00:54:15.163
+<v Taher Ghulam Mohammed>We have OK for PDFS we do have has
+stimulated name. Oh no,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/594-1
+00:54:15.163 --> 00:54:16.728
+<v Taher Ghulam Mohammed>it's not always null.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/595-0
+00:54:16.608 --> 00:54:20.128
+<v John Drum>Why would you have an HTML letter name
+for a PDF?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/596-0
+00:54:23.648 --> 00:54:27.552
+<v Sai Krishnam Raju Potturi>And that's how currently, uh,
+that's how currently the information</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/597-0
+00:54:25.888 --> 00:54:30.088
+<v Veda Behera>And that that's not used actually.
+That might be, you know, like.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/596-1
+00:54:27.552 --> 00:54:28.368
+<v Sai Krishnam Raju Potturi>we're getting.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/598-0
+00:54:32.368 --> 00:54:36.808
+<v Veda Behera>Wrongly mapped. Is it used?
+Is that property HTML returning?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/599-0
+00:54:41.488 --> 00:54:44.807
+<v Veda Behera>Or is this a shared?
+This might be a shared document as well.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/599-1
+00:54:44.807 --> 00:54:44.968
+<v Veda Behera>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/600-0
+00:54:46.128 --> 00:54:47.608
+<v Veda Behera>So this doesn't have ID.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/605-0
+00:54:49.808 --> 00:54:55.344
+<v John Drum>So I got to go for another meeting guys,
+but I want to revisit this because I</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/601-0
+00:54:49.968 --> 00:54:50.248
+<v Sai Krishnam Raju Potturi>Yes.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/605-1
+00:54:55.344 --> 00:55:00.028
+<v John Drum>think this is important.
+So let's set up another meeting sometime</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/602-0
+00:54:57.408 --> 00:54:57.528
+<v Taher Ghulam Mohammed>OK.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/605-2
+00:55:00.028 --> 00:55:05.706
+<v John Drum>in the future and we'll start here and
+continue because this is a bit of a mess</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/603-0
+00:55:02.888 --> 00:55:03.248
+<v Taher Ghulam Mohammed>Surely.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/605-3
+00:55:05.706 --> 00:55:08.048
+<v John Drum>and we need to straighten it out.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/604-0
+00:55:07.408 --> 00:55:07.688
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/607-0
+00:55:08.928 --> 00:55:12.577
+<v Sai Krishnam Raju Potturi>Yes, yeah.
+We wanted to understand like how when</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/607-1
+00:55:12.577 --> 00:55:18.834
+<v Sai Krishnam Raju Potturi>we're storing those HTML templates right
+in document help, like what would they be?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/607-2
+00:55:18.834 --> 00:55:24.048
+<v Sai Krishnam Raju Potturi>Would they be mapped to certain document
+type category or would they?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/606-0
+00:55:19.088 --> 00:55:19.928
+<v John Drum>Yeah, there's.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/609-0
+00:55:23.808 --> 00:55:27.296
+<v John Drum>That's just it.
+Document hub won't have any HTML</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/608-0
+00:55:24.048 --> 00:55:26.048
+<v Sai Krishnam Raju Potturi>Be like some stand alone documents.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/609-1
+00:55:27.296 --> 00:55:28.008
+<v John Drum>templates.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/610-0
+00:55:30.648 --> 00:55:32.328
+<v John Drum>Because we only store.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/611-0
+00:55:33.488 --> 00:55:37.734
+<v John Drum>Letters in there, not HTML.
+I take that back there.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/611-1
+00:55:37.734 --> 00:55:43.287
+<v John Drum>There could be HTML or even XML in there,
+but it won't be a letter.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/611-2
+00:55:43.287 --> 00:55:47.288
+<v John Drum>It could be an e-mail or it could be some
+other.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/612-0
+00:55:46.048 --> 00:55:48.920
+<v Sai Krishnam Raju Potturi>But we'll be storing,
+but in the other tables,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/612-1
+00:55:48.920 --> 00:55:53.687
+<v Sai Krishnam Raju Potturi>like in the template definition tables,
+we would be storing the HTML that was</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/612-2
+00:55:53.687 --> 00:55:58.088
+<v Sai Krishnam Raju Potturi>used to actually render the document in
+the storage index table, right?</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/615-0
+00:55:55.328 --> 00:55:58.390
+<v John Drum>Right.
+And there won't be anything in the ECMS.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/615-1
+00:55:58.390 --> 00:56:02.473
+<v John Drum>Yes, we talked about that the other day.
+But like I said, guys,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/615-2
+00:56:02.473 --> 00:56:05.599
+<v John Drum>I I gotta go or I'll be late.
+I'm other meeting,</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/614-0
+00:56:04.768 --> 00:56:06.088
+<v Sai Krishnam Raju Potturi>Yeah, sure, sure, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/613-0
+00:56:05.008 --> 00:56:06.088
+<v Taher Ghulam Mohammed>Sure, yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/615-3
+00:56:05.599 --> 00:56:07.768
+<v John Drum>but we need to revisit this again.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/616-0
+00:56:07.168 --> 00:56:10.986
+<v Taher Ghulam Mohammed>Sure. Yeah,
+I'll set up something tomorrow, John.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/616-1
+00:56:10.986 --> 00:56:11.368
+<v Taher Ghulam Mohammed>Yeah.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/617-0
+00:56:11.168 --> 00:56:13.403
+<v John Drum>All right,
+and hopefully we get some of those other</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/617-1
+00:56:13.403 --> 00:56:14.048
+<v John Drum>tables updated.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/618-0
+00:56:13.848 --> 00:56:14.208
+<v Taher Ghulam Mohammed>Sure.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/621-0
+00:56:15.288 --> 00:56:16.328
+<v John Drum>All right. Thanks, guys.</v>
+
+a24af1ca-382d-43ae-809f-8701819ac378/623-0
+00:56:16.648 --> 00:56:17.328
+<v Taher Ghulam Mohammed>Thanks for.</v>
