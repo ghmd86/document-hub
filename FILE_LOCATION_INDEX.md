@@ -1,6 +1,6 @@
 # Document Hub Project - File Location Index
 
-**Last Updated:** 2025-11-09
+**Last Updated:** 2025-11-13
 **Purpose:** Quick reference for all important files and folders in the Document Hub project
 
 ---
@@ -218,6 +218,28 @@ C:\Users\ghmd8\Documents\AI\
   - Best practices: timeouts, circuit breakers, monitoring, caching
   - Code examples with complete reactive service implementation
   - 15,000+ lines of comprehensive reactive integration documentation
+
+- `data_dictionary_core_tables.md` - ✅ CREATED (2025-11-13)
+  - **Comprehensive data dictionary for 3 core tables**
+  - Tables covered:
+    1. **master_template_definition** - Template metadata with versioning
+    2. **storage_index** - Document index with denormalized template data
+    3. **template_vendor_mapping** - Vendor implementation mappings
+  - Complete column definitions (90+ columns total across all tables)
+  - JSONB field structure examples with real-world scenarios
+  - Index strategy documentation (50+ indexes: B-tree, GIN, partial, expression)
+  - Sample data for each table
+  - Cross-table relationships and foreign keys
+  - Denormalization strategy explained (why and what)
+  - Common query patterns with performance metrics
+  - Data type standards and naming conventions
+  - Audit column standards (DBA requirements)
+  - 1,200+ lines of comprehensive database documentation
+
+- `WHY_DATABASE_NOT_YAML.md` - ✅ CREATED (2025-11-13)
+  - Rationale for database-backed configuration vs YAML files
+  - Comparison of approaches for template and rule management
+  - Scalability, flexibility, and maintenance considerations
 
 ### Sequence Diagrams
 **Location:** `C:\Users\ghmd8\Documents\AI\docs\sequence-diagrams\`
