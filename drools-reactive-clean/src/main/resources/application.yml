@@ -1,0 +1,70 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: drools-reactive-eligibility
+
+  # ============================================
+  # Database Configuration (R2DBC - Reactive)
+  # ============================================
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/drools_eligibility
+    username: postgres
+    password: postgres
+    pool:
+      initial-size: 10
+      max-size: 20
+      max-idle-time: 30m
+
+  # ============================================
+  # Caching Configuration
+  # ============================================
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=600s
+    cache-names:
+      - ruleEngineConfiguration
+      - dataSources
+      - eligibilityRules
+
+  # ============================================
+  # Jackson JSON Configuration
+  # ============================================
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+# ============================================
+# Drools Configuration
+# ============================================
+drools:
+  rule-evaluation-timeout-ms: 500
+  thread-pool-size: 10
+
+# ============================================
+# Management & Actuator
+# ============================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# ============================================
+# Logging Configuration
+# ============================================
+logging:
+  level:
+    root: INFO
+    com.example.eligibility: DEBUG
+    org.springframework.r2dbc: DEBUG
+    org.drools: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
