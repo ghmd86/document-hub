@@ -1,0 +1,6 @@
+/poc/doc-hub-poc/target/**
+./poc/doc-hub-poc/target/
+./poc/doc-hub-poc/.idea/
+/poc/doc-hub-poc/.idea/compiler.xml
+target/
+.idea/
