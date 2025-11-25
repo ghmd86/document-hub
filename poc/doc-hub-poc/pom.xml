@@ -30,10 +30,12 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- OpenAPI Generator Plugin - Temporarily disabled for POC -->
+            <!--
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>6.6.0</version> <!-- Use a recent version -->
+                <version>6.6.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -47,12 +49,12 @@
                             <configOptions>
                                 <reactive>true</reactive>
                                 <interfaceOnly>true</interfaceOnly>
-                                <!-- Add other config options as needed -->
                             </configOptions>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
     <dependencies>

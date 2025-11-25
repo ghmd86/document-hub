@@ -6,7 +6,10 @@
       "Bash(git commit:*)",
       "Bash(gh --version:*)",
       "Bash(git remote add:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(git push:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(timeout 15 mvn spring-boot:run:*)"
     ],
     "deny": [],
     "ask": []
