@@ -34,7 +34,7 @@ CREATE TABLE "master_template_definition" (
   "record_status" bigint,
   -- Constraints
   PRIMARY KEY ("master_template_id", "template_version "),
-  UNIQUE ("template_version", "version_number", "template_type")
+  UNIQUE ("template_version", "template_type", "line_of_business")
 );
 
 CREATE TABLE "storage_index" (

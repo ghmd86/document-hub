@@ -1,4 +1,4 @@
-# Document Hub Project - File Location Index
+work# Document Hub Project - File Location Index
 
 **Last Updated:** 2025-11-13
 **Purpose:** Quick reference for all important files and folders in the Document Hub project
