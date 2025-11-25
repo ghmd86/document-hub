@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: drools-reactive-poc
+  config:
+    import:
+      - optional:file:config-driven-rules.yml  # Configuration-driven rules and APIs
+
+# Drools Configuration
+drools:
+  thread-pool:
+    core-size: 20                    # Thread pool size for Drools execution
+    thread-name-prefix: drools-      # Thread name prefix for monitoring
+    ttl-seconds: 60                  # Idle thread TTL
+
+  timeouts:
+    rule-execution-ms: 500           # Max time for rule execution
+    overall-request-ms: 2000         # Overall request timeout
+
+# External API Configuration
+external-api:
+  # Arrangements API (to fetch pricingId)
+  arrangements:
+    base-url: ${ARRANGEMENTS_API_URL:http://localhost:8081}
+
+  # Cardholder Agreements API (to fetch TNC code using pricingId)
+  cardholder-agreements:
+    base-url: ${CARDHOLDER_AGREEMENTS_API_URL:http://localhost:8082}
+
+  # Account Service API
+  account-service:
+    base-url: ${ACCOUNT_SERVICE_API_URL:http://localhost:8083}
+
+  # Customer Service API
+  customer-service:
+    base-url: ${CUSTOMER_SERVICE_API_URL:http://localhost:8084}
+
+  # Timeouts for external API calls
+  timeout:
+    connection-ms: 5000              # Connection timeout
+    read-ms: 10000                   # Read timeout
+    write-ms: 10000                  # Write timeout
+
+# Logging
+logging:
+  level:
+    com.example.droolspoc: DEBUG
+    org.kie: INFO
+    org.drools: INFO
+    org.springframework.web.reactive.function.client: DEBUG  # WebClient logging
