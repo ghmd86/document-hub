@@ -12,9 +12,30 @@ import java.util.UUID;
 public interface StorageIndexRepository
     extends R2dbcRepository<StorageIndexEntity, UUID> {
 
-    Flux<StorageIndexEntity> findByAccountKey(UUID accountKey);
+    @Query("SELECT * FROM storage_index " +
+           "WHERE account_key = :accountKey " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion")
+    Flux<StorageIndexEntity> findByAccountKey(
+        String accountKey,
+        String templateType,
+        Integer templateVersion
+    );
 
-    Flux<StorageIndexEntity> findByCustomerKey(UUID customerKey);
+    @Query("SELECT * FROM storage_index " +
+           "WHERE customer_key = :customerKey " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion")
+    Flux<StorageIndexEntity> findByCustomerKey(
+        String customerKey,
+        String templateType,
+        Integer templateVersion
+    );
+
+    Flux<StorageIndexEntity> findByTemplateTypeAndTemplateVersion(
+        String templateType,
+        Integer templateVersion
+    );
 
     @Query("SELECT * FROM storage_index " +
            "WHERE reference_key = :referenceKey " +
@@ -29,10 +50,13 @@ public interface StorageIndexRepository
     );
 
     @Query("SELECT * FROM storage_index " +
-           "WHERE template_type = :templateType " +
+           "WHERE (account_key = :accountKey OR customer_key = :customerKey) " +
+           "AND template_type = :templateType " +
            "AND template_version = :templateVersion " +
            "AND is_shared = true")
     Flux<StorageIndexEntity> findSharedDocuments(
+        String accountKey,
+        String customerKey,
         String templateType,
         Integer templateVersion
     );
