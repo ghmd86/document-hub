@@ -6,6 +6,7 @@ import io.swagger.model.DocumentListResponse;
 import io.swagger.model.ErrorResponse;
 import java.util.UUID;
 import io.swagger.model.XRequestorType;
+import io.swagger.service.DocumentEnquiryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,6 +49,9 @@ public class DocumentsEnquiryApiController implements DocumentsEnquiryApi {
 
     private final HttpServletRequest request;
 
+    @Autowired
+    private DocumentEnquiryService documentEnquiryService;
+
     @org.springframework.beans.factory.annotation.Autowired
     public DocumentsEnquiryApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
@@ -69,9 +73,37 @@ public class DocumentsEnquiryApiController implements DocumentsEnquiryApi {
         log.info("Received document enquiry request - correlationId: {}, requestorId: {}",
             xCorrelationId, xRequestorId);
 
-        // TODO: Implement service integration
-        // Phase 5 services created but need model alignment
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            // Validate request
+            if (body == null || body.getCustomerId() == null) {
+                log.warn("Customer ID is required");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            // Call service layer
+            DocumentListResponse response = documentEnquiryService
+                .getDocuments(body)
+                .block();
+
+            if (response == null) {
+                log.error("Service returned null response");
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            // Convert to API response format
+            // For now, we'll return NOT_IMPLEMENTED as DocumentRetrievalResponse
+            // mapping needs to be implemented
+            // TODO: Map DocumentListResponse to DocumentRetrievalResponse
+            log.info("Found {} documents for customer {}",
+                response.getTotalCount(),
+                body.getCustomerId());
+
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+        } catch (Exception e) {
+            log.error("Error processing document enquiry", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
