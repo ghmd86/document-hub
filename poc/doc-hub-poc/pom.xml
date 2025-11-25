@@ -6,7 +6,7 @@
     <name>swagger-spring</name>
     <version>1.0.0</version>
     <properties>
-        <java.version>1.7</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <springdoc-version>1.7.0</springdoc-version>
@@ -30,9 +30,37 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>6.6.0</version> <!-- Use a recent version -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <output>${project.build.directory}/generated-sources</output>
+                            <configOptions>
+                                <reactive>true</reactive>
+                                <interfaceOnly>true</interfaceOnly>
+                                <!-- Add other config options as needed -->
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
+        <!-- Spring Boot WebFlux (Reactive) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -77,5 +105,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
+
 </project>
