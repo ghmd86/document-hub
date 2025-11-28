@@ -2,11 +2,11 @@ openapi: 3.0.0
 info:
   title: Document-Hub
   description: Centralized point for multidomain document retrieval
-  version: 1.0.12
+  version: 1.0.13
 servers:
 - url: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services
 paths:
-  /document-list:
+  /documents-enquiry:
     post:
       tags:
       - Document List Retrieval
@@ -37,10 +37,7 @@ paths:
         description: Type of the requestor
         required: true
         schema:
-          type: string
-          enum:
-          - CUSTOMER
-          - AGENT
+          $ref: "#/components/schemas/X-requestor-type"
       requestBody:
         content:
           application/json:
@@ -109,10 +106,7 @@ paths:
         description: Type of the requestor
         required: true
         schema:
-          type: string
-          enum:
-          - CUSTOMER
-          - AGENT
+          $ref: "#/components/schemas/X-requestor-type"
       - name: X-requestor-id
         in: header
         description: Id of the requestor
@@ -194,10 +188,7 @@ paths:
         description: Type of the requestor
         required: true
         schema:
-          type: string
-          enum:
-          - CUSTOMER
-          - AGENT
+          $ref: "#/components/schemas/X-requestor-type"
       - name: documentId
         in: path
         required: true
@@ -262,10 +253,7 @@ paths:
         description: Type of the requestor
         required: true
         schema:
-          type: string
-          enum:
-          - CUSTOMER
-          - AGENT
+          $ref: "#/components/schemas/X-requestor-type"
       - name: X-requestor-id
         in: header
         description: Id of the requestor
@@ -338,6 +326,89 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /documents:
+    post:
+      tags:
+      - Document Management
+      summary: Upload a document
+      description: "Uploads a document for storage.\n\n  The files currently are not scanned for viruses on the server end. It'll be part of a future implementation. Currently it'll be the responibility of the client.\n  \n  For text based files, if Byte Order Mark (BOM) is present, it will be preserved. It is the responsibility of the client to correclty handle the BOM at the time of retrieval.\n"
+      operationId: add-document
+      parameters:
+      - name: X-version
+        in: header
+        description: Api version
+        required: true
+        schema:
+          $ref: "#/components/schemas/Int32"
+      - name: X-correlation-id
+        in: header
+        description: Correlation ID for request tracing
+        required: true
+        schema:
+          maxLength: 36
+          type: string
+      - name: X-requestor-id
+        in: header
+        description: Id of the requestor
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-requestor-type
+        in: header
+        description: Type of the requestor
+        required: true
+        schema:
+          $ref: "#/components/schemas/X-requestor-type"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/documentUploadRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized access to an endpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Cannot be processed. Antivirus scan failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     Int32:
@@ -346,6 +417,12 @@ components:
       example: 1
       x-data-classification: public
       default: 1
+    X-requestor-type:
+      type: string
+      enum:
+      - CUSTOMER
+      - AGENT
+      - SYSTEM
     DocumentListRequest:
       type: object
       properties:
@@ -363,6 +440,16 @@ components:
           x-data-classification: confidential
           items:
             type: string
+        referenceKey:
+          type: string
+          description: Filter documents based on reference key associated with the document
+          example: D164
+          x-data-classification: public
+        referenceKeyType:
+          type: string
+          description: Indicates the type of reference key being used
+          example: Disclosure_Code
+          x-data-classification: public
         documentTypeCategoryGroup:
           type: array
           x-data-classification: public
@@ -380,6 +467,61 @@ components:
           x-data-classification: public
         sortOrder:
           $ref: "#/components/schemas/SortOrder"
+    documentUploadRequest:
+      required:
+      - content
+      - createdBy
+      - documentType
+      - metadata
+      type: object
+      properties:
+        documentType:
+          $ref: "#/components/schemas/DocumentTypes"
+        createdBy:
+          type: string
+          description: Identifies the user or system that created the document entry.
+          format: uuid
+        templateId:
+          type: string
+          description: Unique identifier referencing the document generation template used.
+          format: uuid
+        referenceKey:
+          type: string
+          description: External identifier linking the document to a specific business entity or transaction.
+        referenceKeyType:
+          $ref: "#/components/schemas/referenceKeyType"
+        accountKey:
+          type: string
+          description: Unique key representing the account associated with the document.
+          format: uuid
+        customerKey:
+          type: string
+          description: Unique identifier for the customer related to the document.
+          format: uuid
+        category:
+          type: string
+          description: Defines the grouping or classification of the document for organizational purposes.
+        fileName:
+          type: string
+          description: Name of the document file stored in the system.
+        activeStartDate:
+          $ref: "#/components/schemas/Date"
+        activeEndDate:
+          $ref: "#/components/schemas/Date"
+        threadId:
+          type: string
+          description: Identifier used to trace or group related document processing threads or events.
+          format: uuid
+        correlationId:
+          type: string
+          description: ID used to track and correlate document-related requests or operations across systems.
+          format: uuid
+        content:
+          type: string
+          description: "The actual body or data of the document (e.g., PDF, text, or JSON)."
+          format: binary
+        metadata:
+          $ref: "#/components/schemas/Metadata"
     DocumentCategoryGroup:
       type: object
       properties:
@@ -392,44 +534,46 @@ components:
             $ref: "#/components/schemas/DocumentTypes"
     DocumentCategory:
       type: string
+      description: |
+        - "PaymentConfirmationNotice"
+        - "CreditLineIncrease"
+        - "ChangeInTerms"
+        - "AnnualFee"
+        - "PrivacyPolicy"
+        - "ElectronicDisclosure"
+        - "CardholderAgreement"
+        - "CreditProtection"
+        - "Statement"
+        - "BalanceTransfer"
+        - "SavingsStatement"
+        - "SavingsTaxStatement"
+      example: PaymentConfirmationNotice
       x-data-classification: public
-      enum:
-      - PaymentConfirmationNotice
-      - CreditLineIncrease
-      - ChangeInTerms
-      - AnnualFee
-      - PrivacyPolicy
-      - ElectronicDisclosure
-      - CardholderAgreement
-      - CreditProtection
-      - Statement
-      - BalanceTransfer
-      - SavingsStatement
-      - SavingsTaxStatement
     DocumentTypes:
       type: string
+      description: |
+        - "PaymentLetter"
+        - "StatementInsert"
+        - "AdverseActionNotice"
+        - "ChangeInTermsNotice"
+        - "AnnualFeeNotice"
+        - "PrivacyNotice"
+        - "NachaLetter"
+        - "DelinquencyNotice"
+        - "EsignInformation"
+        - "CustomerLetter"
+        - "FraudLetter"
+        - "Statement"
+        - "ReturnedPaymentLetter"
+        - "FreeCLILetter"
+        - "PaidCLILetter"
+        - "CardholderAgreement"
+        - "CreditProtectionLetter"
+        - "BalanceTransferLetter"
+        - "MiscellaneousLetter"
+        - "AutopayLetter"
+      example: PaymentLetter
       x-data-classification: public
-      enum:
-      - PaymentLetter
-      - StatementInsert
-      - AdverseActionNotice
-      - ChangeInTermsNotice
-      - AnnualFeeNotice
-      - PrivacyNotice
-      - NachaLetter
-      - DelinquencyNotice
-      - EsignInformation
-      - CustomerLetter
-      - FraudLetter
-      - Statement
-      - ReturnedPaymentLetter
-      - FreeCLILetter
-      - PaidCLILetter
-      - CardholderAgreement
-      - CreditProtectionLetter
-      - BalanceTransferLetter
-      - MiscellaneousLetter
-      - AutopayLetter
     DocumentRetrievalResponse:
       required:
       - _links
@@ -472,11 +616,9 @@ components:
           example: 2024_PRIVACY_POLICY
           x-data-classification: public
         lineOfBusiness:
-          type: array
+          type: string
           example: CREDIT_CARD
           x-data-classification: public
-          items:
-            type: string
         category:
           type: string
           example: PaymentConfirmationNotice
@@ -495,6 +637,10 @@ components:
           $ref: "#/components/schemas/Links"
         metadata:
           $ref: "#/components/schemas/Metadata"
+    referenceKeyType:
+      type: string
+      description: "Specifies what the reference key represents (e.g., statement, customer, account)."
+      example: "[\"STATEMENT_ID\",\"DISCLOSURE_CODE\",\"ACCOUNT_ID\",\"LETTER_NAME\"]"
     ErrorResponse:
       type: object
       properties:
@@ -619,7 +765,7 @@ components:
           type: string
           description: |
             Returns the binary content of the document. Client must set Accept: application/pdf or application/octet-stream to trigger file download.
-          example: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/documents/eyJ21pbWFnZVBh2dGgiOi4IiL
+          example: /documents/eyJ21pbWFnZVBh2dGgiOi4IiL
           x-data-classification: public
         type:
           type: string
@@ -648,7 +794,7 @@ components:
           type: string
           description: |
             Deletes the document given by the documentId
-          example: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/documents/eyJ21pbWFnZVBh2dGgiOi4IiL
+          example: /documents/eyJ21pbWFnZVBh2dGgiOi4IiL
           x-data-classification: public
         type:
           type: string
@@ -670,7 +816,7 @@ components:
           description: |
             URL for the paginated document list. For next/prev links, includes only pageNumber and pageSize parameters.
             The original search criteria (filters, sorting) are maintained by the server.
-          example: "{\"self\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list?pageNumber=2&pageSize=10\",\"next\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list?pageNumber=3&pageSize=10\",\"prev\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list?pageNumber=1&pageSize=10\"}"
+          example: "{\"self\":\"/documents-enquiry?pageNumber=2&pageSize=10\",\"next\":\"/documents-enquiry?pageNumber=3&pageSize=10\",\"prev\":\"/documents-enquiry?pageNumber=1&pageSize=10\"}"
           x-data-classification: public
         type:
           type: string
@@ -723,6 +869,12 @@ components:
         pageNumber:
           type: integer
           description: page number of the current page.
+    inline_response_200:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
     DocumentRetrievalResponse__links:
       type: object
       properties:
@@ -737,4 +889,4 @@ components:
         - self: Current page
         - next: Next page (if available)
         - prev: Previous page (if available)
-      example: "{\"self\":{\"href\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"self\",\"responseTypes\":[\"application/json\"]},\"next\":{\"href\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"next\",\"responseTypes\":[\"application/json\"]},\"prev\":{\"href\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"prev\",\"responseTypes\":[\"application/json\"]}}"
+      example: "{\"self\":{\"href\":\"/documents-enquiry\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"self\",\"responseTypes\":[\"application/json\"]},\"next\":{\"href\":\"/documents-enquiry\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"next\",\"responseTypes\":[\"application/json\"]},\"prev\":{\"href\":\"/documents-enquiry\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"prev\",\"responseTypes\":[\"application/json\"]}}"
