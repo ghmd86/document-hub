@@ -365,6 +365,11 @@ paths:
           multipart/form-data:
             schema:
               $ref: "#/components/schemas/documentUploadRequest"
+            encoding:
+              metadata:
+                contentType: application/json
+              content:
+                contentType: application/octet-stream
         required: true
       responses:
         "200":

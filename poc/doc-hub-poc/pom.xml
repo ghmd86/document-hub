@@ -45,14 +45,22 @@
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <output>${project.build.directory}/generated-sources</output>
-                            <apiPackage>io.swagger.api</apiPackage>
                             <modelPackage>io.swagger.model</modelPackage>
                             <skipValidateSpec>true</skipValidateSpec>
+                            <!-- Generate only model classes -->
+                            <generateApis>false</generateApis>
+                            <generateModels>true</generateModels>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <generateApiTests>false</generateApiTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
                             <configOptions>
-                                <reactive>true</reactive>
-                                <interfaceOnly>true</interfaceOnly>
-                                <delegatePattern>false</delegatePattern>
+                                <dateLibrary>java8</dateLibrary>
                                 <useSpringBoot3>false</useSpringBoot3>
+                                <useBeanValidation>true</useBeanValidation>
+                                <performBeanValidation>true</performBeanValidation>
+                                <serializableModel>true</serializableModel>
                             </configOptions>
                         </configuration>
                     </execution>
