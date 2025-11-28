@@ -1,43 +1,46 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  title: "Document-Hub"
-  description: "Centralized point for multidomain document retrieval"
-  version: 1.0.13
+  title: Document-Hub
+  description: Centralized point for multidomain document retrieval
+  version: 1.0.12
 servers:
-- url: "https://devapi.creditone.com/private/enterprise/documenthub/document-service/services"
+- url: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services
 paths:
-  /documents-enquiry:
+  /document-list:
     post:
       tags:
-      - "Document List Retrieval"
-      summary: "This endpoint will return a document list according to the given parameters in the request body."
+      - Document List Retrieval
+      summary: This endpoint will return a document list according to the given parameters in the request body.
       parameters:
-      - name: "X-version"
-        in: "header"
-        description: "Api version"
+      - name: X-version
+        in: header
+        description: Api version
         required: true
         schema:
           $ref: "#/components/schemas/Int32"
-      - name: "X-correlation-id"
-        in: "header"
-        description: "Correlation ID for request tracing"
+      - name: X-correlation-id
+        in: header
+        description: Correlation ID for request tracing
         required: true
         schema:
-          type: "string"
           maxLength: 36
-      - name: "X-requestor-id"
-        in: "header"
-        description: "Id of the requestor"
+          type: string
+      - name: X-requestor-id
+        in: header
+        description: Id of the requestor
         required: true
         schema:
-          type: "string"
-          format: "uuid"
-      - name: "X-requestor-type"
-        in: "header"
-        description: "Type of the requestor"
+          type: string
+          format: uuid
+      - name: X-requestor-type
+        in: header
+        description: Type of the requestor
         required: true
         schema:
-          $ref: "#/components/schemas/X-requestor-type"
+          type: string
+          enum:
+          - CUSTOMER
+          - AGENT
       requestBody:
         content:
           application/json:
@@ -45,31 +48,31 @@ paths:
               $ref: "#/components/schemas/DocumentListRequest"
       responses:
         "200":
-          description: "Successful Retrieval"
+          description: Successful Retrieval
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentRetrievalResponse"
         "401":
-          description: "Unauthorized access to an endpoint"
+          description: Unauthorized access to an endpoint
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "403":
-          description: "Forbidden"
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
-          description: "Not Found"
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "503":
-          description: "Service Unavailable"
+          description: Service Unavailable
           content:
             application/json:
               schema:
@@ -77,145 +80,153 @@ paths:
   /documents/{documentId}:
     get:
       tags:
-      - "Document Management"
-      summary: "Downloads the document identified by \"documentId\"\n"
-      operationId: "document-download"
+      - Document Management
+      summary: |
+        Downloads the document identified by "documentId"
+      operationId: document-download
       parameters:
-      - name: "X-version"
-        in: "header"
-        description: "Api version"
+      - name: X-version
+        in: header
+        description: Api version
         required: true
         schema:
           $ref: "#/components/schemas/Int32"
-      - name: "X-correlation-id"
-        in: "header"
-        description: "Correlation ID for request tracing"
+      - name: X-correlation-id
+        in: header
+        description: Correlation ID for request tracing
         required: true
         schema:
-          type: "string"
           maxLength: 36
-      - name: "documentId"
-        in: "path"
+          type: string
+      - name: documentId
+        in: path
         required: true
         schema:
-          type: "string"
           maxLength: 500
-      - name: "X-requestor-type"
-        in: "header"
-        description: "Type of the requestor"
+          type: string
+      - name: X-requestor-type
+        in: header
+        description: Type of the requestor
         required: true
         schema:
-          $ref: "#/components/schemas/X-requestor-type"
-      - name: "X-requestor-id"
-        in: "header"
-        description: "Id of the requestor"
+          type: string
+          enum:
+          - CUSTOMER
+          - AGENT
+      - name: X-requestor-id
+        in: header
+        description: Id of the requestor
         required: true
         schema:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
       responses:
         "200":
-          description: "OK"
+          description: OK
           headers:
             Content-Type:
               description: "The MIME type of the file (e.g., application/pdf, image/jpeg)"
               schema:
-                type: "string"
+                type: string
             Content-Disposition:
               description: "Controls browser behavior (inline for VIEW, attachment for DOWNLOAD)"
               schema:
-                type: "string"
-                example: "inline; filename=document.pdf"
+                type: string
+                example: inline; filename=document.pdf
           content:
             application/octet-stream:
               schema:
-                type: "string"
-                format: "binary"
+                type: string
+                format: binary
         "401":
-          description: "Unauthorized access to an endpoint"
+          description: Unauthorized access to an endpoint
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "403":
-          description: "Forbidden"
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
-          description: "Not Found"
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "503":
-          description: "Service Unavailable"
+          description: Service Unavailable
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags:
-      - "Document Management"
-      summary: "Deletes the document identified by \"documentId\"\n"
-      operationId: "document-delete"
+      - Document Management
+      summary: |
+        Deletes the document identified by "documentId"
+      operationId: document-delete
       parameters:
-      - name: "X-version"
-        in: "header"
-        description: "Api version"
+      - name: X-version
+        in: header
+        description: Api version
         required: true
         schema:
           $ref: "#/components/schemas/Int32"
-      - name: "X-correlation-id"
-        in: "header"
-        description: "Correlation ID for request tracing"
+      - name: X-correlation-id
+        in: header
+        description: Correlation ID for request tracing
         required: true
         schema:
-          type: "string"
           maxLength: 36
-      - name: "X-requestor-id"
-        in: "header"
-        required: true
-        description: "Id of the requestor"
-        schema:
-          type: "string"
-          format: "uuid"
-      - name: "X-requestorType"
-        in: "header"
-        required: true
-        description: "Type of the requestor"
-        schema:
-          $ref: "#/components/schemas/X-requestor-type"
-      - name: "documentId"
-        in: "path"
+          type: string
+      - name: X-requestor-id
+        in: header
+        description: Id of the requestor
         required: true
         schema:
-          type: "string"
+          type: string
+          format: uuid
+      - name: X-requestorType
+        in: header
+        description: Type of the requestor
+        required: true
+        schema:
+          type: string
+          enum:
+          - CUSTOMER
+          - AGENT
+      - name: documentId
+        in: path
+        required: true
+        schema:
           maxLength: 500
+          type: string
       responses:
         "204":
-          description: "Successful operation"
+          description: Successful operation
         "401":
-          description: "Unauthorized access to an endpoint"
+          description: Unauthorized access to an endpoint
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "403":
-          description: "Forbidden"
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
-          description: "Not Found"
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "503":
-          description: "Service Unavailable"
+          description: Service Unavailable
           content:
             application/json:
               schema:
@@ -223,52 +234,55 @@ paths:
   /documents/{documentId}/metadata:
     get:
       tags:
-      - "Document Management"
-      summary: "Retreives the metadata for the document identified by documentId"
-      operationId: "document-metadata"
+      - Document Management
+      summary: Retreives the metadata for the document identified by documentId
+      operationId: document-metadata
       parameters:
-      - name: "X-version"
-        in: "header"
-        description: "Api version"
+      - name: X-version
+        in: header
+        description: Api version
         required: true
         schema:
           $ref: "#/components/schemas/Int32"
-      - name: "X-correlation-id"
-        in: "header"
-        description: "Correlation ID for request tracing"
+      - name: X-correlation-id
+        in: header
+        description: Correlation ID for request tracing
         required: true
         schema:
-          type: "string"
           maxLength: 36
-      - name: "documentId"
-        in: "path"
+          type: string
+      - name: documentId
+        in: path
         required: true
         schema:
-          type: "string"
           maxLength: 500
-      - name: "X-requestor-type"
-        in: "header"
-        description: "Type of the requestor"
+          type: string
+      - name: X-requestor-type
+        in: header
+        description: Type of the requestor
         required: true
         schema:
-          $ref: "#/components/schemas/X-requestor-type"
-      - name: "X-requestor-id"
-        in: "header"
-        description: "Id of the requestor"
+          type: string
+          enum:
+          - CUSTOMER
+          - AGENT
+      - name: X-requestor-id
+        in: header
+        description: Id of the requestor
         required: true
         schema:
-          type: "string"
-          format: "uuid"
-      - name: "includeDownloadUrl"
-        in: "query"
-        description: "Indicates if ECMS document download url to be included in response"
+          type: string
+          format: uuid
+      - name: includeDownloadUrl
+        in: query
+        description: Indicates if ECMS document download url to be included in response
         required: false
         schema:
-          type: "boolean"
+          type: boolean
           default: false
       responses:
         "200":
-          description: "OK"
+          description: OK
           content:
             application/json:
               schema:
@@ -287,131 +301,33 @@ paths:
                 lastDownloaded: 1756847427
                 lastClientDownload: 17ac407f-2cce-47ac-84e2-926685f47808
                 metadata:
-                  - key: accountId
-                    value: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-                  - key: customerId
-                    value: 3fa85f64-5717-4562-b3fc-2c963f66a78
-                  - key: statementDate
-                    value: 2025-01-01
+                - key: accountId
+                  value: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                - key: customerId
+                  value: 3fa85f64-5717-4562-b3fc-2c963f66a78
+                - key: statementDate
+                  value: 2025-01-01
                 _links:
                   download:
-                    href: "https://your-bucket-name.s3.amazonaws.com/path/to/your-document.pdf?X-Amz-Algorithm=..."
+                    href: https://your-bucket-name.s3.amazonaws.com/path/to/your-document.pdf?X-Amz-Algorithm=...
                     type: GET
                     rel: download
                     responseTypes:
-                      - application/pdf
-                        
+                    - application/pdf
         "401":
-          description: "Unauthorized access to endpoint"
+          description: Unauthorized access to endpoint
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "403":
-          description: "Forbidden"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: "Not Found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Service Unavailable"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /documents:
-    post:
-      tags:
-      - Document Management
-      summary: Upload a document
-      operationId: add-document
-      description: |
-        Uploads a document for storage.
-        
-          The files currently are not scanned for viruses on the server end. It'll be part of a future implementation. Currently it'll be the responibility of the client.
-          
-          For text based files, if Byte Order Mark (BOM) is present, it will be preserved. It is the responsibility of the client to correclty handle the BOM at the time of retrieval.
-      parameters:
-      - name: "X-version"
-        in: "header"
-        description: "Api version"
-        required: true
-        schema:
-          $ref: "#/components/schemas/Int32"
-      - name: "X-correlation-id"
-        in: "header"
-        description: "Correlation ID for request tracing"
-        required: true
-        schema:
-          type: "string"
-          maxLength: 36
-      - name: "X-requestor-id"
-        in: "header"
-        description: "Id of the requestor"
-        required: true
-        schema:
-          type: "string"
-          format: "uuid"
-      - name: "X-requestor-type"
-        in: "header"
-        description: "Type of the requestor"
-        required: true
-        schema:
-          $ref: "#/components/schemas/X-requestor-type"
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: "#/components/schemas/documentUploadRequest"
-            encoding:
-              metadata:
-                contentType: application/json
-              content:
-                contentType: application/octet-stream
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: Unauthorized access to an endpoint
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
-          description: Cannot be processed. Antivirus scan failed.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -425,505 +341,400 @@ paths:
 components:
   schemas:
     Int32:
-      type: "integer"
-      format: "int32"
+      type: integer
+      format: int32
       example: 1
+      x-data-classification: public
       default: 1
-      x-data-classification: "public"
-    X-requestor-type:
-      type: "string"
-      enum:
-      - "CUSTOMER"
-      - "AGENT"
-      - "SYSTEM"
     DocumentListRequest:
-      type: "object"
-      properties:
-        customerId:
-          type: "string"
-          description: "Filter documents by customer ID. Combined with AND logic if accountId is provided."
-          format: "uuid"
-          x-data-classification: "public"
-        accountId:
-          type: "array"
-          description: "Filter documents by account ID.  Combined with AND logic if customerId is provided. If the accountId is not provided, documents which belongs to all the accounts of the given customerId will be retrieved."
-          format: "uuid"
-          example:
-          - "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-          items:
-            type: "string"
-          x-data-classification: "confidential"
-        referenceKey:
-          type: "string"
-          example: D164
-          description: "Filter documents based on reference key associated with the document"
-          x-data-classification: "public"
-        referenceKeyType:
-          type: "string"
-          example: "Disclosure_Code"
-          description: "Indicates the type of reference key being used"
-          x-data-classification: "public"
-        documentTypeCategoryGroup:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/DocumentCategoryGroup"
-          x-data-classification: "public"
-        postedFromDate:
-          $ref: "#/components/schemas/Date"
-          x-data-classification: "public"
-        postedToDate:
-          $ref: "#/components/schemas/Date"
-          x-data-classification: "public"
-        pageNumber:
-          type: "number"
-          x-data-classification: "public"
-        pageSize:
-          type: "number"
-          x-data-classification: "public"
-        sortOrder:
-          $ref: "#/components/schemas/SortOrder"
-          description: "Sort fields and directions. Format: field1:direction, field2:direction. Valid fields: creationDate, lastViewedDateTime, category, documentType. Valid directions: asc, desc."
-          x-data-classification: "public"
-    documentUploadRequest:
-      required:
-      - content
-      - createdBy
-      - documentType
-      - metadata
       type: object
       properties:
-        documentType:
-          $ref: "#/components/schemas/DocumentTypes"
-        createdBy:
+        customerId:
           type: string
+          description: Filter documents by customer ID. Combined with AND logic if accountId is provided.
           format: uuid
-          description: Identifies the user or system that created the document entry.
-        templateId:
-          type: string
+          x-data-classification: public
+        accountId:
+          type: array
+          description: "Filter documents by account ID.  Combined with AND logic if customerId is provided. If the accountId is not provided, documents which belongs to all the accounts of the given customerId will be retrieved."
           format: uuid
-          description: Unique identifier referencing the document generation template used.
-        referenceKey:
-          type: string
-          description: External identifier linking the document to a specific business entity or transaction.
-        referenceKeyType:
-          $ref: "#/components/schemas/referenceKeyType"
-        accountKey:
-          type: string
-          format: uuid
-          description: Unique key representing the account associated with the document.
-        customerKey:
-          type: string
-          format: uuid
-          description: Unique identifier for the customer related to the document.
-        category:
-          type: string
-          description: Defines the grouping or classification of the document for organizational purposes.
-        fileName:
-          type: string
-          description: Name of the document file stored in the system.
-        activeStartDate:
-          $ref: "#/components/schemas/Date"         
-        activeEndDate:
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          x-data-classification: confidential
+          items:
+            type: string
+        documentTypeCategoryGroup:
+          type: array
+          x-data-classification: public
+          items:
+            $ref: "#/components/schemas/DocumentCategoryGroup"
+        postedFromDate:
           $ref: "#/components/schemas/Date"
-        threadId:
-          type: string
-          format: uuid
-          description: Identifier used to trace or group related document processing threads or events.
-        correlationId:
-          type: string
-          format: uuid
-          description: ID used to track and correlate document-related requests or operations across systems.
-        content:
-          type: string
-          format: binary
-          description: The actual body or data of the document (e.g., PDF, text, or JSON). 
-        metadata:
-          $ref: "#/components/schemas/Metadata"
+        postedToDate:
+          $ref: "#/components/schemas/Date"
+        pageNumber:
+          type: number
+          x-data-classification: public
+        pageSize:
+          type: number
+          x-data-classification: public
+        sortOrder:
+          $ref: "#/components/schemas/SortOrder"
     DocumentCategoryGroup:
-      type: "object"
+      type: object
       properties:
         category:
           $ref: "#/components/schemas/DocumentCategory"
-          x-data-classification: "public"
         documentTypes:
-          type: "array"
+          type: array
+          x-data-classification: public
           items:
             $ref: "#/components/schemas/DocumentTypes"
-          x-data-classification: "public"
     DocumentCategory:
-      type: "string"
-      x-data-classification: "public"
-      description: |
-          - "PaymentConfirmationNotice"
-          - "CreditLineIncrease"
-          - "ChangeInTerms"
-          - "AnnualFee"
-          - "PrivacyPolicy"
-          - "ElectronicDisclosure"
-          - "CardholderAgreement"
-          - "CreditProtection"
-          - "Statement"
-          - "BalanceTransfer"
-          - "SavingsStatement"
-          - "SavingsTaxStatement"
-      example: "PaymentConfirmationNotice"
+      type: string
+      x-data-classification: public
+      enum:
+      - PaymentConfirmationNotice
+      - CreditLineIncrease
+      - ChangeInTerms
+      - AnnualFee
+      - PrivacyPolicy
+      - ElectronicDisclosure
+      - CardholderAgreement
+      - CreditProtection
+      - Statement
+      - BalanceTransfer
+      - SavingsStatement
+      - SavingsTaxStatement
     DocumentTypes:
-      type: "string"
-      x-data-classification: "public"
-      description: |
-        - "PaymentLetter"
-        - "StatementInsert"
-        - "AdverseActionNotice"
-        - "ChangeInTermsNotice"
-        - "AnnualFeeNotice"
-        - "PrivacyNotice"
-        - "NachaLetter"
-        - "DelinquencyNotice"
-        - "EsignInformation"
-        - "CustomerLetter"
-        - "FraudLetter"
-        - "Statement"
-        - "ReturnedPaymentLetter"
-        - "FreeCLILetter"
-        - "PaidCLILetter"
-        - "CardholderAgreement"
-        - "CreditProtectionLetter"
-        - "BalanceTransferLetter"
-        - "MiscellaneousLetter"
-        - "AutopayLetter"
-      example: "PaymentLetter"
+      type: string
+      x-data-classification: public
+      enum:
+      - PaymentLetter
+      - StatementInsert
+      - AdverseActionNotice
+      - ChangeInTermsNotice
+      - AnnualFeeNotice
+      - PrivacyNotice
+      - NachaLetter
+      - DelinquencyNotice
+      - EsignInformation
+      - CustomerLetter
+      - FraudLetter
+      - Statement
+      - ReturnedPaymentLetter
+      - FreeCLILetter
+      - PaidCLILetter
+      - CardholderAgreement
+      - CreditProtectionLetter
+      - BalanceTransferLetter
+      - MiscellaneousLetter
+      - AutopayLetter
     DocumentRetrievalResponse:
       required:
-      - "pagination"
-      - "documentList"
-      - "_links"
-      type: "object"
+      - _links
+      - documentList
+      - pagination
+      type: object
       properties:
         documentList:
-          type: "array"
+          type: array
+          x-data-classification: public
           items:
             $ref: "#/components/schemas/DocumentDetailsNode"
-          x-data-classification: "public"
         pagination:
-          $ref: "https://api.swaggerhub.com/domains/CreditOneBank/enterprise_core_responses/0.0.1#/components/schemas/PaginationResponse"
-          description: "Pagination metadata for the document list.\nUses enterprise PaginationResponse schema.\n"
-          example:
-            pageSize: 10
-            totalItems: 100
-            totalPages: 10
-            pageNumber: 2
-          x-data-classification: "public"
+          $ref: "#/components/schemas/PaginationResponse"
         _links:
-          type: "object"
-          description: "HATEOAS links for collection navigation. Client must resen dthe full original request with the new pageNumber and pageSize values.\n- self: Current page\n- next: Next page (if available)\n- prev: Previous page (if available)\n"
-          example:
-            self:
-              href: "/documents-enquiry"
-              type: "POST"
-              requestBody:
-                pageNumber: 2
-                pageSize: 10
-              rel: "self"
-              responseTypes:
-              - "application/json"
-            next:
-              href: "/documents-enquiry"
-              type: "POST"
-              requestBody:
-                pageNumber: 2
-                pageSize: 10
-              rel: "next"
-              responseTypes:
-              - "application/json"
-            prev:
-              href: "/documents-enquiry"
-              type: "POST"
-              requestBody:
-                pageNumber: 2
-                pageSize: 10
-              rel: "prev"
-              responseTypes:
-              - "application/json"
-          properties:
-            self:
-              $ref: "#/components/schemas/Links_pagination"
-              x-data-classification: "public"
-            next:
-              $ref: "#/components/schemas/Links_pagination"
-              x-data-classification: "public"
-            prev:
-              $ref: "#/components/schemas/Links_pagination"
-              x-data-classification: "public"
-          x-data-classification: "public"
+          $ref: "#/components/schemas/DocumentRetrievalResponse__links"
     DocumentDetailsNode:
-      type: "object"
+      type: object
       properties:
         documentId:
-          type: "string"
-          x-data-classification: "public"
+          type: string
+          x-data-classification: public
         sizeInMb:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
           example: 1
-          x-data-classification: "public"
+          x-data-classification: public
         languageCode:
           $ref: "#/components/schemas/LanguageCode"
-          x-data-classification: "public"
         displayName:
-          type: "string"
-          example: "2024_PRIVACY_POLICY"
-          x-data-classification: "public"
+          type: string
+          example: 2024_PRIVACY_POLICY
+          x-data-classification: public
         mimeType:
-          type: "string"
-          example: "application/pdf"
-          x-data-classification: "public"
+          type: string
+          example: application/pdf
+          x-data-classification: public
         description:
-          type: "string"
-          example: "2024_PRIVACY_POLICY"
-          x-data-classification: "public"
+          type: string
+          example: 2024_PRIVACY_POLICY
+          x-data-classification: public
         lineOfBusiness:
-          type: "string"
-          example: "CREDIT_CARD"
+          type: array
+          example: CREDIT_CARD
+          x-data-classification: public
           items:
-            type: "string"
-          x-data-classification: "public"
+            type: string
         category:
-          type: "string"
-          example: "PaymentConfirmationNotice"
-          x-data-classification: "public"
+          type: string
+          example: PaymentConfirmationNotice
+          x-data-classification: public
         documentType:
-          type: "string"
-          example: "PaymentLetter"
-          x-data-classification: "public"
+          type: string
+          example: PaymentLetter
+          x-data-classification: public
         datePosted:
           $ref: "#/components/schemas/Date"
-          x-data-classification: "public"
         lastDownloaded:
           $ref: "#/components/schemas/Date"
-          x-data-classification: "public"
         lastClientDownload:
           $ref: "#/components/schemas/UUID"
-          x-data-classification: "public"
         _links:
           $ref: "#/components/schemas/Links"
-          x-data-classification: "public"
         metadata:
           $ref: "#/components/schemas/Metadata"
-          x-data-classification: "public"
-    referenceKeyType:
-      type: string
-      description: Specifies what the reference key represents (e.g., statement, customer, account).
-      example:
-        - STATEMENT_ID
-        - DISCLOSURE_CODE
-        - ACCOUNT_ID
-        - LETTER_NAME
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         errorMsg:
-          type: "array"
+          type: array
+          x-data-classification: public
           items:
-            type: "string"
-            example: "01 - This is a descriptive error message"
-          x-data-classification: "public"
+            type: string
+            example: 01 - This is a descriptive error message
         statusCode:
           $ref: "#/components/schemas/Int32"
-          x-data-classification: "public"
         timestamp:
-          type: "string"
-          description: "Epoch time\n"
+          type: string
+          description: |
+            Epoch time
           example: "1736770074"
-          x-data-classification: "public"
+          x-data-classification: public
     SortOrder:
-      type: "array"
+      type: array
+      x-data-classification: public
       items:
         $ref: "#/components/schemas/SortAndOrder"
-      x-data-classification: "public"
     SortAndOrder:
-      type: "object"
+      type: object
       properties:
         orderBy:
-          type: "string"
-          example: "creationDate"
-          x-data-classification: "public"
+          type: string
+          example: creationDate
+          x-data-classification: public
         sortBy:
-          type: "string"
+          type: string
+          x-data-classification: public
           enum:
-          - "asc"
-          - "desc"
-          x-data-classification: "public"
+          - asc
+          - desc
     UUID:
-      type: "string"
-      format: "uuid"
-      x-data-classification: "public"
+      type: string
+      format: uuid
+      x-data-classification: public
     Links:
-      type: "object"
+      type: object
       properties:
         download:
           $ref: "#/components/schemas/Links_download"
-          x-data-classification: "public"
         delete:
           $ref: "#/components/schemas/Links_delete"
-          x-data-classification: "public"
     Date:
-      type: "integer"
-      description: "Epoch time in seconds\n"
-      format: "int64"
+      type: integer
+      description: |
+        Epoch time in seconds
+      format: int64
       example: 1740523843
-      x-data-classification: "public"
+      x-data-classification: public
     ISODate:
-      type: "string"
-      format: "date"
-      description: "Date string in ISO 8601 format (YYYY-MM-DD)"
-      example: "2025-04-01"
-      x-data-classification: "public"
+      type: string
+      description: Date string in ISO 8601 format (YYYY-MM-DD)
+      format: date
+      example: 2025-04-01
+      x-data-classification: public
     Metadata:
-      type: "array"
-      description: "Each document type has its own set of required metadata so it can be properly indexed. Required fields and expected format can be retrieved using GET /templates."
+      type: array
+      description: Each document type has its own set of required metadata so it can be properly indexed. Required fields and expected format can be retrieved using GET /templates.
       example:
-      - key: "accountId"
-        value: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-      - key: "issueDate"
-        value: "2025-01-01"
-      - key: "customerId"
-        value: "3fa85f64-5717-4562-b3fc-2c963f66a78"
-      - key: "htmlLettername"
-        value: "FF083"
+      - key: accountId
+        value: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - key: issueDate
+        value: 2025-01-01
+      - key: customerId
+        value: 3fa85f64-5717-4562-b3fc-2c963f66a78
+      - key: htmlLettername
+        value: FF083
+      x-data-classification: public
       items:
         $ref: "#/components/schemas/MetadataNode"
-      x-data-classification: "public"
     MetadataNode:
       required:
-      - "key"
-      - "value"
-      type: "object"
+      - key
+      - value
+      type: object
       properties:
         key:
           maxLength: 64
           minLength: 1
           pattern: "^[a-zA-Z0-9_]+"
-          type: "string"
-          description: "Alphanumeric key with underscores only"
-          example: "threadId"
-          x-data-classification: "public"
+          type: string
+          description: Alphanumeric key with underscores only
+          example: threadId
+          x-data-classification: public
         value:
           maxLength: 1024
           minLength: 1
-          type: "string"
+          type: string
           description: "String value, maximum 1024 characters"
-          example: "fa85f64-5717-4562-b3fc-2c963f66a78"
-          x-data-classification: "public"
+          example: fa85f64-5717-4562-b3fc-2c963f66a78
+          x-data-classification: public
         dataType:
-          type: "string"
-          description: "Optional type hint for proper indexing and querying"
-          default: "STRING"
+          type: string
+          description: Optional type hint for proper indexing and querying
+          x-data-classification: public
+          default: STRING
           enum:
-          - "STRING"
-          - "NUMBER"
-          - "BOOLEAN"
-          - "DATE"
-          x-data-classification: "public"
+          - STRING
+          - NUMBER
+          - BOOLEAN
+          - DATE
     Visibility:
-      type: "string"
+      type: string
+      x-data-classification: public
       enum:
-      - "PUBLIC"
-      - "INTERNAL"
-      x-data-classification: "public"
+      - PUBLIC
+      - INTERNAL
     LanguageCode:
-      type: "string"
+      type: string
+      x-data-classification: public
       enum:
-      - "EN_US"
-      - "EN_UK"
-      x-data-classification: "public"
+      - EN_US
+      - EN_UK
     Links_download:
-      type: "object"
+      type: object
       properties:
         href:
-          type: "string"
-          description: "Returns the binary content of the document. Client must set Accept: application/pdf or application/octet-stream to trigger file download.\n"
-          example: "/documents/eyJ21pbWFnZVBh2dGgiOi4IiL"
-          x-data-classification: "public"
+          type: string
+          description: |
+            Returns the binary content of the document. Client must set Accept: application/pdf or application/octet-stream to trigger file download.
+          example: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/documents/eyJ21pbWFnZVBh2dGgiOi4IiL
+          x-data-classification: public
         type:
-          type: "string"
-          example: "GET"
-          x-data-classification: "public"
+          type: string
+          example: GET
+          x-data-classification: public
         rel:
-          type: "string"
-          example: "download"
-          x-data-classification: "public"
+          type: string
+          example: download
+          x-data-classification: public
         title:
-          type: "string"
-          example: "Download this document"
-          x-data-classification: "public"
+          type: string
+          example: Download this document
+          x-data-classification: public
         responseTypes:
-          type: "array"
+          type: array
           example:
-          - "application/pdf"
-          - "application/octet-stream"
+          - application/pdf
+          - application/octet-stream
+          x-data-classification: public
           items:
-            type: "string"
-          x-data-classification: "public"
+            type: string
     Links_delete:
-      type: "object"
+      type: object
       properties:
         href:
-          type: "string"
-          description: "Deletes the document given by the documentId\n"
-          example: "/documents/eyJ21pbWFnZVBh2dGgiOi4IiL"
-          x-data-classification: "public"
+          type: string
+          description: |
+            Deletes the document given by the documentId
+          example: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/documents/eyJ21pbWFnZVBh2dGgiOi4IiL
+          x-data-classification: public
         type:
-          type: "string"
-          example: "DELETE"
-          x-data-classification: "public"
+          type: string
+          example: DELETE
+          x-data-classification: public
         rel:
-          type: "string"
-          example: "delete"
-          x-data-classification: "public"
+          type: string
+          example: delete
+          x-data-classification: public
         title:
-          type: "string"
-          example: "Delete this document"
-          x-data-classification: "public"
+          type: string
+          example: Delete this document
+          x-data-classification: public
     Links_pagination:
-      type: "object"
+      type: object
       properties:
         href:
-          type: "string"
-          description: "URL for the paginated document list. For next/prev links, includes only pageNumber and pageSize parameters.\nThe original search criteria (filters, sorting) are maintained by the server.\n"
-          example:
-            self: "/documents-enquiry?pageNumber=2&pageSize=10"
-            next: "/documents-enquiry?pageNumber=3&pageSize=10"
-            prev: "/documents-enquiry?pageNumber=1&pageSize=10"
-          x-data-classification: "public"
+          type: string
+          description: |
+            URL for the paginated document list. For next/prev links, includes only pageNumber and pageSize parameters.
+            The original search criteria (filters, sorting) are maintained by the server.
+          example: "{\"self\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list?pageNumber=2&pageSize=10\",\"next\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list?pageNumber=3&pageSize=10\",\"prev\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list?pageNumber=1&pageSize=10\"}"
+          x-data-classification: public
         type:
-          type: "string"
-          example: "GET"
-          x-data-classification: "public"
+          type: string
+          example: GET
+          x-data-classification: public
         rel:
-          type: "string"
+          type: string
+          description: |
+            Link relation type:
+            - self: Current page
+            - next: Next page
+            - prev: Previous page
+          example: "{\"self\":\"self\",\"next\":\"next\",\"prev\":\"prev\"}"
+          x-data-classification: public
           enum:
-          - "self"
-          - "next"
-          - "prev"
-          description: "Link relation type:\n- self: Current page\n- next: Next page\n- prev: Previous page\n"
-          example:
-            self: "self"
-            next: "next"
-            prev: "prev"
-          x-data-classification: "public"
+          - self
+          - next
+          - prev
         title:
-          type: "string"
-          description: "Human-readable title for the link.\n- self: \"Current page of documents\"\n- next: \"Next page of documents\"\n- prev: \"Previous page of documents\"\n"
-          example:
-            self: "Current page of documents"
-            next: "Next page of documents"
-            prev: "Previous page of documents"
-          x-data-classification: "public"
+          type: string
+          description: |
+            Human-readable title for the link.
+            - self: "Current page of documents"
+            - next: "Next page of documents"
+            - prev: "Previous page of documents"
+          example: "{\"self\":\"Current page of documents\",\"next\":\"Next page of documents\",\"prev\":\"Previous page of documents\"}"
+          x-data-classification: public
         responseTypes:
-          type: "array"
-          description: "Supported response content types for this link.\nAlways includes application/json for pagination links.\n"
+          type: array
+          description: |
+            Supported response content types for this link.
+            Always includes application/json for pagination links.
           example:
-          - "application/json"
+          - application/json
+          x-data-classification: public
           items:
-            type: "string"
-          x-data-classification: "public"
+            type: string
+    PaginationResponse:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          description: The number of items per page.
+        totalItems:
+          type: integer
+          description: The total number of items.
+        totalPages:
+          type: integer
+          description: The total number of pages.
+        pageNumber:
+          type: integer
+          description: page number of the current page.
+    DocumentRetrievalResponse__links:
+      type: object
+      properties:
+        self:
+          $ref: "#/components/schemas/Links_pagination"
+        next:
+          $ref: "#/components/schemas/Links_pagination"
+        prev:
+          $ref: "#/components/schemas/Links_pagination"
+      description: |
+        HATEOAS links for collection navigation. Client must resen dthe full original request with the new pageNumber and pageSize values.
+        - self: Current page
+        - next: Next page (if available)
+        - prev: Previous page (if available)
+      example: "{\"self\":{\"href\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"self\",\"responseTypes\":[\"application/json\"]},\"next\":{\"href\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"next\",\"responseTypes\":[\"application/json\"]},\"prev\":{\"href\":\"https://devapi.creditone.com/private/enterprise/documenthub/document-service/services/document-list\",\"type\":\"POST\",\"requestBody\":{\"pageNumber\":2,\"pageSize\":10},\"rel\":\"prev\",\"responseTypes\":[\"application/json\"]}}"
