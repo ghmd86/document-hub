@@ -1,0 +1,24 @@
+{{#isFormParam}}
+{{#isFile}}
+{{#reactive}}
+@Parameter(description = "{{description}}"{{#required}}, required = true{{/required}})
+@RequestPart(value = "{{baseName}}", required = {{required}})
+{{#isArray}}
+Flux<FilePart> {{paramName}}
+{{/isArray}}
+{{^isArray}}
+Mono<FilePart> {{paramName}}
+{{/isArray}}
+{{/reactive}}
+{{^reactive}}
+@Parameter(description = "{{description}}"{{#required}}, required = true{{/required}})
+@Valid @RequestPart(value = "{{baseName}}", required = {{required}})
+MultipartFile {{paramName}}
+{{/reactive}}
+{{/isFile}}
+{{^isFile}}
+@Parameter(description = "{{description}}"{{#required}}, required = true{{/required}})
+@RequestPart(value = "{{baseName}}", required = {{required}})
+{{#useBeanValidation}}@Valid {{/useBeanValidation}}{{{dataType}}} {{paramName}}
+{{/isFile}}
+{{/isFormParam}}

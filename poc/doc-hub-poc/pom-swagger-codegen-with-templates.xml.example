@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Example pom.xml configuration for Swagger Codegen with Custom Mustache Templates
+
+  To use this configuration:
+  1. Backup your current pom.xml: cp pom.xml pom.xml.backup
+  2. Replace the openapi-generator-maven-plugin with this configuration
+  3. Run: mvn clean generate-sources
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <build>
+        <plugins>
+            <!-- Swagger Codegen with Custom Templates -->
+            <plugin>
+                <groupId>io.swagger.codegen.v3</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>3.0.52</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Input OpenAPI Spec -->
+                            <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
+
+                            <!-- Generator Language -->
+                            <language>spring</language>
+                            <library>spring-boot</library>
+
+                            <!-- Output Directory -->
+                            <output>${project.build.directory}/generated-sources</output>
+
+                            <!-- Package Names -->
+                            <apiPackage>io.swagger.api</apiPackage>
+                            <modelPackage>io.swagger.model</modelPackage>
+
+                            <!-- CUSTOM TEMPLATES DIRECTORY -->
+                            <templateDirectory>${project.basedir}/src/main/resources/swagger-templates</templateDirectory>
+
+                            <!-- Skip Validation (if needed for external refs) -->
+                            <skipValidateSpec>true</skipValidateSpec>
+
+                            <!-- Configuration Options -->
+                            <configOptions>
+                                <!-- Enable Reactive Mode - THIS IS KEY -->
+                                <reactive>true</reactive>
+
+                                <!-- Generate Interface Only -->
+                                <interfaceOnly>true</interfaceOnly>
+
+                                <!-- Java 8 -->
+                                <java8>true</java8>
+                                <dateLibrary>java8</dateLibrary>
+
+                                <!-- Bean Validation -->
+                                <useBeanValidation>true</useBeanValidation>
+                                <performBeanValidation>true</performBeanValidation>
+
+                                <!-- Serializable Model -->
+                                <serializableModel>true</serializableModel>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Spring Boot WebFlux (Required for FilePart) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <!-- Reactor Core (Required for Mono/Flux) -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+        </dependency>
+
+        <!-- Validation -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+
+        <!-- Swagger Annotations -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.15</version>
+        </dependency>
+    </dependencies>
+</project>
