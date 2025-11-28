@@ -30,12 +30,11 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- OpenAPI Generator Plugin - Temporarily disabled for POC -->
-            <!--
+            <!-- OpenAPI Generator Plugin - Updated for WebFlux support -->
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>6.6.0</version>
+                <version>7.10.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -46,15 +45,19 @@
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <output>${project.build.directory}/generated-sources</output>
+                            <apiPackage>io.swagger.api</apiPackage>
+                            <modelPackage>io.swagger.model</modelPackage>
+                            <skipValidateSpec>true</skipValidateSpec>
                             <configOptions>
                                 <reactive>true</reactive>
                                 <interfaceOnly>true</interfaceOnly>
+                                <delegatePattern>false</delegatePattern>
+                                <useSpringBoot3>false</useSpringBoot3>
                             </configOptions>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
         </plugins>
     </build>
     <dependencies>
