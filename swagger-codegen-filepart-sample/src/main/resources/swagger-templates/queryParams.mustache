@@ -1,0 +1,4 @@
+{{#isQueryParam}}
+@Parameter(description = "{{description}}"{{#required}}, required = true{{/required}}{{^required}}, required = false{{/required}})
+@Valid @RequestParam(value = "{{baseName}}"{{^required}}, required = false{{/required}}{{#defaultValue}}, defaultValue = "{{.}}"{{/defaultValue}}) {{{dataType}}} {{paramName}}
+{{/isQueryParam}}

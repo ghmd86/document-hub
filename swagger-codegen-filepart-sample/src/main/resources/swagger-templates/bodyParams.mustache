@@ -1,0 +1,4 @@
+{{#isBodyParam}}
+@Parameter(description = "{{description}}"{{#required}}, required = true{{/required}})
+@Valid @RequestBody {{{dataType}}} {{paramName}}
+{{/isBodyParam}}

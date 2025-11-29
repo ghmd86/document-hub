@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: swagger-codegen-filepart-sample
+
+  # WebFlux reactive configuration
+  webflux:
+    base-path: /
+
+  # Multipart file upload configuration
+  codec:
+    max-in-memory-size: 10MB
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG
+    org.springframework.web: DEBUG
