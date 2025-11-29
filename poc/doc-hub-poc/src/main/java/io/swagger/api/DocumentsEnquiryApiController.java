@@ -97,8 +97,8 @@ public class DocumentsEnquiryApiController implements DocumentsEnquiryApi {
             log.info("Found {} documents for customer {}",
                 response.getTotalCount(),
                 body.getCustomerId());
-
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+            return documentEnquiryService.getDocuments(body);
+//            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
         } catch (Exception e) {
             log.error("Error processing document enquiry", e);

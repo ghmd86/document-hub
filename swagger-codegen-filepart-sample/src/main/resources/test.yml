@@ -1,0 +1,194 @@
+openapi: 3.0.0
+info:
+  title: Link Duplication API
+  version: 1.0.0
+paths:
+  /resource:
+    get:
+      operationId: getResource
+      responses:
+        '200':
+          description: A resource object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+  /documents:
+    post:
+      tags:
+        - Document Management
+      summary: Upload a document
+      description: "Uploads a document for storage.\n\n  The files currently are not scanned for viruses on the server end. It'll be part of a future implementation. Currently it'll be the responibility of the client.\n  \n  For text based files, if Byte Order Mark (BOM) is present, it will be preserved. It is the responsibility of the client to correclty handle the BOM at the time of retrieval.\n"
+      operationId: add-document
+      parameters:
+
+        - name: X-correlation-id
+          in: header
+          description: Correlation ID for request tracing
+          required: true
+          schema:
+            maxLength: 36
+            type: string
+        - name: X-requestor-id
+          in: header
+          description: Id of the requestor
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/documentUploadRequest"
+            encoding:
+              metadata:
+                contentType: application/json
+              content:
+                contentType: application/octet-stream
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+
+components:
+  schemas:
+    Resource:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: This is a id description
+        name:
+          type: string
+          description: This is a name description
+        # The problematic property name
+        _link:
+          type: string
+          format: uri
+        address:
+          type: object
+          description: This is an object type
+          properties:
+            addressLine1:
+              type: string
+              description: Address line 1
+            postalCode:
+              type: string
+              description: Postal Code
+    documentUploadRequest:
+      required:
+        - content
+        - createdBy
+        - documentType
+        - metadata
+      type: object
+      properties:
+        documentType:
+          $ref: "#/components/schemas/DocumentTypes"
+        createdBy:
+          type: string
+          description: Identifies the user or system that created the document entry.
+          format: uuid
+        templateId:
+          type: string
+          description: Unique identifier referencing the document generation template used.
+          format: uuid
+        referenceKey:
+          type: string
+          description: External identifier linking the document to a specific business entity or transaction.
+        accountKey:
+          type: string
+          description: Unique key representing the account associated with the document.
+          format: uuid
+        customerKey:
+          type: string
+          description: Unique identifier for the customer related to the document.
+          format: uuid
+        category:
+          type: string
+          description: Defines the grouping or classification of the document for organizational purposes.
+        fileName:
+          type: string
+          description: Name of the document file stored in the system.
+        threadId:
+          type: string
+          description: Identifier used to trace or group related document processing threads or events.
+          format: uuid
+        correlationId:
+          type: string
+          description: ID used to track and correlate document-related requests or operations across systems.
+          format: uuid
+        content:
+          type: string
+          description: "The actual body or data of the document (e.g., PDF, text, or JSON)."
+          format: binary
+        metadata:
+          $ref: "#/components/schemas/Metadata"
+    DocumentTypes:
+      type: string
+      description: |
+        - "PaymentLetter"
+        - "StatementInsert"
+        - "AdverseActionNotice"
+        - "ChangeInTermsNotice"
+        - "AnnualFeeNotice"
+        - "PrivacyNotice"
+        - "NachaLetter"
+        - "DelinquencyNotice"
+        - "EsignInformation"
+        - "CustomerLetter"
+        - "FraudLetter"
+        - "Statement"
+        - "ReturnedPaymentLetter"
+        - "FreeCLILetter"
+        - "PaidCLILetter"
+        - "CardholderAgreement"
+        - "CreditProtectionLetter"
+        - "BalanceTransferLetter"
+        - "MiscellaneousLetter"
+        - "AutopayLetter"
+      example: PaymentLetter
+      x-data-classification: public
+    Metadata:
+      type: array
+      description: Each document type has its own set of required metadata so it can be properly indexed. Required fields and expected format can be retrieved using GET /templates.
+      example:
+        - key: accountId
+          value: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        - key: issueDate
+          value: 2025-01-01
+        - key: customerId
+          value: 3fa85f64-5717-4562-b3fc-2c963f66a78
+        - key: htmlLettername
+          value: FF083
+      x-data-classification: public
+      items:
+        $ref: "#/components/schemas/MetadataNode"
+    MetadataNode:
+      required:
+        - "key"
+        - "value"
+      type: "object"
+      properties:
+        key:
+          maxLength: 64
+          minLength: 1
+          pattern: "^[a-zA-Z0-9_]+"
+          type: "string"
+          description: "Alphanumeric key with underscores only"
+          example: "threadId"
+          x-data-classification: "public"
+        value:
+          maxLength: 1024
+          minLength: 1
+          type: "string"
+          description: "String value, maximum 1024 characters"
+          example: "fa85f64-5717-4562-b3fc-2c963f66a78"
+          x-data-classification: "public"
+
+
