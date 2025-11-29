@@ -118,7 +118,7 @@
                         </goals>
                         <configuration>
                             <!-- Input OpenAPI Spec -->
-                            <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/test.yml</inputSpec>
 
                             <!-- Generator Language -->
                             <language>spring</language>

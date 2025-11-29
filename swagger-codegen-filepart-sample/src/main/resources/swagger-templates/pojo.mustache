@@ -29,10 +29,11 @@ public class {{classname}} {
     // Constructors
     public {{classname}}() {
     }
-
-    public {{classname}}(
 {{#models}}
 {{#model}}
+{{#hasVars}}
+
+    public {{classname}}(
 {{#vars}}
         {{#isFile}}
         Flux<FilePart> {{name}}{{#hasMore}},{{/hasMore}}
@@ -41,17 +42,14 @@ public class {{classname}} {
         {{{datatype}}} {{name}}{{#hasMore}},{{/hasMore}}
         {{/isFile}}
 {{/vars}}
-{{/model}}
-{{/models}}
     ) {
-{{#models}}
-{{#model}}
 {{#vars}}
         this.{{name}} = {{name}};
 {{/vars}}
+    }
+{{/hasVars}}
 {{/model}}
 {{/models}}
-    }
 
     // Getters & Setters
 {{#models}}
@@ -100,8 +98,17 @@ public class {{classname}} {
         if (this == o) return true;
         if (!(o instanceof {{classname}})) return false;
         {{classname}} other = ({{classname}}) o;
-        return {{#models}}{{#model}}{{#vars}}Objects.equals(this.{{name}}, other.{{name}}){{#hasMore}} &&
-               {{/hasMore}}{{/vars}}{{/model}}{{/models}};
+{{#models}}
+{{#model}}
+{{#hasVars}}
+        return {{#vars}}Objects.equals(this.{{name}}, other.{{name}}){{#hasMore}} &&
+               {{/hasMore}}{{/vars}};
+{{/hasVars}}
+{{^hasVars}}
+        return true;
+{{/hasVars}}
+{{/model}}
+{{/models}}
     }
 
     @Override
