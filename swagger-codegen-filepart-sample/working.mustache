@@ -1,0 +1,157 @@
+package {{package}};
+
+{{#imports}}
+    {{^isFileImport}}
+        import {{import}};
+    {{/isFileImport}}
+{{/imports}}
+
+import java.util.Objects;
+
+/**
+* {{description}}
+*/
+{{#deprecated}}
+    @Deprecated
+{{/deprecated}}
+public class {{classname}} {
+
+/**
+* {{classname}}
+* {{classFilename}}
+* {{name}}
+* {{dataType}}
+* {{classVarName}}
+*/
+
+{{#models}}
+    {{#model}}
+{{#vars}}
+    /**
+    * Some description
+    * {{baseName}}
+    * {{description}}
+    */
+    {{#deprecated}}
+        @Deprecated
+    {{/deprecated}}
+    {{#isFile}}
+        private Flux<FilePart> {{name}};
+    {{/isFile}}
+    {{^isFile}}
+        private {{datatype}} {{name}};
+    {{/isFile}}
+
+
+{{/vars}}
+    {{/model}}
+{{/models}}
+{{#allParams}}
+    {{dataTypes}}
+{{/allParams}}
+
+// -----------------------------
+// Constructors
+// -----------------------------
+public {{classname}}() {
+}
+public {{classname}}(
+
+{{#models}}
+    {{#model}}
+{{#vars}}
+    {{#isFile}}
+            Flux<FilePart> {{name}}{{#hasMore}},{{/hasMore}}
+    {{/isFile}}
+    {{^isFile}}
+        {{datatype}} {{name}}{{#hasMore}},{{/hasMore}}
+    {{/isFile}}
+
+{{/vars}}
+    {{/model}}
+{{/models}}
+) {
+{{#models}}
+    {{#model}}
+{{#vars}}
+    this.{{name}} = {{name}};
+{{/vars}}
+    {{/model}}
+{{/models}}
+}
+
+// -----------------------------
+// Getters & Setters
+// -----------------------------
+{{#models}}
+    {{#model}}
+{{#vars}}
+    /**
+    * {{description}}
+    * @return {{name}}
+    */
+    @JsonProperty("{{baseName}}")
+    public {{datatype}} {{getter}}() {
+    return {{name}};
+    }
+
+    public void {{setter}}({{datatype}} {{name}}) {
+    this.{{name}} = {{name}};
+    }
+
+    // Builder style setter
+    public {{classname}} {{name}}({{datatype}} {{name}}) {
+    this.{{name}} = {{name}};
+    return this;
+    }
+{{/vars}}
+    {{/model}}
+{{/models}}
+// -----------------------------
+// Object Methods
+// -----------------------------
+@Override
+public boolean equals(Object o) {
+if (this == o) return true;
+if (!(o instanceof {{classname}})) return false;
+{{classname}} other = ({{classname}}) o;
+
+return
+{{#models}}
+    {{#model}}
+{{#vars}}
+    Objects.equals(this.{{name}}, other.{{name}}){{#hasMore}} &&{{/hasMore}}
+{{/vars}}
+    {{/model}}
+{{/models}}
+;
+}
+
+@Override
+public int hashCode() {
+return Objects.hash(
+{{#models}}
+    {{#model}}
+{{#vars}}
+    {{name}}{{#hasMore}},{{/hasMore}}
+{{/vars}}
+    {{/model}}
+{{/models}}
+);
+}
+
+@Override
+public String toString() {
+StringBuilder sb = new StringBuilder();
+sb.append("class {{classname}} {\n");
+{{#models}}
+    {{#model}}
+{{#vars}}
+    sb.append("    {{name}}: ").append(Objects.toString({{name}})).append("\n");
+{{/vars}}
+    {{/model}}
+{{/models}}
+sb.append("}");
+return sb.toString();
+}
+}
