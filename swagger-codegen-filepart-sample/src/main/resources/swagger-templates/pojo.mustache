@@ -60,6 +60,9 @@ public class {{classname}} {
      * @return {{name}}
      */
     @JsonProperty("{{baseName}}")
+    {{#vendorExtensions.x-json-ignore}}
+    @JsonIgnore
+    {{/vendorExtensions.x-json-ignore}}
     {{#isFile}}
     public Flux<FilePart> {{getter}}() {
         return {{name}};

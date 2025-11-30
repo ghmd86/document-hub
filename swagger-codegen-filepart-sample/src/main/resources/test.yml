@@ -70,6 +70,7 @@ components:
         _link:
           type: string
           format: uri
+          x-json-ignore: true
         address:
           type: object
           description: This is an object type
@@ -190,5 +191,20 @@ components:
           description: "String value, maximum 1024 characters"
           example: "fa85f64-5717-4562-b3fc-2c963f66a78"
           x-data-classification: "public"
+    TestModel:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        _internalField:
+          type: string
+          x-json-ignore: true
+        _secret:
+          type: string
+          x-json-ignore: true
+        normalField:
+          type: string
 
 
