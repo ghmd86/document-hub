@@ -6,7 +6,7 @@
 {{#deprecated}}
 @Deprecated
 {{/deprecated}}
-public class {{classname}}{{#parent}} extends {{parent}}{{/parent}} {
+public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
 
 
 {{#vars}}
@@ -17,7 +17,7 @@ public class {{classname}}{{#parent}} extends {{parent}}{{/parent}} {
     @Deprecated
     {{/deprecated}}
     {{#isFile}}
-    private Flux<FilePart> {{name}};
+    private FilePart {{name}};
     {{/isFile}}
     {{^isFile}}
     private {{{datatype}}} {{name}};
@@ -37,7 +37,7 @@ public class {{classname}}{{#parent}} extends {{parent}}{{/parent}} {
     public {{classname}}(
 {{#vars}}
         {{#isFile}}
-        Flux<FilePart> {{name}}{{#hasMore}},{{/hasMore}}
+        FilePart {{name}}{{#hasMore}},{{/hasMore}}
         {{/isFile}}
         {{^isFile}}
         {{{datatype}}} {{name}}{{#hasMore}},{{/hasMore}}
@@ -65,15 +65,15 @@ public class {{classname}}{{#parent}} extends {{parent}}{{/parent}} {
     @JsonIgnore
     {{/vendorExtensions.x-json-ignore}}
     {{#isFile}}
-    public Flux<FilePart> {{getter}}() {
+    public FilePart {{getter}}() {
         return {{name}};
     }
 
-    public void {{setter}}(Flux<FilePart> {{name}}) {
+    public void {{setter}}(FilePart {{name}}) {
         this.{{name}} = {{name}};
     }
 
-    public {{classname}} {{name}}(Flux<FilePart> {{name}}) {
+    public {{classname}} {{name}}(FilePart {{name}}) {
         this.{{name}} = {{name}};
         return this;
     }
