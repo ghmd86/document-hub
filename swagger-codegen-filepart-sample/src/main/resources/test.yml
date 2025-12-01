@@ -207,4 +207,73 @@ components:
         normalField:
           type: string
 
+    # Base/Parent class example
+    BaseEntity:
+      type: object
+      discriminator:
+        propertyName: entityType
+        mapping:
+          person: '#/components/schemas/Person'
+          document: '#/components/schemas/Document'
+      properties:
+        entityType:
+          type: string
+          description: Type discriminator for polymorphism
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        version:
+          type: integer
+          description: Version number for optimistic locking
+      required:
+        - id
+        - entityType
+
+    # Child class example using allOf (inheritance)
+    Person:
+      allOf:
+        - $ref: '#/components/schemas/BaseEntity'
+        - type: object
+          properties:
+            firstName:
+              type: string
+              description: First name
+            lastName:
+              type: string
+              description: Last name
+            email:
+              type: string
+              format: email
+              description: Email address
+          required:
+            - firstName
+            - lastName
+
+    # Another child class
+    Document:
+      allOf:
+        - $ref: '#/components/schemas/BaseEntity'
+        - type: object
+          properties:
+            title:
+              type: string
+              description: Document title
+            content:
+              type: string
+              description: Document content
+            author:
+              type: string
+              description: Document author
+          required:
+            - title
+
 

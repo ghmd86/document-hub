@@ -153,6 +153,9 @@
                                 <useBeanValidation>true</useBeanValidation>
                                 <performBeanValidation>true</performBeanValidation>
 
+                                    <!-- Inheritance Support - Generate parent classes for models with allOf -->
+                                <supportInheritance>true</supportInheritance>
+
                                 <!-- Other useful options -->
                                 <serializableModel>true</serializableModel>
                                 <useOptional>false</useOptional>

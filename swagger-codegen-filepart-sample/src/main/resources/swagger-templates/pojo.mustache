@@ -1,13 +1,14 @@
+{{#models}}
+{{#model}}
 /**
  * {{description}}
  */
 {{#deprecated}}
 @Deprecated
 {{/deprecated}}
-public class {{classname}} {
+public class {{classname}}{{#parent}} extends {{parent}}{{/parent}} {
 
-{{#models}}
-{{#model}}
+
 {{#vars}}
     /**
      * {{description}}
@@ -93,8 +94,6 @@ public class {{classname}} {
     {{/isFile}}
 
 {{/vars}}
-{{/model}}
-{{/models}}
 
     @Override
     public boolean equals(Object o) {
@@ -133,4 +132,6 @@ public class {{classname}} {
         sb.append("}");
         return sb.toString();
     }
+{{/model}}
+{{/models}}
 }
