@@ -132,7 +132,7 @@
                             <modelPackage>com.example.model</modelPackage>
 
                             <!-- CUSTOM TEMPLATES DIRECTORY - THIS IS THE KEY! -->
-                            <templateDirectory>${project.basedir}/src/main/resources/swagger-templates</templateDirectory>
+<!--                            <templateDirectory>${project.basedir}/src/main/resources/swagger-templates</templateDirectory>-->
 
                             <!-- Skip Validation -->
                             <skipValidateSpec>false</skipValidateSpec>
