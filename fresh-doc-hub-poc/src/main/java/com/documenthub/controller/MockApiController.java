@@ -338,4 +338,108 @@ public class MockApiController {
 
         return ResponseEntity.ok(response);
     }
+
+    // ========================================
+    // DISCLOSURE CODE EXTRACTION APIs
+    // Based on document-hub-service Example 1
+    // ========================================
+
+    @GetMapping("/creditcard/accounts/{accountId}/arrangements")
+    public ResponseEntity<Map<String, Object>> getAccountArrangements(@PathVariable String accountId) {
+        Map<String, Object> response = new HashMap<>();
+        List<Map<String, Object>> content = new ArrayList<>();
+
+        // Different arrangements based on account ID
+        if ("550e8400-e29b-41d4-a716-446655440000".equals(accountId)) {
+            // Standard credit card - returns pricingId PRC-12345
+            Map<String, Object> pricingArrangement = new HashMap<>();
+            pricingArrangement.put("domain", "PRICING");
+            pricingArrangement.put("domainId", "PRC-12345");
+            pricingArrangement.put("status", "ACTIVE");
+            pricingArrangement.put("effectiveDate", "2024-01-01");
+            content.add(pricingArrangement);
+
+            // Add other arrangements (non-pricing)
+            Map<String, Object> rewardsArrangement = new HashMap<>();
+            rewardsArrangement.put("domain", "REWARDS");
+            rewardsArrangement.put("domainId", "RWD-001");
+            rewardsArrangement.put("status", "ACTIVE");
+            content.add(rewardsArrangement);
+
+        } else if ("770e8400-e29b-41d4-a716-446655440002".equals(accountId)) {
+            // Premium credit card - returns different pricingId
+            Map<String, Object> pricingArrangement = new HashMap<>();
+            pricingArrangement.put("domain", "PRICING");
+            pricingArrangement.put("domainId", "PRC-67890");
+            pricingArrangement.put("status", "ACTIVE");
+            pricingArrangement.put("effectiveDate", "2024-01-01");
+            content.add(pricingArrangement);
+
+            Map<String, Object> rewardsArrangement = new HashMap<>();
+            rewardsArrangement.put("domain", "REWARDS");
+            rewardsArrangement.put("domainId", "RWD-PREMIUM-001");
+            rewardsArrangement.put("status", "ACTIVE");
+            content.add(rewardsArrangement);
+
+        } else {
+            // Default arrangement
+            Map<String, Object> pricingArrangement = new HashMap<>();
+            pricingArrangement.put("domain", "PRICING");
+            pricingArrangement.put("domainId", "PRC-DEFAULT");
+            pricingArrangement.put("status", "ACTIVE");
+            content.add(pricingArrangement);
+        }
+
+        response.put("content", content);
+        response.put("accountId", accountId);
+        response.put("totalItems", content.size());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/pricing-service/prices/{pricingId}")
+    public ResponseEntity<Map<String, Object>> getPricingData(@PathVariable String pricingId) {
+        Map<String, Object> response = new HashMap<>();
+
+        if ("PRC-12345".equals(pricingId)) {
+            // Standard card pricing - disclosure code D164
+            response.put("pricingId", pricingId);
+            response.put("cardholderAgreementsTncCode", "D164");
+            response.put("productType", "STANDARD_CREDIT_CARD");
+            response.put("annualFee", 0);
+            response.put("interestRate", 18.99);
+            response.put("effectiveDate", "2024-01-01");
+
+        } else if ("PRC-67890".equals(pricingId)) {
+            // Premium card pricing - disclosure code D166
+            response.put("pricingId", pricingId);
+            response.put("cardholderAgreementsTncCode", "D166");
+            response.put("productType", "PREMIUM_CREDIT_CARD");
+            response.put("annualFee", 95);
+            response.put("interestRate", 15.99);
+            response.put("rewardsMultiplier", 2.0);
+            response.put("effectiveDate", "2024-01-01");
+
+        } else if ("PRC-DEFAULT".equals(pricingId)) {
+            // Default pricing - disclosure code D165
+            response.put("pricingId", pricingId);
+            response.put("cardholderAgreementsTncCode", "D165");
+            response.put("productType", "BASIC_CREDIT_CARD");
+            response.put("annualFee", 0);
+            response.put("interestRate", 21.99);
+            response.put("effectiveDate", "2024-01-01");
+
+        } else {
+            // Pricing not found
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "PRICING_NOT_FOUND");
+            error.put("message", "Pricing with ID " + pricingId + " not found");
+            return ResponseEntity.status(404).body(error);
+        }
+
+        response.put("currency", "USD");
+        response.put("lastUpdated", "2024-01-15");
+
+        return ResponseEntity.ok(response);
+    }
 }

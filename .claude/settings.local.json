@@ -10,7 +10,12 @@
       "Bash(git push:*)",
       "Bash(mvn clean compile:*)",
       "Bash(timeout 15 mvn spring-boot:run:*)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(mvn clean:*)",
+      "Bash(psql:*)",
+      "Bash(where:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
