@@ -1,0 +1,282 @@
+{
+  "fieldSourceMappings": {
+    "disclosureCode": {
+      "fieldName": "disclosureCode",
+      "description": "Regulatory disclosure code for the account",
+      "sourceDataSourceId": "accountDetailsApi",
+      "fallbackDataSources": ["accountSummaryApi"],
+      "extractionPath": "$.account.disclosureCode",
+      "requiredInputs": ["accountId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 3600,
+      "fieldType": "string",
+      "defaultValue": "STANDARD"
+    },
+    "customerLocation": {
+      "fieldName": "customerLocation",
+      "description": "Customer's primary location/address",
+      "sourceDataSourceId": "customerProfileApi",
+      "extractionPath": "$.customer.address.state",
+      "requiredInputs": ["customerId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 7200,
+      "fieldType": "string",
+      "defaultValue": "UNKNOWN"
+    },
+    "accountType": {
+      "fieldName": "accountType",
+      "description": "Type of account (CHECKING, SAVINGS, LOAN, etc.)",
+      "sourceDataSourceId": "accountDetailsApi",
+      "extractionPath": "$.account.type",
+      "requiredInputs": ["accountId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 3600,
+      "fieldType": "string",
+      "defaultValue": null
+    },
+    "accountBalance": {
+      "fieldName": "accountBalance",
+      "description": "Current account balance",
+      "sourceDataSourceId": "accountBalanceApi",
+      "extractionPath": "$.balance.current",
+      "requiredInputs": ["accountId"],
+      "cacheable": false,
+      "cacheTtlSeconds": 0,
+      "fieldType": "decimal",
+      "defaultValue": 0.0
+    },
+    "customerTier": {
+      "fieldName": "customerTier",
+      "description": "Customer tier/segment (PREMIUM, STANDARD, BASIC)",
+      "sourceDataSourceId": "customerProfileApi",
+      "extractionPath": "$.customer.tier",
+      "requiredInputs": ["customerId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 7200,
+      "fieldType": "string",
+      "defaultValue": "STANDARD"
+    },
+    "productCode": {
+      "fieldName": "productCode",
+      "description": "Product code associated with account",
+      "sourceDataSourceId": "accountDetailsApi",
+      "extractionPath": "$.account.productCode",
+      "requiredInputs": ["accountId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 3600,
+      "fieldType": "string",
+      "defaultValue": null
+    },
+    "branchCode": {
+      "fieldName": "branchCode",
+      "description": "Branch code where account was opened",
+      "sourceDataSourceId": "accountDetailsApi",
+      "extractionPath": "$.account.branchCode",
+      "requiredInputs": ["accountId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 3600,
+      "fieldType": "string",
+      "defaultValue": null
+    },
+    "customerPreferredLanguage": {
+      "fieldName": "customerPreferredLanguage",
+      "description": "Customer's preferred communication language",
+      "sourceDataSourceId": "customerPreferencesApi",
+      "extractionPath": "$.preferences.language",
+      "requiredInputs": ["customerId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 86400,
+      "fieldType": "string",
+      "defaultValue": "en"
+    },
+    "accountStatus": {
+      "fieldName": "accountStatus",
+      "description": "Account status (ACTIVE, CLOSED, SUSPENDED)",
+      "sourceDataSourceId": "accountDetailsApi",
+      "extractionPath": "$.account.status",
+      "requiredInputs": ["accountId"],
+      "cacheable": true,
+      "cacheTtlSeconds": 1800,
+      "fieldType": "string",
+      "defaultValue": null
+    },
+    "lastTransactionDate": {
+      "fieldName": "lastTransactionDate",
+      "description": "Date of last transaction on account",
+      "sourceDataSourceId": "accountBalanceApi",
+      "extractionPath": "$.lastTransaction.date",
+      "requiredInputs": ["accountId"],
+      "cacheable": false,
+      "cacheTtlSeconds": 0,
+      "fieldType": "date",
+      "defaultValue": null
+    }
+  },
+  "availableDataSources": {
+    "accountDetailsApi": {
+      "id": "accountDetailsApi",
+      "description": "Retrieves comprehensive account details including type, status, disclosure code",
+      "endpoint": {
+        "url": "https://api.example.com/accounts/${accountId}/details",
+        "method": "GET",
+        "timeout": 5000,
+        "headers": {
+          "Authorization": "Bearer ${auth.token}",
+          "X-Request-ID": "${correlationId}"
+        }
+      },
+      "cache": {
+        "enabled": true,
+        "ttlSeconds": 3600,
+        "keyPattern": "account:${accountId}:details"
+      },
+      "responseMapping": {
+        "extract": {
+          "disclosureCode": "$.account.disclosureCode",
+          "accountType": "$.account.type",
+          "productCode": "$.account.productCode",
+          "branchCode": "$.account.branchCode",
+          "accountStatus": "$.account.status"
+        },
+        "validate": {
+          "disclosureCode": {
+            "required": true,
+            "pattern": "^[A-Z0-9]{3,10}$"
+          },
+          "accountType": {
+            "required": true
+          }
+        }
+      },
+      "dependencies": ["accountId"],
+      "errorHandling": {
+        "retries": 2,
+        "retryDelayMs": 1000,
+        "fallbackAction": "use_default"
+      }
+    },
+    "customerProfileApi": {
+      "id": "customerProfileApi",
+      "description": "Retrieves customer profile including location, tier, demographic info",
+      "endpoint": {
+        "url": "https://api.example.com/customers/${customerId}/profile",
+        "method": "GET",
+        "timeout": 5000,
+        "headers": {
+          "Authorization": "Bearer ${auth.token}",
+          "X-Request-ID": "${correlationId}"
+        }
+      },
+      "cache": {
+        "enabled": true,
+        "ttlSeconds": 7200,
+        "keyPattern": "customer:${customerId}:profile"
+      },
+      "responseMapping": {
+        "extract": {
+          "customerLocation": "$.customer.address.state",
+          "customerTier": "$.customer.tier",
+          "customerFullName": "$.customer.fullName"
+        },
+        "validate": {
+          "customerLocation": {
+            "required": false
+          },
+          "customerTier": {
+            "required": true,
+            "pattern": "^(PREMIUM|STANDARD|BASIC)$"
+          }
+        }
+      },
+      "dependencies": ["customerId"],
+      "errorHandling": {
+        "retries": 2,
+        "retryDelayMs": 1000,
+        "fallbackAction": "use_default"
+      }
+    },
+    "accountBalanceApi": {
+      "id": "accountBalanceApi",
+      "description": "Retrieves real-time account balance and transaction information",
+      "endpoint": {
+        "url": "https://api.example.com/accounts/${accountId}/balance",
+        "method": "GET",
+        "timeout": 3000,
+        "headers": {
+          "Authorization": "Bearer ${auth.token}",
+          "X-Request-ID": "${correlationId}"
+        }
+      },
+      "cache": {
+        "enabled": false
+      },
+      "responseMapping": {
+        "extract": {
+          "accountBalance": "$.balance.current",
+          "availableBalance": "$.balance.available",
+          "lastTransactionDate": "$.lastTransaction.date"
+        },
+        "validate": {
+          "accountBalance": {
+            "required": true
+          }
+        }
+      },
+      "dependencies": ["accountId"],
+      "errorHandling": {
+        "retries": 1,
+        "retryDelayMs": 500,
+        "fallbackAction": "fail"
+      }
+    },
+    "customerPreferencesApi": {
+      "id": "customerPreferencesApi",
+      "description": "Retrieves customer preferences including language, communication channels",
+      "endpoint": {
+        "url": "https://api.example.com/customers/${customerId}/preferences",
+        "method": "GET",
+        "timeout": 5000,
+        "headers": {
+          "Authorization": "Bearer ${auth.token}",
+          "X-Request-ID": "${correlationId}"
+        }
+      },
+      "cache": {
+        "enabled": true,
+        "ttlSeconds": 86400,
+        "keyPattern": "customer:${customerId}:preferences"
+      },
+      "responseMapping": {
+        "extract": {
+          "customerPreferredLanguage": "$.preferences.language",
+          "communicationChannel": "$.preferences.channel",
+          "paperlessEnabled": "$.preferences.paperless"
+        },
+        "validate": {
+          "customerPreferredLanguage": {
+            "required": false,
+            "pattern": "^(en|es|fr)$"
+          }
+        }
+      },
+      "dependencies": ["customerId"],
+      "errorHandling": {
+        "retries": 2,
+        "retryDelayMs": 1000,
+        "fallbackAction": "use_default"
+      }
+    }
+  },
+  "fieldDependencies": {
+    "disclosureCode": ["accountId"],
+    "customerLocation": ["customerId"],
+    "accountType": ["accountId"],
+    "accountBalance": ["accountId"],
+    "customerTier": ["customerId"],
+    "productCode": ["accountId"],
+    "branchCode": ["accountId"],
+    "customerPreferredLanguage": ["customerId"],
+    "accountStatus": ["accountId"],
+    "lastTransactionDate": ["accountId"]
+  }
+}

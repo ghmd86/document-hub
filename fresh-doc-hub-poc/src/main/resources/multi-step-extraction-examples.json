@@ -1,0 +1,373 @@
+[
+  {
+    "name": "Simple 3-Step Chain: Account → Product → Regulatory",
+    "description": "Get account details, lookup product info, then fetch regulatory requirements",
+    "config": {
+      "requiredFields": [
+        "productCode",
+        "productCategory",
+        "disclosureRequirements"
+      ],
+      "fieldSources": {
+        "productCode": {
+          "description": "Product code from account",
+          "sourceApi": "accountDetailsApi",
+          "extractionPath": "$.account.productCode",
+          "requiredInputs": ["accountId"],
+          "fieldType": "string"
+        },
+        "productCategory": {
+          "description": "Product category from product catalog",
+          "sourceApi": "productCatalogApi",
+          "extractionPath": "$.product.category",
+          "requiredInputs": ["productCode"],
+          "fieldType": "string"
+        },
+        "disclosureRequirements": {
+          "description": "Required disclosures for product category",
+          "sourceApi": "regulatoryApi",
+          "extractionPath": "$.rules.disclosures",
+          "requiredInputs": ["productCategory"],
+          "fieldType": "array"
+        }
+      },
+      "dataSources": {
+        "accountDetailsApi": {
+          "description": "Step 1: Get account details",
+          "endpoint": {
+            "url": "https://api.example.com/accounts/${accountId}/details",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 3600
+          },
+          "providesFields": ["productCode"]
+        },
+        "productCatalogApi": {
+          "description": "Step 2: Get product details using productCode from Step 1",
+          "endpoint": {
+            "url": "https://api.example.com/products/${productCode}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 86400
+          },
+          "providesFields": ["productCategory"]
+        },
+        "regulatoryApi": {
+          "description": "Step 3: Get regulatory requirements using productCategory from Step 2",
+          "endpoint": {
+            "url": "https://api.example.com/regulatory/requirements?category=${productCategory}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 7200
+          },
+          "providesFields": ["disclosureRequirements"]
+        }
+      },
+      "executionStrategy": {
+        "mode": "auto",
+        "continueOnError": false,
+        "timeout": 20000
+      }
+    }
+  },
+  {
+    "name": "Parallel + Sequential: Multi-path dependencies",
+    "description": "Two parallel paths that merge for final step",
+    "config": {
+      "requiredFields": [
+        "productCode",
+        "customerLocation",
+        "productCategory",
+        "regulatoryRegion",
+        "finalDisclosures"
+      ],
+      "fieldSources": {
+        "productCode": {
+          "sourceApi": "accountApi",
+          "extractionPath": "$.account.productCode",
+          "requiredInputs": ["accountId"]
+        },
+        "customerLocation": {
+          "sourceApi": "customerApi",
+          "extractionPath": "$.customer.address.state",
+          "requiredInputs": ["customerId"]
+        },
+        "productCategory": {
+          "sourceApi": "productApi",
+          "extractionPath": "$.product.category",
+          "requiredInputs": ["productCode"]
+        },
+        "regulatoryRegion": {
+          "sourceApi": "regionMappingApi",
+          "extractionPath": "$.mapping.region",
+          "requiredInputs": ["customerLocation"]
+        },
+        "finalDisclosures": {
+          "sourceApi": "disclosureApi",
+          "extractionPath": "$.disclosures",
+          "requiredInputs": ["productCategory", "regulatoryRegion"]
+        }
+      },
+      "dataSources": {
+        "accountApi": {
+          "description": "Level 1: Get account (parallel path 1 start)",
+          "endpoint": {
+            "url": "https://api.example.com/accounts/${accountId}",
+            "method": "GET",
+            "timeout": 5000
+          },
+          "providesFields": ["productCode"]
+        },
+        "customerApi": {
+          "description": "Level 1: Get customer (parallel path 2 start)",
+          "endpoint": {
+            "url": "https://api.example.com/customers/${customerId}",
+            "method": "GET",
+            "timeout": 5000
+          },
+          "providesFields": ["customerLocation"]
+        },
+        "productApi": {
+          "description": "Level 2: Get product category (path 1 continues)",
+          "endpoint": {
+            "url": "https://api.example.com/products/${productCode}",
+            "method": "GET",
+            "timeout": 5000
+          },
+          "providesFields": ["productCategory"]
+        },
+        "regionMappingApi": {
+          "description": "Level 2: Map location to region (path 2 continues)",
+          "endpoint": {
+            "url": "https://api.example.com/regions/map",
+            "method": "POST",
+            "timeout": 3000,
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\"state\": \"${customerLocation}\"}"
+          },
+          "providesFields": ["regulatoryRegion"]
+        },
+        "disclosureApi": {
+          "description": "Level 3: Merge both paths for final result",
+          "endpoint": {
+            "url": "https://api.example.com/disclosures?category=${productCategory}&region=${regulatoryRegion}",
+            "method": "GET",
+            "timeout": 5000
+          },
+          "providesFields": ["finalDisclosures"]
+        }
+      },
+      "executionStrategy": {
+        "mode": "auto",
+        "continueOnError": false,
+        "timeout": 25000
+      }
+    }
+  },
+  {
+    "name": "5-Step Deep Chain: Account → Branch → Region → Compliance → Documents",
+    "description": "Complex 5-level dependency chain",
+    "config": {
+      "requiredFields": [
+        "branchCode",
+        "regionCode",
+        "complianceRules",
+        "documentList"
+      ],
+      "fieldSources": {
+        "branchCode": {
+          "description": "Branch code from account",
+          "sourceApi": "accountApi",
+          "extractionPath": "$.account.branchCode",
+          "requiredInputs": ["accountId"]
+        },
+        "regionCode": {
+          "description": "Region from branch",
+          "sourceApi": "branchApi",
+          "extractionPath": "$.branch.regionCode",
+          "requiredInputs": ["branchCode"]
+        },
+        "complianceRules": {
+          "description": "Compliance rules for region",
+          "sourceApi": "complianceApi",
+          "extractionPath": "$.compliance.rules",
+          "requiredInputs": ["regionCode"]
+        },
+        "documentList": {
+          "description": "Applicable documents based on compliance",
+          "sourceApi": "documentRulesApi",
+          "extractionPath": "$.documents",
+          "requiredInputs": ["complianceRules"]
+        }
+      },
+      "dataSources": {
+        "accountApi": {
+          "description": "Step 1: Get account details",
+          "endpoint": {
+            "url": "https://api.example.com/accounts/${accountId}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 3600
+          },
+          "providesFields": ["branchCode"]
+        },
+        "branchApi": {
+          "description": "Step 2: Get branch details",
+          "endpoint": {
+            "url": "https://api.example.com/branches/${branchCode}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 7200
+          },
+          "providesFields": ["regionCode"]
+        },
+        "complianceApi": {
+          "description": "Step 3: Get compliance rules for region",
+          "endpoint": {
+            "url": "https://api.example.com/compliance/regions/${regionCode}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 3600
+          },
+          "providesFields": ["complianceRules"]
+        },
+        "documentRulesApi": {
+          "description": "Step 4: Get applicable documents",
+          "endpoint": {
+            "url": "https://api.example.com/document-rules",
+            "method": "POST",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"rules\": ${complianceRules}}"
+          },
+          "providesFields": ["documentList"]
+        }
+      },
+      "executionStrategy": {
+        "mode": "auto",
+        "continueOnError": false,
+        "timeout": 30000
+      }
+    }
+  },
+  {
+    "name": "Complex Multi-Source: Combine multiple sources for final decision",
+    "description": "Gather data from 5 sources, combine for final API call",
+    "config": {
+      "requiredFields": [
+        "accountType",
+        "customerTier",
+        "productCode",
+        "regionCode",
+        "eligibilityScore"
+      ],
+      "fieldSources": {
+        "accountType": {
+          "sourceApi": "accountApi",
+          "extractionPath": "$.account.type",
+          "requiredInputs": ["accountId"]
+        },
+        "customerTier": {
+          "sourceApi": "customerApi",
+          "extractionPath": "$.customer.tier",
+          "requiredInputs": ["customerId"]
+        },
+        "productCode": {
+          "sourceApi": "accountApi",
+          "extractionPath": "$.account.productCode",
+          "requiredInputs": ["accountId"]
+        },
+        "regionCode": {
+          "sourceApi": "customerApi",
+          "extractionPath": "$.customer.address.regionCode",
+          "requiredInputs": ["customerId"]
+        },
+        "eligibilityScore": {
+          "sourceApi": "eligibilityApi",
+          "extractionPath": "$.eligibility.score",
+          "requiredInputs": ["accountType", "customerTier", "productCode", "regionCode"]
+        }
+      },
+      "dataSources": {
+        "accountApi": {
+          "description": "Level 1: Get account info",
+          "endpoint": {
+            "url": "https://api.example.com/accounts/${accountId}",
+            "method": "GET",
+            "timeout": 5000
+          },
+          "providesFields": ["accountType", "productCode"]
+        },
+        "customerApi": {
+          "description": "Level 1: Get customer info (parallel with accountApi)",
+          "endpoint": {
+            "url": "https://api.example.com/customers/${customerId}",
+            "method": "GET",
+            "timeout": 5000
+          },
+          "providesFields": ["customerTier", "regionCode"]
+        },
+        "eligibilityApi": {
+          "description": "Level 2: Calculate eligibility using all 4 fields",
+          "endpoint": {
+            "url": "https://api.example.com/eligibility/calculate",
+            "method": "POST",
+            "timeout": 5000,
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer ${auth.token}"
+            },
+            "body": "{\"accountType\": \"${accountType}\", \"customerTier\": \"${customerTier}\", \"productCode\": \"${productCode}\", \"regionCode\": \"${regionCode}\"}"
+          },
+          "providesFields": ["eligibilityScore"]
+        }
+      },
+      "executionStrategy": {
+        "mode": "auto",
+        "continueOnError": false,
+        "timeout": 15000
+      }
+    }
+  }
+]

@@ -1,0 +1,348 @@
+{
+  "description": "Mock API responses for testing multi-step data extraction",
+  "baseUrl": "http://localhost:8080/mock-api",
+  "endpoints": [
+    {
+      "scenario": "Scenario 1: Simple 3-Step Chain",
+      "requests": [
+        {
+          "step": 1,
+          "url": "/accounts/550e8400-e29b-41d4-a716-446655440000/details",
+          "method": "GET",
+          "description": "Get account details",
+          "response": {
+            "status": 200,
+            "body": {
+              "account": {
+                "accountId": "550e8400-e29b-41d4-a716-446655440000",
+                "accountType": "CHECKING",
+                "productCode": "CC-PREMIUM-001",
+                "status": "ACTIVE",
+                "balance": {
+                  "current": 5432.10,
+                  "available": 5432.10
+                },
+                "openDate": "2020-01-15",
+                "branchCode": "BR-555"
+              }
+            }
+          }
+        },
+        {
+          "step": 2,
+          "url": "/products/CC-PREMIUM-001",
+          "method": "GET",
+          "description": "Get product category using productCode from step 1",
+          "response": {
+            "status": 200,
+            "body": {
+              "product": {
+                "productCode": "CC-PREMIUM-001",
+                "productName": "Premium Credit Card",
+                "category": "CREDIT_CARD",
+                "tier": "PREMIUM",
+                "features": ["REWARDS", "TRAVEL_INSURANCE", "NO_FOREIGN_FEE"]
+              }
+            }
+          }
+        },
+        {
+          "step": 3,
+          "url": "/regulatory/requirements?category=CREDIT_CARD",
+          "method": "GET",
+          "description": "Get regulatory requirements using productCategory from step 2",
+          "response": {
+            "status": 200,
+            "body": {
+              "rules": {
+                "category": "CREDIT_CARD",
+                "disclosures": ["TILA", "CARD_ACT", "SCHUMER_BOX"],
+                "minimumAge": 18,
+                "requiredDocuments": ["TERMS_CONDITIONS", "PRIVACY_POLICY"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "Scenario 2: Parallel + Sequential (Diamond Pattern)",
+      "requests": [
+        {
+          "step": "1a",
+          "url": "/accounts/550e8400-e29b-41d4-a716-446655440000",
+          "method": "GET",
+          "description": "Level 1: Get account (parallel path 1)",
+          "response": {
+            "status": 200,
+            "body": {
+              "account": {
+                "accountId": "550e8400-e29b-41d4-a716-446655440000",
+                "accountType": "PREMIUM_CHECKING",
+                "productCode": "CC-PREMIUM-001",
+                "status": "ACTIVE",
+                "customerId": "123e4567-e89b-12d3-a456-426614174000"
+              }
+            }
+          }
+        },
+        {
+          "step": "1b",
+          "url": "/customers/123e4567-e89b-12d3-a456-426614174000",
+          "method": "GET",
+          "description": "Level 1: Get customer (parallel path 2)",
+          "response": {
+            "status": 200,
+            "body": {
+              "customer": {
+                "customerId": "123e4567-e89b-12d3-a456-426614174000",
+                "firstName": "John",
+                "lastName": "Doe",
+                "tier": "VIP",
+                "address": {
+                  "street": "123 Main St",
+                  "city": "San Francisco",
+                  "state": "CA",
+                  "zipCode": "94102"
+                },
+                "email": "john.doe@example.com"
+              }
+            }
+          }
+        },
+        {
+          "step": "2a",
+          "url": "/products/CC-PREMIUM-001",
+          "method": "GET",
+          "description": "Level 2: Get product category (continues path 1)",
+          "response": {
+            "status": 200,
+            "body": {
+              "product": {
+                "productCode": "CC-PREMIUM-001",
+                "productName": "Premium Credit Card",
+                "category": "CREDIT_CARD",
+                "tier": "PREMIUM"
+              }
+            }
+          }
+        },
+        {
+          "step": "2b",
+          "url": "/regions/map",
+          "method": "POST",
+          "requestBody": {
+            "state": "CA"
+          },
+          "description": "Level 2: Map customer state to regulatory region (continues path 2)",
+          "response": {
+            "status": 200,
+            "body": {
+              "mapping": {
+                "state": "CA",
+                "region": "US_WEST",
+                "timezone": "PST",
+                "regulatoryBody": "CFPB_WEST"
+              }
+            }
+          }
+        },
+        {
+          "step": 3,
+          "url": "/disclosures?category=CREDIT_CARD&region=US_WEST",
+          "method": "GET",
+          "description": "Level 3: Merge both paths for final disclosures",
+          "response": {
+            "status": 200,
+            "body": {
+              "disclosures": ["TILA", "CARD_ACT", "CA_DISCLOSURE", "CCPA"],
+              "effectiveDate": "2024-01-01",
+              "region": "US_WEST",
+              "category": "CREDIT_CARD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "Scenario 3: 5-Step Deep Chain",
+      "requests": [
+        {
+          "step": 1,
+          "url": "/accounts/550e8400-e29b-41d4-a716-446655440000",
+          "method": "GET",
+          "description": "Step 1: Get account with branch code",
+          "response": {
+            "status": 200,
+            "body": {
+              "account": {
+                "accountId": "550e8400-e29b-41d4-a716-446655440000",
+                "accountType": "CHECKING",
+                "branchCode": "BR-555",
+                "productCode": "CHK-001",
+                "status": "ACTIVE"
+              }
+            }
+          }
+        },
+        {
+          "step": 2,
+          "url": "/branches/BR-555",
+          "method": "GET",
+          "description": "Step 2: Get branch details with region code",
+          "response": {
+            "status": 200,
+            "body": {
+              "branch": {
+                "branchCode": "BR-555",
+                "branchName": "Downtown San Francisco",
+                "regionCode": "WEST",
+                "address": {
+                  "city": "San Francisco",
+                  "state": "CA"
+                },
+                "managerName": "Jane Smith"
+              }
+            }
+          }
+        },
+        {
+          "step": 3,
+          "url": "/compliance/regions/WEST",
+          "method": "GET",
+          "description": "Step 3: Get compliance rules for region",
+          "response": {
+            "status": 200,
+            "body": {
+              "compliance": {
+                "regionCode": "WEST",
+                "rules": {
+                  "dataRetention": "7_YEARS",
+                  "privacyStandard": "CCPA",
+                  "disclosureFrequency": "QUARTERLY",
+                  "requiresNotarization": false,
+                  "electronicSignatureAllowed": true
+                },
+                "lastUpdated": "2024-01-01"
+              }
+            }
+          }
+        },
+        {
+          "step": 4,
+          "url": "/document-rules",
+          "method": "POST",
+          "requestBody": {
+            "rules": {
+              "dataRetention": "7_YEARS",
+              "privacyStandard": "CCPA",
+              "disclosureFrequency": "QUARTERLY"
+            }
+          },
+          "description": "Step 4: Get applicable documents based on compliance rules",
+          "response": {
+            "status": 200,
+            "body": {
+              "documents": [
+                "PRIVACY_NOTICE",
+                "DATA_RETENTION_POLICY",
+                "QUARTERLY_DISCLOSURE",
+                "CCPA_RIGHTS_NOTICE"
+              ],
+              "mandatory": true,
+              "deliveryMethod": "ELECTRONIC"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "Additional Test Data - Different Account",
+      "requests": [
+        {
+          "step": 1,
+          "url": "/accounts/660e8400-e29b-41d4-a716-446655440001",
+          "method": "GET",
+          "description": "Different account - Savings account",
+          "response": {
+            "status": 200,
+            "body": {
+              "account": {
+                "accountId": "660e8400-e29b-41d4-a716-446655440001",
+                "accountType": "SAVINGS",
+                "productCode": "SAV-PREMIUM-001",
+                "status": "ACTIVE",
+                "balance": {
+                  "current": 25000.00
+                },
+                "branchCode": "BR-222"
+              }
+            }
+          }
+        },
+        {
+          "step": 2,
+          "url": "/products/SAV-PREMIUM-001",
+          "method": "GET",
+          "description": "Savings product details",
+          "response": {
+            "status": 200,
+            "body": {
+              "product": {
+                "productCode": "SAV-PREMIUM-001",
+                "productName": "Premium Savings Account",
+                "category": "SAVINGS",
+                "interestRate": 4.5,
+                "minimumBalance": 1000
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "Error Scenarios - For testing error handling",
+      "requests": [
+        {
+          "step": 1,
+          "url": "/accounts/999e8400-e29b-41d4-a716-446655440999",
+          "method": "GET",
+          "description": "Account not found",
+          "response": {
+            "status": 404,
+            "body": {
+              "error": "ACCOUNT_NOT_FOUND",
+              "message": "Account with ID 999e8400-e29b-41d4-a716-446655440999 not found"
+            }
+          }
+        },
+        {
+          "step": 2,
+          "url": "/products/INVALID-CODE",
+          "method": "GET",
+          "description": "Invalid product code",
+          "response": {
+            "status": 404,
+            "body": {
+              "error": "PRODUCT_NOT_FOUND",
+              "message": "Product with code INVALID-CODE not found"
+            }
+          }
+        },
+        {
+          "step": 3,
+          "url": "/compliance/regions/INVALID",
+          "method": "GET",
+          "description": "Invalid region - should use default values",
+          "response": {
+            "status": 404,
+            "body": {
+              "error": "REGION_NOT_FOUND",
+              "message": "Region INVALID not configured"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
