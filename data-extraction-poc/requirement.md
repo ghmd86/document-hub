@@ -3,22 +3,20 @@ Use the following project structure and artifacts:
 
 Project Files
 
-`./poc/doc-hub.yaml` → OpenAPI 3 specification
-`./poc/database.sql` → DB schema for document storage. This is the approved database design.
-
-Project Location
-
-`/poc/doc-hub-poc/`
+`./document-hub-schema.yaml` → OpenAPI 3 specification
+`./schema.sql` → DB schema for document storage. This is the approved database design.
+`./effective-pom.xml` -> Effective pom.xml that is being used by the project.
 
 Current Status
 
-A project was generated using OpenAPI Codegen based on doc-hub.yaml.
-
-Basic scaffolding exists (models, controllers, API interfaces).
+We did a poc under `../poc` folder for the same. 
+We also did `../swagger-codegen-filepart-sample` project to generate code using OpenAPI specs.
+We can take references from these two projects for building a fresh service.
 
 🎯 Objective
 
 Implement a fully functional POC for the `/documents-enquire` endpoint.
+You can refer to the poc and swagger gen code to build a fresh working project to satisfy the requirement for above endpoint.
 
 📝 Endpoint Description
 
@@ -34,11 +32,11 @@ Documents are classified using the is_shared flag:
 
 ✔ 1. Account-Specific Documents
 
-`is_shared = false`
+`shared_document_flag = false`
 
 Retrieved using `account_id`.
 
-✔ 2. Shared Documents (`is_shared` = true)
+✔ 2. Shared Documents (`shared_document_flag` = true)
 
 Shared documents have subcategories:
 
@@ -71,6 +69,11 @@ Data & Rule Evaluation
   - match document metadata 
   - combine conditions using AND/OR logic 
 - If custom rule definitions exist in DB → read and evaluate dynamically.
+
+Technical Requirement
+
+- We would not cache any information as of now
+- data_extraction_config jsonb column would be used to store the extraction information for shared documents
 
 My goal is to build a customizable data and rule evaluation engine that can be easily configured by non-technical team.
 
