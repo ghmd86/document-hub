@@ -2,6 +2,7 @@ package com.documenthub.config;
 
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -17,13 +18,16 @@ import java.util.List;
 
 /**
  * R2DBC Database Configuration
- * Initializes H2 database with schema and data
+ * Supports both H2 and PostgreSQL with automatic detection
  */
 @Configuration
 public class DatabaseConfig {
 
     @Autowired
     private ConnectionFactory connectionFactory;
+
+    @Value("${spring.r2dbc.url}")
+    private String r2dbcUrl;
 
     /**
      * Register custom converters for JSON handling
@@ -39,6 +43,7 @@ public class DatabaseConfig {
 
     /**
      * Initialize database schema and data on startup
+     * Automatically detects database type and loads appropriate scripts
      */
     @Bean
     public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
@@ -46,8 +51,17 @@ public class DatabaseConfig {
         initializer.setConnectionFactory(connectionFactory);
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("schema.sql"));
-        populator.addScript(new ClassPathResource("data.sql"));
+
+        // Detect database type and load appropriate scripts
+        if (r2dbcUrl.contains("postgresql")) {
+            System.out.println("=== Detected PostgreSQL - Loading PostgreSQL scripts ===");
+            populator.addScript(new ClassPathResource("schema-postgres.sql"));
+            populator.addScript(new ClassPathResource("test-data-postgres.sql"));
+        } else {
+            System.out.println("=== Detected H2 - Loading H2 scripts ===");
+            populator.addScript(new ClassPathResource("schema.sql"));
+            populator.addScript(new ClassPathResource("data.sql"));
+        }
 
         initializer.setDatabasePopulator(populator);
 
