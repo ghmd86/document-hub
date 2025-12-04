@@ -13,7 +13,7 @@
 -- Chain: Arrangements API → Pricing API → Match by disclosure_code
 -- ========================================
 
-INSERT INTO master_template_definition (
+INSERT INTO document_hub.master_template_definition (
     master_template_id,
     template_version,
     template_type,
@@ -43,9 +43,9 @@ INSERT INTO master_template_definition (
     'REGULATORY',
     'CREDIT_CARDS',
     'en',
-    B'1'::bit(1),
-    B'1'::bit(1),
-    B'1'::bit(1),
+    true,
+    true,
+    true,
     'CUSTOM_RULES',
     1609459200000,
     2051222400000,
@@ -136,7 +136,7 @@ INSERT INTO master_template_definition (
 -- ========================================
 
 -- Document 1: Terms & Conditions for disclosure code D164
-INSERT INTO storage_index (
+INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
     template_version,
@@ -177,7 +177,7 @@ INSERT INTO storage_index (
 );
 
 -- Document 2: Terms & Conditions for disclosure code D165
-INSERT INTO storage_index (
+INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
     template_version,
@@ -218,7 +218,7 @@ INSERT INTO storage_index (
 );
 
 -- Document 3: Terms & Conditions for disclosure code D166 (Premium cards)
-INSERT INTO storage_index (
+INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
     template_version,

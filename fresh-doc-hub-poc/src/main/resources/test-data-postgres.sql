@@ -3,9 +3,6 @@
 -- PostgreSQL Version
 -- ========================================
 
--- Clean up existing data
-DELETE FROM storage_index;
-DELETE FROM master_template_definition;
 
 -- ========================================
 -- TEST SCENARIO 1: Simple 3-Step Chain
@@ -13,7 +10,7 @@ DELETE FROM master_template_definition;
 -- Chain: Account → Product → Disclosure
 -- ========================================
 
-INSERT INTO master_template_definition (
+INSERT INTO document_hub.master_template_definition (
     master_template_id,
     template_version,
     legacy_template_id,
@@ -50,10 +47,10 @@ INSERT INTO master_template_definition (
     'en',
     'OPERATIONS',
     false,
-    B'1'::bit(1),
+    true,
     false,
     true,
-    B'0'::bit(1),
+    false,
     null,
     1609459200000, -- 2021-01-01
     2051222400000, -- 2035-01-01
@@ -164,7 +161,7 @@ INSERT INTO master_template_definition (
 -- Chain: Account + Customer (parallel) → Product + Region (parallel) → Disclosure (merge)
 -- ========================================
 
-INSERT INTO master_template_definition (
+INSERT INTO document_hub.master_template_definition (
     master_template_id,
     template_version,
     template_type,
@@ -193,9 +190,9 @@ INSERT INTO master_template_definition (
     'REGULATORY',
     'COMPLIANCE',
     'en',
-    B'1'::bit(1),
     true,
-    B'1'::bit(1),
+    true,
+    true,
     1609459200000,
     2051222400000,
     'system',
@@ -300,7 +297,7 @@ INSERT INTO master_template_definition (
 -- Chain: Account → Branch → Region → Compliance → Documents
 -- ========================================
 
-INSERT INTO master_template_definition (
+INSERT INTO document_hub.master_template_definition (
     master_template_id,
     template_version,
     template_type,
@@ -322,8 +319,8 @@ INSERT INTO master_template_definition (
     'Branch Specific Document',
     'Branch Document',
     'Document specific to branch compliance rules',
-    B'1'::bit(1),
-    B'1'::bit(1),
+    true,
+    true,
     1609459200000,
     2051222400000,
     'system',
@@ -412,7 +409,7 @@ INSERT INTO master_template_definition (
 -- ========================================
 
 -- Documents for ACCOUNT_STATEMENT template
-INSERT INTO storage_index (
+INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
     template_version,
@@ -474,7 +471,7 @@ INSERT INTO storage_index (
 );
 
 -- Documents for REGULATORY_DISCLOSURE template (shared)
-INSERT INTO storage_index (
+INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
     template_version,
@@ -516,7 +513,7 @@ INSERT INTO storage_index (
 );
 
 -- Documents for BRANCH_SPECIFIC_DOCUMENT template (shared)
-INSERT INTO storage_index (
+INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
     template_version,
@@ -561,23 +558,32 @@ INSERT INTO storage_index (
 -- VERIFICATION QUERIES
 -- ========================================
 
--- Verify templates loaded
-SELECT
-    template_type,
-    template_name,
-    active_flag,
-    jsonb_array_length(data_extraction_config->'requiredFields') as required_fields_count
-FROM master_template_definition
-ORDER BY template_type;
-
--- Verify documents loaded
-SELECT
-    template_type,
-    file_name,
-    shared_flag,
-    account_key
-FROM storage_index
-ORDER BY template_type, shared_flag;
+-- ========================================
+-- VERIFICATION QUERIES (for manual testing)
+-- ========================================
+-- Run these queries manually after startup to verify data:
+--
+-- SELECT
+--     template_type,
+--     template_name,
+--     active_flag,
+--     jsonb_array_length(data_extraction_config->'requiredFields') as required_fields_count
+-- FROM document_hub.master_template_definition
+-- ORDER BY template_type;
+--
+-- SELECT
+--     template_type,
+--     file_name,
+--     shared_flag,
+--     account_key
+-- FROM document_hub.storage_index
+-- ORDER BY template_type, shared_flag;
+--
+-- SELECT
+--     template_type,
+--     jsonb_pretty(data_extraction_config) as extraction_config
+-- FROM document_hub.master_template_definition
+-- WHERE template_type = 'ACCOUNT_STATEMENT';
 
 -- ========================================
 -- TEST ACCOUNT AND CUSTOMER IDS
@@ -585,10 +591,3 @@ ORDER BY template_type, shared_flag;
 -- Use these IDs for testing:
 -- Account ID: 550e8400-e29b-41d4-a716-446655440000
 -- Customer ID: 123e4567-e89b-12d3-a456-426614174000
-
--- Test query to verify data_extraction_config
-SELECT
-    template_type,
-    jsonb_pretty(data_extraction_config) as extraction_config
-FROM master_template_definition
-WHERE template_type = 'ACCOUNT_STATEMENT';

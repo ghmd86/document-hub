@@ -15,7 +15,12 @@
       "Bash(psql:*)",
       "Bash(where:*)",
       "Bash(mvn spring-boot:run:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(python transform_all.py:*)",
+      "Bash(git checkout:*)",
+      "Bash(cat:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
