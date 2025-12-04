@@ -403,3 +403,231 @@ INSERT INTO storage_index (
     'system',
     NOW()
 );
+
+-- ====================================================================
+-- Template 6: CREDIT CARD TERMS & CONDITIONS (with Data Extraction)
+-- ====================================================================
+-- This template demonstrates a 2-step data extraction chain:
+-- Step 1: Call arrangements API to get pricingId
+-- Step 2: Use pricingId to call pricing API to get disclosureCode
+-- Step 3: Match documents using disclosureCode as reference_key
+INSERT INTO master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    access_control,
+    start_date,
+    created_by,
+    created_timestamp,
+    data_extraction_config
+) VALUES (
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'Credit Card Terms and Conditions',
+    'Terms and conditions document matched by disclosure code',
+    'Regulatory',
+    'CREDIT_CARD',
+    'CREDIT_CARD_TERMS_CONDITIONS',
+    'EN_US',
+    true,
+    true,
+    'CUSTOM_RULES',
+    '{"eligibilityCriteria": {"operator": "AND", "rules": []}}',
+    1609459200000,
+    'system',
+    NOW(),
+    '{
+      "requiredFields": ["pricingId", "disclosureCode"],
+      "fieldSources": {
+        "pricingId": {
+          "description": "Pricing ID from account arrangements (active PRICING domain)",
+          "sourceApi": "accountArrangementsApi",
+          "extractionPath": "$.content[?(@.domain == \"PRICING\" && @.status == \"ACTIVE\")].domainId",
+          "requiredInputs": ["accountId"],
+          "fieldType": "string",
+          "defaultValue": null
+        },
+        "disclosureCode": {
+          "description": "Disclosure code from pricing service (cardholder agreements TnC code)",
+          "sourceApi": "pricingApi",
+          "extractionPath": "$.cardholderAgreementsTncCode",
+          "requiredInputs": ["pricingId"],
+          "fieldType": "string",
+          "defaultValue": null
+        }
+      },
+      "dataSources": {
+        "accountArrangementsApi": {
+          "description": "Step 1: Get account arrangements to extract pricingId",
+          "endpoint": {
+            "url": "http://localhost:8080/mock-api/creditcard/accounts/${accountId}/arrangements",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}",
+              "X-Request-ID": "${correlationId}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 1800,
+            "keyPattern": "arrangements:${accountId}"
+          },
+          "retry": {
+            "maxAttempts": 3,
+            "delayMs": 100
+          },
+          "providesFields": ["pricingId"]
+        },
+        "pricingApi": {
+          "description": "Step 2: Get pricing data to extract disclosure code",
+          "endpoint": {
+            "url": "http://localhost:8080/mock-api/pricing-service/prices/${pricingId}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "Authorization": "Bearer ${auth.token}",
+              "X-Request-ID": "${correlationId}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 3600,
+            "keyPattern": "pricing:${pricingId}"
+          },
+          "retry": {
+            "maxAttempts": 2,
+            "delayMs": 100
+          },
+          "providesFields": ["disclosureCode"]
+        }
+      },
+      "executionStrategy": {
+        "mode": "auto",
+        "continueOnError": false,
+        "timeout": 15000
+      },
+      "documentMatching": {
+        "matchBy": "reference_key",
+        "referenceKeyField": "disclosureCode",
+        "referenceKeyType": "DISCLOSURE_CODE"
+      }
+    }'
+);
+
+-- ====================================================================
+-- DOCUMENTS for Credit Card Terms & Conditions (Disclosure Code Matching)
+-- ====================================================================
+
+-- Document 7: Terms & Conditions for disclosure code D164
+INSERT INTO storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000007',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CREDIT_CARD_TERMS_CONDITIONS',
+    'D164',
+    'DISCLOSURE_CODE',
+    true,
+    'S3',
+    'b0000000-0000-0000-0000-000000000007',
+    'Credit_Card_Terms_D164_v1.pdf',
+    1704067200000,
+    1,
+    '{"disclosureCode": "D164", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT"}',
+    'system',
+    NOW()
+);
+
+-- Document 8: Terms & Conditions for disclosure code D165
+INSERT INTO storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000008',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CREDIT_CARD_TERMS_CONDITIONS',
+    'D165',
+    'DISCLOSURE_CODE',
+    true,
+    'S3',
+    'b0000000-0000-0000-0000-000000000008',
+    'Credit_Card_Terms_D165_v1.pdf',
+    1704067200000,
+    1,
+    '{"disclosureCode": "D165", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT"}',
+    'system',
+    NOW()
+);
+
+-- Document 9: Terms & Conditions for disclosure code D166 (Premium cards)
+INSERT INTO storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000009',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CREDIT_CARD_TERMS_CONDITIONS',
+    'D166',
+    'DISCLOSURE_CODE',
+    true,
+    'S3',
+    'b0000000-0000-0000-0000-000000000009',
+    'Premium_Credit_Card_Terms_D166_v1.pdf',
+    1704067200000,
+    1,
+    '{"disclosureCode": "D166", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT", "cardTier": "PREMIUM"}',
+    'system',
+    NOW()
+);
