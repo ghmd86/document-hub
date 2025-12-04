@@ -164,7 +164,7 @@ public class DocumentEnquiryService {
     ) {
         log.debug("Processing template: {} (shared={})",
             template.getTemplateType(),
-            template.getIsSharedDocument());
+            template.getSharedDocumentFlag());
 
         // Determine if we can access this template
         boolean canAccess = canAccessTemplate(template, accountMetadata, requestContext);
@@ -188,7 +188,7 @@ public class DocumentEnquiryService {
         Map<String, Object> requestContext
     ) {
         // Non-shared templates are always accessible if queried by account
-        if (Boolean.FALSE.equals(template.getIsSharedDocument())) {
+        if (Boolean.FALSE.equals(template.getSharedDocumentFlag())) {
             return true;
         }
 
@@ -247,7 +247,7 @@ public class DocumentEnquiryService {
         UUID accountId,
         AccountMetadata accountMetadata
     ) {
-        if (Boolean.TRUE.equals(template.getIsSharedDocument())) {
+        if (Boolean.TRUE.equals(template.getSharedDocumentFlag())) {
             // Query shared documents
             return storageRepository.findSharedDocuments(
                 template.getTemplateType(),
