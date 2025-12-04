@@ -20,7 +20,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
      */
     @Query("SELECT * FROM storage_index " +
            "WHERE account_key = :accountKey " +
-           "AND is_shared = false " +
+           "AND shared_flag = false " +
            "AND template_type = :templateType " +
            "AND \"template_version \" = :templateVersion")
     Flux<StorageIndexEntity> findAccountSpecificDocuments(
@@ -33,7 +33,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
      * Find shared documents by template
      */
     @Query("SELECT * FROM storage_index " +
-           "WHERE is_shared = true " +
+           "WHERE shared_flag = true " +
            "AND template_type = :templateType " +
            "AND \"template_version \" = :templateVersion")
     Flux<StorageIndexEntity> findSharedDocuments(

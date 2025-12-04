@@ -18,7 +18,7 @@ public interface MasterTemplateRepository extends R2dbcRepository<MasterTemplate
      * Find all active templates within date range
      */
     @Query("SELECT * FROM master_template_definition " +
-           "WHERE is_active = true " +
+           "WHERE active_flag = true " +
            "AND (start_date IS NULL OR start_date <= :currentDate) " +
            "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<MasterTemplateDefinitionEntity> findActiveTemplates(Long currentDate);
@@ -32,7 +32,7 @@ public interface MasterTemplateRepository extends R2dbcRepository<MasterTemplate
      * Find shared templates
      */
     @Query("SELECT * FROM master_template_definition " +
-           "WHERE is_active = true " +
+           "WHERE active_flag = true " +
            "AND is_shared_document = true " +
            "AND (start_date IS NULL OR start_date <= :currentDate) " +
            "AND (end_date IS NULL OR end_date >= :currentDate)")
