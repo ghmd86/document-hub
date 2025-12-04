@@ -52,16 +52,16 @@ public class DatabaseConfig {
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
 
-        // Detect database type and load appropriate scripts
-        if (r2dbcUrl.contains("postgresql")) {
-            System.out.println("=== Detected PostgreSQL - Loading PostgreSQL scripts ===");
-            populator.addScript(new ClassPathResource("schema-postgres.sql"));
-            populator.addScript(new ClassPathResource("test-data-postgres.sql"));
-        } else {
-            System.out.println("=== Detected H2 - Loading H2 scripts ===");
-            populator.addScript(new ClassPathResource("schema.sql"));
-            populator.addScript(new ClassPathResource("data.sql"));
-        }
+//        // Detect database type and load appropriate scripts
+//        if (r2dbcUrl.contains("postgresql")) {
+//            System.out.println("=== Detected PostgreSQL - Loading PostgreSQL scripts ===");
+//            populator.addScript(new ClassPathResource("schema-postgres.sql"));
+//            populator.addScript(new ClassPathResource("test-data-postgres.sql"));
+//        } else {
+//            System.out.println("=== Detected H2 - Loading H2 scripts ===");
+//            populator.addScript(new ClassPathResource("schema.sql"));
+//            populator.addScript(new ClassPathResource("data.sql"));
+//        }
 
         initializer.setDatabasePopulator(populator);
 

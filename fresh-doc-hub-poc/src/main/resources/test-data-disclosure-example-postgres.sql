@@ -36,8 +36,8 @@ INSERT INTO document_hub.master_template_definition (
 ) VALUES (
     '44444444-4444-4444-4444-444444444444'::uuid,
     1,
-    'CREDIT_CARD_TERMS_CONDITIONS',
-    'Credit Card Terms and Conditions',
+    'CardholderAgreement',
+    'Card holder Agreement',
     'Credit Card T&C',
     'Terms and conditions document matched by disclosure code',
     'REGULATORY',

@@ -12,10 +12,10 @@ DELETE FROM master_template_definition;
 -- Chain: Account → Product → Disclosure
 -- ========================================
 
-INSERT INTO master_template_definition (
+
+INSERT INTO document_hub.master_template_definition (
     master_template_id,
     template_version,
-    legacy_template_id,
     template_type,
     template_name,
     display_name,
@@ -23,11 +23,8 @@ INSERT INTO master_template_definition (
     template_category,
     line_of_business,
     language_code,
-    owning_dept,
-    notification_needed,
     active_flag,
     regulatory_flag,
-    message_center_doc_flag,
     shared_document_flag,
     sharing_scope,
     start_date,
@@ -37,124 +34,101 @@ INSERT INTO master_template_definition (
     record_status,
     data_extraction_config
 ) VALUES (
-    '11111111-1111-1111-1111-111111111111',
+    '44444444-4444-4444-4444-444444444444'::uuid,
     1,
-    'TMPL-001',
-    'ACCOUNT_STATEMENT',
-    'Monthly Account Statement',
-    'Account Statement',
-    'Monthly statement showing account activity',
-    'STATEMENTS',
-    'RETAIL_BANKING',
+    'CardholderAgreement',
+    'Card holder Agreement',
+    'Credit Card T&C',
+    'Terms and conditions document matched by disclosure code',
+    'REGULATORY',
+    'CREDIT_CARDS',
     'en',
-    'OPERATIONS',
-    false,
     B'1'::bit(1),
-    false,
     true,
-    B'0'::bit(1),
-    null,
-    1609459200000, -- 2021-01-01
-    2051222400000, -- 2035-01-01
+    B'1'::bit(1),
+    'CUSTOM_RULES',
+    1609459200000,
+    2051222400000,
     'system',
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["productCode", "productCategory", "disclosureRequirements"],
+      "requiredFields": ["pricingId", "disclosureCode"],
       "fieldSources": {
-        "productCode": {
-          "description": "Product code from account",
-          "sourceApi": "accountDetailsApi",
-          "extractionPath": "$.account.productCode",
+        "pricingId": {
+          "description": "Pricing ID from account arrangements (active PRICING domain)",
+          "sourceApi": "accountArrangementsApi",
+          "extractionPath": "$.content[?(@.domain == \"PRICING\" && @.status == \"ACTIVE\")].domainId",
           "requiredInputs": ["accountId"],
           "fieldType": "string",
-          "defaultValue": "STANDARD"
+          "defaultValue": null
         },
-        "productCategory": {
-          "description": "Product category from product catalog",
-          "sourceApi": "productCatalogApi",
-          "extractionPath": "$.product.category",
-          "requiredInputs": ["productCode"],
+        "disclosureCode": {
+          "description": "Disclosure code from pricing service (cardholder agreements TnC code)",
+          "sourceApi": "pricingApi",
+          "extractionPath": "$.cardholderAgreementsTncCode",
+          "requiredInputs": ["pricingId"],
           "fieldType": "string",
-          "defaultValue": "GENERAL"
-        },
-        "disclosureRequirements": {
-          "description": "Required disclosures for product category",
-          "sourceApi": "regulatoryApi",
-          "extractionPath": "$.rules.disclosures",
-          "requiredInputs": ["productCategory"],
-          "fieldType": "array",
-          "defaultValue": []
+          "defaultValue": null
         }
       },
       "dataSources": {
-        "accountDetailsApi": {
-          "description": "Get account details including product code",
+        "accountArrangementsApi": {
+          "description": "Step 1: Get account arrangements to extract pricingId",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/accounts/${accountId}/details",
+            "url": "http://localhost:8080/mock-api/creditcard/accounts/${accountId}/arrangements",
             "method": "GET",
             "timeout": 5000,
             "headers": {
-              "Authorization": "Bearer ${auth.token}"
+              "Authorization": "Bearer ${auth.token}",
+              "X-Request-ID": "${correlationId}"
             }
           },
           "cache": {
             "enabled": true,
-            "ttlSeconds": 3600
+            "ttlSeconds": 1800,
+            "keyPattern": "arrangements:${accountId}"
           },
           "retry": {
-            "maxAttempts": 2,
-            "delayMs": 1000
+            "maxAttempts": 3,
+            "delayMs": 100
           },
-          "providesFields": ["productCode"]
+          "providesFields": ["pricingId"]
         },
-        "productCatalogApi": {
-          "description": "Get product details from product code",
+        "pricingApi": {
+          "description": "Step 2: Get pricing data to extract disclosure code",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/products/${productCode}",
+            "url": "http://localhost:8080/mock-api/pricing-service/prices/${pricingId}",
             "method": "GET",
             "timeout": 5000,
             "headers": {
-              "Authorization": "Bearer ${auth.token}"
+              "Authorization": "Bearer ${auth.token}",
+              "X-Request-ID": "${correlationId}"
             }
           },
           "cache": {
             "enabled": true,
-            "ttlSeconds": 86400
+            "ttlSeconds": 3600,
+            "keyPattern": "pricing:${pricingId}"
           },
           "retry": {
             "maxAttempts": 2,
-            "delayMs": 1000
+            "delayMs": 100
           },
-          "providesFields": ["productCategory"]
-        },
-        "regulatoryApi": {
-          "description": "Get regulatory requirements for product category",
-          "endpoint": {
-            "url": "http://localhost:8080/mock-api/regulatory/requirements?category=${productCategory}",
-            "method": "GET",
-            "timeout": 5000,
-            "headers": {
-              "Authorization": "Bearer ${auth.token}"
-            }
-          },
-          "cache": {
-            "enabled": true,
-            "ttlSeconds": 7200
-          },
-          "retry": {
-            "maxAttempts": 2,
-            "delayMs": 1000
-          },
-          "providesFields": ["disclosureRequirements"]
+          "providesFields": ["disclosureCode"]
         }
       },
       "executionStrategy": {
         "mode": "auto",
         "continueOnError": false,
-        "timeout": 20000
+        "timeout": 15000
+      },
+      "documentMatching": {
+        "matchBy": "reference_key",
+        "referenceKeyField": "disclosureCode",
+        "referenceKeyType": "DISCLOSURE_CODE"
       }
-    }'
+    }'::jsonb
 );
 
 -- ========================================
