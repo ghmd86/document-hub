@@ -23,14 +23,15 @@ INSERT INTO master_template_definition (
     template_category,
     line_of_business,
     language_code,
-    is_active,
-    is_regulatory,
-    is_shared_document,
+    active_flag,
+    regulatory_flag,
+    shared_document_flag,
     sharing_scope,
     start_date,
     end_date,
     created_by,
     created_timestamp,
+    record_status,
     data_extraction_config
 ) VALUES (
     '44444444-4444-4444-4444-444444444444'::uuid,
@@ -42,14 +43,15 @@ INSERT INTO master_template_definition (
     'REGULATORY',
     'CREDIT_CARDS',
     'en',
-    true,
-    true,
-    true,
+    B'1'::bit(1),
+    B'1'::bit(1),
+    B'1'::bit(1),
     'CUSTOM_RULES',
     1609459200000,
     2051222400000,
     'system',
     CURRENT_TIMESTAMP,
+    '1',
     '{
       "requiredFields": ["pricingId", "disclosureCode"],
       "fieldSources": {
@@ -141,17 +143,18 @@ INSERT INTO storage_index (
     template_type,
     reference_key,
     reference_key_type,
-    is_shared,
+    shared_flag,
     account_key,
     customer_key,
     storage_vendor,
     storage_document_key,
     file_name,
     doc_creation_date,
-    is_accessible,
+    accessible_flag,
     doc_metadata,
     created_by,
-    created_timestamp
+    created_timestamp,
+    record_status
 ) VALUES (
     '44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
@@ -166,10 +169,11 @@ INSERT INTO storage_index (
     '44444444-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid,
     'Credit_Card_Terms_D164_v1.pdf',
     1704067200000,
-    1,
+    true,
     '{"disclosureCode": "D164", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT"}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 );
 
 -- Document 2: Terms & Conditions for disclosure code D165
@@ -180,17 +184,18 @@ INSERT INTO storage_index (
     template_type,
     reference_key,
     reference_key_type,
-    is_shared,
+    shared_flag,
     account_key,
     customer_key,
     storage_vendor,
     storage_document_key,
     file_name,
     doc_creation_date,
-    is_accessible,
+    accessible_flag,
     doc_metadata,
     created_by,
-    created_timestamp
+    created_timestamp,
+    record_status
 ) VALUES (
     '44444444-aaaa-aaaa-aaaa-bbbbbbbbbbbb'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
@@ -205,10 +210,11 @@ INSERT INTO storage_index (
     '44444444-cccc-cccc-cccc-cccccccccccc'::uuid,
     'Credit_Card_Terms_D165_v1.pdf',
     1704067200000,
-    1,
+    true,
     '{"disclosureCode": "D165", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT"}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 );
 
 -- Document 3: Terms & Conditions for disclosure code D166 (Premium cards)
@@ -219,17 +225,18 @@ INSERT INTO storage_index (
     template_type,
     reference_key,
     reference_key_type,
-    is_shared,
+    shared_flag,
     account_key,
     customer_key,
     storage_vendor,
     storage_document_key,
     file_name,
     doc_creation_date,
-    is_accessible,
+    accessible_flag,
     doc_metadata,
     created_by,
-    created_timestamp
+    created_timestamp,
+    record_status
 ) VALUES (
     '44444444-aaaa-aaaa-aaaa-cccccccccccc'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
@@ -244,10 +251,11 @@ INSERT INTO storage_index (
     '44444444-dddd-dddd-dddd-dddddddddddd'::uuid,
     'Premium_Credit_Card_Terms_D166_v1.pdf',
     1704067200000,
-    1,
+    true,
     '{"disclosureCode": "D166", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT", "cardTier": "PREMIUM"}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 );
 
 -- ========================================
@@ -258,7 +266,7 @@ INSERT INTO storage_index (
 SELECT
     template_type,
     template_name,
-    is_shared_document,
+    shared_document_flag,
     sharing_scope,
     jsonb_array_length(data_extraction_config->'requiredFields') as required_fields_count
 FROM master_template_definition
@@ -270,7 +278,7 @@ SELECT
     reference_key as disclosure_code,
     reference_key_type,
     file_name,
-    is_shared,
+    shared_flag,
     doc_metadata->>'cardTier' as card_tier
 FROM storage_index
 WHERE template_type = 'CREDIT_CARD_TERMS_CONDITIONS'

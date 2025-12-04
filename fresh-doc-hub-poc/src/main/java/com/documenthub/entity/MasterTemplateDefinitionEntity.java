@@ -14,7 +14,7 @@ import java.util.UUID;
 
 /**
  * Entity representing master template definition
- * Maps to master_template_definition table
+ * Maps to document_hub.master_template_definition table
  */
 @Data
 @Builder
@@ -36,20 +36,20 @@ public class MasterTemplateDefinitionEntity {
     @Column("legacy_template_name")
     private String legacyTemplateName;
 
-    @Column("display_name")
-    private String displayName;
-
     @Column("template_name")
     private String templateName;
 
     @Column("template_description")
     private String templateDescription;
 
+    @Column("line_of_business")
+    private String lineOfBusiness;
+
     @Column("template_category")
     private String templateCategory;
 
-    @Column("line_of_business")
-    private String lineOfBusiness;
+    @Column("template_type_old")
+    private String templateTypeOld;
 
     @Column("template_type")
     private String templateType;
@@ -63,29 +63,35 @@ public class MasterTemplateDefinitionEntity {
     @Column("notification_needed")
     private Boolean notificationNeeded;
 
-    @Column("is_active")
-    private Boolean isActive;
+    @Column("regulatory_flag")
+    private Boolean regulatoryFlag;
 
-    @Column("is_regulatory")
-    private Boolean isRegulatory;
+    @Column("message_center_doc_flag")
+    private Boolean messageCenterDocFlag;
 
-    @Column("is_message_center_doc")
-    private Boolean isMessageCenterDoc;
+    @Column("display_name")
+    private String displayName;
 
-    @Column("is_shared_document")
-    private Boolean isSharedDocument;
+    @Column("active_flag")
+    private Boolean activeFlag;
+
+    @Column("shared_document_flag")
+    private Boolean sharedDocumentFlag;
 
     @Column("sharing_scope")
     private String sharingScope;
+
+    @Column("document_channel_old")
+    private JsonNode documentChannelOld;
+
+    @Column("template_variables")
+    private JsonNode templateVariables;
 
     @Column("data_extraction_config")
     private JsonNode dataExtractionConfig;
 
     @Column("access_control")
     private JsonNode accessControl;
-
-    @Column("channels")
-    private JsonNode channels;
 
     @Column("required_fields")
     private JsonNode requiredFields;
@@ -105,8 +111,8 @@ public class MasterTemplateDefinitionEntity {
     @Column("created_timestamp")
     private LocalDateTime createdTimestamp;
 
-    @Column("update_by")
-    private String updateBy;
+    @Column("updated_by")
+    private String updatedBy;
 
     @Column("updated_timestamp")
     private LocalDateTime updatedTimestamp;
@@ -121,5 +127,5 @@ public class MasterTemplateDefinitionEntity {
     private Long versionNumber;
 
     @Column("record_status")
-    private Long recordStatus;
+    private String recordStatus;
 }

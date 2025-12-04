@@ -26,15 +26,16 @@ INSERT INTO master_template_definition (
     language_code,
     owning_dept,
     notification_needed,
-    is_active,
-    is_regulatory,
-    is_message_center_doc,
-    is_shared_document,
+    active_flag,
+    regulatory_flag,
+    message_center_doc_flag,
+    shared_document_flag,
     sharing_scope,
     start_date,
     end_date,
     created_by,
     created_timestamp,
+    record_status,
     data_extraction_config
 ) VALUES (
     '11111111-1111-1111-1111-111111111111'::uuid,
@@ -49,15 +50,16 @@ INSERT INTO master_template_definition (
     'en',
     'OPERATIONS',
     false,
-    true,
+    B'1'::bit(1),
     false,
     true,
-    false,
+    B'0'::bit(1),
     null,
     1609459200000, -- 2021-01-01
     2051222400000, -- 2035-01-01
     'system',
     CURRENT_TIMESTAMP,
+    '1',
     '{
       "requiredFields": ["productCode", "productCategory", "disclosureRequirements"],
       "fieldSources": {
@@ -172,13 +174,14 @@ INSERT INTO master_template_definition (
     template_category,
     line_of_business,
     language_code,
-    is_active,
-    is_regulatory,
-    is_shared_document,
+    active_flag,
+    regulatory_flag,
+    shared_document_flag,
     start_date,
     end_date,
     created_by,
     created_timestamp,
+    record_status,
     data_extraction_config
 ) VALUES (
     '22222222-2222-2222-2222-222222222222'::uuid,
@@ -190,13 +193,14 @@ INSERT INTO master_template_definition (
     'REGULATORY',
     'COMPLIANCE',
     'en',
+    B'1'::bit(1),
     true,
-    true,
-    true,
+    B'1'::bit(1),
     1609459200000,
     2051222400000,
     'system',
     CURRENT_TIMESTAMP,
+    '1',
     '{
       "requiredFields": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "finalDisclosures"],
       "fieldSources": {
@@ -303,12 +307,13 @@ INSERT INTO master_template_definition (
     template_name,
     display_name,
     template_description,
-    is_active,
-    is_shared_document,
+    active_flag,
+    shared_document_flag,
     start_date,
     end_date,
     created_by,
     created_timestamp,
+    record_status,
     data_extraction_config
 ) VALUES (
     '33333333-3333-3333-3333-333333333333'::uuid,
@@ -317,12 +322,13 @@ INSERT INTO master_template_definition (
     'Branch Specific Document',
     'Branch Document',
     'Document specific to branch compliance rules',
-    true,
-    true,
+    B'1'::bit(1),
+    B'1'::bit(1),
     1609459200000,
     2051222400000,
     'system',
     CURRENT_TIMESTAMP,
+    '1',
     '{
       "requiredFields": ["branchCode", "regionCode", "complianceRules", "documentList"],
       "fieldSources": {
@@ -413,17 +419,18 @@ INSERT INTO storage_index (
     template_type,
     reference_key,
     reference_key_type,
-    is_shared,
+    shared_flag,
     account_key,
     customer_key,
     storage_vendor,
     storage_document_key,
     file_name,
     doc_creation_date,
-    is_accessible,
+    accessible_flag,
     doc_metadata,
     created_by,
-    created_timestamp
+    created_timestamp,
+    record_status
 ) VALUES
 (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid,
@@ -439,10 +446,11 @@ INSERT INTO storage_index (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid,
     'Statement_January_2024.pdf',
     1704067200000,
-    1,
+    true,
     '{"productCode": "CC-PREMIUM-001", "productCategory": "CREDIT_CARD", "disclosureCode": "D164"}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 ),
 (
     'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb'::uuid,
@@ -458,10 +466,11 @@ INSERT INTO storage_index (
     'cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid,
     'Statement_February_2024.pdf',
     1706745600000,
-    1,
+    true,
     '{"productCode": "CC-PREMIUM-001", "productCategory": "CREDIT_CARD"}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 );
 
 -- Documents for REGULATORY_DISCLOSURE template (shared)
@@ -472,17 +481,18 @@ INSERT INTO storage_index (
     template_type,
     reference_key,
     reference_key_type,
-    is_shared,
+    shared_flag,
     account_key,
     customer_key,
     storage_vendor,
     storage_document_key,
     file_name,
     doc_creation_date,
-    is_accessible,
+    accessible_flag,
     doc_metadata,
     created_by,
-    created_timestamp
+    created_timestamp,
+    record_status
 ) VALUES
 (
     'dddddddd-dddd-dddd-dddd-dddddddddddd'::uuid,
@@ -498,10 +508,11 @@ INSERT INTO storage_index (
     'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid,
     'Credit_Card_Disclosures_2024.pdf',
     1704067200000,
-    1,
+    true,
     '{"productCategory": "CREDIT_CARD", "regulatoryRegion": "US_WEST", "disclosures": ["TILA", "CARD_ACT", "CA_DISCLOSURE"]}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 );
 
 -- Documents for BRANCH_SPECIFIC_DOCUMENT template (shared)
@@ -512,17 +523,18 @@ INSERT INTO storage_index (
     template_type,
     reference_key,
     reference_key_type,
-    is_shared,
+    shared_flag,
     account_key,
     customer_key,
     storage_vendor,
     storage_document_key,
     file_name,
     doc_creation_date,
-    is_accessible,
+    accessible_flag,
     doc_metadata,
     created_by,
-    created_timestamp
+    created_timestamp,
+    record_status
 ) VALUES
 (
     'ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid,
@@ -538,10 +550,11 @@ INSERT INTO storage_index (
     '11111111-2222-3333-4444-555555555555'::uuid,
     'West_Region_Compliance_Guide.pdf',
     1704067200000,
-    1,
+    true,
     '{"branchCode": "BR-555", "regionCode": "WEST", "complianceType": "BANKING"}'::jsonb,
     'system',
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    '1'
 );
 
 -- ========================================
@@ -552,7 +565,7 @@ INSERT INTO storage_index (
 SELECT
     template_type,
     template_name,
-    is_active,
+    active_flag,
     jsonb_array_length(data_extraction_config->'requiredFields') as required_fields_count
 FROM master_template_definition
 ORDER BY template_type;
@@ -561,10 +574,10 @@ ORDER BY template_type;
 SELECT
     template_type,
     file_name,
-    is_shared,
+    shared_flag,
     account_key
 FROM storage_index
-ORDER BY template_type, is_shared;
+ORDER BY template_type, shared_flag;
 
 -- ========================================
 -- TEST ACCOUNT AND CUSTOMER IDS

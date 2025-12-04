@@ -13,19 +13,19 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Entity representing document storage index
- * Maps to document_hub.storage_index table
+ * Entity representing template vendor mapping
+ * Maps to document_hub.template_vendor_mapping table
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("storage_index")
-public class StorageIndexEntity {
+@Table("template_vendor_mapping")
+public class TemplateVendorMappingEntity {
 
     @Id
-    @Column("storage_index_id")
-    private UUID storageIndexId;
+    @Column("template_vendor_id")
+    private UUID templateVendorId;
 
     @Column("master_template_id")
     private UUID masterTemplateId;
@@ -33,44 +33,53 @@ public class StorageIndexEntity {
     @Column("template_version")
     private Integer templateVersion;
 
-    @Column("template_type")
-    private String templateType;
+    @Column("vendor")
+    private String vendor;
 
-    @Column("storage_vendor")
-    private String storageVendor;
+    @Column("vendor_template_key")
+    private String vendorTemplateKey;
 
-    @Column("reference_key")
-    private String referenceKey;
+    @Column("vendor_template_name")
+    private String vendorTemplateName;
 
     @Column("reference_key_type")
     private String referenceKeyType;
 
-    @Column("account_key")
-    private UUID accountKey;
+    @Column("consumer_id")
+    private UUID consumerId;
 
-    @Column("customer_key")
-    private UUID customerKey;
+    @Column("template_content")
+    private byte[] templateContent;
 
-    @Column("storage_document_key")
-    private UUID storageDocumentKey;
+    @Column("start_date")
+    private Long startDate;
 
-    @Column("file_name")
-    private String fileName;
+    @Column("end_date")
+    private Long endDate;
 
-    @Column("doc_creation_date")
-    private Long docCreationDate;
+    @Column("vendor_mapping_version")
+    private Integer vendorMappingVersion;
 
-    @Column("accessible_flag")
-    private Boolean accessibleFlag;
+    @Column("primary_flag")
+    private Boolean primaryFlag;
 
-    @Column("doc_metadata")
-    private JsonNode docMetadata;
+    @Column("active_flag")
+    private Boolean activeFlag;
 
-    @Column("shared_flag")
-    private Boolean sharedFlag;
+    @Column("template_status")
+    private String templateStatus;
 
-    @Column("generation_vendor_id")
-    private UUID generationVendorId;
+    @Column("schema_info")
+    private JsonNode schemaInfo;
+
+    @Column("template_fields")
+    private JsonNode templateFields;
+
+    @Column("vendor_config")
+    private JsonNode vendorConfig;
+
+    @Column("api_config")
+    private JsonNode apiConfig;
 
     @Column("created_by")
     private String createdBy;
