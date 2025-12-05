@@ -36,8 +36,7 @@ public class DatabaseConfig {
     public R2dbcCustomConversions r2dbcCustomConversions() {
         R2dbcDialect dialect = DialectResolver.getDialect(connectionFactory);
         List<Converter<?, ?>> converters = new ArrayList<>();
-        converters.add(new JsonNodeReadingConverter());
-        converters.add(new JsonNodeWritingConverter());
+        // No custom converters needed when using io.r2dbc.postgresql.codec.Json directly
         return R2dbcCustomConversions.of(dialect, converters);
     }
 

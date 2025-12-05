@@ -1,6 +1,6 @@
 package com.documenthub.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -82,22 +82,22 @@ public class MasterTemplateDefinitionEntity {
     private String sharingScope;
 
     @Column("document_channel_old")
-    private JsonNode documentChannelOld;
+    private Json documentChannelOld;
 
     @Column("template_variables")
-    private JsonNode templateVariables;
+    private Json templateVariables;
 
     @Column("data_extraction_config")
-    private JsonNode dataExtractionConfig;
+    private Json dataExtractionConfig;
 
     @Column("access_control")
-    private JsonNode accessControl;
+    private Json accessControl;
 
     @Column("required_fields")
-    private JsonNode requiredFields;
+    private Json requiredFields;
 
     @Column("template_config")
-    private JsonNode templateConfig;
+    private Json templateConfig;
 
     @Column("start_date")
     private Long startDate;
