@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
-            <version>1.0.7.RELEASE</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- PostgreSQL JDBC Driver (for migrations/tools) -->

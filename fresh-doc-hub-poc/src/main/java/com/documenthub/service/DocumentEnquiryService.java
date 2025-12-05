@@ -222,8 +222,8 @@ public class DocumentEnquiryService {
         }
 
         try {
-            AccessControl accessControl = objectMapper.treeToValue(
-                template.getAccessControl(),
+            AccessControl accessControl = objectMapper.readValue(
+                template.getAccessControl().asString(),
                 AccessControl.class
             );
 
