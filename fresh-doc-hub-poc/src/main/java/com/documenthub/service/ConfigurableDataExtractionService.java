@@ -5,6 +5,7 @@ import com.documenthub.model.extraction.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -43,18 +44,21 @@ public class ConfigurableDataExtractionService {
      * @return Map of extracted field values
      */
     public Mono<Map<String, Object>> extractData(
-        JsonNode dataExtractionConfigJson,
+        Json dataExtractionConfigJson,
         DocumentListRequest request
     ) {
-        if (dataExtractionConfigJson == null || dataExtractionConfigJson.isNull()) {
+        if (dataExtractionConfigJson == null) {
             log.debug("No data extraction config provided");
             return Mono.just(Collections.emptyMap());
         }
 
         try {
+            // Convert PostgreSQL Json to JsonNode
+            JsonNode configNode = objectMapper.readTree(dataExtractionConfigJson.asString());
+
             // Parse JSON config to Java objects
             DataExtractionConfig config = objectMapper.treeToValue(
-                dataExtractionConfigJson,
+                configNode,
                 DataExtractionConfig.class
             );
 
