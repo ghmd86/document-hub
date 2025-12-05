@@ -33,6 +33,7 @@ A complete, functional POC for a document retrieval system with dynamic rule-bas
 - ✅ `AccountMetadataService` - Mock account data provider
 - ✅ `RuleEvaluationService` - Dynamic rule evaluation engine
 - ✅ `DocumentEnquiryService` - Main business logic orchestrator
+- ✅ `ConfigurableDataExtractionService` - Dynamic API data extraction for CUSTOM_RULES templates
 
 #### Controller (REST API)
 - ✅ `DocumentEnquiryController` - POST `/documents-enquiry` endpoint
@@ -70,6 +71,22 @@ A complete, functional POC for a document retrieval system with dynamic rule-bas
 - Complex rule evaluation using JSON-defined criteria
 - Supports multiple conditions with AND/OR logic
 - **Example**: VIP offers (VIP segment + US_WEST region)
+
+#### 5. Dynamic Data Extraction (CUSTOM_RULES Templates)
+- Templates with `sharing_scope = "CUSTOM_RULES"` can include `data_extraction_config` (JSONB)
+- Configurable data extraction from external APIs before rule evaluation
+- Extracted data is merged into the request context for rule evaluation
+- Supports JSONPath expressions for extracting specific fields from API responses
+- **Example**: Extract disclosure code from external API, then check if it matches document metadata
+
+**Data Extraction Flow:**
+1. Template with CUSTOM_RULES is identified
+2. `data_extraction_config` defines API endpoint, method, headers, and field mappings
+3. Service makes external API call (GET/POST)
+4. JSONPath expressions extract specific values from API response
+5. Extracted fields are added to request context
+6. Access control rules are evaluated with enhanced context
+7. Documents are returned only if rules pass
 
 ### Rule Evaluation Engine
 
@@ -181,6 +198,48 @@ A complete, functional POC for a document retrieval system with dynamic rule-bas
 }
 ```
 
+### Example 4: Data Extraction Configuration (CUSTOM_RULES)
+```json
+{
+  "data_extraction_config": {
+    "apiEndpoint": "https://api.example.com/card-details",
+    "method": "GET",
+    "headers": {
+      "Authorization": "Bearer ${token}",
+      "Content-Type": "application/json"
+    },
+    "fieldMappings": [
+      {
+        "sourcePath": "$.data.disclosureCode",
+        "targetField": "disclosureCode"
+      },
+      {
+        "sourcePath": "$.data.cardType",
+        "targetField": "cardType"
+      }
+    ]
+  },
+  "access_control": {
+    "eligibilityCriteria": {
+      "operator": "AND",
+      "rules": [
+        {
+          "field": "disclosureCode",
+          "operator": "EQUALS",
+          "value": "D164"
+        }
+      ]
+    }
+  }
+}
+```
+
+This configuration:
+1. Calls external API to get card details
+2. Extracts `disclosureCode` from API response using JSONPath
+3. Uses extracted `disclosureCode` in access control rule
+4. Only shows document if disclosureCode matches "D164"
+
 ## 🚀 How to Run
 
 ```bash
@@ -195,15 +254,28 @@ mvn clean install
 # 3. Run
 mvn spring-boot:run
 
-# 4. Test
+# 4. Test (with required headers)
 curl -X POST http://localhost:8080/api/v1/documents-enquiry \
   -H "Content-Type: application/json" \
   -H "X-version: 1" \
   -H "X-correlation-id: test-123" \
-  -H "X-requestor-id: $(uuidgen)" \
+  -H "X-requestor-id: 550e8400-e29b-41d4-a716-446655440002" \
   -H "X-requestor-type: CUSTOMER" \
   -d '{"customerId": "cccc0000-0000-0000-0000-000000000001", "accountId": ["aaaa0000-0000-0000-0000-000000000001"]}'
 ```
+
+### Required HTTP Headers
+All API requests must include these headers:
+- **X-version**: API version (Integer, e.g., `1`)
+- **X-correlation-id**: Correlation ID for request tracing (String, e.g., `test-123`)
+- **X-requestor-id**: UUID of the requestor (UUID, e.g., `550e8400-e29b-41d4-a716-446655440002`)
+- **X-requestor-type**: Type of requestor (Enum: `CUSTOMER`, `AGENT`, `SYSTEM`)
+
+### Testing with Postman
+A Postman collection is included: `Document_Hub_POC.postman_collection.json`
+- Import the collection into Postman
+- Two pre-configured scenarios included with all required headers
+- Endpoints configured to use `http://localhost:8080/api/v1/documents-enquiry`
 
 ## 📈 Test Scenarios & Expected Results
 
@@ -252,6 +324,27 @@ curl -X POST http://localhost:8080/api/v1/documents-enquiry \
 - **Rule Engine**: Easy to add new operators and field types
 - **Account Metadata**: Swappable with real API integration
 - **Access Control**: JSON-based, no code changes for new rules
+
+## 🔧 Technical Notes & Fixes
+
+### PostgreSQL BIT/BOOLEAN Type Compatibility
+**Issue**: PostgreSQL database columns `active_flag` and `shared_document_flag` are defined as BIT(1) type, but Java entities use `Boolean` type. This caused query errors:
+```
+operator does not exist: boolean = bit
+```
+
+**Solution**: Use PostgreSQL type casting in SQL queries to cast BIT columns to BOOLEAN before comparison:
+```java
+@Query("SELECT * FROM document_hub.master_template_definition " +
+       "WHERE active_flag::boolean = true " +
+       "AND (start_date IS NULL OR start_date <= :currentDate) " +
+       "AND (end_date IS NULL OR end_date >= :currentDate)")
+Flux<MasterTemplateDefinitionEntity> findActiveTemplates(Long currentDate);
+```
+
+**Pattern**: `column_name::boolean = true` - Applies to all BIT columns in queries
+
+**Location**: `MasterTemplateRepository.java:20-24, 34-39`
 
 ## 🎓 Key Learnings & Design Decisions
 
@@ -352,6 +445,10 @@ curl -X POST http://localhost:8080/api/v1/documents-enquiry \
 5. ✅ Pagination implemented
 6. ✅ Configurable via JSON (no code changes)
 7. ✅ Clean architecture, easy to extend
+8. ✅ Dynamic data extraction from external APIs (ConfigurableDataExtractionService)
+9. ✅ PostgreSQL BIT/BOOLEAN compatibility resolved
+10. ✅ Required HTTP headers validation implemented
+11. ✅ Postman collection for API testing included
 
 ## 👥 For Non-Technical Users
 
@@ -405,5 +502,29 @@ curl -X POST http://localhost:8080/api/v1/documents-enquiry \
 ---
 
 **Implementation Date**: December 2, 2025
+**Last Updated**: December 4, 2025
 **Technology Stack**: Java 17, Spring Boot 2.7.18, WebFlux, R2DBC, PostgreSQL
 **Status**: ✅ POC Complete and Functional
+
+## Recent Updates (December 4, 2025)
+
+1. **PostgreSQL BIT/BOOLEAN Compatibility Fix**
+   - Fixed type mismatch in repository queries
+   - Applied `::boolean` casting to BIT columns in SQL queries
+   - File: `MasterTemplateRepository.java`
+
+2. **ConfigurableDataExtractionService Integration**
+   - Added dynamic data extraction from external APIs for CUSTOM_RULES templates
+   - Supports JSONPath field extraction and mapping
+   - Integrated into DocumentEnquiryService with comprehensive logging
+
+3. **API Testing Enhancements**
+   - Documented required HTTP headers (X-version, X-correlation-id, X-requestor-id, X-requestor-type)
+   - Updated Postman collection with correct endpoint URL and all required headers
+   - Two test scenarios pre-configured
+
+4. **Documentation Updates**
+   - Added data extraction configuration examples
+   - Added technical notes section for BIT/BOOLEAN compatibility
+   - Updated testing instructions with required headers
+   - Added Postman collection reference

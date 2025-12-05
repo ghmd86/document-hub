@@ -17,6 +17,26 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1",
+								"description": "API version"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-correlation-{{$randomUUID}}",
+								"description": "Correlation ID for request tracing"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "550e8400-e29b-41d4-a716-446655440002",
+								"description": "ID of the requestor"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER",
+								"description": "Type of requestor (CUSTOMER, AGENT, SYSTEM)"
 							}
 						],
 						"body": {
@@ -24,13 +44,15 @@
 							"raw": "{\n  \"accountId\": [\"550e8400-e29b-41d4-a716-446655440000\"],\n  \"customerId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/documents-enquiry",
+							"raw": "http://localhost:8080/api/v1/documents-enquiry",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"api",
+								"v1",
 								"documents-enquiry"
 							]
 						},
@@ -46,6 +68,26 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1",
+								"description": "API version"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-correlation-{{$randomUUID}}",
+								"description": "Correlation ID for request tracing"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "550e8400-e29b-41d4-a716-446655440002",
+								"description": "ID of the requestor"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER",
+								"description": "Type of requestor (CUSTOMER, AGENT, SYSTEM)"
 							}
 						],
 						"body": {
@@ -53,13 +95,15 @@
 							"raw": "{\n  \"accountId\": [\"770e8400-e29b-41d4-a716-446655440002\"],\n  \"customerId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/documents-enquiry",
+							"raw": "http://localhost:8080/api/v1/documents-enquiry",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"api",
+								"v1",
 								"documents-enquiry"
 							]
 						},
