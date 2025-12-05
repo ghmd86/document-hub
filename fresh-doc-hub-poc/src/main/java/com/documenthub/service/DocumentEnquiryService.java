@@ -146,7 +146,8 @@ public class DocumentEnquiryService {
                         template,
                         accountId,
                         accountMetadata,
-                        requestContext
+                        requestContext,
+                        request
                     ))
                     .collectList()
                     .map(documentLists -> documentLists.stream()
@@ -163,23 +164,61 @@ public class DocumentEnquiryService {
         MasterTemplateDefinitionEntity template,
         UUID accountId,
         AccountMetadata accountMetadata,
-        Map<String, Object> requestContext
+        Map<String, Object> requestContext,
+        DocumentListRequest request
     ) {
-        log.debug("Processing template: {} (shared={})",
+        log.debug("Processing template: {} (shared={}, sharingScope={})",
             template.getTemplateType(),
-            template.getSharedDocumentFlag());
+            template.getSharedDocumentFlag(),
+            template.getSharingScope());
 
-        // Determine if we can access this template
-        boolean canAccess = canAccessTemplate(template, accountMetadata, requestContext);
+        // For CUSTOM_RULES sharing scope, extract data first
+        if (Boolean.TRUE.equals(template.getSharedDocumentFlag()) &&
+            "CUSTOM_RULES".equalsIgnoreCase(template.getSharingScope()) &&
+            template.getDataExtractionConfig() != null) {
 
-        if (!canAccess) {
-            log.debug("Template {} not accessible, skipping", template.getTemplateType());
-            return Mono.just(Collections.emptyList());
+            log.info("Template {} uses CUSTOM_RULES - extracting additional data", template.getTemplateType());
+
+            return dataExtractionService.extractData(template.getDataExtractionConfig(), request)
+                .flatMap(extractedData -> {
+                    log.info("Data extraction completed for template {} - {} fields extracted",
+                        template.getTemplateType(), extractedData.size());
+
+                    // Merge extracted data into request context
+                    Map<String, Object> enhancedContext = new HashMap<>(requestContext);
+                    enhancedContext.putAll(extractedData);
+
+                    // Determine if we can access this template with enhanced context
+                    boolean canAccess = canAccessTemplate(template, accountMetadata, enhancedContext);
+
+                    if (!canAccess) {
+                        log.debug("Template {} not accessible after data extraction, skipping",
+                            template.getTemplateType());
+                        return Mono.just(Collections.<DocumentDetailsNode>emptyList());
+                    }
+
+                    // Query documents
+                    return queryDocuments(template, accountId, accountMetadata)
+                        .map(docs -> convertToDocumentDetailsNodes(docs, template));
+                })
+                .onErrorResume(e -> {
+                    log.error("Data extraction failed for template {}: {} - Skipping template",
+                        template.getTemplateType(), e.getMessage());
+                    return Mono.just(Collections.<DocumentDetailsNode>emptyList());
+                });
+        } else {
+            // Standard processing for non-CUSTOM_RULES templates
+            boolean canAccess = canAccessTemplate(template, accountMetadata, requestContext);
+
+            if (!canAccess) {
+                log.debug("Template {} not accessible, skipping", template.getTemplateType());
+                return Mono.just(Collections.<DocumentDetailsNode>emptyList());
+            }
+
+            // Query documents
+            return queryDocuments(template, accountId, accountMetadata)
+                .map(docs -> convertToDocumentDetailsNodes(docs, template));
         }
-
-        // Query documents
-        return queryDocuments(template, accountId, accountMetadata)
-            .map(docs -> convertToDocumentDetailsNodes(docs, template));
     }
 
     /**
