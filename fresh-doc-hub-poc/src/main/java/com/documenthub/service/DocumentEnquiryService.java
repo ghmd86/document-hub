@@ -223,7 +223,7 @@ public class DocumentEnquiryService {
 
         try {
             AccessControl accessControl = objectMapper.readValue(
-                template.getAccessControl().asString(),
+                template.getAccessControl().toString(),
                 AccessControl.class
             );
 
