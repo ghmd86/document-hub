@@ -76,7 +76,7 @@ INSERT INTO document_hub.master_template_definition (
         "accountArrangementsApi": {
           "description": "Step 1: Get account arrangements to extract pricingId",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/creditcard/accounts/${accountId}/arrangements",
+            "url": "http://localhost:8080/api/v1/mock-api/creditcard/accounts/${accountId}/arrangements",
             "method": "GET",
             "timeout": 5000,
             "headers": {
@@ -98,7 +98,7 @@ INSERT INTO document_hub.master_template_definition (
         "pricingApi": {
           "description": "Step 2: Get pricing data to extract disclosure code",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/pricing-service/prices/${pricingId}",
+            "url": "http://localhost:8080/api/v1/mock-api/pricing-service/prices/${pricingId}",
             "method": "GET",
             "timeout": 5000,
             "headers": {

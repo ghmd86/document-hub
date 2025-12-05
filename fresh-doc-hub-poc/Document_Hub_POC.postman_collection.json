@@ -123,7 +123,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/creditcard/accounts/550e8400-e29b-41d4-a716-446655440000/arrangements",
+							"raw": "http://localhost:8080/api/v1/mock-apicreditcard/accounts/550e8400-e29b-41d4-a716-446655440000/arrangements",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -147,7 +147,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/creditcard/accounts/770e8400-e29b-41d4-a716-446655440002/arrangements",
+							"raw": "http://localhost:8080/api/v1/mock-apicreditcard/accounts/770e8400-e29b-41d4-a716-446655440002/arrangements",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -171,7 +171,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/pricing-service/prices/PRC-12345",
+							"raw": "http://localhost:8080/api/v1/mock-apipricing-service/prices/PRC-12345",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -194,7 +194,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/pricing-service/prices/PRC-67890",
+							"raw": "http://localhost:8080/api/v1/mock-apipricing-service/prices/PRC-67890",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -217,7 +217,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/pricing-service/prices/PRC-DEFAULT",
+							"raw": "http://localhost:8080/api/v1/mock-apipricing-service/prices/PRC-DEFAULT",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -246,7 +246,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/accounts/550e8400-e29b-41d4-a716-446655440000/details",
+							"raw": "http://localhost:8080/api/v1/mock-apiaccounts/550e8400-e29b-41d4-a716-446655440000/details",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -269,7 +269,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/accounts/550e8400-e29b-41d4-a716-446655440000",
+							"raw": "http://localhost:8080/api/v1/mock-apiaccounts/550e8400-e29b-41d4-a716-446655440000",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -291,7 +291,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/customers/123e4567-e89b-12d3-a456-426614174000",
+							"raw": "http://localhost:8080/api/v1/mock-apicustomers/123e4567-e89b-12d3-a456-426614174000",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -313,7 +313,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/products/CC-PREMIUM-001",
+							"raw": "http://localhost:8080/api/v1/mock-apiproducts/CC-PREMIUM-001",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -335,7 +335,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/branches/BR-555",
+							"raw": "http://localhost:8080/api/v1/mock-apibranches/BR-555",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -357,7 +357,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/compliance/regions/WEST",
+							"raw": "http://localhost:8080/api/v1/mock-apicompliance/regions/WEST",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -380,7 +380,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/regulatory/requirements?category=CREDIT_CARD",
+							"raw": "http://localhost:8080/api/v1/mock-apiregulatory/requirements?category=CREDIT_CARD",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -417,7 +417,7 @@
 							"raw": "{\n  \"state\": \"CA\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/mock-api/regions/map",
+							"raw": "http://localhost:8080/api/v1/mock-apiregions/map",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -439,7 +439,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/mock-api/disclosures?category=CREDIT_CARD&region=US_WEST",
+							"raw": "http://localhost:8080/api/v1/mock-apidisclosures?category=CREDIT_CARD&region=US_WEST",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -479,7 +479,7 @@
 							"raw": "{\n  \"rules\": {\n    \"dataRetention\": \"7_YEARS\",\n    \"privacyStandard\": \"CCPA\",\n    \"disclosureFrequency\": \"QUARTERLY\",\n    \"requiresNotarization\": false,\n    \"electronicSignatureAllowed\": true\n  }\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/mock-api/document-rules",
+							"raw": "http://localhost:8080/api/v1/mock-apidocument-rules",
 							"protocol": "http",
 							"host": [
 								"localhost"

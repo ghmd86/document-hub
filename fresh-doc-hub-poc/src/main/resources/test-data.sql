@@ -76,7 +76,7 @@ INSERT INTO document_hub.master_template_definition (
         "accountArrangementsApi": {
           "description": "Step 1: Get account arrangements to extract pricingId",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/creditcard/accounts/${accountId}/arrangements",
+            "url": "http://localhost:8080/api/v1/api/v1/mock-api/creditcard/accounts/${accountId}/arrangements",
             "method": "GET",
             "timeout": 5000,
             "headers": {
@@ -98,7 +98,7 @@ INSERT INTO document_hub.master_template_definition (
         "pricingApi": {
           "description": "Step 2: Get pricing data to extract disclosure code",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/pricing-service/prices/${pricingId}",
+            "url": "http://localhost:8080/api/v1/api/v1/mock-api/pricing-service/prices/${pricingId}",
             "method": "GET",
             "timeout": 5000,
             "headers": {
@@ -212,7 +212,7 @@ INSERT INTO master_template_definition (
         "accountApi": {
           "description": "Level 1: Get account info",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/accounts/${accountId}",
+            "url": "http://localhost:8080/api/v1/mock-api/accounts/${accountId}",
             "method": "GET",
             "timeout": 5000
           },
@@ -221,7 +221,7 @@ INSERT INTO master_template_definition (
         "customerApi": {
           "description": "Level 1: Get customer info (parallel with accountApi)",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/customers/${customerId}",
+            "url": "http://localhost:8080/api/v1/mock-api/customers/${customerId}",
             "method": "GET",
             "timeout": 5000
           },
@@ -230,7 +230,7 @@ INSERT INTO master_template_definition (
         "productApi": {
           "description": "Level 2: Get product category",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/products/${productCode}",
+            "url": "http://localhost:8080/api/v1/mock-api/products/${productCode}",
             "method": "GET",
             "timeout": 5000
           },
@@ -239,7 +239,7 @@ INSERT INTO master_template_definition (
         "regionMappingApi": {
           "description": "Level 2: Map location to region",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/regions/map",
+            "url": "http://localhost:8080/api/v1/mock-api/regions/map",
             "method": "POST",
             "timeout": 3000,
             "headers": {
@@ -252,7 +252,7 @@ INSERT INTO master_template_definition (
         "disclosureApi": {
           "description": "Level 3: Get final disclosures (merge both paths)",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/disclosures?category=${productCategory}&region=${regulatoryRegion}",
+            "url": "http://localhost:8080/api/v1/mock-api/disclosures?category=${productCategory}&region=${regulatoryRegion}",
             "method": "GET",
             "timeout": 5000
           },
@@ -334,7 +334,7 @@ INSERT INTO master_template_definition (
         "accountApi": {
           "description": "Step 1: Get account details",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/accounts/${accountId}",
+            "url": "http://localhost:8080/api/v1/mock-api/accounts/${accountId}",
             "method": "GET",
             "timeout": 5000
           },
@@ -343,7 +343,7 @@ INSERT INTO master_template_definition (
         "branchApi": {
           "description": "Step 2: Get branch details",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/branches/${branchCode}",
+            "url": "http://localhost:8080/api/v1/mock-api/branches/${branchCode}",
             "method": "GET",
             "timeout": 5000
           },
@@ -352,7 +352,7 @@ INSERT INTO master_template_definition (
         "complianceApi": {
           "description": "Step 3: Get compliance rules",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/compliance/regions/${regionCode}",
+            "url": "http://localhost:8080/api/v1/mock-api/compliance/regions/${regionCode}",
             "method": "GET",
             "timeout": 5000
           },
@@ -361,7 +361,7 @@ INSERT INTO master_template_definition (
         "documentRulesApi": {
           "description": "Step 4: Get applicable documents",
           "endpoint": {
-            "url": "http://localhost:8080/mock-api/document-rules",
+            "url": "http://localhost:8080/api/v1/mock-api/document-rules",
             "method": "POST",
             "timeout": 5000,
             "headers": {
