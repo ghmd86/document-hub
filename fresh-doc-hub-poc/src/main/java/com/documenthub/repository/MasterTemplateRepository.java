@@ -33,7 +33,7 @@ public interface MasterTemplateRepository extends R2dbcRepository<MasterTemplate
      */
     @Query("SELECT * FROM document_hub.master_template_definition " +
            "WHERE active_flag = B'1'::bit(1) " +
-           "AND is_shared_document = true " +
+           "AND shared_document_flag = true " +
            "AND (start_date IS NULL OR start_date <= :currentDate) " +
            "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<MasterTemplateDefinitionEntity> findActiveSharedTemplates(Long currentDate);
