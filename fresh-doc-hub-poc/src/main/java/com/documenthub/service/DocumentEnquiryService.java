@@ -39,6 +39,9 @@ public class DocumentEnquiryService {
     private RuleEvaluationService ruleEvaluationService;
 
     @Autowired
+    private ConfigurableDataExtractionService dataExtractionService;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Value("${app.pagination.default-page-size:20}")
