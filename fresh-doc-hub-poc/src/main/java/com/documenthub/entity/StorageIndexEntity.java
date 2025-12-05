@@ -20,7 +20,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("storage_index")
+@Table("document_hub.storage_index")
 public class StorageIndexEntity {
 
     @Id

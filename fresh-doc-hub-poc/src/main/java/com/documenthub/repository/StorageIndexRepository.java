@@ -18,7 +18,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     /**
      * Find account-specific documents (non-shared)
      */
-    @Query("SELECT * FROM storage_index " +
+    @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE account_key = :accountKey " +
            "AND shared_flag = false " +
            "AND template_type = :templateType " +
@@ -32,7 +32,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     /**
      * Find shared documents by template
      */
-    @Query("SELECT * FROM storage_index " +
+    @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE shared_flag = true " +
            "AND template_type = :templateType " +
            "AND \"template_version \" = :templateVersion")
@@ -44,7 +44,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     /**
      * Find documents by customer key
      */
-    @Query("SELECT * FROM storage_index " +
+    @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE customer_key = :customerKey " +
            "AND template_type = :templateType " +
            "AND \"template_version \" = :templateVersion")
@@ -57,7 +57,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     /**
      * Find documents by reference key
      */
-    @Query("SELECT * FROM storage_index " +
+    @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE reference_key = :referenceKey " +
            "AND reference_key_type = :referenceKeyType")
     Flux<StorageIndexEntity> findByReferenceKey(

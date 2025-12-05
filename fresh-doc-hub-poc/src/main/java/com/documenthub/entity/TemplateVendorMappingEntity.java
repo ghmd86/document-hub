@@ -20,7 +20,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("template_vendor_mapping")
+@Table("document_hub.template_vendor_mapping")
 public class TemplateVendorMappingEntity {
 
     @Id
