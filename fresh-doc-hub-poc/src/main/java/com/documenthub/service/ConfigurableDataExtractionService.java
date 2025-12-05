@@ -47,44 +47,78 @@ public class ConfigurableDataExtractionService {
         Json dataExtractionConfigJson,
         DocumentListRequest request
     ) {
+        log.info("═══════════════════════════════════════════════════════════════");
+        log.info("STEP 1/6: Starting ConfigurableDataExtractionService.extractData");
+        log.info("═══════════════════════════════════════════════════════════════");
+
         if (dataExtractionConfigJson == null) {
-            log.debug("No data extraction config provided");
+            log.warn("STEP 1/6: No data extraction config provided - returning empty map");
             return Mono.just(Collections.emptyMap());
         }
 
         try {
+            log.info("STEP 2/6: Converting PostgreSQL Json to JsonNode");
             // Convert PostgreSQL Json to JsonNode
             JsonNode configNode = objectMapper.readTree(dataExtractionConfigJson.asString());
+            log.debug("STEP 2/6: Json conversion successful");
 
+            log.info("STEP 3/6: Parsing data extraction config to Java objects");
             // Parse JSON config to Java objects
             DataExtractionConfig config = objectMapper.treeToValue(
                 configNode,
                 DataExtractionConfig.class
             );
+            log.info("STEP 3/6: Config parsed - Required fields: {}, Data sources: {}",
+                config.getRequiredFields() != null ? config.getRequiredFields().size() : 0,
+                config.getDataSources() != null ? config.getDataSources().size() : 0);
 
-            log.info("Starting data extraction for {} required fields",
-                config.getRequiredFields() != null ? config.getRequiredFields().size() : 0);
-
+            log.info("STEP 4/6: Creating initial context from request");
             // Create initial context with input data
             Map<String, Object> context = createInitialContext(request);
+            log.info("STEP 4/6: Initial context created with {} fields: {}",
+                context.size(), context.keySet());
 
+            log.info("STEP 5/6: Building execution plan");
             // Build execution plan
             ExtractionPlan plan = buildExtractionPlan(config, context);
 
             if (plan.getApiCalls().isEmpty()) {
-                log.warn("No API calls to execute");
+                log.warn("STEP 5/6: No API calls to execute - returning context as-is");
                 return Mono.just(context);
             }
 
-            log.info("Execution plan: {} API calls", plan.getApiCalls().size());
+            log.info("STEP 5/6: Execution plan built - {} API call(s) scheduled", plan.getApiCalls().size());
+            for (int i = 0; i < plan.getApiCalls().size(); i++) {
+                ApiCall apiCall = plan.getApiCalls().get(i);
+                log.info("  → API Call {}/{}: {} (provides {} fields)",
+                    i + 1,
+                    plan.getApiCalls().size(),
+                    apiCall.getApiId(),
+                    apiCall.getDataSource().getProvidesFields().size());
+            }
 
+            log.info("STEP 6/6: Executing extraction plan");
             // Execute API calls
             return executeExtractionPlan(plan, config, context)
-                .doOnSuccess(result -> log.info("Data extraction completed. Extracted {} fields",
-                    result.size()));
+                .doOnSuccess(result -> {
+                    log.info("═══════════════════════════════════════════════════════════════");
+                    log.info("STEP 6/6: ✓ Data extraction completed successfully");
+                    log.info("         Total fields extracted: {}", result.size());
+                    log.info("         Fields: {}", result.keySet());
+                    log.info("═══════════════════════════════════════════════════════════════");
+                })
+                .doOnError(error -> {
+                    log.error("═══════════════════════════════════════════════════════════════");
+                    log.error("STEP 6/6: ✗ Data extraction failed");
+                    log.error("         Error: {}", error.getMessage());
+                    log.error("═══════════════════════════════════════════════════════════════");
+                });
 
         } catch (Exception e) {
-            log.error("Failed to parse data extraction config", e);
+            log.error("═══════════════════════════════════════════════════════════════");
+            log.error("STEP 2-3/6: ✗ Failed to parse data extraction config");
+            log.error("           Error: {}", e.getMessage());
+            log.error("═══════════════════════════════════════════════════════════════", e);
             return Mono.error(e);
         }
     }
@@ -224,18 +258,27 @@ public class ConfigurableDataExtractionService {
         ExtractionPlan plan,
         Map<String, Object> context
     ) {
+        log.info("  → Execution mode: SEQUENTIAL");
+        final int[] callCount = {0};
+        final int totalCalls = plan.getApiCalls().size();
+
         return Flux.fromIterable(plan.getApiCalls())
-            .concatMap(apiCall -> callApi(apiCall, context)
-                .doOnSuccess(extractedData -> {
-                    context.putAll(extractedData);
-                    log.debug("API {} completed, extracted {} fields",
-                        apiCall.getApiId(), extractedData.size());
-                })
-                .onErrorResume(e -> {
-                    log.error("API {} failed: {}", apiCall.getApiId(), e.getMessage());
-                    return Mono.just(Collections.emptyMap());
-                })
-            )
+            .concatMap(apiCall -> {
+                callCount[0]++;
+                log.info("  → Executing API call {}/{}: {}", callCount[0], totalCalls, apiCall.getApiId());
+                return callApi(apiCall, context)
+                    .doOnSuccess(extractedData -> {
+                        context.putAll(extractedData);
+                        log.info("    ✓ API {}/{} completed: {} - Extracted {} fields: {}",
+                            callCount[0], totalCalls, apiCall.getApiId(),
+                            extractedData.size(), extractedData.keySet());
+                    })
+                    .onErrorResume(e -> {
+                        log.error("    ✗ API {}/{} failed: {} - Error: {}",
+                            callCount[0], totalCalls, apiCall.getApiId(), e.getMessage());
+                        return Mono.just(Collections.emptyMap());
+                    });
+            })
             .then(Mono.just(context));
     }
 
@@ -246,13 +289,23 @@ public class ConfigurableDataExtractionService {
         ExtractionPlan plan,
         Map<String, Object> context
     ) {
+        log.info("  → Execution mode: PARALLEL");
+        final int totalCalls = plan.getApiCalls().size();
+
         return Flux.fromIterable(plan.getApiCalls())
-            .flatMap(apiCall -> callApi(apiCall, context)
-                .onErrorResume(e -> {
-                    log.error("API {} failed: {}", apiCall.getApiId(), e.getMessage());
-                    return Mono.just(Collections.emptyMap());
-                })
-            )
+            .flatMap(apiCall -> {
+                log.info("  → Initiating parallel API call: {}", apiCall.getApiId());
+                return callApi(apiCall, context)
+                    .doOnSuccess(extractedData -> {
+                        log.info("    ✓ Parallel API completed: {} - Extracted {} fields: {}",
+                            apiCall.getApiId(), extractedData.size(), extractedData.keySet());
+                    })
+                    .onErrorResume(e -> {
+                        log.error("    ✗ Parallel API failed: {} - Error: {}",
+                            apiCall.getApiId(), e.getMessage());
+                        return Mono.just(Collections.emptyMap());
+                    });
+            })
             .reduce(context, (acc, extractedData) -> {
                 acc.putAll(extractedData);
                 return acc;
@@ -265,18 +318,21 @@ public class ConfigurableDataExtractionService {
     private Mono<Map<String, Object>> callApi(ApiCall apiCall, Map<String, Object> context) {
         EndpointConfig endpoint = apiCall.getDataSource().getEndpoint();
 
+        log.debug("    → Preparing API call: {}", apiCall.getApiId());
+
         // Resolve URL with placeholders
         String url = resolvePlaceholders(endpoint.getUrl(), context);
 
         if (url.contains("${")) {
-            log.warn("Could not resolve all placeholders in URL: {}", url);
+            log.warn("    ✗ Could not resolve all placeholders in URL: {}", url);
             return Mono.just(Collections.emptyMap());
         }
 
-        log.debug("Calling API: {} {}", endpoint.getMethod(), url);
+        log.info("    → Calling {} {}", endpoint.getMethod(), url);
 
         // Determine timeout
         int timeout = endpoint.getTimeout() != null ? endpoint.getTimeout() : 5000;
+        log.debug("    → Timeout: {}ms", timeout);
 
         // Build request
         WebClient.RequestBodySpec request = webClient
@@ -303,17 +359,27 @@ public class ConfigurableDataExtractionService {
         }
 
         // Execute request
+        long startTime = System.currentTimeMillis();
         return requestSpec
             .retrieve()
             .bodyToMono(String.class)
             .timeout(Duration.ofMillis(timeout))
-            .map(responseBody -> extractFields(responseBody, apiCall, context))
-            .doOnSuccess(extractedData ->
-                log.debug("Extracted fields from {}: {}", apiCall.getApiId(), extractedData.keySet())
-            )
+            .map(responseBody -> {
+                log.debug("    → Received response from {}, extracting fields...", apiCall.getApiId());
+                return extractFields(responseBody, apiCall, context);
+            })
+            .doOnSuccess(extractedData -> {
+                long duration = System.currentTimeMillis() - startTime;
+                log.info("    → API response processed in {}ms - Extracted fields: {}",
+                    duration, extractedData.keySet());
+            })
             .onErrorResume(e -> {
-                log.error("API call failed for {}: {}", apiCall.getApiId(), e.getMessage());
-                return Mono.just(useDefaultValues(apiCall));
+                long duration = System.currentTimeMillis() - startTime;
+                log.error("    ✗ API call failed for {} after {}ms: {} - Using default values",
+                    apiCall.getApiId(), duration, e.getMessage());
+                Map<String, Object> defaults = useDefaultValues(apiCall);
+                log.debug("    → Applied {} default value(s)", defaults.size());
+                return Mono.just(defaults);
             });
     }
 
@@ -326,11 +392,18 @@ public class ConfigurableDataExtractionService {
         Map<String, Object> context
     ) {
         Map<String, Object> extracted = new HashMap<>();
+        int totalFields = apiCall.getDataSource().getProvidesFields().size();
+        int successCount = 0;
+        int defaultCount = 0;
+        int failedCount = 0;
+
+        log.debug("      → Extracting {} field(s) from response", totalFields);
 
         for (String fieldName : apiCall.getDataSource().getProvidesFields()) {
             FieldSourceConfig fieldSource = apiCall.getFieldSources().get(fieldName);
 
             if (fieldSource == null || fieldSource.getExtractionPath() == null) {
+                log.debug("      ⊘ Skipping {} - No extraction config", fieldName);
                 continue;
             }
 
@@ -338,20 +411,30 @@ public class ConfigurableDataExtractionService {
                 Object value = JsonPath.read(responseBody, fieldSource.getExtractionPath());
                 if (value != null) {
                     extracted.put(fieldName, value);
-                    log.debug("Extracted {}: {}", fieldName, value);
+                    successCount++;
+                    log.debug("      ✓ Extracted {}: {} (path: {})",
+                        fieldName, value, fieldSource.getExtractionPath());
                 } else if (fieldSource.getDefaultValue() != null) {
                     extracted.put(fieldName, fieldSource.getDefaultValue());
-                    log.debug("Using default value for {}: {}", fieldName, fieldSource.getDefaultValue());
+                    defaultCount++;
+                    log.debug("      ◉ Using default for {}: {} (value was null)",
+                        fieldName, fieldSource.getDefaultValue());
                 }
             } catch (Exception e) {
-                log.warn("Failed to extract {} using JSONPath {}: {}",
+                failedCount++;
+                log.warn("      ✗ Failed to extract {} using JSONPath '{}': {}",
                     fieldName, fieldSource.getExtractionPath(), e.getMessage());
 
                 if (fieldSource.getDefaultValue() != null) {
                     extracted.put(fieldName, fieldSource.getDefaultValue());
+                    defaultCount++;
+                    log.debug("      ◉ Applied default for {}: {}", fieldName, fieldSource.getDefaultValue());
                 }
             }
         }
+
+        log.info("      → Field extraction summary: {} extracted, {} defaults, {} failed",
+            successCount, defaultCount, failedCount);
 
         return extracted;
     }
