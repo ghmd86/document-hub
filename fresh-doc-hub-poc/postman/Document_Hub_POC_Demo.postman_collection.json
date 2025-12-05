@@ -1,0 +1,448 @@
+{
+	"info": {
+		"_postman_id": "doc-hub-poc-demo-2024",
+		"name": "Document Hub POC - Step-by-Step Demo",
+		"description": "Complete demonstration of Document Hub POC features including:\n\n1. **Mock API Verification** - Test the underlying mock APIs\n2. **Disclosure Code Matching** - Reference key based document matching\n3. **Conditional Matching** - Tiered document selection based on credit limit\n4. **Error Handling** - Graceful failure scenarios\n\n## Required Headers\nAll document enquiry requests require:\n- `X-correlation-id`: Unique request ID\n- `X-requestor-id`: UUID of the requestor\n- `X-requestor-type`: CUSTOMER or BANKER\n- `X-version`: API version (1)\n\n## Test Accounts\n| Account | Credit Limit | Tier | Disclosure Code |\n|---------|--------------|------|----------------|\n| aaaa...0001 | $75,000 | PLATINUM | D164 |\n| aaaa...0002 | $35,000 | GOLD | D166 |\n| aaaa...0003 | $15,000 | STANDARD | D165 |",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "customerId",
+			"value": "cccc0000-0000-0000-0000-000000000001",
+			"type": "string"
+		},
+		{
+			"key": "accountId1",
+			"value": "aaaa0000-0000-0000-0000-000000000001",
+			"type": "string"
+		},
+		{
+			"key": "accountId2",
+			"value": "aaaa0000-0000-0000-0000-000000000002",
+			"type": "string"
+		},
+		{
+			"key": "accountId3",
+			"value": "aaaa0000-0000-0000-0000-000000000003",
+			"type": "string"
+		},
+		{
+			"key": "requestorId",
+			"value": "550e8400-e29b-41d4-a716-446655440002",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Step 1 - Mock API Verification",
+			"description": "Verify that mock APIs are working correctly before testing document enquiry",
+			"item": [
+				{
+					"name": "1.1 Get Account Arrangements (Account 1 - VIP)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId1}}/arrangements",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "creditcard", "accounts", "{{accountId1}}", "arrangements"]
+						},
+						"description": "Returns pricingId for Account 1 (VIP).\n\nExpected: pricingId = 'PR001'"
+					}
+				},
+				{
+					"name": "1.2 Get Account Arrangements (Account 2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId2}}/arrangements",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "creditcard", "accounts", "{{accountId2}}", "arrangements"]
+						},
+						"description": "Returns pricingId for Account 2.\n\nExpected: pricingId = 'PR002'"
+					}
+				},
+				{
+					"name": "1.3 Get Pricing Info (PR001 - VIP)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/pricing/PR001",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "pricing", "PR001"]
+						},
+						"description": "Returns disclosure code for pricing ID PR001.\n\nExpected: disclosureCode = 'D164'"
+					}
+				},
+				{
+					"name": "1.4 Get Pricing Info (PR002)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/pricing/PR002",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "pricing", "PR002"]
+						},
+						"description": "Returns disclosure code for pricing ID PR002.\n\nExpected: disclosureCode = 'D166'"
+					}
+				},
+				{
+					"name": "1.5 Get Credit Info (Account 1 - $75k)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId1}}/credit-info",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "accounts", "{{accountId1}}", "credit-info"]
+						},
+						"description": "Returns credit limit for Account 1.\n\nExpected: creditLimit = 75000 (PLATINUM tier)"
+					}
+				},
+				{
+					"name": "1.6 Get Credit Info (Account 2 - $35k)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId2}}/credit-info",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "accounts", "{{accountId2}}", "credit-info"]
+						},
+						"description": "Returns credit limit for Account 2.\n\nExpected: creditLimit = 35000 (GOLD tier)"
+					}
+				},
+				{
+					"name": "1.7 Get Credit Info (Account 3 - $15k)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId3}}/credit-info",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "accounts", "{{accountId3}}", "credit-info"]
+						},
+						"description": "Returns credit limit for Account 3.\n\nExpected: creditLimit = 15000 (STANDARD tier)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 2 - Disclosure Code Matching",
+			"description": "Demonstrates reference key matching using disclosure codes extracted from API chain:\n\n1. Call arrangements API → get pricingId\n2. Call pricing API with pricingId → get disclosureCode\n3. Match document by disclosureCode as reference_key",
+			"item": [
+				{
+					"name": "2.1 Document Enquiry - Account 1 (VIP, D164)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-d164-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**API Chain Flow:**\n1. arrangements API → pricingId: 'PR001'\n2. pricing API → disclosureCode: 'D164'\n3. Match by reference_key: 'D164'\n\n**Expected Document:** Credit_Card_Terms_D164_v1.pdf\n\n**Also Returns:**\n- Platinum_Card_Agreement.pdf (conditional match)\n- Shared regulatory documents"
+					}
+				},
+				{
+					"name": "2.2 Document Enquiry - Account 2 (D166)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-d166-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**API Chain Flow:**\n1. arrangements API → pricingId: 'PR002'\n2. pricing API → disclosureCode: 'D166'\n3. Match by reference_key: 'D166'\n\n**Expected Document:** Premium_Credit_Card_Terms_D166_v1.pdf\n\n**Also Returns:**\n- Gold_Card_Agreement.pdf (conditional match)\n- Shared regulatory documents"
+					}
+				},
+				{
+					"name": "2.3 Document Enquiry - Account 3 (D165)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-d165-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId3}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**API Chain Flow:**\n1. arrangements API → pricingId: 'PR003'\n2. pricing API → disclosureCode: 'D165'\n3. Match by reference_key: 'D165'\n\n**Expected Document:** Credit_Card_Terms_D165_v1.pdf\n\n**Also Returns:**\n- Standard_Card_Agreement.pdf (conditional match)\n- Shared regulatory documents"
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 3 - Conditional Matching (Credit Limit Tiers)",
+			"description": "Demonstrates conditional document matching based on credit limit:\n\n| Credit Limit | Condition | Tier | Document |\n|--------------|-----------|------|----------|\n| >= $50,000 | creditLimit >= 50000 | PLATINUM | Platinum_Card_Agreement.pdf |\n| >= $25,000 | creditLimit >= 25000 | GOLD | Gold_Card_Agreement.pdf |\n| < $25,000 | creditLimit < 25000 | STANDARD | Standard_Card_Agreement.pdf |\n\n**Flow:**\n1. Call credit-info API → get creditLimit\n2. Evaluate conditions in order (first match wins)\n3. Use matched referenceKey to query document",
+			"item": [
+				{
+					"name": "3.1 PLATINUM Tier - Account 1 ($75,000)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-platinum-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Condition Evaluation:**\n- creditLimit = 75,000\n- Check: 75,000 >= 50,000 ✓ → TIER-PLATINUM\n\n**Expected:** Platinum_Card_Agreement.pdf\n\n**Metadata:** tier=PLATINUM, minCreditLimit=50000"
+					}
+				},
+				{
+					"name": "3.2 GOLD Tier - Account 2 ($35,000)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-gold-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Condition Evaluation:**\n- creditLimit = 35,000\n- Check: 35,000 >= 50,000 ✗\n- Check: 35,000 >= 25,000 ✓ → TIER-GOLD\n\n**Expected:** Gold_Card_Agreement.pdf\n\n**Metadata:** tier=GOLD, minCreditLimit=25000"
+					}
+				},
+				{
+					"name": "3.3 STANDARD Tier - Account 3 ($15,000)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-standard-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId3}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Condition Evaluation:**\n- creditLimit = 15,000\n- Check: 15,000 >= 50,000 ✗\n- Check: 15,000 >= 25,000 ✗\n- Check: 15,000 < 25,000 ✓ → TIER-STANDARD\n\n**Expected:** Standard_Card_Agreement.pdf\n\n**Metadata:** tier=STANDARD, minCreditLimit=0"
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 4 - Shared Documents (ALL Scope)",
+			"description": "Documents with sharingScope='ALL' are returned to all customers regardless of account.\n\nThese include:\n- REGULATORY_DISCLOSURE - Credit card disclosures\n- BRANCH_SPECIFIC_DOCUMENT - Regional compliance guides",
+			"item": [
+				{
+					"name": "4.1 All Documents for Any Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-shared-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Shared Documents Always Returned:**\n\n1. **Credit_Card_Disclosures_2024.pdf** (REGULATORY_DISCLOSURE)\n   - sharingScope: ALL\n   - Regulatory required document\n\n2. **West_Region_Compliance_Guide.pdf** (BRANCH_SPECIFIC_DOCUMENT)\n   - sharingScope: ALL\n   - Regional compliance document\n\nThese appear in response alongside account-specific documents."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 5 - Multiple Accounts Query",
+			"description": "Query documents for multiple accounts in a single request",
+			"item": [
+				{
+					"name": "5.1 Query All Three Accounts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-multi-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\n        \"{{accountId1}}\",\n        \"{{accountId2}}\",\n        \"{{accountId3}}\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Query multiple accounts at once.**\n\nReturns documents applicable to any of the specified accounts:\n- Documents for Account 1 (Platinum, D164)\n- Documents for Account 2 (Gold, D166)\n- Documents for Account 3 (Standard, D165)\n- Shared documents (ALL scope)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 6 - Error Scenarios",
+			"description": "Demonstrates error handling and edge cases",
+			"item": [
+				{
+					"name": "6.1 Missing Required Header",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Missing X-correlation-id, X-requestor-id, X-requestor-type headers**\n\n**Expected:** 400 Bad Request\n\nDemonstrates that all required headers must be present."
+					}
+				},
+				{
+					"name": "6.2 Invalid Account ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-invalid-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"invalid-account-id-12345\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Invalid account ID that doesn't exist in mock data**\n\n**Expected Behavior:**\n- CUSTOM_RULES templates will fail to fetch data from mock APIs\n- Templates are SKIPPED (not returned)\n- Only shared documents (ALL scope) are returned\n\nThis demonstrates the graceful error handling - no fallthrough to return all documents."
+					}
+				},
+				{
+					"name": "6.3 Empty Account List",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-empty-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Empty account list**\n\n**Expected:** Returns only shared documents that don't require account context."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 7 - Banker View",
+			"description": "Demonstrates requests with BANKER requestor type",
+			"item": [
+				{
+					"name": "7.1 Banker Query - Account 1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "demo-banker-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "BANKER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Banker accessing customer documents**\n\nSame documents returned but with BANKER as the requestor type.\n\nCan be used to implement different visibility rules for banker vs customer views in future."
+					}
+				}
+			]
+		}
+	]
+}
