@@ -144,7 +144,7 @@ Repeat for Premium Card scenario with different account ID.
   "documents": [
     {
       "storageIndexId": "44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-      "templateType": "CREDIT_CARD_TERMS_CONDITIONS",
+      "templateType": "CardholderAgreement",
       "fileName": "Credit_Card_Terms_D164_v1.pdf",
       "referenceKey": "D164",
       "referenceKeyType": "DISCLOSURE_CODE",

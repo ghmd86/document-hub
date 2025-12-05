@@ -381,6 +381,36 @@ public class MockApiController {
             rewardsArrangement.put("status", "ACTIVE");
             content.add(rewardsArrangement);
 
+        } else if ("aaaa0000-0000-0000-0000-000000000001".equals(accountId)) {
+            // Mock service Account 1 - VIP Credit Card (maps to D164)
+            Map<String, Object> pricingArrangement = new HashMap<>();
+            pricingArrangement.put("domain", "PRICING");
+            pricingArrangement.put("domainId", "PRC-12345");
+            pricingArrangement.put("status", "ACTIVE");
+            pricingArrangement.put("effectiveDate", "2024-01-01");
+            content.add(pricingArrangement);
+
+            Map<String, Object> rewardsArrangement = new HashMap<>();
+            rewardsArrangement.put("domain", "REWARDS");
+            rewardsArrangement.put("domainId", "RWD-VIP-001");
+            rewardsArrangement.put("status", "ACTIVE");
+            content.add(rewardsArrangement);
+
+        } else if ("aaaa0000-0000-0000-0000-000000000002".equals(accountId)) {
+            // Mock service Account 2 - Standard Credit Card (maps to D166)
+            Map<String, Object> pricingArrangement = new HashMap<>();
+            pricingArrangement.put("domain", "PRICING");
+            pricingArrangement.put("domainId", "PRC-67890");
+            pricingArrangement.put("status", "ACTIVE");
+            pricingArrangement.put("effectiveDate", "2024-01-01");
+            content.add(pricingArrangement);
+
+            Map<String, Object> rewardsArrangement = new HashMap<>();
+            rewardsArrangement.put("domain", "REWARDS");
+            rewardsArrangement.put("domainId", "RWD-STD-001");
+            rewardsArrangement.put("status", "ACTIVE");
+            content.add(rewardsArrangement);
+
         } else {
             // Default arrangement
             Map<String, Object> pricingArrangement = new HashMap<>();
@@ -439,6 +469,101 @@ public class MockApiController {
 
         response.put("currency", "USD");
         response.put("lastUpdated", "2024-01-15");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ========================================
+    // CREDIT LIMIT APIs (Conditional Matching Test)
+    // ========================================
+
+    @GetMapping("/accounts/{accountId}/credit-info")
+    public ResponseEntity<Map<String, Object>> getCreditInfo(@PathVariable String accountId) {
+        Map<String, Object> response = new HashMap<>();
+
+        if ("aaaa0000-0000-0000-0000-000000000001".equals(accountId)) {
+            // VIP Account - Platinum tier (credit limit >= 50000)
+            response.put("accountId", accountId);
+            response.put("creditLimit", 75000);
+            response.put("availableCredit", 60000);
+            response.put("creditScore", 820);
+            response.put("tier", "PLATINUM");
+
+        } else if ("aaaa0000-0000-0000-0000-000000000002".equals(accountId)) {
+            // Standard Account - Gold tier (credit limit >= 25000)
+            response.put("accountId", accountId);
+            response.put("creditLimit", 35000);
+            response.put("availableCredit", 28000);
+            response.put("creditScore", 750);
+            response.put("tier", "GOLD");
+
+        } else if ("aaaa0000-0000-0000-0000-000000000003".equals(accountId)) {
+            // Basic Account - Standard tier (credit limit < 25000)
+            response.put("accountId", accountId);
+            response.put("creditLimit", 15000);
+            response.put("availableCredit", 12000);
+            response.put("creditScore", 680);
+            response.put("tier", "STANDARD");
+
+        } else {
+            // Default - Standard tier
+            response.put("accountId", accountId);
+            response.put("creditLimit", 10000);
+            response.put("availableCredit", 8000);
+            response.put("creditScore", 650);
+            response.put("tier", "STANDARD");
+        }
+
+        response.put("currency", "USD");
+        response.put("lastUpdated", "2024-12-01");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ========================================
+    // STATEMENT APIs (3-Step Chain Test)
+    // ========================================
+
+    @GetMapping("/statement-service/statements/{pricingId}")
+    public ResponseEntity<Map<String, Object>> getStatementByPricing(@PathVariable String pricingId) {
+        Map<String, Object> response = new HashMap<>();
+
+        if ("PRC-12345".equals(pricingId)) {
+            // VIP account statement - STMT-VIP-2024
+            response.put("pricingId", pricingId);
+            response.put("statementCode", "STMT-VIP-2024");
+            response.put("statementType", "MONTHLY_DETAILED");
+            response.put("format", "PDF");
+            response.put("cycleDay", 15);
+            response.put("deliveryMethod", "ELECTRONIC");
+
+        } else if ("PRC-67890".equals(pricingId)) {
+            // Standard account statement - STMT-STD-2024
+            response.put("pricingId", pricingId);
+            response.put("statementCode", "STMT-STD-2024");
+            response.put("statementType", "MONTHLY_SUMMARY");
+            response.put("format", "PDF");
+            response.put("cycleDay", 1);
+            response.put("deliveryMethod", "ELECTRONIC");
+
+        } else if ("PRC-DEFAULT".equals(pricingId)) {
+            // Default statement - STMT-BASIC-2024
+            response.put("pricingId", pricingId);
+            response.put("statementCode", "STMT-BASIC-2024");
+            response.put("statementType", "MONTHLY_BASIC");
+            response.put("format", "PDF");
+            response.put("cycleDay", 1);
+            response.put("deliveryMethod", "MAIL");
+
+        } else {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "STATEMENT_CONFIG_NOT_FOUND");
+            error.put("message", "Statement configuration for pricing " + pricingId + " not found");
+            return ResponseEntity.status(404).body(error);
+        }
+
+        response.put("effectiveDate", "2024-01-01");
+        response.put("lastGenerated", "2024-12-01");
 
         return ResponseEntity.ok(response);
     }

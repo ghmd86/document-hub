@@ -1,6 +1,6 @@
 package com.documenthub.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,7 +64,7 @@ public class StorageIndexEntity {
     private Boolean accessibleFlag;
 
     @Column("doc_metadata")
-    private JsonNode docMetadata;
+    private Json docMetadata;
 
     @Column("shared_flag")
     private Boolean sharedFlag;

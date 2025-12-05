@@ -409,6 +409,17 @@ public class ConfigurableDataExtractionService {
 
             try {
                 Object value = JsonPath.read(responseBody, fieldSource.getExtractionPath());
+
+                // Unwrap single-element arrays to extract the first value
+                // This handles cases where JSONPath filters return arrays like ["PRC-12345"]
+                if (value instanceof List) {
+                    List<?> list = (List<?>) value;
+                    if (list.size() == 1) {
+                        value = list.get(0);
+                        log.debug("      ⤷ Unwrapped single-element array to: {}", value);
+                    }
+                }
+
                 if (value != null) {
                     extracted.put(fieldName, value);
                     successCount++;

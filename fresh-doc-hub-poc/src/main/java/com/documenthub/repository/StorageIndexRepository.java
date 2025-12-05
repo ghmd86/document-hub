@@ -22,7 +22,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "WHERE account_key = :accountKey " +
            "AND shared_flag = false " +
            "AND template_type = :templateType " +
-           "AND \"template_version \" = :templateVersion")
+           "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findAccountSpecificDocuments(
         @Param("accountKey") UUID accountKey,
         @Param("templateType") String templateType,
@@ -35,7 +35,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE shared_flag = true " +
            "AND template_type = :templateType " +
-           "AND \"template_version \" = :templateVersion")
+           "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findSharedDocuments(
         @Param("templateType") String templateType,
         @Param("templateVersion") Integer templateVersion
@@ -47,7 +47,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE customer_key = :customerKey " +
            "AND template_type = :templateType " +
-           "AND \"template_version \" = :templateVersion")
+           "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findByCustomerKey(
         @Param("customerKey") UUID customerKey,
         @Param("templateType") String templateType,
@@ -63,5 +63,20 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     Flux<StorageIndexEntity> findByReferenceKey(
         @Param("referenceKey") String referenceKey,
         @Param("referenceKeyType") String referenceKeyType
+    );
+
+    /**
+     * Find documents by reference key with template filtering
+     */
+    @Query("SELECT * FROM document_hub.storage_index " +
+           "WHERE reference_key = :referenceKey " +
+           "AND reference_key_type = :referenceKeyType " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion")
+    Flux<StorageIndexEntity> findByReferenceKeyAndTemplate(
+        @Param("referenceKey") String referenceKey,
+        @Param("referenceKeyType") String referenceKeyType,
+        @Param("templateType") String templateType,
+        @Param("templateVersion") Integer templateVersion
     );
 }

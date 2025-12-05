@@ -13,7 +13,7 @@ This scenario demonstrates **real-world disclosure code extraction** based on th
 ```
 Client Request (accountId, customerId)
          ↓
-Load Template: CREDIT_CARD_TERMS_CONDITIONS
+Load Template: CardholderAgreement
          ↓
 ConfigurableDataExtractionService
          ↓
@@ -48,12 +48,12 @@ psql -U postgres -d document_hub -f src/main/resources/test-data-disclosure-exam
 -- Check template
 SELECT template_type, template_name, is_shared_document, sharing_scope
 FROM master_template_definition
-WHERE template_type = 'CREDIT_CARD_TERMS_CONDITIONS';
+WHERE template_type = 'CardholderAgreement';
 
 -- Check documents with disclosure codes
 SELECT reference_key, reference_key_type, file_name, doc_metadata->>'cardTier'
 FROM storage_index
-WHERE template_type = 'CREDIT_CARD_TERMS_CONDITIONS'
+WHERE template_type = 'CardholderAgreement'
 ORDER BY reference_key;
 ```
 
@@ -273,7 +273,7 @@ SELECT *
 FROM storage_index
 WHERE reference_key = '${extracted_disclosureCode}'
   AND reference_key_type = 'DISCLOSURE_CODE'
-  AND template_type = 'CREDIT_CARD_TERMS_CONDITIONS'
+  AND template_type = 'CardholderAgreement'
   AND is_accessible = 1
   AND archive_indicator = false;
 ```
@@ -336,7 +336,7 @@ $.content[?(@.domain == "PRICING" && @.status == "ACTIVE")].domainId
 
 ### 2. Document Matching by Reference Key
 Most scenarios match by template only. This scenario matches by:
-- Template type: `CREDIT_CARD_TERMS_CONDITIONS`
+- Template type: `CardholderAgreement`
 - **Plus** reference key: `disclosureCode` value
 - **Plus** reference key type: `DISCLOSURE_CODE`
 

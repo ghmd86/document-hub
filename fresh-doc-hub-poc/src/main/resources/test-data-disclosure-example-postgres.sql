@@ -9,7 +9,7 @@
 
 -- ========================================
 -- TEST SCENARIO 4: Disclosure Code Extraction (2-Step Chain)
--- Template: CREDIT_CARD_TERMS_CONDITIONS
+-- Template: CardholderAgreement
 -- Chain: Arrangements API → Pricing API → Match by disclosure_code
 -- ========================================
 
@@ -58,7 +58,7 @@ INSERT INTO document_hub.master_template_definition (
         "pricingId": {
           "description": "Pricing ID from account arrangements (active PRICING domain)",
           "sourceApi": "accountArrangementsApi",
-          "extractionPath": "$.content[?(@.domain == \"PRICING\" && @.status == \"ACTIVE\")].domainId",
+          "extractionPath": "$.content[0].domainId",
           "requiredInputs": ["accountId"],
           "fieldType": "string",
           "defaultValue": null
@@ -159,7 +159,7 @@ INSERT INTO document_hub.storage_index (
     '44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
     1,
-    'CREDIT_CARD_TERMS_CONDITIONS',
+    'CardholderAgreement',
     'D164',  -- This is the disclosure code
     'DISCLOSURE_CODE',
     true,
@@ -200,7 +200,7 @@ INSERT INTO document_hub.storage_index (
     '44444444-aaaa-aaaa-aaaa-bbbbbbbbbbbb'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
     1,
-    'CREDIT_CARD_TERMS_CONDITIONS',
+    'CardholderAgreement',
     'D165',  -- Different disclosure code
     'DISCLOSURE_CODE',
     true,
@@ -241,7 +241,7 @@ INSERT INTO document_hub.storage_index (
     '44444444-aaaa-aaaa-aaaa-cccccccccccc'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
     1,
-    'CREDIT_CARD_TERMS_CONDITIONS',
+    'CardholderAgreement',
     'D166',  -- Premium card disclosure code
     'DISCLOSURE_CODE',
     true,
@@ -270,7 +270,7 @@ SELECT
     sharing_scope,
     jsonb_array_length(data_extraction_config->'requiredFields') as required_fields_count
 FROM master_template_definition
-WHERE template_type = 'CREDIT_CARD_TERMS_CONDITIONS';
+WHERE template_type = 'CardholderAgreement';
 
 -- Verify documents loaded with disclosure codes
 SELECT
@@ -281,7 +281,7 @@ SELECT
     shared_flag,
     doc_metadata->>'cardTier' as card_tier
 FROM storage_index
-WHERE template_type = 'CREDIT_CARD_TERMS_CONDITIONS'
+WHERE template_type = 'CardholderAgreement'
 ORDER BY reference_key;
 
 -- View extraction config for disclosure code template
@@ -289,7 +289,7 @@ SELECT
     template_type,
     jsonb_pretty(data_extraction_config)
 FROM master_template_definition
-WHERE template_type = 'CREDIT_CARD_TERMS_CONDITIONS';
+WHERE template_type = 'CardholderAgreement';
 
 -- ========================================
 -- TEST ACCOUNT IDS FOR DISCLOSURE CODE SCENARIO

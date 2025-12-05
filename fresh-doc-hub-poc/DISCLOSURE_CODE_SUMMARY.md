@@ -8,7 +8,7 @@ Complete implementation of **disclosure code extraction** based on the document-
 
 ### 1. **test-data-disclosure-example-postgres.sql** (NEW)
 PostgreSQL test data with:
-- 1 new template: `CREDIT_CARD_TERMS_CONDITIONS`
+- 1 new template: `CardholderAgreement`
 - 3 documents with different disclosure codes (D164, D165, D166)
 - Complete `data_extraction_config` JSON with 2-step extraction
 
@@ -36,7 +36,7 @@ This summary document
    ├─ accountId: 550e8400-e29b-41d4-a716-446655440000
    └─ customerId: 123e4567-e89b-12d3-a456-426614174000
 
-2. Load Template: CREDIT_CARD_TERMS_CONDITIONS
+2. Load Template: CardholderAgreement
    └─ Read data_extraction_config from database
 
 3. LEVEL 1: Extract pricingId
