@@ -268,41 +268,43 @@ public class DocumentEnquiryService {
             // Shared with all
             return true;
         } else if ("ACCOUNT_TYPE".equalsIgnoreCase(sharingScope)) {
-            // Shared by account type - check access control rules
-            return evaluateAccessControl(template, accountMetadata, requestContext);
+            // Shared by account type - check eligibility rules in template config
+            return evaluateTemplateEligibility(template, accountMetadata, requestContext);
         } else if ("CUSTOM_RULES".equalsIgnoreCase(sharingScope)) {
-            // Custom rules evaluation
-            return evaluateAccessControl(template, accountMetadata, requestContext);
+            // Custom rules evaluation from template config
+            return evaluateTemplateEligibility(template, accountMetadata, requestContext);
         }
 
         return false;
     }
 
     /**
-     * Evaluate access control rules
+     * Evaluate eligibility rules from template config
      */
-    private boolean evaluateAccessControl(
+    private boolean evaluateTemplateEligibility(
         MasterTemplateDefinitionEntity template,
         AccountMetadata accountMetadata,
         Map<String, Object> requestContext
     ) {
-        if (template.getAccessControl() == null) {
+        if (template.getTemplateConfig() == null) {
+            log.debug("No template config defined for template: {}, allowing access",
+                template.getTemplateType());
             return true;
         }
 
         try {
-            AccessControl accessControl = objectMapper.readValue(
-                template.getAccessControl().asString(),
-                AccessControl.class
+            TemplateConfig templateConfig = objectMapper.readValue(
+                template.getTemplateConfig().asString(),
+                TemplateConfig.class
             );
 
             return ruleEvaluationService.evaluateEligibility(
-                accessControl,
+                templateConfig,
                 accountMetadata,
                 requestContext
             );
         } catch (Exception e) {
-            log.error("Failed to parse access control for template: {}",
+            log.error("Failed to parse template config for template: {}",
                 template.getTemplateType(), e);
             return false;
         }

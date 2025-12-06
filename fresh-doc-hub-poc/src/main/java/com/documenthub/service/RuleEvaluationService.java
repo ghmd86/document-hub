@@ -1,9 +1,9 @@
 package com.documenthub.service;
 
-import com.documenthub.model.AccessControl;
 import com.documenthub.model.AccountMetadata;
 import com.documenthub.model.EligibilityCriteria;
 import com.documenthub.model.Rule;
+import com.documenthub.model.TemplateConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,29 +11,61 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Service for evaluating access control rules
+ * Service for evaluating eligibility rules from template configuration
  */
 @Service
 @Slf4j
 public class RuleEvaluationService {
 
     /**
-     * Evaluate if account meets eligibility criteria
+     * Evaluate if account meets eligibility criteria defined in template config
+     *
+     * @param templateConfig  the template configuration containing eligibility criteria
+     * @param accountMetadata the account metadata to evaluate against
+     * @param requestContext  additional context from the request
+     * @return true if eligible, false otherwise
      */
     public boolean evaluateEligibility(
-        AccessControl accessControl,
+        TemplateConfig templateConfig,
         AccountMetadata accountMetadata,
         Map<String, Object> requestContext
     ) {
-        if (accessControl == null || accessControl.getEligibilityCriteria() == null) {
+        if (templateConfig == null || templateConfig.getEligibilityCriteria() == null) {
             log.debug("No eligibility criteria defined, allowing access");
             return true;
         }
 
-        EligibilityCriteria criteria = accessControl.getEligibilityCriteria();
+        EligibilityCriteria criteria = templateConfig.getEligibilityCriteria();
 
         if (criteria.getRules() == null || criteria.getRules().isEmpty()) {
             log.debug("No rules defined, allowing access");
+            return true;
+        }
+
+        String operator = criteria.getOperator() != null ? criteria.getOperator() : "AND";
+
+        if ("OR".equalsIgnoreCase(operator)) {
+            return evaluateWithOR(criteria.getRules(), accountMetadata, requestContext);
+        } else {
+            return evaluateWithAND(criteria.getRules(), accountMetadata, requestContext);
+        }
+    }
+
+    /**
+     * Evaluate if account meets eligibility criteria directly
+     *
+     * @param criteria        the eligibility criteria to evaluate
+     * @param accountMetadata the account metadata to evaluate against
+     * @param requestContext  additional context from the request
+     * @return true if eligible, false otherwise
+     */
+    public boolean evaluateEligibility(
+        EligibilityCriteria criteria,
+        AccountMetadata accountMetadata,
+        Map<String, Object> requestContext
+    ) {
+        if (criteria == null || criteria.getRules() == null || criteria.getRules().isEmpty()) {
+            log.debug("No eligibility criteria or rules defined, allowing access");
             return true;
         }
 
@@ -142,6 +174,11 @@ public class RuleEvaluationService {
                 return accountMetadata.getCustomerId() != null ?
                     accountMetadata.getCustomerId().toString() : null;
             default:
+                // Fallback: check requestContext for dynamically extracted fields (e.g., zipcode)
+                if (requestContext != null && requestContext.containsKey(field)) {
+                    log.debug("Field '{}' found in request context (extracted data)", field);
+                    return requestContext.get(field);
+                }
                 log.warn("Unknown field: {}", field);
                 return null;
         }
