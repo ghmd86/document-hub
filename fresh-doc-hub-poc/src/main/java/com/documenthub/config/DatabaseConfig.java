@@ -1,12 +1,9 @@
 package com.documenthub.config;
 
 import io.r2dbc.spi.ConnectionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.dialect.DialectResolver;
 import org.springframework.data.r2dbc.dialect.R2dbcDialect;
@@ -23,17 +20,11 @@ import java.util.List;
 @Configuration
 public class DatabaseConfig {
 
-    @Autowired
-    private ConnectionFactory connectionFactory;
-
-    @Value("${spring.r2dbc.url}")
-    private String r2dbcUrl;
-
     /**
      * Register custom converters for JSON handling
      */
     @Bean
-    public R2dbcCustomConversions r2dbcCustomConversions() {
+    public R2dbcCustomConversions r2dbcCustomConversions(ConnectionFactory connectionFactory) {
         R2dbcDialect dialect = DialectResolver.getDialect(connectionFactory);
         List<Converter<?, ?>> converters = new ArrayList<>();
         // No custom converters needed when using io.r2dbc.postgresql.codec.Json directly

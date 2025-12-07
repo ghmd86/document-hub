@@ -6,8 +6,8 @@ import com.documenthub.model.*;
 import com.documenthub.repository.MasterTemplateRepository;
 import com.documenthub.repository.StorageIndexRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -18,7 +18,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -27,25 +32,15 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DocumentEnquiryService {
 
-    @Autowired
-    private MasterTemplateRepository templateRepository;
-
-    @Autowired
-    private StorageIndexRepository storageRepository;
-
-    @Autowired
-    private AccountMetadataService accountMetadataService;
-
-    @Autowired
-    private RuleEvaluationService ruleEvaluationService;
-
-    @Autowired
-    private ConfigurableDataExtractionService dataExtractionService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final MasterTemplateRepository templateRepository;
+    private final StorageIndexRepository storageRepository;
+    private final AccountMetadataService accountMetadataService;
+    private final RuleEvaluationService ruleEvaluationService;
+    private final ConfigurableDataExtractionService dataExtractionService;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.pagination.default-page-size:20}")
     private int defaultPageSize;

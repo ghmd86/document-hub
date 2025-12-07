@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,10 +31,10 @@ import java.util.UUID;
 @Tag(name = "Document List Retrieval", description = "Retrieve document lists based on account and sharing rules")
 @Slf4j
 @Validated
+@RequiredArgsConstructor
 public class DocumentEnquiryController {
 
-    @Autowired
-    private DocumentEnquiryService documentEnquiryService;
+    private final DocumentEnquiryService documentEnquiryService;
 
     @PostMapping
     @Operation(summary = "Retrieve document list",

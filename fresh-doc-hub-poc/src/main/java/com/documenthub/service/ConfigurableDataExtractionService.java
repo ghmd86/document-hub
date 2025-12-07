@@ -1,13 +1,16 @@
 package com.documenthub.service;
 
 import com.documenthub.model.DocumentListRequest;
-import com.documenthub.model.extraction.*;
+import com.documenthub.model.extraction.DataExtractionConfig;
+import com.documenthub.model.extraction.DataSourceConfig;
+import com.documenthub.model.extraction.EndpointConfig;
+import com.documenthub.model.extraction.FieldSourceConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import io.r2dbc.postgresql.codec.Json;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,7 +18,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,13 +36,11 @@ import java.util.regex.Pattern;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ConfigurableDataExtractionService {
 
-    @Autowired
-    private WebClient webClient;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final WebClient webClient;
+    private final ObjectMapper objectMapper;
 
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
 
