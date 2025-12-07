@@ -71,19 +71,79 @@ public class MockApiController {
         Map<String, Object> customer = new HashMap<>();
 
         customer.put("customerId", customerId);
-        customer.put("firstName", "John");
-        customer.put("lastName", "Doe");
-        customer.put("tier", "VIP");
-        customer.put("email", "john.doe@example.com");
 
         Map<String, Object> address = new HashMap<>();
-        address.put("street", "123 Main St");
-        address.put("city", "San Francisco");
-        address.put("state", "CA");
-        address.put("zipCode", "94102");
-        address.put("regionCode", "US-WEST");
-        customer.put("address", address);
 
+        // Different customers with different zipcodes for testing eligibility
+        switch (customerId) {
+            case "cust-sf-eligible":
+            case "123e4567-e89b-12d3-a456-426614174000":
+                // San Francisco - ELIGIBLE (zipcode 94102 is in Bay Area list)
+                customer.put("firstName", "John");
+                customer.put("lastName", "Doe");
+                customer.put("tier", "VIP");
+                customer.put("email", "john.doe@example.com");
+                address.put("street", "123 Market St");
+                address.put("city", "San Francisco");
+                address.put("state", "CA");
+                address.put("zipCode", "94102");
+                address.put("regionCode", "US-WEST");
+                break;
+
+            case "cust-oakland-eligible":
+                // Oakland near SF - Still using SF zipcode for eligibility test
+                customer.put("firstName", "Jane");
+                customer.put("lastName", "Smith");
+                customer.put("tier", "GOLD");
+                customer.put("email", "jane.smith@example.com");
+                address.put("street", "456 Broadway");
+                address.put("city", "San Francisco");
+                address.put("state", "CA");
+                address.put("zipCode", "94133");  // North Beach SF - ELIGIBLE
+                address.put("regionCode", "US-WEST");
+                break;
+
+            case "cust-la-not-eligible":
+                // Los Angeles - NOT ELIGIBLE (zipcode not in Bay Area list)
+                customer.put("firstName", "Mike");
+                customer.put("lastName", "Johnson");
+                customer.put("tier", "STANDARD");
+                customer.put("email", "mike.johnson@example.com");
+                address.put("street", "789 Hollywood Blvd");
+                address.put("city", "Los Angeles");
+                address.put("state", "CA");
+                address.put("zipCode", "90028");  // Hollywood - NOT ELIGIBLE
+                address.put("regionCode", "US-WEST");
+                break;
+
+            case "cust-ny-not-eligible":
+                // New York - NOT ELIGIBLE
+                customer.put("firstName", "Sarah");
+                customer.put("lastName", "Williams");
+                customer.put("tier", "VIP");
+                customer.put("email", "sarah.williams@example.com");
+                address.put("street", "100 Wall St");
+                address.put("city", "New York");
+                address.put("state", "NY");
+                address.put("zipCode", "10005");  // Manhattan - NOT ELIGIBLE
+                address.put("regionCode", "US-EAST");
+                break;
+
+            default:
+                // Default: San Francisco - ELIGIBLE
+                customer.put("firstName", "Default");
+                customer.put("lastName", "Customer");
+                customer.put("tier", "STANDARD");
+                customer.put("email", "default@example.com");
+                address.put("street", "123 Main St");
+                address.put("city", "San Francisco");
+                address.put("state", "CA");
+                address.put("zipCode", "94102");
+                address.put("regionCode", "US-WEST");
+                break;
+        }
+
+        customer.put("address", address);
         response.put("customer", customer);
         return ResponseEntity.ok(response);
     }

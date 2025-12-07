@@ -631,3 +631,142 @@ INSERT INTO storage_index (
     'system',
     NOW()
 );
+
+-- ====================================================================
+-- Template 7: ZIPCODE-BASED PROMOTIONAL OFFER
+-- ====================================================================
+-- This template demonstrates:
+-- 1. data_extraction_config: Fetch zipcode from Customer API
+-- 2. template_config: Eligibility check - only customers in specific zipcodes
+-- 3. Shared document visible only to eligible customers
+INSERT INTO master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    access_control,
+    template_config,
+    start_date,
+    created_by,
+    created_timestamp,
+    data_extraction_config
+) VALUES (
+    '77777777-7777-7777-7777-777777777777',
+    1,
+    'Bay Area Exclusive Credit Card Offer',
+    'Special promotional offer for customers in San Francisco Bay Area zipcodes',
+    'Promotional',
+    'CREDIT_CARD',
+    'PromoOffer',
+    'EN_US',
+    true,
+    true,
+    'CUSTOM_RULES',
+    NULL,
+    '{
+      "eligibility_criteria": {
+        "operator": "AND",
+        "rules": [
+          {
+            "field": "zipcode",
+            "operator": "IN",
+            "value": ["94102", "94103", "94104", "94105", "94107", "94108", "94109", "94110", "94111", "94112", "94114", "94115", "94116", "94117", "94118", "94121", "94122", "94123", "94124", "94127", "94129", "94130", "94131", "94132", "94133", "94134"]
+          },
+          {
+            "field": "accountType",
+            "operator": "EQUALS",
+            "value": "credit_card"
+          }
+        ]
+      },
+      "reprint_policy": {
+        "cooldown_period_days": 30
+      }
+    }',
+    1704067200000,
+    'system',
+    NOW(),
+    '{
+      "fieldsToExtract": ["zipcode"],
+      "fieldSources": {
+        "zipcode": {
+          "description": "Customer zipcode from address",
+          "sourceApi": "customerApi",
+          "extractionPath": "$.customer.address.zipCode",
+          "requiredInputs": ["customerId"],
+          "fieldType": "string",
+          "defaultValue": null
+        }
+      },
+      "dataSources": {
+        "customerApi": {
+          "description": "Fetch customer address to get zipcode",
+          "endpoint": {
+            "url": "http://localhost:8080/mock-api/customers/${customerId}",
+            "method": "GET",
+            "timeout": 5000,
+            "headers": {
+              "X-Request-ID": "${correlationId}"
+            }
+          },
+          "cache": {
+            "enabled": true,
+            "ttlSeconds": 3600,
+            "keyPattern": "customer:${customerId}"
+          },
+          "providesFields": ["zipcode"]
+        }
+      },
+      "executionStrategy": {
+        "mode": "sequential",
+        "continueOnError": false,
+        "timeout": 10000
+      }
+    }'
+);
+
+-- ====================================================================
+-- DOCUMENT for Zipcode-Based Promotional Offer
+-- ====================================================================
+
+-- Document 10: Bay Area Exclusive Offer (shared, zipcode-eligible)
+INSERT INTO storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000010',
+    '77777777-7777-7777-7777-777777777777',
+    1,
+    'PromoOffer',
+    'PROMO-BAYAREA-2024',
+    'PROMO_CODE',
+    true,
+    'S3',
+    'b0000000-0000-0000-0000-000000000010',
+    'Bay_Area_Exclusive_Offer_2024.pdf',
+    1704067200000,
+    1,
+    '{"promoCode": "PROMO-BAYAREA-2024", "offerType": "EXCLUSIVE", "region": "SF_BAY_AREA", "validUntil": "2024-12-31", "discountPercent": 15}',
+    'system',
+    NOW()
+);
