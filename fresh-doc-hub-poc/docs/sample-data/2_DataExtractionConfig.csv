@@ -1,0 +1,15 @@
+template_type,field_name,field_path,data_type,required,display_label
+CREDIT_CARD_STATEMENT,statement_date,$.header.statementDate,DATE,TRUE,Statement Date
+CREDIT_CARD_STATEMENT,balance,$.summary.balance,NUMBER,TRUE,Current Balance
+CREDIT_CARD_STATEMENT,due_date,$.summary.dueDate,DATE,TRUE,Payment Due Date
+CREDIT_CARD_STATEMENT,minimum_payment,$.summary.minimumPayment,NUMBER,TRUE,Minimum Payment
+CREDIT_CARD_TERMS,effective_date,$.metadata.effectiveDate,DATE,TRUE,Effective Date
+CREDIT_CARD_TERMS,apr,$.terms.apr,NUMBER,TRUE,Annual Percentage Rate
+PLATINUM_CARD_AGREEMENT,membership_tier,$.eligibility.tier,STRING,TRUE,Membership Tier
+PLATINUM_CARD_AGREEMENT,effective_date,$.metadata.effectiveDate,DATE,TRUE,Effective Date
+TAX_1099_INT,tax_year,$.header.taxYear,STRING,TRUE,Tax Year
+TAX_1099_INT,interest_income,$.amounts.interestIncome,NUMBER,TRUE,Interest Income
+TAX_1099_INT,federal_tax_withheld,$.amounts.federalTaxWithheld,NUMBER,FALSE,Federal Tax Withheld
+MORTGAGE_STATEMENT,statement_date,$.header.statementDate,DATE,TRUE,Statement Date
+MORTGAGE_STATEMENT,principal_balance,$.summary.principalBalance,NUMBER,TRUE,Principal Balance
+MORTGAGE_STATEMENT,payment_amount,$.summary.paymentAmount,NUMBER,TRUE,Monthly Payment

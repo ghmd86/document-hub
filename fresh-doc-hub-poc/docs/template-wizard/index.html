@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Template Builder</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2d3748;
+            color: white;
+            padding: 24px 32px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            display: flex;
+            padding: 20px 32px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e2e8f0;
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #718096;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active .step-number {
+            background: #667eea;
+            color: white;
+        }
+
+        .progress-step.completed .step-number {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .progress-step.active .step-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .wizard-content {
+            padding: 32px;
+            min-height: 450px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step h2 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .step p.description {
+            color: #718096;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option:hover, .checkbox-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .radio-option input, .checkbox-option input {
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-content strong {
+            display: block;
+            color: #2d3748;
+        }
+
+        .option-content span {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .field-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .field-item:hover {
+            border-color: #667eea;
+        }
+
+        .field-item.selected {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .field-item input {
+            margin-right: 12px;
+        }
+
+        .api-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .api-card.selected {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .api-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .api-card-header input[type="radio"] {
+            margin-right: 12px;
+        }
+
+        .api-card-header h4 {
+            flex: 1;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .api-card-header .api-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .api-card p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .api-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .api-field-tag {
+            background: white;
+            border: 1px solid #cbd5e0;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        .custom-api-form {
+            background: #fff;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .custom-api-form h4 {
+            color: #4a5568;
+            margin-bottom: 16px;
+        }
+
+        .rule-builder {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .rule-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .rule-row select, .rule-row input {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .rule-row select:focus, .rule-row input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-add-rule {
+            background: none;
+            border: 2px dashed #cbd5e0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #718096;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-rule:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .btn-remove {
+            background: #fed7d7;
+            color: #c53030;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 32px;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            border-color: #cbd5e0;
+            background: #f7fafc;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            border: none;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .review-section {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .review-section h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .review-item {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-label {
+            flex: 0 0 150px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .review-value {
+            flex: 1;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .output-box {
+            background: #2d3748;
+            color: #68d391;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #5a67d8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #ebf4ff;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 4px;
+        }
+
+        .info-box {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #2b6cb0;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .info-box strong {
+            color: #2c5282;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #718096;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            border-color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* API Spec Upload Styles */
+        .upload-zone {
+            border: 3px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+
+        .upload-zone:hover {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .upload-zone .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .upload-zone p {
+            color: #718096;
+            margin: 8px 0;
+        }
+
+        .upload-zone .file-types {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .spec-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .spec-info h4 {
+            color: #234e52;
+            margin: 0 0 8px 0;
+        }
+
+        .spec-info p {
+            color: #285e61;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .endpoint-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .endpoint-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .endpoint-item:last-child {
+            border-bottom: none;
+        }
+
+        .endpoint-item:hover {
+            background: #f7fafc;
+        }
+
+        .endpoint-item.selected {
+            background: #ebf4ff;
+            border-left: 3px solid #667eea;
+        }
+
+        .endpoint-item input[type="radio"] {
+            margin-right: 12px;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 10px;
+            text-transform: uppercase;
+        }
+
+        .endpoint-method.get { background: #c6f6d5; color: #22543d; }
+        .endpoint-method.post { background: #bee3f8; color: #2a4365; }
+        .endpoint-method.put { background: #faf089; color: #744210; }
+        .endpoint-method.delete { background: #fed7d7; color: #742a2a; }
+
+        .endpoint-path {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            color: #4a5568;
+            flex: 1;
+        }
+
+        .endpoint-summary {
+            font-size: 12px;
+            color: #718096;
+            margin-left: 10px;
+        }
+
+        .field-tree {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 250px;
+            overflow-y: auto;
+            background: #f7fafc;
+        }
+
+        .field-tree-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .field-tree-item:hover {
+            background: #e2e8f0;
+        }
+
+        .field-tree-item.selected {
+            background: #ebf4ff;
+            border: 1px solid #667eea;
+        }
+
+        .field-tree-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .field-path {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            color: #667eea;
+            background: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .field-type-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #4a5568;
+            margin-left: auto;
+        }
+
+        .parsed-api-section {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .parsed-api-section.visible {
+            display: block;
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #a0aec0;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-divider span {
+            padding: 0 16px;
+            font-size: 14px;
+        }
+
+        .selected-fields-summary {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 16px;
+        }
+
+        .selected-fields-summary h5 {
+            color: #2b6cb0;
+            margin: 0 0 8px 0;
+            font-size: 13px;
+        }
+
+        .selected-fields-summary .field-chip {
+            display: inline-block;
+            background: white;
+            border: 1px solid #90cdf4;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            margin: 4px;
+            color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Document Template Builder</h1>
+            <p>Create a new document template in a few simple steps</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Basic Info</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Ownership</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Fields</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Source APIs</div>
+            </div>
+            <div class="progress-step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-label">Access Rules</div>
+            </div>
+            <div class="progress-step" data-step="6">
+                <div class="step-number">6</div>
+                <div class="step-label">Review</div>
+            </div>
+        </div>
+
+        <div class="wizard-content">
+            <!-- Step 1: Basic Information -->
+            <div class="step active" id="step1">
+                <h2>Basic Information</h2>
+                <p class="description">Tell us about the document template you want to create.</p>
+
+                <div class="form-group">
+                    <label>Template Name *</label>
+                    <input type="text" id="templateName" placeholder="e.g., Credit Card Monthly Statement">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="templateDescription" placeholder="Brief description of what this document contains..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Document Category *</label>
+                        <select id="templateCategory">
+                            <option value="">Select a category...</option>
+                            <option value="Statement">Statement (monthly bills, summaries)</option>
+                            <option value="Legal">Legal/Agreement (terms, contracts)</option>
+                            <option value="Tax">Tax Document (1099, W-2, etc.)</option>
+                            <option value="Regulatory">Regulatory (privacy, disclosures)</option>
+                            <option value="Notice">Notice/Alert (important updates)</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Line of Business *</label>
+                        <select id="lineOfBusiness">
+                            <option value="">Select...</option>
+                            <option value="CREDIT_CARD">Credit Card</option>
+                            <option value="MORTGAGE">Mortgage / Home Loan</option>
+                            <option value="BANKING">Banking / Checking</option>
+                            <option value="INVESTMENTS">Investments</option>
+                            <option value="INSURANCE">Insurance</option>
+                            <option value="TAX">Tax Services</option>
+                            <option value="SHARED">Shared (all)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Document Ownership -->
+            <div class="step" id="step2">
+                <h2>Document Ownership</h2>
+                <p class="description">Who should be able to see documents of this type?</p>
+
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="ownership" value="account" checked>
+                        <div class="option-content">
+                            <strong>Account-Specific</strong>
+                            <span>Only the account holder can see their own documents (e.g., monthly statements)</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-option">
+                        <input type="radio" name="ownership" value="customer">
+                        <div class="option-content">
+                            <strong>Customer-Wide</strong>
+                            <span>Customer can see across all their accounts (e.g., annual tax summary)</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-option">
+                        <input type="radio" name="ownership" value="shared">
+                        <div class="option-content">
+                            <strong>Shared / Public</strong>
+                            <span>All customers can see this document (e.g., privacy policy, terms of service)</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-option">
+                        <input type="radio" name="ownership" value="conditional">
+                        <div class="option-content">
+                            <strong>Conditional Access</strong>
+                            <span>Only customers meeting certain criteria can see this (e.g., only platinum members)</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 3: Field Selection -->
+            <div class="step" id="step3">
+                <h2>Extractable Fields</h2>
+                <p class="description">Select the data fields that should be extracted from this document type. These will be stored in the <code>extracted_data</code> column.</p>
+
+                <div class="form-group">
+                    <label>Common Fields for <span id="categoryLabel">this category</span></label>
+                </div>
+
+                <div class="field-grid" id="fieldGrid">
+                    <!-- Fields populated dynamically -->
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Add Custom Field</label>
+                    <div style="display: flex; gap: 12px;">
+                        <input type="text" id="customFieldName" placeholder="Field name (e.g., account_number)" style="flex: 1;">
+                        <select id="customFieldType" style="width: 150px;">
+                            <option value="STRING">Text</option>
+                            <option value="DATE">Date</option>
+                            <option value="NUMBER">Number</option>
+                            <option value="CURRENCY">Currency</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="addCustomField()">+ Add</button>
+                    </div>
+                </div>
+
+                <div class="section-divider"><span>Reference Key Configuration</span></div>
+
+                <div class="info-box">
+                    <p><strong>Reference Key:</strong> A unique identifier used for document matching in eligibility rules.
+                    For example, a disclosure code like "D164" that links documents to specific product arrangements.</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Reference Key Type</label>
+                        <select id="referenceKeyType">
+                            <option value="">None - No reference key needed</option>
+                            <option value="DISCLOSURE_CODE">Disclosure Code (e.g., D164)</option>
+                            <option value="PRICING_ID">Pricing ID (product pricing)</option>
+                            <option value="PRODUCT_CODE">Product Code</option>
+                            <option value="ARRANGEMENT_ID">Arrangement ID</option>
+                            <option value="CUSTOM">Custom Reference Type</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="customRefTypeGroup" style="display: none;">
+                        <label>Custom Reference Type Name</label>
+                        <input type="text" id="customRefType" placeholder="e.g., Region_Code">
+                    </div>
+                </div>
+
+                <div class="form-group" id="refKeySourceGroup" style="display: none;">
+                    <label>Where does the reference key come from?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="refKeySource" value="document" checked>
+                            <div class="option-content">
+                                <strong>Extracted from Document</strong>
+                                <span>The reference key is embedded in the document itself</span>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="refKeySource" value="api">
+                            <div class="option-content">
+                                <strong>From Source API</strong>
+                                <span>The reference key comes from an API response (e.g., arrangements API)</span>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="refKeySource" value="metadata">
+                            <div class="option-content">
+                                <strong>Document Metadata</strong>
+                                <span>Provided as metadata when document is indexed</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Source APIs -->
+            <div class="step" id="step4">
+                <h2>Source APIs</h2>
+                <p class="description">Configure APIs that provide data for eligibility checks and document enrichment.</p>
+
+                <div class="info-box">
+                    <p><strong>Why configure APIs?</strong> When checking eligibility (e.g., "only platinum members"),
+                    the system needs to know which API to call to get the customer's membership tier.</p>
+                </div>
+
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showApiTab('predefined')">Use Existing API</button>
+                    <button class="tab-btn" onclick="showApiTab('upload')">Upload API Spec</button>
+                    <button class="tab-btn" onclick="showApiTab('custom')">Add Custom API</button>
+                </div>
+
+                <div class="tab-content active" id="predefined-apis">
+                    <div class="api-card" onclick="selectApi('credit-info')">
+                        <div class="api-card-header">
+                            <input type="radio" name="sourceApi" value="credit-info">
+                            <h4>Credit Info API</h4>
+                            <span class="api-badge">Credit Card</span>
+                        </div>
+                        <p>Returns customer credit card information including membership tier, credit limit, and account status.</p>
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+                            <strong>Endpoint:</strong> /api/v1/mock-api/credit-info
+                        </div>
+                        <div class="api-fields">
+                            <span class="api-field-tag">membership_tier</span>
+                            <span class="api-field-tag">credit_limit</span>
+                            <span class="api-field-tag">account_status</span>
+                            <span class="api-field-tag">card_type</span>
+                        </div>
+                    </div>
+
+                    <div class="api-card" onclick="selectApi('account-info')">
+                        <div class="api-card-header">
+                            <input type="radio" name="sourceApi" value="account-info">
+                            <h4>Account Info API</h4>
+                            <span class="api-badge">Banking</span>
+                        </div>
+                        <p>Returns account details including balance, account type, and customer tenure.</p>
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+                            <strong>Endpoint:</strong> /api/v1/mock-api/account-info
+                        </div>
+                        <div class="api-fields">
+                            <span class="api-field-tag">account_balance</span>
+                            <span class="api-field-tag">account_type</span>
+                            <span class="api-field-tag">customer_since</span>
+                            <span class="api-field-tag">state</span>
+                        </div>
+                    </div>
+
+                    <div class="api-card" onclick="selectApi('arrangements')">
+                        <div class="api-card-header">
+                            <input type="radio" name="sourceApi" value="arrangements">
+                            <h4>Arrangements API</h4>
+                            <span class="api-badge">Product</span>
+                        </div>
+                        <p>Returns product arrangement details including pricing ID for disclosure matching.</p>
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+                            <strong>Endpoint:</strong> /api/v1/mock-api/arrangements
+                        </div>
+                        <div class="api-fields">
+                            <span class="api-field-tag">pricing_id</span>
+                            <span class="api-field-tag">product_type</span>
+                            <span class="api-field-tag">disclosure_code</span>
+                        </div>
+                    </div>
+
+                    <div class="api-card" onclick="selectApi('none')">
+                        <div class="api-card-header">
+                            <input type="radio" name="sourceApi" value="none">
+                            <h4>No API Required</h4>
+                        </div>
+                        <p>Use this if eligibility is based on data already in the request (e.g., reference key matching).</p>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="upload-api">
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('specFileInput').click()">
+                        <div class="upload-icon">📄</div>
+                        <p><strong>Drop your API spec file here</strong></p>
+                        <p>or click to browse</p>
+                        <p class="file-types">Supports OpenAPI 3.0 / Swagger 2.0 (JSON or YAML)</p>
+                        <input type="file" id="specFileInput" accept=".json,.yaml,.yml" style="display: none;" onchange="handleSpecUpload(event)">
+                    </div>
+
+                    <div class="parsed-api-section" id="parsedApiSection">
+                        <div class="spec-info" id="specInfo">
+                            <h4>API Specification Loaded</h4>
+                            <p id="specTitle">-</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Step 1: Select an Endpoint</label>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 12px;">
+                                Choose the API endpoint that provides the data for eligibility checks.
+                            </p>
+                        </div>
+
+                        <div class="endpoint-list" id="endpointList">
+                            <!-- Endpoints will be populated here -->
+                        </div>
+
+                        <div class="section-divider"><span>then</span></div>
+
+                        <div class="form-group">
+                            <label>Step 2: Select Response Fields</label>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 12px;">
+                                Choose the fields from the response that you want to use for eligibility rules.
+                            </p>
+                        </div>
+
+                        <div class="field-tree" id="responseFieldTree">
+                            <p style="color: #a0aec0; text-align: center; padding: 20px;">
+                                Select an endpoint above to see available response fields
+                            </p>
+                        </div>
+
+                        <div class="selected-fields-summary" id="selectedFieldsSummary" style="display: none;">
+                            <h5>Selected Fields for Eligibility Rules:</h5>
+                            <div id="selectedFieldsList"></div>
+                        </div>
+
+                        <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" onclick="confirmUploadedApi()">
+                            Use This API Configuration
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="custom-api">
+                    <div class="custom-api-form">
+                        <h4>➕ Register a New API</h4>
+
+                        <div class="form-group">
+                            <label>API Name</label>
+                            <input type="text" id="customApiName" placeholder="e.g., Customer Preferences API">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Endpoint URL</label>
+                                <input type="text" id="customApiEndpoint" placeholder="/api/v1/customer-preferences">
+                            </div>
+                            <div class="form-group">
+                                <label>HTTP Method</label>
+                                <select id="customApiMethod">
+                                    <option value="POST">POST</option>
+                                    <option value="GET">GET</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Available Fields (comma-separated)</label>
+                            <input type="text" id="customApiFields" placeholder="e.g., preference_type, opt_in_status, region">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="customApiDescription" placeholder="What data does this API provide?"></textarea>
+                        </div>
+
+                        <button class="btn btn-secondary" onclick="registerCustomApi()">+ Register API</button>
+                    </div>
+
+                    <div id="customApiList" style="margin-top: 20px;">
+                        <!-- Custom APIs will be listed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Access Rules -->
+            <div class="step" id="step5">
+                <h2>Access Rules</h2>
+                <p class="description" id="accessRulesDescription">Define who can see documents of this type.</p>
+
+                <div id="noRulesNeeded">
+                    <div class="review-section">
+                        <p style="text-align: center; color: #718096; padding: 20px;">
+                            ✅ No additional access rules needed.<br>
+                            <span style="font-size: 14px;">Documents will be visible based on ownership settings.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div id="rulesBuilder" class="hidden">
+                    <div class="info-box">
+                        <p><strong>Selected API:</strong> <span id="selectedApiName">None</span><br>
+                        <strong>Available fields:</strong> <span id="selectedApiFields">-</span></p>
+                    </div>
+
+                    <p style="margin-bottom: 16px; color: #4a5568;">
+                        Define conditions using fields from the selected API:
+                    </p>
+
+                    <div class="rule-builder">
+                        <div id="rulesList">
+                            <!-- Rules added dynamically -->
+                        </div>
+                        <button class="btn-add-rule" onclick="addRule()">+ Add Condition</button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Or describe in plain language:</label>
+                        <textarea id="plainLanguageRules" placeholder="e.g., Only show to customers with Platinum or Gold membership tier"></textarea>
+                        <p style="font-size: 12px; color: #718096; margin-top: 8px;">
+                            💡 The system will translate this to technical rules
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Review -->
+            <div class="step" id="step6">
+                <h2>Review & Generate</h2>
+                <p class="description">Review your template configuration before generating.</p>
+
+                <div class="review-section">
+                    <h4>Template Information</h4>
+                    <div class="review-item">
+                        <span class="review-label">Name:</span>
+                        <span class="review-value" id="reviewName">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Category:</span>
+                        <span class="review-value" id="reviewCategory">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Business Line:</span>
+                        <span class="review-value" id="reviewLOB">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Ownership:</span>
+                        <span class="review-value" id="reviewOwnership">-</span>
+                    </div>
+                </div>
+
+                <div class="review-section">
+                    <h4>Fields to Extract (stored in doc_metadata)</h4>
+                    <div id="reviewFields">-</div>
+                </div>
+
+                <div class="review-section" id="reviewRefKeySection" style="display: none;">
+                    <h4>Reference Key Configuration</h4>
+                    <div class="review-item">
+                        <span class="review-label">Key Type:</span>
+                        <span class="review-value" id="reviewRefKeyType">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Source:</span>
+                        <span class="review-value" id="reviewRefKeySource">-</span>
+                    </div>
+                </div>
+
+                <div class="review-section">
+                    <h4>Source API</h4>
+                    <div id="reviewApi">No API configured</div>
+                </div>
+
+                <div class="review-section" id="reviewRulesSection">
+                    <h4>Access Rules</h4>
+                    <div id="reviewRules">No additional rules</div>
+                </div>
+
+                <div class="review-section">
+                    <h4>Generated Configuration</h4>
+                    <div class="output-box" id="generatedOutput">
+                        <!-- JSON output -->
+                    </div>
+                    <button class="copy-btn" onclick="copyOutput()">📋 Copy JSON</button>
+                    <button class="copy-btn" onclick="downloadSQL()" style="margin-left: 8px;">💾 Download SQL</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">← Back</button>
+            <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        // Wizard State
+        let currentStep = 1;
+        const totalSteps = 6;
+
+        // Template Data
+        let templateData = {
+            name: '',
+            description: '',
+            category: '',
+            lineOfBusiness: '',
+            ownership: 'account',
+            fields: [],
+            referenceKeyType: '',
+            referenceKeySource: '',
+            sourceApi: null,
+            rules: [],
+            customApis: []
+        };
+
+        // Reference Key Type change handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const refTypeSelect = document.getElementById('referenceKeyType');
+            if (refTypeSelect) {
+                refTypeSelect.addEventListener('change', function() {
+                    const customGroup = document.getElementById('customRefTypeGroup');
+                    const sourceGroup = document.getElementById('refKeySourceGroup');
+
+                    if (this.value === 'CUSTOM') {
+                        customGroup.style.display = 'block';
+                    } else {
+                        customGroup.style.display = 'none';
+                    }
+
+                    if (this.value && this.value !== '') {
+                        sourceGroup.style.display = 'block';
+                    } else {
+                        sourceGroup.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Pre-defined APIs
+        const predefinedApis = {
+            'credit-info': {
+                name: 'Credit Info API',
+                endpoint: '/api/v1/mock-api/credit-info',
+                fields: ['membership_tier', 'credit_limit', 'account_status', 'card_type']
+            },
+            'account-info': {
+                name: 'Account Info API',
+                endpoint: '/api/v1/mock-api/account-info',
+                fields: ['account_balance', 'account_type', 'customer_since', 'state']
+            },
+            'arrangements': {
+                name: 'Arrangements API',
+                endpoint: '/api/v1/mock-api/arrangements',
+                fields: ['pricing_id', 'product_type', 'disclosure_code']
+            },
+            'none': {
+                name: 'No API',
+                endpoint: null,
+                fields: []
+            }
+        };
+
+        // Pre-defined fields by category
+        const fieldsByCategory = {
+            'Statement': [
+                { name: 'statement_date', label: 'Statement Date', type: 'DATE', required: true },
+                { name: 'account_number', label: 'Account Number', type: 'STRING', required: true },
+                { name: 'balance', label: 'Current Balance', type: 'CURRENCY', required: true },
+                { name: 'due_date', label: 'Due Date', type: 'DATE', required: true },
+                { name: 'minimum_payment', label: 'Minimum Payment', type: 'CURRENCY', required: false },
+                { name: 'previous_balance', label: 'Previous Balance', type: 'CURRENCY', required: false }
+            ],
+            'Legal': [
+                { name: 'effective_date', label: 'Effective Date', type: 'DATE', required: true },
+                { name: 'document_version', label: 'Document Version', type: 'STRING', required: false },
+                { name: 'expiration_date', label: 'Expiration Date', type: 'DATE', required: false },
+                { name: 'apr', label: 'APR', type: 'NUMBER', required: false }
+            ],
+            'Tax': [
+                { name: 'tax_year', label: 'Tax Year', type: 'STRING', required: true },
+                { name: 'interest_income', label: 'Interest Income', type: 'CURRENCY', required: true },
+                { name: 'dividends', label: 'Dividends', type: 'CURRENCY', required: false },
+                { name: 'federal_tax_withheld', label: 'Federal Tax Withheld', type: 'CURRENCY', required: false }
+            ],
+            'Regulatory': [
+                { name: 'effective_date', label: 'Effective Date', type: 'DATE', required: true },
+                { name: 'document_version', label: 'Document Version', type: 'STRING', required: false }
+            ],
+            'Notice': [
+                { name: 'notice_date', label: 'Notice Date', type: 'DATE', required: true },
+                { name: 'notice_type', label: 'Notice Type', type: 'STRING', required: true },
+                { name: 'deadline', label: 'Response Deadline', type: 'DATE', required: false }
+            ],
+            'Other': [
+                { name: 'document_date', label: 'Document Date', type: 'DATE', required: true },
+                { name: 'reference_number', label: 'Reference Number', type: 'STRING', required: false }
+            ]
+        };
+
+        // API Tab switching
+        function showApiTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            const tabMap = {
+                'predefined': 'predefined-apis',
+                'upload': 'upload-api',
+                'custom': 'custom-api'
+            };
+            document.getElementById(tabMap[tab]).classList.add('active');
+        }
+
+        // API Spec Upload State
+        let parsedSpec = null;
+        let selectedEndpoint = null;
+        let selectedResponseFields = [];
+
+        // Drag and drop for upload zone
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadZone = document.getElementById('uploadZone');
+            if (uploadZone) {
+                uploadZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.add('dragover');
+                });
+                uploadZone.addEventListener('dragleave', () => {
+                    uploadZone.classList.remove('dragover');
+                });
+                uploadZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.remove('dragover');
+                    const file = e.dataTransfer.files[0];
+                    if (file) processSpecFile(file);
+                });
+            }
+        });
+
+        function handleSpecUpload(event) {
+            const file = event.target.files[0];
+            if (file) processSpecFile(file);
+        }
+
+        function processSpecFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let spec;
+                    const content = e.target.result;
+
+                    // Try JSON first
+                    if (file.name.endsWith('.json')) {
+                        spec = JSON.parse(content);
+                    } else {
+                        // For YAML, we'll use a simple parser for common cases
+                        // In production, you'd use a proper YAML parser library
+                        spec = parseSimpleYaml(content);
+                    }
+
+                    parsedSpec = spec;
+                    displayParsedSpec(spec);
+                } catch (err) {
+                    alert('Error parsing API spec: ' + err.message);
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseSimpleYaml(yamlContent) {
+            // Simple YAML to JSON conversion for basic OpenAPI specs
+            // For production, use js-yaml library
+            try {
+                // Try if it's actually JSON
+                return JSON.parse(yamlContent);
+            } catch {
+                // Very basic YAML parsing - in production use js-yaml
+                alert('For YAML files, please convert to JSON first or use a JSON spec file.\n\nYou can convert YAML to JSON at: https://www.json2yaml.com/');
+                throw new Error('YAML parsing requires conversion to JSON');
+            }
+        }
+
+        function displayParsedSpec(spec) {
+            document.getElementById('parsedApiSection').classList.add('visible');
+
+            // Display spec info
+            const title = spec.info?.title || 'Unknown API';
+            const version = spec.info?.version || '1.0';
+            const description = spec.info?.description || '';
+
+            document.getElementById('specTitle').innerHTML = `
+                <strong>${title}</strong> v${version}
+                ${description ? `<br><span style="font-size: 12px;">${description.substring(0, 100)}...</span>` : ''}
+            `;
+
+            // Build endpoints list
+            const endpoints = extractEndpoints(spec);
+            displayEndpoints(endpoints);
+        }
+
+        function extractEndpoints(spec) {
+            const endpoints = [];
+            const paths = spec.paths || {};
+
+            for (const [path, methods] of Object.entries(paths)) {
+                for (const [method, details] of Object.entries(methods)) {
+                    if (['get', 'post', 'put', 'delete', 'patch'].includes(method.toLowerCase())) {
+                        endpoints.push({
+                            path,
+                            method: method.toUpperCase(),
+                            summary: details.summary || details.description || '',
+                            operationId: details.operationId || `${method}_${path.replace(/\//g, '_')}`,
+                            responses: details.responses || {},
+                            requestBody: details.requestBody
+                        });
+                    }
+                }
+            }
+
+            return endpoints;
+        }
+
+        function displayEndpoints(endpoints) {
+            const container = document.getElementById('endpointList');
+
+            if (endpoints.length === 0) {
+                container.innerHTML = '<p style="padding: 20px; text-align: center; color: #718096;">No endpoints found in spec</p>';
+                return;
+            }
+
+            container.innerHTML = endpoints.map((ep, index) => `
+                <div class="endpoint-item" onclick="selectEndpoint(${index})">
+                    <input type="radio" name="specEndpoint" value="${index}">
+                    <span class="endpoint-method ${ep.method.toLowerCase()}">${ep.method}</span>
+                    <span class="endpoint-path">${ep.path}</span>
+                    ${ep.summary ? `<span class="endpoint-summary">${ep.summary.substring(0, 40)}${ep.summary.length > 40 ? '...' : ''}</span>` : ''}
+                </div>
+            `).join('');
+
+            // Store endpoints for later reference
+            window.parsedEndpoints = endpoints;
+        }
+
+        function selectEndpoint(index) {
+            // Update UI
+            document.querySelectorAll('.endpoint-item').forEach((item, i) => {
+                item.classList.toggle('selected', i === index);
+                item.querySelector('input[type="radio"]').checked = (i === index);
+            });
+
+            selectedEndpoint = window.parsedEndpoints[index];
+            selectedResponseFields = [];
+
+            // Extract and display response schema
+            displayResponseFields(selectedEndpoint);
+        }
+
+        function displayResponseFields(endpoint) {
+            const container = document.getElementById('responseFieldTree');
+
+            // Try to get 200 response schema
+            const successResponse = endpoint.responses['200'] || endpoint.responses['201'] || endpoint.responses.default;
+
+            if (!successResponse) {
+                container.innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">No response schema defined for this endpoint</p>';
+                return;
+            }
+
+            // Extract schema from response
+            let schema = null;
+
+            // OpenAPI 3.0 format
+            if (successResponse.content) {
+                const jsonContent = successResponse.content['application/json'];
+                if (jsonContent && jsonContent.schema) {
+                    schema = resolveSchema(jsonContent.schema);
+                }
+            }
+            // Swagger 2.0 format
+            else if (successResponse.schema) {
+                schema = resolveSchema(successResponse.schema);
+            }
+
+            if (!schema) {
+                container.innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">Could not parse response schema</p>';
+                return;
+            }
+
+            // Display fields as a tree
+            const fields = extractFieldsFromSchema(schema, '$');
+            displayFieldTree(fields, container);
+        }
+
+        function resolveSchema(schema) {
+            // Resolve $ref references
+            if (schema.$ref) {
+                const refPath = schema.$ref.replace('#/', '').split('/');
+                let resolved = parsedSpec;
+                for (const part of refPath) {
+                    resolved = resolved[part];
+                }
+                return resolved;
+            }
+            return schema;
+        }
+
+        function extractFieldsFromSchema(schema, basePath, depth = 0) {
+            const fields = [];
+            if (depth > 5) return fields; // Prevent infinite recursion
+
+            schema = resolveSchema(schema);
+
+            if (schema.type === 'object' && schema.properties) {
+                for (const [name, prop] of Object.entries(schema.properties)) {
+                    const resolvedProp = resolveSchema(prop);
+                    const fieldPath = `${basePath}.${name}`;
+
+                    fields.push({
+                        name,
+                        path: fieldPath,
+                        type: resolvedProp.type || 'object',
+                        description: resolvedProp.description || '',
+                        depth
+                    });
+
+                    // Recurse for nested objects
+                    if (resolvedProp.type === 'object' && resolvedProp.properties) {
+                        fields.push(...extractFieldsFromSchema(resolvedProp, fieldPath, depth + 1));
+                    }
+
+                    // Handle arrays
+                    if (resolvedProp.type === 'array' && resolvedProp.items) {
+                        const itemSchema = resolveSchema(resolvedProp.items);
+                        if (itemSchema.type === 'object' && itemSchema.properties) {
+                            fields.push(...extractFieldsFromSchema(itemSchema, `${fieldPath}[*]`, depth + 1));
+                        }
+                    }
+                }
+            }
+
+            // Handle allOf, oneOf, anyOf
+            if (schema.allOf) {
+                for (const subSchema of schema.allOf) {
+                    fields.push(...extractFieldsFromSchema(subSchema, basePath, depth));
+                }
+            }
+
+            return fields;
+        }
+
+        function displayFieldTree(fields, container) {
+            if (fields.length === 0) {
+                container.innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">No fields found in response schema</p>';
+                return;
+            }
+
+            container.innerHTML = fields.map(field => `
+                <label class="field-tree-item" style="padding-left: ${16 + field.depth * 20}px;">
+                    <input type="checkbox"
+                           data-field-name="${field.name}"
+                           data-field-path="${field.path}"
+                           data-field-type="${field.type}"
+                           onchange="toggleResponseField(this)">
+                    <span class="field-path">${field.path}</span>
+                    <span>${field.name}</span>
+                    <span class="field-type-badge">${field.type}</span>
+                </label>
+            `).join('');
+        }
+
+        function toggleResponseField(checkbox) {
+            const fieldData = {
+                name: checkbox.dataset.fieldName,
+                path: checkbox.dataset.fieldPath,
+                type: checkbox.dataset.fieldType
+            };
+
+            if (checkbox.checked) {
+                selectedResponseFields.push(fieldData);
+            } else {
+                selectedResponseFields = selectedResponseFields.filter(f => f.path !== fieldData.path);
+            }
+
+            updateSelectedFieldsSummary();
+        }
+
+        function updateSelectedFieldsSummary() {
+            const summary = document.getElementById('selectedFieldsSummary');
+            const list = document.getElementById('selectedFieldsList');
+
+            if (selectedResponseFields.length > 0) {
+                summary.style.display = 'block';
+                list.innerHTML = selectedResponseFields.map(f =>
+                    `<span class="field-chip">${f.name} <small>(${f.path})</small></span>`
+                ).join('');
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+
+        function confirmUploadedApi() {
+            if (!selectedEndpoint) {
+                alert('Please select an endpoint first.');
+                return;
+            }
+
+            if (selectedResponseFields.length === 0) {
+                alert('Please select at least one response field for eligibility rules.');
+                return;
+            }
+
+            // Create custom API entry from parsed spec
+            const apiId = 'uploaded_' + Date.now();
+            const apiName = (parsedSpec.info?.title || 'Uploaded API') + ' - ' + selectedEndpoint.path;
+            const endpoint = selectedEndpoint.path;
+            const fields = selectedResponseFields.map(f => f.name);
+
+            // Add to predefinedApis
+            predefinedApis[apiId] = {
+                name: apiName,
+                endpoint: endpoint,
+                fields: fields,
+                fieldPaths: selectedResponseFields.reduce((acc, f) => {
+                    acc[f.name] = f.path;
+                    return acc;
+                }, {})
+            };
+
+            // Store for template data
+            templateData.sourceApi = apiId;
+            templateData.uploadedApiSpec = {
+                title: parsedSpec.info?.title,
+                endpoint: selectedEndpoint,
+                selectedFields: selectedResponseFields
+            };
+
+            // Add to predefined list visually
+            const apiHtml = `
+                <div class="api-card selected" onclick="selectApi('${apiId}')">
+                    <div class="api-card-header">
+                        <input type="radio" name="sourceApi" value="${apiId}" checked>
+                        <h4>${apiName}</h4>
+                        <span class="api-badge">Uploaded</span>
+                    </div>
+                    <p>${selectedEndpoint.summary || 'From uploaded API specification'}</p>
+                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+                        <strong>Endpoint:</strong> ${selectedEndpoint.method} ${endpoint}
+                    </div>
+                    <div class="api-fields">
+                        ${fields.map(f => `<span class="api-field-tag">${f}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Deselect other APIs
+            document.querySelectorAll('#predefined-apis .api-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('#predefined-apis input[name="sourceApi"]').forEach(radio => radio.checked = false);
+
+            // Add the new API card at the top
+            document.getElementById('predefined-apis').insertAdjacentHTML('afterbegin', apiHtml);
+
+            // Switch to predefined tab to show the result
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector('.tab-btn').classList.add('active');
+            document.getElementById('predefined-apis').classList.add('active');
+
+            alert('API configuration added successfully! You can now proceed to define access rules.');
+        }
+
+        function selectApi(apiId) {
+            templateData.sourceApi = apiId;
+            document.querySelectorAll('.api-card').forEach(card => card.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            event.currentTarget.querySelector('input[type="radio"]').checked = true;
+        }
+
+        function registerCustomApi() {
+            const name = document.getElementById('customApiName').value.trim();
+            const endpoint = document.getElementById('customApiEndpoint').value.trim();
+            const fields = document.getElementById('customApiFields').value.split(',').map(f => f.trim()).filter(f => f);
+            const description = document.getElementById('customApiDescription').value.trim();
+
+            if (!name || !endpoint || fields.length === 0) {
+                alert('Please fill in API name, endpoint, and at least one field.');
+                return;
+            }
+
+            const customId = 'custom_' + Date.now();
+            predefinedApis[customId] = { name, endpoint, fields };
+            templateData.customApis.push({ id: customId, name, endpoint, fields, description });
+
+            // Add to the predefined list
+            const apiHtml = `
+                <div class="api-card" onclick="selectApi('${customId}')">
+                    <div class="api-card-header">
+                        <input type="radio" name="sourceApi" value="${customId}">
+                        <h4>${name}</h4>
+                        <span class="api-badge">Custom</span>
+                    </div>
+                    <p>${description || 'Custom API'}</p>
+                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+                        <strong>Endpoint:</strong> ${endpoint}
+                    </div>
+                    <div class="api-fields">
+                        ${fields.map(f => `<span class="api-field-tag">${f}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('customApiList').innerHTML += apiHtml;
+
+            // Clear form
+            document.getElementById('customApiName').value = '';
+            document.getElementById('customApiEndpoint').value = '';
+            document.getElementById('customApiFields').value = '';
+            document.getElementById('customApiDescription').value = '';
+
+            alert('API registered! You can now select it from the list.');
+            showApiTab('predefined');
+        }
+
+        // Navigation
+        function updateProgress() {
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                } else if (index + 1 < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+
+            document.getElementById('btnBack').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+
+            if (currentStep === totalSteps) {
+                document.getElementById('btnNext').textContent = '✓ Create Template';
+                document.getElementById('btnNext').classList.remove('btn-primary');
+                document.getElementById('btnNext').classList.add('btn-success');
+            } else {
+                document.getElementById('btnNext').textContent = 'Next →';
+                document.getElementById('btnNext').classList.remove('btn-success');
+                document.getElementById('btnNext').classList.add('btn-primary');
+            }
+        }
+
+        function nextStep() {
+            if (!validateStep()) return;
+            saveStepData();
+
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateProgress();
+                onStepEnter();
+            } else {
+                alert('Template configuration copied! You can now import this into the Document Hub.');
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateProgress();
+                onStepEnter();
+            }
+        }
+
+        function validateStep() {
+            if (currentStep === 1) {
+                if (!document.getElementById('templateName').value.trim()) {
+                    alert('Please enter a template name.');
+                    return false;
+                }
+                if (!document.getElementById('templateCategory').value) {
+                    alert('Please select a category.');
+                    return false;
+                }
+                if (!document.getElementById('lineOfBusiness').value) {
+                    alert('Please select a line of business.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function saveStepData() {
+            if (currentStep === 1) {
+                templateData.name = document.getElementById('templateName').value.trim();
+                templateData.description = document.getElementById('templateDescription').value.trim();
+                templateData.category = document.getElementById('templateCategory').value;
+                templateData.lineOfBusiness = document.getElementById('lineOfBusiness').value;
+            } else if (currentStep === 2) {
+                templateData.ownership = document.querySelector('input[name="ownership"]:checked').value;
+            } else if (currentStep === 3) {
+                templateData.fields = [];
+                document.querySelectorAll('.field-item input:checked').forEach(cb => {
+                    templateData.fields.push({
+                        name: cb.dataset.name,
+                        label: cb.dataset.label,
+                        type: cb.dataset.type,
+                        required: cb.dataset.required === 'true'
+                    });
+                });
+
+                // Capture reference key configuration
+                const refTypeSelect = document.getElementById('referenceKeyType');
+                let refType = refTypeSelect.value;
+                if (refType === 'CUSTOM') {
+                    refType = document.getElementById('customRefType').value.trim() || 'CUSTOM';
+                }
+                templateData.referenceKeyType = refType;
+
+                const refSourceRadio = document.querySelector('input[name="refKeySource"]:checked');
+                templateData.referenceKeySource = refSourceRadio ? refSourceRadio.value : '';
+            } else if (currentStep === 4) {
+                const selectedRadio = document.querySelector('input[name="sourceApi"]:checked');
+                templateData.sourceApi = selectedRadio ? selectedRadio.value : 'none';
+            } else if (currentStep === 5) {
+                templateData.rules = [];
+                document.querySelectorAll('.rule-row').forEach(row => {
+                    const field = row.querySelector('.rule-field')?.value;
+                    const operator = row.querySelector('.rule-operator')?.value;
+                    const value = row.querySelector('.rule-value')?.value;
+                    if (field && operator && value) {
+                        templateData.rules.push({ field, operator, values: value.split(',').map(v => v.trim()) });
+                    }
+                });
+            }
+        }
+
+        function onStepEnter() {
+            if (currentStep === 3) {
+                updateFieldsForCategory();
+            } else if (currentStep === 5) {
+                updateAccessRulesVisibility();
+            } else if (currentStep === 6) {
+                updateReview();
+            }
+        }
+
+        function updateFieldsForCategory() {
+            const category = templateData.category || 'Other';
+            const fields = fieldsByCategory[category] || fieldsByCategory['Other'];
+
+            document.getElementById('categoryLabel').textContent = category;
+
+            const grid = document.getElementById('fieldGrid');
+            grid.innerHTML = fields.map(f => `
+                <label class="field-item">
+                    <input type="checkbox"
+                           data-name="${f.name}"
+                           data-label="${f.label}"
+                           data-type="${f.type}"
+                           data-required="${f.required}"
+                           ${f.required ? 'checked' : ''}>
+                    <span>${f.label} ${f.required ? '*' : ''}</span>
+                </label>
+            `).join('');
+        }
+
+        function addCustomField() {
+            const name = document.getElementById('customFieldName').value.trim();
+            const type = document.getElementById('customFieldType').value;
+
+            if (!name) {
+                alert('Please enter a field name.');
+                return;
+            }
+
+            const grid = document.getElementById('fieldGrid');
+            const label = name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+            grid.innerHTML += `
+                <label class="field-item selected">
+                    <input type="checkbox"
+                           data-name="${name}"
+                           data-label="${label}"
+                           data-type="${type}"
+                           data-required="false"
+                           checked>
+                    <span>${label}</span>
+                </label>
+            `;
+
+            document.getElementById('customFieldName').value = '';
+        }
+
+        function updateAccessRulesVisibility() {
+            const ownership = templateData.ownership;
+            const noRules = document.getElementById('noRulesNeeded');
+            const rulesBuilder = document.getElementById('rulesBuilder');
+
+            if (ownership === 'conditional') {
+                noRules.classList.add('hidden');
+                rulesBuilder.classList.remove('hidden');
+
+                // Update API info
+                const api = predefinedApis[templateData.sourceApi] || predefinedApis['none'];
+                document.getElementById('selectedApiName').textContent = api.name;
+                document.getElementById('selectedApiFields').textContent = api.fields.length > 0 ? api.fields.join(', ') : 'None';
+
+                if (document.querySelectorAll('.rule-row').length === 0) {
+                    addRule();
+                }
+            } else {
+                noRules.classList.remove('hidden');
+                rulesBuilder.classList.add('hidden');
+            }
+        }
+
+        function addRule() {
+            const rulesList = document.getElementById('rulesList');
+            const ruleId = Date.now();
+
+            const api = predefinedApis[templateData.sourceApi] || predefinedApis['none'];
+            const fields = api.fields.length > 0 ? api.fields : ['custom_field'];
+
+            const ruleHtml = `
+                <div class="rule-row" id="rule-${ruleId}">
+                    <select class="rule-field">
+                        <option value="">Select field...</option>
+                        ${fields.map(f => `<option value="${f}">${f.replace(/_/g, ' ')}</option>`).join('')}
+                    </select>
+                    <select class="rule-operator">
+                        <option value="EQUALS">equals</option>
+                        <option value="IN">is one of</option>
+                        <option value="GREATER_THAN">greater than</option>
+                        <option value="LESS_THAN">less than</option>
+                        <option value="CONTAINS">contains</option>
+                    </select>
+                    <input type="text" class="rule-value" placeholder="Value(s)" style="flex: 1; min-width: 150px;">
+                    <button class="btn-remove" onclick="removeRule(${ruleId})">×</button>
+                </div>
+            `;
+
+            rulesList.insertAdjacentHTML('beforeend', ruleHtml);
+        }
+
+        function removeRule(ruleId) {
+            document.getElementById(`rule-${ruleId}`)?.remove();
+        }
+
+        function updateReview() {
+            saveStepData();
+
+            document.getElementById('reviewName').textContent = templateData.name;
+            document.getElementById('reviewCategory').textContent = templateData.category;
+            document.getElementById('reviewLOB').textContent = templateData.lineOfBusiness;
+
+            const ownershipLabels = {
+                'account': 'Account-Specific',
+                'customer': 'Customer-Wide',
+                'shared': 'Shared / Public',
+                'conditional': 'Conditional Access'
+            };
+            document.getElementById('reviewOwnership').textContent = ownershipLabels[templateData.ownership];
+
+            // Fields
+            const fieldsHtml = templateData.fields.map(f =>
+                `<span class="tag">${f.label}</span>`
+            ).join('') || 'No fields selected';
+            document.getElementById('reviewFields').innerHTML = fieldsHtml;
+
+            // Reference Key
+            if (templateData.referenceKeyType) {
+                document.getElementById('reviewRefKeySection').style.display = 'block';
+                document.getElementById('reviewRefKeyType').textContent = templateData.referenceKeyType;
+                const sourceLabels = {
+                    'document': 'Extracted from Document',
+                    'api': 'From Source API',
+                    'metadata': 'Document Metadata'
+                };
+                document.getElementById('reviewRefKeySource').textContent =
+                    sourceLabels[templateData.referenceKeySource] || '-';
+            } else {
+                document.getElementById('reviewRefKeySection').style.display = 'none';
+            }
+
+            // API
+            const api = predefinedApis[templateData.sourceApi];
+            if (api && api.endpoint) {
+                document.getElementById('reviewApi').innerHTML = `
+                    <strong>${api.name}</strong><br>
+                    <span style="font-size: 13px; color: #718096;">${api.endpoint}</span>
+                `;
+            } else {
+                document.getElementById('reviewApi').textContent = 'No API configured';
+            }
+
+            // Rules
+            if (templateData.rules.length > 0) {
+                const rulesHtml = templateData.rules.map(r =>
+                    `<div>• ${r.field.replace(/_/g, ' ')} ${r.operator.toLowerCase().replace(/_/g, ' ')} <strong>${r.values.join(', ')}</strong></div>`
+                ).join('');
+                document.getElementById('reviewRules').innerHTML = rulesHtml;
+            } else {
+                document.getElementById('reviewRules').textContent = 'No additional rules';
+            }
+
+            generateOutput();
+        }
+
+        function generateOutput() {
+            const templateType = templateData.name.toUpperCase().replace(/\s+/g, '_');
+            const api = predefinedApis[templateData.sourceApi];
+
+            // Build template_config
+            const templateConfig = {};
+
+            // Add reference key configuration to template_config
+            if (templateData.referenceKeyType) {
+                templateConfig.reference_key_config = {
+                    reference_key_type: templateData.referenceKeyType,
+                    source: templateData.referenceKeySource
+                };
+            }
+
+            const config = {
+                template_type: templateType,
+                template_version: 1,
+                template_category: templateData.category,
+                display_name: templateData.name,
+                description: templateData.description,
+                line_of_business: templateData.lineOfBusiness,
+                shared_flag: templateData.ownership === 'shared',
+                mock_api_url: api?.endpoint || null,
+                data_extraction_config: {
+                    fields: templateData.fields.map(f => ({
+                        name: f.name,
+                        type: f.type,
+                        required: f.required,
+                        label: f.label
+                    }))
+                },
+                template_config: templateConfig
+            };
+
+            if (templateData.rules.length > 0 && api) {
+                config.template_config.eligibility_criteria = templateData.rules.map(r => {
+                    const rule = {
+                        field: r.field,
+                        source: 'API_CALL',
+                        operator: r.operator,
+                        values: r.values,
+                        api_endpoint: api.endpoint
+                    };
+
+                    // Include JSONPath if available from uploaded API spec
+                    if (api.fieldPaths && api.fieldPaths[r.field]) {
+                        rule.field_path = api.fieldPaths[r.field];
+                    }
+
+                    return rule;
+                });
+            }
+
+            // Include uploaded API spec details if present
+            if (templateData.uploadedApiSpec) {
+                config.api_spec_source = {
+                    title: templateData.uploadedApiSpec.title,
+                    method: templateData.uploadedApiSpec.endpoint.method,
+                    path: templateData.uploadedApiSpec.endpoint.path,
+                    selected_fields: templateData.uploadedApiSpec.selectedFields.map(f => ({
+                        name: f.name,
+                        path: f.path,
+                        type: f.type
+                    }))
+                };
+            }
+
+            document.getElementById('generatedOutput').textContent = JSON.stringify(config, null, 2);
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('generatedOutput').textContent;
+            navigator.clipboard.writeText(output).then(() => {
+                alert('Configuration copied to clipboard!');
+            });
+        }
+
+        function downloadSQL() {
+            const templateType = templateData.name.toUpperCase().replace(/\s+/g, '_');
+            const config = JSON.parse(document.getElementById('generatedOutput').textContent);
+
+            // Build template_config with field paths if available
+            let templateConfig = config.template_config || {};
+
+            // Add API spec source info as a comment
+            let apiSourceComment = '';
+            if (config.api_spec_source) {
+                apiSourceComment = `-- API Source: ${config.api_spec_source.title || 'Uploaded Spec'}
+-- Endpoint: ${config.api_spec_source.method} ${config.api_spec_source.path}
+-- Selected Fields:
+${config.api_spec_source.selected_fields.map(f => `--   - ${f.name}: ${f.path}`).join('\n')}
+`;
+            }
+
+            const sql = `-- Generated Template SQL
+-- Template: ${templateData.name}
+-- Generated: ${new Date().toISOString()}
+${apiSourceComment}
+INSERT INTO document_hub.master_template_definition (
+    template_id,
+    template_type,
+    template_version,
+    template_category,
+    display_name,
+    description,
+    line_of_business,
+    shared_flag,
+    mock_api_url,
+    data_extraction_config,
+    template_config,
+    accessible_flag
+) VALUES (
+    gen_random_uuid(),
+    '${templateType}',
+    1,
+    '${templateData.category}',
+    '${templateData.name.replace(/'/g, "''")}',
+    '${(templateData.description || '').replace(/'/g, "''")}',
+    '${templateData.lineOfBusiness}',
+    ${templateData.ownership === 'shared'},
+    ${config.mock_api_url ? `'${config.mock_api_url}'` : 'NULL'},
+    '${JSON.stringify(config.data_extraction_config).replace(/'/g, "''")}',
+    '${JSON.stringify(templateConfig).replace(/'/g, "''")}',
+    true
+);
+`;
+
+            const blob = new Blob([sql], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template_${templateType.toLowerCase()}.sql`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

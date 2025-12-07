@@ -1,0 +1,232 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Customer Credit Info API",
+    "version": "1.0.0",
+    "description": "API for retrieving customer credit card information including membership tier and account details"
+  },
+  "paths": {
+    "/api/v1/customers/{customerId}/credit-info": {
+      "get": {
+        "summary": "Get customer credit information",
+        "description": "Retrieves credit card details for a specific customer",
+        "operationId": "getCreditInfo",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/{customerId}/accounts": {
+      "get": {
+        "summary": "Get customer accounts",
+        "description": "Retrieves all accounts for a customer",
+        "operationId": "getAccounts",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/arrangements/{arrangementId}": {
+      "post": {
+        "summary": "Get arrangement details",
+        "description": "Retrieves product arrangement including pricing and disclosure codes",
+        "operationId": "getArrangement",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "includeDisclosures": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArrangementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreditInfoResponse": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "Unique customer identifier"
+          },
+          "membershipTier": {
+            "type": "string",
+            "description": "Customer membership tier (PLATINUM, GOLD, SILVER, STANDARD)",
+            "enum": ["PLATINUM", "GOLD", "SILVER", "STANDARD"]
+          },
+          "creditLimit": {
+            "type": "number",
+            "description": "Credit limit amount"
+          },
+          "availableCredit": {
+            "type": "number",
+            "description": "Available credit amount"
+          },
+          "accountStatus": {
+            "type": "string",
+            "description": "Account status (ACTIVE, SUSPENDED, CLOSED)",
+            "enum": ["ACTIVE", "SUSPENDED", "CLOSED"]
+          },
+          "cardType": {
+            "type": "string",
+            "description": "Type of credit card"
+          },
+          "accountDetails": {
+            "type": "object",
+            "properties": {
+              "openDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "lastPaymentDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "paymentDueDate": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "preferences": {
+            "type": "object",
+            "properties": {
+              "paperlessStatements": {
+                "type": "boolean"
+              },
+              "emailNotifications": {
+                "type": "boolean"
+              },
+              "preferredLanguage": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "AccountListResponse": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          },
+          "totalCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string",
+            "enum": ["CHECKING", "SAVINGS", "CREDIT_CARD", "MORTGAGE"]
+          },
+          "balance": {
+            "type": "number"
+          },
+          "state": {
+            "type": "string",
+            "description": "US state where account was opened"
+          },
+          "customerSince": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ArrangementResponse": {
+        "type": "object",
+        "properties": {
+          "arrangementId": {
+            "type": "string"
+          },
+          "productType": {
+            "type": "string",
+            "description": "Product type identifier"
+          },
+          "pricingId": {
+            "type": "string",
+            "description": "Pricing plan identifier for disclosure matching"
+          },
+          "disclosureCode": {
+            "type": "string",
+            "description": "Disclosure code for regulatory documents"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "terms": {
+            "type": "object",
+            "properties": {
+              "apr": {
+                "type": "number"
+              },
+              "annualFee": {
+                "type": "number"
+              },
+              "gracePeriodDays": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

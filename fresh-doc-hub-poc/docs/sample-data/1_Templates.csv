@@ -1,0 +1,8 @@
+template_type,template_version,template_category,display_name,description,line_of_business,shared_flag,mock_api_url
+CREDIT_CARD_STATEMENT,1,Statement,Credit Card Statement,Monthly credit card statement,CREDIT_CARD,FALSE,
+CREDIT_CARD_TERMS,1,Legal,Credit Card Terms,Credit card terms and conditions,CREDIT_CARD,FALSE,
+PLATINUM_CARD_AGREEMENT,1,Legal,Platinum Card Agreement,Special terms for platinum cardholders,CREDIT_CARD,FALSE,http://localhost:8080/api/v1/mock-api/credit-info
+PRIVACY_POLICY,1,Regulatory,Privacy Policy,Privacy policy document,SHARED,TRUE,
+TERMS_OF_SERVICE,1,Regulatory,Terms of Service,General terms of service,SHARED,TRUE,
+TAX_1099_INT,1,Tax,1099-INT Form,Year-end tax interest statement,TAX,FALSE,
+MORTGAGE_STATEMENT,1,Statement,Mortgage Statement,Monthly mortgage statement,MORTGAGE,FALSE,

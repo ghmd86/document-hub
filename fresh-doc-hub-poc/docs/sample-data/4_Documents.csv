@@ -1,0 +1,7 @@
+template_type,template_version,file_name,file_location,account_key,customer_key,reference_key,reference_key_type,valid_from,valid_until,extracted_statement_date,extracted_balance,extracted_due_date
+CREDIT_CARD_STATEMENT,1,statement_jan_2024.pdf,/documents/statements/,aaaa0000-0000-0000-0000-000000000001,cccc0000-0000-0000-0000-000000000001,,,2024-01-31,2027-01-31,2024-01-31,1234.56,2024-02-15
+CREDIT_CARD_STATEMENT,1,statement_feb_2024.pdf,/documents/statements/,aaaa0000-0000-0000-0000-000000000001,cccc0000-0000-0000-0000-000000000001,,,2024-02-29,2027-02-28,2024-02-29,1456.78,2024-03-15
+CREDIT_CARD_TERMS,1,Credit_Card_Terms_D164.pdf,/documents/terms/,aaaa0000-0000-0000-0000-000000000001,cccc0000-0000-0000-0000-000000000001,D164,Disclosure_Code,2024-01-01,2027-12-31,,
+PLATINUM_CARD_AGREEMENT,1,Platinum_Agreement.pdf,/documents/agreements/,aaaa0000-0000-0000-0000-000000000001,cccc0000-0000-0000-0000-000000000001,,,2024-01-01,2027-12-31,,
+PRIVACY_POLICY,1,Privacy_Policy_2024.pdf,/documents/regulatory/,,,,,2024-01-01,2027-12-31,,
+TAX_1099_INT,1,1099_INT_2024.pdf,/documents/tax/,aaaa0000-0000-0000-0000-000000000001,cccc0000-0000-0000-0000-000000000001,,,2024-01-15,2025-04-15,2024,523.45,

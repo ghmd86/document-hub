@@ -1,0 +1,4 @@
+template_type,criteria_field,criteria_source,operator,criteria_values,api_endpoint
+PLATINUM_CARD_AGREEMENT,membership_tier,API_CALL,IN,"PLATINUM,GOLD",/mock-api/credit-info
+CREDIT_CARD_TERMS,disclosure_code,REQUEST_CONTEXT,EQUALS,D164,
+TAX_1099_INT,interest_earned,API_CALL,GREATER_THAN,10,/mock-api/tax-info

@@ -1,0 +1,3 @@
+@echo off
+echo Opening Template Builder Wizard...
+start "" "%~dp0index.html"
