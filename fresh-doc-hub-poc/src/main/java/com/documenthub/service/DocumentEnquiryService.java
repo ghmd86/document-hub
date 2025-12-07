@@ -594,6 +594,11 @@ public class DocumentEnquiryService {
                 node.setCategory(template.getTemplateCategory());
                 node.setDatePosted(entity.getDocCreationDate());
 
+                // Set lineOfBusiness from template
+                if (template.getLineOfBusiness() != null && !template.getLineOfBusiness().isEmpty()) {
+                    node.setLineOfBusiness(Collections.singletonList(template.getLineOfBusiness()));
+                }
+
                 // Add metadata
                 if (entity.getDocMetadata() != null) {
                     try {

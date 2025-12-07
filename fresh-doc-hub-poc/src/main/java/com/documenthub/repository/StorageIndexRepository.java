@@ -21,6 +21,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE account_key = :accountKey " +
            "AND shared_flag = false " +
+           "AND accessible_flag = true " +
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findAccountSpecificDocuments(
@@ -34,6 +35,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
      */
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE shared_flag = true " +
+           "AND accessible_flag = true " +
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findSharedDocuments(
@@ -46,6 +48,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
      */
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE customer_key = :customerKey " +
+           "AND accessible_flag = true " +
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findByCustomerKey(
@@ -59,7 +62,8 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
      */
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE reference_key = :referenceKey " +
-           "AND reference_key_type = :referenceKeyType")
+           "AND reference_key_type = :referenceKeyType " +
+           "AND accessible_flag = true")
     Flux<StorageIndexEntity> findByReferenceKey(
         @Param("referenceKey") String referenceKey,
         @Param("referenceKeyType") String referenceKeyType
@@ -71,6 +75,7 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE reference_key = :referenceKey " +
            "AND reference_key_type = :referenceKeyType " +
+           "AND accessible_flag = true " +
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion")
     Flux<StorageIndexEntity> findByReferenceKeyAndTemplate(

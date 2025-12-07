@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "doc-hub-poc-demo-2024",
 		"name": "Document Hub POC - Step-by-Step Demo",
-		"description": "Complete demonstration of Document Hub POC features including:\n\n1. **Mock API Verification** - Test the underlying mock APIs\n2. **Disclosure Code Matching** - Reference key based document matching\n3. **Conditional Matching** - Tiered document selection based on credit limit\n4. **Error Handling** - Graceful failure scenarios\n\n## Required Headers\nAll document enquiry requests require:\n- `X-correlation-id`: Unique request ID\n- `X-requestor-id`: UUID of the requestor\n- `X-requestor-type`: CUSTOMER or BANKER\n- `X-version`: API version (1)\n\n## Test Accounts\n| Account | Credit Limit | Tier | Disclosure Code |\n|---------|--------------|------|----------------|\n| aaaa...0001 | $75,000 | PLATINUM | D164 |\n| aaaa...0002 | $35,000 | GOLD | D166 |\n| aaaa...0003 | $15,000 | STANDARD | D165 |",
+		"description": "Complete demonstration of Document Hub POC features including:\n\n1. **Mock API Verification** - Test the underlying mock APIs\n2. **Disclosure Code Matching** - Reference key based document matching\n3. **Conditional Matching** - Tiered document selection based on credit limit\n4. **Error Handling** - Graceful failure scenarios\n5. **Template Edge Cases** - Inactive, expired, and future templates\n6. **Document State Edge Cases** - Inaccessible, null metadata\n7. **OR Logic Eligibility** - Multi-region matching\n8. **Nested Rules** - Complex AND/OR combinations\n9. **API Spec Document Types** - Payment, Delinquency, Fraud letters\n10. **Pagination Testing** - Large document sets\n11. **Credit Score Eligibility** - Dynamic data extraction\n\n## Required Headers\nAll document enquiry requests require:\n- `X-correlation-id`: Unique request ID\n- `X-requestor-id`: UUID of the requestor\n- `X-requestor-type`: CUSTOMER or BANKER\n- `X-version`: API version (1)\n\n## Test Accounts\n| Account | Credit Limit | Tier | Disclosure Code |\n|---------|--------------|------|----------------|\n| aaaa...0001 | $75,000 | PLATINUM | D164 |\n| aaaa...0002 | $35,000 | GOLD | D166 |\n| aaaa...0003 | $15,000 | STANDARD | D165 |\n\n## Test Templates\n- Templates 1-14: Active templates with various scenarios\n- Template 15: INACTIVE (active_flag=false)\n- Template 16: EXPIRED (end_date in past)\n- Template 17: FUTURE (start_date in future)\n- Templates 18-19: OR logic and nested rules\n- Templates 21-24: API spec document types\n- Template 25: Credit score eligibility",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -35,6 +35,18 @@
 			"key": "requestorId",
 			"value": "550e8400-e29b-41d4-a716-446655440002",
 			"type": "string"
+		},
+		{
+			"key": "customerId2",
+			"value": "cccc0000-0000-0000-0000-000000000002",
+			"type": "string",
+			"description": "Standard segment, US_CENTRAL region"
+		},
+		{
+			"key": "customerId3",
+			"value": "cccc0000-0000-0000-0000-000000000003",
+			"type": "string",
+			"description": "Premium segment, US_EAST region"
 		}
 	],
 	"item": [
@@ -309,7 +321,7 @@
 							"host": ["{{baseUrl}}"],
 							"path": ["documents-enquiry"]
 						},
-						"description": "**Shared Documents Always Returned:**\n\n1. **Credit_Card_Disclosures_2024.pdf** (REGULATORY_DISCLOSURE)\n   - sharingScope: ALL\n   - Regulatory required document\n\n2. **West_Region_Compliance_Guide.pdf** (BRANCH_SPECIFIC_DOCUMENT)\n   - sharingScope: ALL\n   - Regional compliance document\n\nThese appear in response alongside account-specific documents."
+						"description": "**Shared Documents Always Returned:**\n\n1. **Privacy Policy 2024** (sharingScope: ALL)\n2. **Fee Schedule v3** (sharingScope: ALL, currently valid)\n3. **Welcome Kit 2025** (sharingScope: ALL, currently valid)\n\nThese appear in response alongside account-specific documents."
 					}
 				}
 			]
@@ -440,6 +452,694 @@
 							"path": ["documents-enquiry"]
 						},
 						"description": "**Banker accessing customer documents**\n\nSame documents returned but with BANKER as the requestor type.\n\nCan be used to implement different visibility rules for banker vs customer views in future."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 8 - Template Edge Cases",
+			"description": "Tests template-level validity checking:\n\n- **Template 15**: Inactive (active_flag = false) - Should NEVER appear\n- **Template 16**: Expired (end_date in past) - Should NOT appear\n- **Template 17**: Future (start_date in future) - Should NOT appear yet\n\nAll documents under these templates should be filtered out.",
+			"item": [
+				{
+					"name": "8.1 Verify Inactive Template Not Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-inactive-template-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Template 15 Test: Inactive Template**\n\n- Template has active_flag = false\n- Document 32: inactive_promo_should_not_appear.pdf\n\n**Expected:** Response should NOT contain:\n- Any document with template_type 'InactivePromo'\n- File: inactive_promo_should_not_appear.pdf\n\n**Verification:** Search response for 'InactivePromo' - should not exist."
+					}
+				},
+				{
+					"name": "8.2 Verify Expired Template Not Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-expired-template-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Template 16 Test: Expired Template**\n\n- Template end_date = Sep 30, 2024 (in the past)\n- Document 33: summer_2024_expired_template.pdf\n\n**Expected:** Response should NOT contain:\n- Any document with template_type 'ExpiredTemplate'\n- File: summer_2024_expired_template.pdf\n\n**Verification:** Search response for 'ExpiredTemplate' - should not exist."
+					}
+				},
+				{
+					"name": "8.3 Verify Future Template Not Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-future-template-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Template 17 Test: Future Template**\n\n- Template start_date = Jan 1, 2026 (in the future)\n- Document 34: future_2026_template.pdf\n\n**Expected:** Response should NOT contain:\n- Any document with template_type 'FutureTemplate'\n- File: future_2026_template.pdf\n\n**Verification:** Search response for 'FutureTemplate' - should not exist."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 9 - Document State Edge Cases",
+			"description": "Tests document-level edge cases:\n\n- **Document 35**: Inaccessible (accessible_flag = 0)\n- **Document 36**: NULL metadata\n- **Document 37**: Different storage vendor (AZURE_BLOB)\n- **Document 38**: Different language (EN_UK)",
+			"item": [
+				{
+					"name": "9.1 Verify Inaccessible Document Not Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-inaccessible-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Document 35 Test: Inaccessible Document**\n\n- Document has accessible_flag = 0\n- File: inaccessible_document.pdf\n\n**Expected:** Response should NOT contain:\n- File: inaccessible_document.pdf\n\n**Verification:** Search response for 'inaccessible_document' - should not exist."
+					}
+				},
+				{
+					"name": "9.2 Verify NULL Metadata Document Handled",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-null-metadata-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Document 36 Test: NULL Metadata**\n\n- Document has doc_metadata = NULL\n- File: null_metadata_document.pdf\n\n**Expected:** Document should be returned (NULL metadata = no validity restrictions)\n\n**Verification:** Response may contain 'null_metadata_document.pdf' with empty/null metadata."
+					}
+				},
+				{
+					"name": "9.3 Verify Azure Storage Document Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-azure-storage-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Document 37 Test: Azure Storage Vendor**\n\n- Document has storage_vendor = 'AZURE_BLOB'\n- File: azure_stored_document.pdf\n\n**Expected:** Document should be returned with storageVendor: 'AZURE_BLOB'\n\n**Verification:** Response should contain document with 'AZURE_BLOB' storage vendor."
+					}
+				},
+				{
+					"name": "9.4 Verify UK Language Document Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-uk-language-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Document 38 Test: UK English Language**\n\n- Document metadata has language = 'EN_UK'\n- File: privacy_policy_uk.pdf\n\n**Expected:** Document should be returned with metadata showing language: 'EN_UK'\n\n**Verification:** Response should contain 'privacy_policy_uk.pdf' with UK region metadata."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 10 - Validity Period Testing",
+			"description": "Tests document-level validity period filtering based on valid_from/valid_until in doc_metadata:\n\n- **Expired**: Documents past their valid_until date\n- **Future**: Documents before their valid_from date\n- **Active**: Currently valid documents\n- **Perpetual**: Documents with no validity period",
+			"item": [
+				{
+					"name": "10.1 Verify Expired Documents Not Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-expired-docs-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Expired Documents Test**\n\nDocuments that should NOT appear (expired valid_until):\n- Doc 11: black_friday_2024_offer.pdf (valid_until: 2024-11-30)\n- Doc 12: cyber_monday_2024_offer.pdf (valid_until: 2024-12-02)\n- Doc 16: rate_change_notice_q1_2024.pdf (valid_until: 2024-03-31)\n- Doc 22: cd_ladder_promo_2024.pdf (valid_until: 2024-09-30)\n- Doc 23/24: fee_schedule_v1/v2.pdf (superseded)\n- Doc 27: welcome_kit_2024.pdf (valid_until: 2024-12-31)\n\n**Verification:** None of these files should appear in response."
+					}
+				},
+				{
+					"name": "10.2 Verify Future Documents Not Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-future-docs-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Future Documents Test**\n\nDocuments that should NOT appear (valid_from in future):\n- Doc 13: christmas_2025_offer.pdf (valid_from: 2025-12-20)\n- Doc 14: new_year_2026_offer.pdf (valid_from: 2026-01-01)\n- Doc 18: rate_change_notice_q1_2026.pdf (valid_from: 2026-01-01)\n- Doc 26: fee_schedule_v4.pdf (valid_from: 2026-01-01)\n\n**Verification:** None of these files should appear in response."
+					}
+				},
+				{
+					"name": "10.3 Verify Active Documents Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-active-docs-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Active Documents Test**\n\nDocuments that SHOULD appear (currently valid):\n- Doc 15: holiday_season_2025_offer.pdf (valid Dec 1-31, 2025)\n- Doc 17: rate_change_notice_q4_2025.pdf (valid Oct-Dec 2025)\n- Doc 21: high_yield_savings_promo.pdf (valid 2025)\n- Doc 25: fee_schedule_v3.pdf (valid 2025)\n- Doc 28: welcome_kit_2025.pdf (valid 2025)\n\n**Verification:** These files should appear in response."
+					}
+				},
+				{
+					"name": "10.4 Verify Perpetual Documents Returned",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-perpetual-docs-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Perpetual Documents Test**\n\nDocuments with no validity period (always valid):\n- Doc 30: privacy_policy_evergreen.pdf (no valid_from/valid_until)\n- Doc 36: null_metadata_document.pdf (NULL metadata)\n\n**Expected:** These documents should always be returned.\n\n**Verification:** Look for 'evergreen' in response."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 11 - OR Logic Eligibility",
+			"description": "Tests OR operator in eligibility criteria:\n\n- **Template 18**: Multi-Region Coastal Offer\n- Eligible if region = US_EAST OR region = US_WEST",
+			"item": [
+				{
+					"name": "11.1 OR Logic - US_WEST Region (VIP Customer)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-or-west-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**OR Logic Test - US_WEST Region**\n\n- Customer 1 is in US_WEST region\n- Template 18 eligibility: region = US_EAST OR region = US_WEST\n\n**Expected:** Should return coastal_regions_offer.pdf\n\n**Verification:** Response should contain 'CoastalOffer' template type."
+					}
+				},
+				{
+					"name": "11.2 OR Logic - Central Region (Should NOT Match)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-or-central-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId2}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**OR Logic Test - US_CENTRAL Region**\n\n- Customer 2 is in US_CENTRAL region\n- Template 18 eligibility: region = US_EAST OR region = US_WEST\n- Customer 2 does NOT match either condition\n\n**Expected:** Should NOT return coastal_regions_offer.pdf\n\n**Verification:** Response should NOT contain 'CoastalOffer' template type."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 12 - Nested Rules (AND with OR)",
+			"description": "Tests complex nested eligibility rules:\n\n- **Template 19**: Premium Coastal Credit Card Offer\n- Eligibility: accountType = credit_card AND (segment = VIP OR segment = PREMIUM) AND (region = US_EAST OR region = US_WEST)",
+			"item": [
+				{
+					"name": "12.1 Nested Rules - VIP + US_WEST (Should Match)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-nested-vip-west-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Nested Rules Test - VIP + US_WEST**\n\n- Customer 1: VIP segment, US_WEST region, credit_card account\n- Rule evaluation:\n  1. accountType = credit_card ✓\n  2. (VIP OR PREMIUM) = VIP ✓\n  3. (US_EAST OR US_WEST) = US_WEST ✓\n\n**Expected:** Should return premium_coastal_exclusive.pdf\n\n**Verification:** Response should contain 'PremiumCoastalOffer' template type."
+					}
+				},
+				{
+					"name": "12.2 Nested Rules - Standard + US_CENTRAL (Should NOT Match)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-nested-standard-central-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId2}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Nested Rules Test - Standard + US_CENTRAL**\n\n- Customer 2: Standard segment, US_CENTRAL region\n- Rule evaluation:\n  1. accountType = credit_card ✓\n  2. (VIP OR PREMIUM) = Standard ✗ FAIL\n  3. (US_EAST OR US_WEST) = US_CENTRAL ✗ FAIL\n\n**Expected:** Should NOT return premium_coastal_exclusive.pdf\n\n**Verification:** Response should NOT contain 'PremiumCoastalOffer' template type."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 13 - API Spec Document Types",
+			"description": "Tests document types specified in the API specification:\n\n- **PaymentLetter** (Template 21): Payment confirmation notices\n- **DelinquencyNotice** (Template 22): Account delinquency notifications\n- **FraudLetter** (Template 23): Fraud investigation letters\n- **AdverseActionNotice** (Template 24): Credit decision notices",
+			"item": [
+				{
+					"name": "13.1 Payment Confirmation Letter - Account 1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-payment-letter-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**PaymentLetter Test**\n\n- Document 42: payment_confirmation_dec_2025.pdf\n- Account-specific document for Account 1\n\n**Expected:** Response should contain 'PaymentLetter' document type with payment metadata."
+					}
+				},
+				{
+					"name": "13.2 Delinquency Notice - Account 2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-delinquency-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**DelinquencyNotice Test**\n\n- Document 43: delinquency_notice_30day.pdf\n- Account-specific document for Account 2\n- Metadata: days_past_due=30, amount_due=275.50\n\n**Expected:** Response should contain 'DelinquencyNotice' document type."
+					}
+				},
+				{
+					"name": "13.3 Fraud Alert Letter - Account 1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-fraud-letter-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**FraudLetter Test**\n\n- Document 44: fraud_investigation_resolved.pdf\n- Account-specific document for Account 1\n- Metadata: case_number, status=RESOLVED, resolution=NO_FRAUD_CONFIRMED\n\n**Expected:** Response should contain 'FraudLetter' document type."
+					}
+				},
+				{
+					"name": "13.4 Adverse Action Notice - Account 3",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-adverse-action-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId3}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**AdverseActionNotice Test**\n\n- Document 45: adverse_action_cli_denied.pdf\n- Account-specific document for Account 3\n- Metadata: action_type=CLI_DENIED, reason_codes=[R001, R003]\n\n**Expected:** Response should contain 'AdverseActionNotice' document type."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 14 - Pagination Testing",
+			"description": "Tests pagination with a large set of monthly statement documents.\n\nAccount 1 has 14 statement documents (Jan 2024 - Dec 2024 + original 2):\n- Documents 2, 46-56: Monthly statements",
+			"item": [
+				{
+					"name": "14.1 Full Document List (No Pagination)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-pagination-full-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Full Document List Test**\n\nReturns all documents for Account 1 without pagination.\n\n**Expected:** Response should contain:\n- Multiple statement documents (statement_jan_2024.pdf through statement_dec_2024.pdf)\n- Total document count should be substantial (14+ statements plus shared docs)\n\n**Verification:** Count documentList array size."
+					}
+				},
+				{
+					"name": "14.2 Paginated Request - Page 1 (Size 5)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-pagination-page1-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Pagination Test - Page 1**\n\n- Page: 0 (first page)\n- Size: 5 documents per page\n\n**Expected:** Response should contain exactly 5 documents (or less if total < 5)."
+					}
+				},
+				{
+					"name": "14.3 Paginated Request - Page 2 (Size 5)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-pagination-page2-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 1,\n    \"pageSize\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Pagination Test - Page 2**\n\n- Page: 1 (second page)\n- Size: 5 documents per page\n\n**Expected:** Response should contain next 5 documents, different from page 1."
+					}
+				},
+				{
+					"name": "14.4 Paginated Request - Large Page Size",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-pagination-large-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 100\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Pagination Test - Large Page Size**\n\n- Page: 0\n- Size: 100 (may be capped by maxPageSize config)\n\n**Expected:** Response should return all available documents up to configured maximum."
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 15 - Credit Score Eligibility",
+			"description": "Tests dynamic data extraction for credit score based eligibility:\n\n- **Template 25**: Elite Credit Score Offers\n- Eligibility: creditScore >= 750\n- Uses data_extraction_config to fetch credit score from mock API",
+			"item": [
+				{
+					"name": "15.1 High Credit Score Customer (750+)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-credit-score-high-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Credit Score Test - High Score (750+)**\n\n- Customer 1: Expected credit score >= 750 (mock API returns 780)\n- Template 25 eligibility: creditScore >= 750\n\n**Flow:**\n1. System calls credit-bureau mock API\n2. Extracts creditScore from response\n3. Evaluates: 780 >= 750 ✓\n\n**Expected:** Should return elite_credit_platinum_rewards.pdf\n\n**Verification:** Response should contain 'EliteCreditOffer' template type."
+					}
+				},
+				{
+					"name": "15.2 Mock Credit Bureau API",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/credit-bureau/{{customerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["mock-api", "credit-bureau", "{{customerId}}"]
+						},
+						"description": "**Credit Bureau Mock API Test**\n\nDirectly call the credit bureau mock API to verify credit score data.\n\n**Expected Response:**\n```json\n{\n  \"customerId\": \"cccc0000-0000-0000-0000-000000000001\",\n  \"creditScore\": 780,\n  \"lastUpdated\": \"2025-...\"\n}\n```"
+					}
+				}
+			]
+		},
+		{
+			"name": "Step 16 - Regional Offers",
+			"description": "Tests region-based document eligibility:\n\n- **Template 14**: East Coast Regional Offers (US_EAST only)\n- **Template 20**: Central Region Exclusive (US_CENTRAL only)",
+			"item": [
+				{
+					"name": "16.1 US_WEST Customer - Should NOT See US_EAST Offer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-region-west-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Regional Test - US_WEST Customer**\n\n- Customer 1: VIP segment, US_WEST region\n- Template 14 eligibility: region = US_EAST\n- Template 20 eligibility: region = US_CENTRAL\n\n**Expected:** \n- Should NOT return east_coast_winter_special.pdf\n- Should NOT return central_region_exclusive.pdf\n\n**Verification:** Response should NOT contain 'RegionalOffer' or 'CentralOffer' template types."
+					}
+				},
+				{
+					"name": "16.2 US_EAST Customer - Should See US_EAST Offer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-region-east-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId3}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Regional Test - US_EAST Customer**\n\n- Customer 3: Premium segment, US_EAST region\n- Template 14 eligibility: region = US_EAST\n\n**Expected:** Should return east_coast_winter_special.pdf\n\n**Verification:** Response should contain 'RegionalOffer' template type."
+					}
+				},
+				{
+					"name": "16.3 US_CENTRAL Customer - Should See US_CENTRAL Offer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-region-central-{{$timestamp}}"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId2}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents-enquiry"]
+						},
+						"description": "**Regional Test - US_CENTRAL Customer**\n\n- Customer 2: Standard segment, US_CENTRAL region\n- Template 20 eligibility: region = US_CENTRAL\n\n**Expected:** Should return central_region_exclusive.pdf\n\n**Verification:** Response should contain 'CentralOffer' template type."
 					}
 				}
 			]
