@@ -127,6 +127,15 @@ The `data_extraction_config` and `template_config.eligibility_criteria` work in 
 | `data_extraction_config` | **FETCH** data from external APIs | Before eligibility check |
 | `template_config.eligibility_criteria` | **EVALUATE** rules using fetched data | After data extraction |
 
+### Important: `fieldsToExtract` vs `required_fields`
+
+| Property | Location | Purpose |
+|----------|----------|---------|
+| `fieldsToExtract` | `data_extraction_config` column | Fields to **extract from external APIs** for eligibility/document matching |
+| `required_fields` | `required_fields` column | Fields required for **document upload validation** (stored in `doc_metadata`) |
+
+These are **NOT the same** - they serve completely different purposes at different stages of the document lifecycle.
+
 ### Flow Diagram
 
 ```
@@ -190,7 +199,7 @@ INSERT INTO master_template_definition (
 
     -- data_extraction_config: WHERE to get the data
     '{
-      "requiredFields": ["zipcode", "creditScore"],
+      "fieldsToExtract": ["zipcode", "creditScore"],
       "dataSources": {
         "customerApi": {
           "endpoint": {
@@ -380,6 +389,7 @@ public boolean canPerformAction(
    - Checks `valid_from` / `valid_until` fields in each document's metadata
    - Documents not yet valid or expired are filtered out
    - Updated sample data with standardized validity fields
+10. Renamed `requiredFields` to `fieldsToExtract` in `data_extraction_config` to avoid confusion with `required_fields` column
 
 ---
 

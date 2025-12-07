@@ -10,7 +10,7 @@
 -- Execution: Parallel
 /*
 {
-  "requiredFields": ["accountType", "accountStatus", "accountBalance"],
+  "fieldsToExtract": ["accountType", "accountStatus", "accountBalance"],
   "fieldSources": {
     "accountType": {
       "description": "Type of account (CHECKING, SAVINGS, CREDIT)",
@@ -73,7 +73,7 @@
 -- Execution: Parallel (independent calls)
 /*
 {
-  "requiredFields": ["disclosureCode", "customerLocation", "accountType"],
+  "fieldsToExtract": ["disclosureCode", "customerLocation", "accountType"],
   "fieldSources": {
     "disclosureCode": {
       "description": "Regulatory disclosure code",
@@ -160,7 +160,7 @@
 -- Execution: Parallel
 /*
 {
-  "requiredFields": ["customerTier", "customerLocation", "accountType", "productCode"],
+  "fieldsToExtract": ["customerTier", "customerLocation", "accountType", "productCode"],
   "fieldSources": {
     "customerTier": {
       "description": "Customer segment (VIP, PREMIUM, STANDARD)",
@@ -240,7 +240,7 @@
 -- Execution: Sequential (customerLocation must be fetched first)
 /*
 {
-  "requiredFields": ["customerLocation", "regulatoryRegion"],
+  "fieldsToExtract": ["customerLocation", "regulatoryRegion"],
   "fieldSources": {
     "customerLocation": {
       "description": "Customer's state",

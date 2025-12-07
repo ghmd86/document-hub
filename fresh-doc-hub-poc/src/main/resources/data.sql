@@ -429,7 +429,7 @@ INSERT INTO document_hub.master_template_definition (
     'system',
     NOW(),
     '{
-      "requiredFields": ["pricingId", "disclosureCode"],
+      "fieldsToExtract": ["pricingId", "disclosureCode"],
       "fieldSources": {
         "pricingId": {
           "description": "Pricing ID from account arrangements (active PRICING domain)",

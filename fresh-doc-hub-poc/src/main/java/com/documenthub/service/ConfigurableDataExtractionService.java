@@ -76,8 +76,8 @@ public class ConfigurableDataExtractionService {
                 configNode,
                 DataExtractionConfig.class
             );
-            log.info("STEP 3/6: Config parsed - Required fields: {}, Data sources: {}",
-                config.getRequiredFields() != null ? config.getRequiredFields().size() : 0,
+            log.info("STEP 3/6: Config parsed - Fields to extract: {}, Data sources: {}",
+                config.getFieldsToExtract() != null ? config.getFieldsToExtract().size() : 0,
                 config.getDataSources() != null ? config.getDataSources().size() : 0);
 
             log.info("STEP 4/6: Creating initial context from request");
@@ -166,7 +166,7 @@ public class ConfigurableDataExtractionService {
         Map<String, Object> availableContext
     ) {
         ExtractionPlan plan = new ExtractionPlan();
-        Set<String> fieldsToExtract = new HashSet<>(config.getRequiredFields());
+        Set<String> fieldsToExtract = new HashSet<>(config.getFieldsToExtract());
         Set<String> availableFields = new HashSet<>(availableContext.keySet());
         Set<String> processedApis = new HashSet<>();
 

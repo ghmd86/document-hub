@@ -20,10 +20,11 @@ import java.util.Map;
 public class DataExtractionConfig {
 
     /**
-     * List of field names required for this template type
+     * List of field names to extract from external APIs for eligibility/document matching.
+     * Note: This is different from the `required_fields` column which is used for upload validation.
      */
-    @JsonProperty("requiredFields")
-    private List<String> requiredFields;
+    @JsonProperty("fieldsToExtract")
+    private List<String> fieldsToExtract;
 
     /**
      * Maps field names to their source configurations

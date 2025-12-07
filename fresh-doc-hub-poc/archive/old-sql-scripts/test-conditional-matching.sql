@@ -63,7 +63,7 @@ INSERT INTO document_hub.master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["creditLimit"],
+      "fieldsToExtract": ["creditLimit"],
       "fieldSources": {
         "creditLimit": {
           "description": "Extract credit limit from account credit info API",

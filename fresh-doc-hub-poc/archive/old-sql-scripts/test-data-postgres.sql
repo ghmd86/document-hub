@@ -58,7 +58,7 @@ INSERT INTO document_hub.master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["productCode", "productCategory", "disclosureRequirements"],
+      "fieldsToExtract": ["productCode", "productCategory", "disclosureRequirements"],
       "fieldSources": {
         "productCode": {
           "description": "Product code from account",
@@ -199,7 +199,7 @@ INSERT INTO document_hub.master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "finalDisclosures"],
+      "fieldsToExtract": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "finalDisclosures"],
       "fieldSources": {
         "productCode": {
           "sourceApi": "accountApi",
@@ -327,7 +327,7 @@ INSERT INTO document_hub.master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["branchCode", "regionCode", "complianceRules", "documentList"],
+      "fieldsToExtract": ["branchCode", "regionCode", "complianceRules", "documentList"],
       "fieldSources": {
         "branchCode": {
           "description": "Branch code from account",
