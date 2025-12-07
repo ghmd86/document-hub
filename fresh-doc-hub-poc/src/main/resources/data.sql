@@ -232,7 +232,7 @@ INSERT INTO storage_index (
     'privacy_policy_2024.pdf',
     1705276800000,
     1,
-    '{"version": "2024.1", "effective_date": "2024-01-01"}',
+    '{"version": "2024.1", "valid_from": "2024-01-01", "valid_until": "2025-12-31"}',
     'system',
     NOW()
 );
@@ -267,7 +267,7 @@ INSERT INTO storage_index (
     'statement_jan_2024.pdf',
     1706659200000,
     1,
-    '{"statement_date": "2024-01-31", "balance": 1234.56}',
+    '{"statement_date": "2024-01-31", "balance": 1234.56, "valid_from": "2024-01-31", "valid_until": "2027-01-31"}',
     'system',
     NOW()
 );
@@ -302,7 +302,7 @@ INSERT INTO storage_index (
     'statement_jan_2024_acct2.pdf',
     1706659200000,
     1,
-    '{"statement_date": "2024-01-31", "balance": 5678.90}',
+    '{"statement_date": "2024-01-31", "balance": 5678.90, "valid_from": "2024-01-31", "valid_until": "2027-01-31"}',
     'system',
     NOW()
 );
@@ -333,7 +333,7 @@ INSERT INTO storage_index (
     'balance_transfer_offer_q1_2024.pdf',
     1706745600000,
     1,
-    '{"offer_code": "BT2024Q1", "apr_rate": 0.00, "valid_until": "2024-06-30"}',
+    '{"offer_code": "BT2024Q1", "apr_rate": 0.00, "valid_from": "2024-01-01", "valid_until": "2024-06-30"}',
     'system',
     NOW()
 );
@@ -364,7 +364,7 @@ INSERT INTO storage_index (
     'vip_exclusive_offer.pdf',
     1707955200000,
     1,
-    '{"segment": "VIP", "region": "US_WEST", "offer_type": "exclusive"}',
+    '{"segment": "VIP", "region": "US_WEST", "offer_type": "exclusive", "valid_from": "2024-02-01", "valid_until": "2025-12-31"}',
     'system',
     NOW()
 );
@@ -399,7 +399,7 @@ INSERT INTO storage_index (
     'DISCLOSURE_CODE',
     1704844800000,
     1,
-    '{"disclosure_code": "D164", "regulatory_type": "ESIGN", "version": "1.0"}',
+    '{"disclosure_code": "D164", "regulatory_type": "ESIGN", "version": "1.0", "valid_from": "2024-01-01", "valid_until": "2026-12-31"}',
     'system',
     NOW()
 );
@@ -557,7 +557,7 @@ INSERT INTO storage_index (
     'Credit_Card_Terms_D164_v1.pdf',
     1704067200000,
     1,
-    '{"disclosureCode": "D164", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT"}',
+    '{"disclosureCode": "D164", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "valid_from": "2024-01-01", "valid_until": "2026-12-31"}',
     'system',
     NOW()
 );
@@ -592,7 +592,7 @@ INSERT INTO storage_index (
     'Credit_Card_Terms_D165_v1.pdf',
     1704067200000,
     1,
-    '{"disclosureCode": "D165", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT"}',
+    '{"disclosureCode": "D165", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "valid_from": "2024-01-01", "valid_until": "2026-12-31"}',
     'system',
     NOW()
 );
@@ -627,7 +627,7 @@ INSERT INTO storage_index (
     'Premium_Credit_Card_Terms_D166_v1.pdf',
     1704067200000,
     1,
-    '{"disclosureCode": "D166", "version": "1.0", "effectiveDate": "2024-01-01", "documentType": "CARDHOLDER_AGREEMENT", "cardTier": "PREMIUM"}',
+    '{"disclosureCode": "D166", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "cardTier": "PREMIUM", "valid_from": "2024-01-01", "valid_until": "2024-06-30"}',
     'system',
     NOW()
 );
@@ -766,7 +766,7 @@ INSERT INTO storage_index (
     'Bay_Area_Exclusive_Offer_2024.pdf',
     1704067200000,
     1,
-    '{"promoCode": "PROMO-BAYAREA-2024", "offerType": "EXCLUSIVE", "region": "SF_BAY_AREA", "validUntil": "2024-12-31", "discountPercent": 15}',
+    '{"promoCode": "PROMO-BAYAREA-2024", "offerType": "EXCLUSIVE", "region": "SF_BAY_AREA", "discountPercent": 15, "valid_from": "2024-01-01", "valid_until": "2025-12-31"}',
     'system',
     NOW()
 );

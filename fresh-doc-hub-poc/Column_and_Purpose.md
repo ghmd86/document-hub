@@ -375,3 +375,56 @@ public boolean canPerformAction(
    - Null/empty handling
    - Exclusion lists (NOT_IN)
 8. Documented how `data_extraction_config` and `eligibility_criteria` work together
+9. **Implemented document-level validity period checking** from `doc_metadata`:
+   - Added `filterByValidity()` method in `DocumentEnquiryService`
+   - Checks `valid_from` / `valid_until` fields in each document's metadata
+   - Documents not yet valid or expired are filtered out
+   - Updated sample data with standardized validity fields
+
+---
+
+## Document Validity Period Checking
+
+Documents are filtered based on validity dates stored in their `doc_metadata` JSON field. This allows each document instance to have its own validity period, independent of the template.
+
+### Supported Fields
+
+The system checks for validity fields with multiple naming conventions:
+
+| Purpose | Supported Field Names |
+|---------|----------------------|
+| Start validity | `valid_from`, `validFrom`, `effective_date`, `effectiveDate` |
+| End validity | `valid_until`, `validUntil`, `expiry_date`, `expiryDate` |
+
+### Example doc_metadata
+
+```json
+{
+  "offer_code": "BT2024Q1",
+  "apr_rate": 0.00,
+  "valid_from": "2024-01-01",
+  "valid_until": "2024-06-30"
+}
+```
+
+### Filtering Rules
+
+1. **No validity fields**: Document is always valid
+2. **valid_from in the future**: Document is not yet valid (filtered out)
+3. **valid_until in the past**: Document has expired (filtered out)
+4. **Both valid**: Document is returned
+
+### Date Format Support
+
+- ISO format: `2024-01-15`
+- US format: `01/15/2024`
+- Epoch milliseconds as string: `1704067200000`
+
+### Use Cases
+
+| Scenario | valid_from | valid_until | Behavior |
+|----------|-----------|-------------|----------|
+| Promotional offer | Launch date | Promo end date | Only shown during promo period |
+| Regulatory document | Effective date | Superseded date | Shown until replaced |
+| Statement | Statement date | Retention period end | Archived after retention |
+| Evergreen document | (empty) | (empty) | Always shown |

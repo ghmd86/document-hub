@@ -15,6 +15,9 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -366,7 +369,8 @@ public class DocumentEnquiryService {
                                 template.getTemplateType(),
                                 template.getTemplateVersion()
                             ).collectList()
-                            .doOnNext(docs -> log.info("findByReferenceKeyAndTemplate returned {} documents", docs.size()));
+                            .map(this::filterByValidity)
+                            .doOnNext(docs -> log.info("findByReferenceKeyAndTemplate returned {} valid documents", docs.size()));
                         } else {
                             log.warn("Reference key field '{}' not found in extracted data - SKIPPING template: {}",
                                 referenceKeyField, template.getTemplateType());
@@ -399,7 +403,8 @@ public class DocumentEnquiryService {
                                     template.getTemplateType(),
                                     template.getTemplateVersion()
                                 ).collectList()
-                                .doOnNext(docs -> log.info("Conditional match returned {} documents", docs.size()));
+                                .map(this::filterByValidity)
+                                .doOnNext(docs -> log.info("Conditional match returned {} valid documents", docs.size()));
                             } else {
                                 log.warn("No condition matched for extracted data - SKIPPING template: {}",
                                     template.getTemplateType());
@@ -428,14 +433,20 @@ public class DocumentEnquiryService {
             return storageRepository.findSharedDocuments(
                 template.getTemplateType(),
                 template.getTemplateVersion()
-            ).collectList();
+            ).collectList()
+            .map(this::filterByValidity)
+            .doOnNext(docs -> log.debug("findSharedDocuments returned {} valid documents for template {}",
+                docs.size(), template.getTemplateType()));
         } else {
             // Query account-specific documents
             return storageRepository.findAccountSpecificDocuments(
                 accountId,
                 template.getTemplateType(),
                 template.getTemplateVersion()
-            ).collectList();
+            ).collectList()
+            .map(this::filterByValidity)
+            .doOnNext(docs -> log.debug("findAccountSpecificDocuments returned {} valid documents for account {}",
+                docs.size(), accountId));
         }
     }
 
@@ -721,5 +732,107 @@ public class DocumentEnquiryService {
     private DocumentRetrievalResponse buildErrorResponse(Throwable error) {
         log.error("Building error response: {}", error.getMessage());
         return buildResponse(Collections.emptyList(), 0, 0, defaultPageSize, 0);
+    }
+
+    /**
+     * Filter documents by validity period from doc_metadata
+     * Checks for valid_from/validFrom and valid_until/validUntil fields
+     */
+    private List<StorageIndexEntity> filterByValidity(List<StorageIndexEntity> documents) {
+        LocalDate today = LocalDate.now();
+
+        return documents.stream()
+            .filter(doc -> isDocumentValid(doc, today))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Check if a document is currently valid based on its doc_metadata
+     * Supports multiple field naming conventions:
+     * - Start: valid_from, validFrom, effective_date, effectiveDate
+     * - End: valid_until, validUntil, expiry_date, expiryDate
+     *
+     * If no validity fields are present, the document is considered valid
+     */
+    private boolean isDocumentValid(StorageIndexEntity document, LocalDate today) {
+        if (document.getDocMetadata() == null) {
+            return true; // No metadata = always valid
+        }
+
+        try {
+            com.fasterxml.jackson.databind.JsonNode metadata =
+                objectMapper.readTree(document.getDocMetadata().asString());
+
+            // Check start validity (valid_from, validFrom, effective_date, effectiveDate)
+            LocalDate validFrom = extractDate(metadata, "valid_from", "validFrom", "effective_date", "effectiveDate");
+            if (validFrom != null && today.isBefore(validFrom)) {
+                log.debug("Document {} not yet valid (valid_from: {}, today: {})",
+                    document.getStorageIndexId(), validFrom, today);
+                return false;
+            }
+
+            // Check end validity (valid_until, validUntil, expiry_date, expiryDate)
+            LocalDate validUntil = extractDate(metadata, "valid_until", "validUntil", "expiry_date", "expiryDate");
+            if (validUntil != null && today.isAfter(validUntil)) {
+                log.debug("Document {} has expired (valid_until: {}, today: {})",
+                    document.getStorageIndexId(), validUntil, today);
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.warn("Failed to parse doc_metadata for validity check on document {}: {}",
+                document.getStorageIndexId(), e.getMessage());
+            return true; // On error, assume valid
+        }
+    }
+
+    /**
+     * Extract a date from metadata, checking multiple possible field names
+     */
+    private LocalDate extractDate(com.fasterxml.jackson.databind.JsonNode metadata, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            if (metadata.has(fieldName) && !metadata.get(fieldName).isNull()) {
+                String dateStr = metadata.get(fieldName).asText();
+                LocalDate date = parseDate(dateStr);
+                if (date != null) {
+                    return date;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parse a date string, supporting multiple formats:
+     * - ISO date: 2024-01-15
+     * - US format: 01/15/2024
+     * - Epoch millis as string
+     */
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return null;
+        }
+
+        // Try ISO format (YYYY-MM-DD)
+        try {
+            return LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException ignored) {}
+
+        // Try US format (MM/dd/yyyy)
+        try {
+            return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } catch (DateTimeParseException ignored) {}
+
+        // Try epoch millis
+        try {
+            long epochMillis = Long.parseLong(dateStr);
+            return Instant.ofEpochMilli(epochMillis)
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+        } catch (NumberFormatException ignored) {}
+
+        log.warn("Could not parse date string: {}", dateStr);
+        return null;
     }
 }
