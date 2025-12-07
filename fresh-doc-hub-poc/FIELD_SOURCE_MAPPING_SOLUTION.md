@@ -46,11 +46,11 @@ Use for document filtering/generation
 
 The JSON contains 4 main sections:
 
-### 1. requiredFields
+### 1. fieldsToExtract
 Lists which fields this template type needs:
 ```json
 {
-  "requiredFields": ["disclosureCode", "customerLocation", "accountType"]
+  "fieldsToExtract": ["disclosureCode", "customerLocation", "accountType"]
 }
 ```
 
@@ -263,7 +263,7 @@ INSERT INTO master_template_definition (
   'Credit Card Statement',
   true,
   '{
-    "requiredFields": ["accountType", "creditLimit", "paymentDueDate"],
+    "fieldsToExtract": ["accountType", "creditLimit", "paymentDueDate"],
     "fieldSources": {
       "accountType": {
         "sourceApi": "accountApi",

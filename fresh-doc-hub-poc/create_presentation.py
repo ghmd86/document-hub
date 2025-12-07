@@ -139,7 +139,7 @@ add_content_slide(prs, "Key Components", [
 # Slide 4: Data Extraction Config
 config_example = '''data_extraction_config (JSONB):
 {
-  "requiredFields": ["disclosureCode"],
+  "fieldsToExtract": ["disclosureCode"],
   "fieldSources": {
     "disclosureCode": {
       "sourceApi": "pricingApi",

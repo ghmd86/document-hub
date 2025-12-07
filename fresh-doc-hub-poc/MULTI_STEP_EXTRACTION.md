@@ -44,7 +44,7 @@ Step 3: Call Regional Rules API with region → get applicableRules
 
 ```json
 {
-  "requiredFields": [
+  "fieldsToExtract": [
     "productCode",
     "productCategory",
     "regulatoryRegion",
@@ -308,7 +308,7 @@ All APIs execute simultaneously (only works if no dependencies)
 
 ```json
 {
-  "requiredFields": [
+  "fieldsToExtract": [
     "accountDetails",
     "branchCode",
     "regionCode",

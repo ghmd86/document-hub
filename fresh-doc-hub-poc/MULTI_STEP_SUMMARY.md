@@ -120,7 +120,7 @@ Both fields resolved from earlier API responses!
 
 ```json
 {
-  "requiredFields": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "disclosureRequirements"],
+  "fieldsToExtract": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "disclosureRequirements"],
   "fieldSources": {
     "productCode": {
       "sourceApi": "accountApi",

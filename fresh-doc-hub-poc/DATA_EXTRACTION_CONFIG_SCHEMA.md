@@ -17,7 +17,7 @@ This allows complete configurability without code changes when new template type
 
 ```json
 {
-  "requiredFields": [
+  "fieldsToExtract": [
     "disclosureCode",
     "customerLocation",
     "accountType",
@@ -129,7 +129,7 @@ This allows complete configurability without code changes when new template type
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `requiredFields` | Array[String] | List of field names needed for this template type |
+| `fieldsToExtract` | Array[String] | List of field names needed for this template type |
 | `fieldSources` | Object | Maps each field name to its source configuration |
 | `dataSources` | Object | Maps API ID to endpoint configuration |
 | `executionStrategy` | Object | How to execute API calls (parallel/sequential) |
@@ -192,7 +192,7 @@ Placeholders use `${variableName}` syntax and can reference:
 
 ```json
 {
-  "requiredFields": ["accountType", "accountStatus"],
+  "fieldsToExtract": ["accountType", "accountStatus"],
   "fieldSources": {
     "accountType": {
       "sourceApi": "accountApi",
@@ -227,7 +227,7 @@ Placeholders use `${variableName}` syntax and can reference:
 
 ```json
 {
-  "requiredFields": ["disclosureCode", "customerLocation", "regulatoryRegion"],
+  "fieldsToExtract": ["disclosureCode", "customerLocation", "regulatoryRegion"],
   "fieldSources": {
     "disclosureCode": {
       "sourceApi": "accountApi",
@@ -299,7 +299,7 @@ Placeholders use `${variableName}` syntax and can reference:
 
 ### After (Solution)
 1. Template record loaded from DB contains `data_extraction_config` JSON
-2. System reads `requiredFields` → knows WHAT to fetch
+2. System reads `fieldsToExtract` → knows WHAT to fetch
 3. System reads `fieldSources` → knows WHERE each field comes from (which API)
 4. System reads `dataSources` → knows HOW to call each API
 5. System automatically orchestrates API calls based on dependencies
