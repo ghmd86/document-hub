@@ -53,7 +53,7 @@ INSERT INTO document_hub.master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["pricingId", "disclosureCode"],
+      "fieldsToExtract": ["pricingId", "disclosureCode"],
       "fieldSources": {
         "pricingId": {
           "description": "Pricing ID from account arrangements (active PRICING domain)",
@@ -175,7 +175,7 @@ INSERT INTO master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "finalDisclosures"],
+      "fieldsToExtract": ["productCode", "customerLocation", "productCategory", "regulatoryRegion", "finalDisclosures"],
       "fieldSources": {
         "productCode": {
           "sourceApi": "accountApi",
@@ -303,7 +303,7 @@ INSERT INTO master_template_definition (
     CURRENT_TIMESTAMP,
     '1',
     '{
-      "requiredFields": ["branchCode", "regionCode", "complianceRules", "documentList"],
+      "fieldsToExtract": ["branchCode", "regionCode", "complianceRules", "documentList"],
       "fieldSources": {
         "branchCode": {
           "description": "Branch code from account",

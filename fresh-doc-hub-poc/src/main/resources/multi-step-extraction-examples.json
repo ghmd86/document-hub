@@ -3,7 +3,7 @@
     "name": "Simple 3-Step Chain: Account → Product → Regulatory",
     "description": "Get account details, lookup product info, then fetch regulatory requirements",
     "config": {
-      "requiredFields": [
+      "fieldsToExtract": [
         "productCode",
         "productCategory",
         "disclosureRequirements"
@@ -92,7 +92,7 @@
     "name": "Parallel + Sequential: Multi-path dependencies",
     "description": "Two parallel paths that merge for final step",
     "config": {
-      "requiredFields": [
+      "fieldsToExtract": [
         "productCode",
         "customerLocation",
         "productCategory",
@@ -188,7 +188,7 @@
     "name": "5-Step Deep Chain: Account → Branch → Region → Compliance → Documents",
     "description": "Complex 5-level dependency chain",
     "config": {
-      "requiredFields": [
+      "fieldsToExtract": [
         "branchCode",
         "regionCode",
         "complianceRules",
@@ -295,7 +295,7 @@
     "name": "Complex Multi-Source: Combine multiple sources for final decision",
     "description": "Gather data from 5 sources, combine for final API call",
     "config": {
-      "requiredFields": [
+      "fieldsToExtract": [
         "accountType",
         "customerTier",
         "productCode",
