@@ -812,9 +812,16 @@
                 <h2>Basic Information</h2>
                 <p class="description">Tell us about the document template you want to create.</p>
 
-                <div class="form-group">
-                    <label>Template Name *</label>
-                    <input type="text" id="templateName" placeholder="e.g., Credit Card Monthly Statement">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Template Type * <small style="color: #718096; font-weight: normal;">(Unique identifier)</small></label>
+                        <input type="text" id="templateType" placeholder="e.g., CREDIT_CARD_STATEMENT" style="text-transform: uppercase;">
+                        <small style="color: #718096;">Use UPPER_SNAKE_CASE. This is the primary key for the template.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Display Name *</label>
+                        <input type="text" id="templateName" placeholder="e.g., Credit Card Monthly Statement">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -1190,7 +1197,11 @@
                 <div class="review-section">
                     <h4>Template Information</h4>
                     <div class="review-item">
-                        <span class="review-label">Name:</span>
+                        <span class="review-label">Template Type:</span>
+                        <span class="review-value" id="reviewTemplateType" style="font-family: monospace; color: #667eea;">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Display Name:</span>
                         <span class="review-value" id="reviewName">-</span>
                     </div>
                     <div class="review-item">
@@ -1258,6 +1269,7 @@
 
         // Template Data
         let templateData = {
+            templateType: '',
             name: '',
             description: '',
             category: '',
@@ -1832,8 +1844,12 @@
 
         function validateStep() {
             if (currentStep === 1) {
+                if (!document.getElementById('templateType').value.trim()) {
+                    alert('Please enter a template type (unique identifier).');
+                    return false;
+                }
                 if (!document.getElementById('templateName').value.trim()) {
-                    alert('Please enter a template name.');
+                    alert('Please enter a display name.');
                     return false;
                 }
                 if (!document.getElementById('templateCategory').value) {
@@ -1850,6 +1866,7 @@
 
         function saveStepData() {
             if (currentStep === 1) {
+                templateData.templateType = document.getElementById('templateType').value.trim().toUpperCase().replace(/\s+/g, '_');
                 templateData.name = document.getElementById('templateName').value.trim();
                 templateData.description = document.getElementById('templateDescription').value.trim();
                 templateData.category = document.getElementById('templateCategory').value;
@@ -2008,6 +2025,7 @@
         function updateReview() {
             saveStepData();
 
+            document.getElementById('reviewTemplateType').textContent = templateData.templateType;
             document.getElementById('reviewName').textContent = templateData.name;
             document.getElementById('reviewCategory').textContent = templateData.category;
             document.getElementById('reviewLOB').textContent = templateData.lineOfBusiness;
@@ -2066,7 +2084,7 @@
         }
 
         function generateOutput() {
-            const templateType = templateData.name.toUpperCase().replace(/\s+/g, '_');
+            const templateType = templateData.templateType;
             const api = predefinedApis[templateData.sourceApi];
 
             // Build template_config
@@ -2144,7 +2162,7 @@
         }
 
         function downloadSQL() {
-            const templateType = templateData.name.toUpperCase().replace(/\s+/g, '_');
+            const templateType = templateData.templateType;
             const config = JSON.parse(document.getElementById('generatedOutput').textContent);
 
             // Build template_config with field paths if available
