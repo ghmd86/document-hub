@@ -906,6 +906,20 @@
 
                 <div class="form-row" style="margin-top: 16px;">
                     <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="endDate">
+                        <small style="color: #718096;">When template expires (optional)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Owning Department</label>
+                        <input type="text" id="owningDept" placeholder="e.g., Credit Card Operations">
+                        <small style="color: #718096;">Department responsible for this template</small>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 16px;">
+                    <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" id="activeFlag" checked style="width: auto;">
                             Active
@@ -919,6 +933,72 @@
                             Accessible
                         </label>
                         <small style="color: #718096;">Is this template accessible to users?</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="regulatoryFlag" style="width: auto;">
+                            Regulatory
+                        </label>
+                        <small style="color: #718096;">Is this a regulatory document?</small>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 16px;">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="notificationNeeded" style="width: auto;">
+                            Notification Needed
+                        </label>
+                        <small style="color: #718096;">Send notification when document created?</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="messageCenterDocFlag" checked style="width: auto;">
+                            Message Center
+                        </label>
+                        <small style="color: #718096;">Show in message center?</small>
+                    </div>
+                </div>
+
+                <!-- Legacy Information Section -->
+                <div class="section-divider" style="margin-top: 24px;"><span>Legacy Information (Optional)</span></div>
+
+                <div class="info-box" style="background: #fef3c7; border-color: #f59e0b;">
+                    <p><strong>For Migration:</strong> Use these fields when migrating templates from a legacy system.</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Legacy Template ID</label>
+                        <input type="text" id="legacyTemplateId" placeholder="e.g., OLD-TMPL-001">
+                        <small style="color: #718096;">ID from previous system</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Legacy Template Name</label>
+                        <input type="text" id="legacyTemplateName" placeholder="e.g., CC_STMT_V1">
+                        <small style="color: #718096;">Name from previous system</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Legacy Template Type</label>
+                        <input type="text" id="templateTypeOld" placeholder="e.g., STATEMENT_OLD">
+                        <small style="color: #718096;">Old template type value</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Record Status</label>
+                        <select id="recordStatus">
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="ARCHIVED">Archived</option>
+                        </select>
+                        <small style="color: #718096;">Current record status</small>
                     </div>
                 </div>
             </div>
@@ -1290,6 +1370,10 @@
                         <span class="review-value" id="reviewLanguage">-</span>
                     </div>
                     <div class="review-item">
+                        <span class="review-label">Owning Department:</span>
+                        <span class="review-value" id="reviewOwningDept">-</span>
+                    </div>
+                    <div class="review-item">
                         <span class="review-label">Ownership:</span>
                         <span class="review-value" id="reviewOwnership">-</span>
                     </div>
@@ -1302,8 +1386,36 @@
                         <span class="review-value" id="reviewStartDate">-</span>
                     </div>
                     <div class="review-item">
+                        <span class="review-label">End Date:</span>
+                        <span class="review-value" id="reviewEndDate">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Flags:</span>
+                        <span class="review-value" id="reviewFlags">-</span>
+                    </div>
+                    <div class="review-item">
                         <span class="review-label">Status:</span>
                         <span class="review-value" id="reviewStatus">-</span>
+                    </div>
+                </div>
+
+                <div class="review-section" id="reviewLegacySection" style="display: none;">
+                    <h4>Legacy Information</h4>
+                    <div class="review-item">
+                        <span class="review-label">Legacy Template ID:</span>
+                        <span class="review-value" id="reviewLegacyId">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Legacy Template Name:</span>
+                        <span class="review-value" id="reviewLegacyName">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Legacy Template Type:</span>
+                        <span class="review-value" id="reviewLegacyType">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Record Status:</span>
+                        <span class="review-value" id="reviewRecordStatus">-</span>
                     </div>
                 </div>
 
@@ -1366,8 +1478,19 @@
             templateVersion: 1,
             languageCode: 'EN_US',
             startDate: '',
+            endDate: '',
+            owningDept: '',
             activeFlag: true,
             accessibleFlag: true,
+            regulatoryFlag: false,
+            notificationNeeded: false,
+            messageCenterDocFlag: true,
+            // Legacy fields
+            legacyTemplateId: '',
+            legacyTemplateName: '',
+            templateTypeOld: '',
+            recordStatus: 'ACTIVE',
+            // Ownership
             ownership: 'account',
             sharingScope: 'ACCOUNT',
             fields: [],
@@ -1969,8 +2092,18 @@
                 templateData.templateVersion = parseInt(document.getElementById('templateVersion').value) || 1;
                 templateData.languageCode = document.getElementById('languageCode').value;
                 templateData.startDate = document.getElementById('startDate').value;
+                templateData.endDate = document.getElementById('endDate').value;
+                templateData.owningDept = document.getElementById('owningDept').value.trim();
                 templateData.activeFlag = document.getElementById('activeFlag').checked;
                 templateData.accessibleFlag = document.getElementById('accessibleFlag').checked;
+                templateData.regulatoryFlag = document.getElementById('regulatoryFlag').checked;
+                templateData.notificationNeeded = document.getElementById('notificationNeeded').checked;
+                templateData.messageCenterDocFlag = document.getElementById('messageCenterDocFlag').checked;
+                // Legacy fields
+                templateData.legacyTemplateId = document.getElementById('legacyTemplateId').value.trim();
+                templateData.legacyTemplateName = document.getElementById('legacyTemplateName').value.trim();
+                templateData.templateTypeOld = document.getElementById('templateTypeOld').value.trim();
+                templateData.recordStatus = document.getElementById('recordStatus').value;
             } else if (currentStep === 2) {
                 templateData.ownership = document.querySelector('input[name="ownership"]:checked').value;
                 // Derive sharing_scope from ownership
@@ -2221,6 +2354,29 @@
             else statusParts.push('<span style="color: #f56565;">○ Not Accessible</span>');
             document.getElementById('reviewStatus').innerHTML = statusParts.join(' &nbsp; ');
 
+            // Owning Department
+            document.getElementById('reviewOwningDept').textContent = templateData.owningDept || '-';
+
+            // End Date
+            document.getElementById('reviewEndDate').textContent = templateData.endDate || 'Not set';
+
+            // Operational Flags
+            const flagParts = [];
+            if (templateData.regulatoryFlag) flagParts.push('<span style="color: #805ad5;">● Regulatory</span>');
+            if (templateData.notificationNeeded) flagParts.push('<span style="color: #3182ce;">● Notification</span>');
+            if (templateData.messageCenterDocFlag) flagParts.push('<span style="color: #38a169;">● Message Center</span>');
+            document.getElementById('reviewFlags').innerHTML = flagParts.length > 0 ? flagParts.join(' &nbsp; ') : 'None';
+
+            // Legacy Information
+            if (templateData.legacyTemplateId || templateData.legacyTemplateName || templateData.templateTypeOld) {
+                document.getElementById('reviewLegacySection').style.display = 'block';
+                document.getElementById('reviewLegacyId').textContent = templateData.legacyTemplateId || '-';
+                document.getElementById('reviewLegacyName').textContent = templateData.legacyTemplateName || '-';
+                document.getElementById('reviewLegacyType').textContent = templateData.templateTypeOld || '-';
+            } else {
+                document.getElementById('reviewLegacySection').style.display = 'none';
+            }
+
             // Fields
             const fieldsHtml = templateData.fields.map(f =>
                 `<span class="tag">${f.label}</span>`
@@ -2293,7 +2449,16 @@
                 shared_document_flag: templateData.ownership === 'shared',
                 sharing_scope: templateData.sharingScope,
                 start_date: templateData.startDate || null,
+                end_date: templateData.endDate || null,
                 accessible_flag: templateData.accessibleFlag,
+                owning_dept: templateData.owningDept || null,
+                regulatory_flag: templateData.regulatoryFlag,
+                notification_needed: templateData.notificationNeeded,
+                message_center_doc_flag: templateData.messageCenterDocFlag,
+                record_status: templateData.recordStatus,
+                legacy_template_id: templateData.legacyTemplateId || null,
+                legacy_template_name: templateData.legacyTemplateName || null,
+                template_type_old: templateData.templateTypeOld || null,
                 mock_api_url: api?.endpoint || null,
                 data_extraction_config: {
                     fields: templateData.fields.map(f => ({
@@ -2366,9 +2531,12 @@ ${config.api_spec_source.selected_fields.map(f => `--   - ${f.name}: ${f.path}`)
 `;
             }
 
-            // Convert start_date to epoch milliseconds if provided
+            // Convert dates to epoch milliseconds if provided
             const startDateEpoch = templateData.startDate
                 ? new Date(templateData.startDate).getTime()
+                : 'NULL';
+            const endDateEpoch = templateData.endDate
+                ? new Date(templateData.endDate).getTime()
                 : 'NULL';
 
             const sql = `-- Generated Template SQL
@@ -2388,10 +2556,19 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     start_date,
+    end_date,
     mock_api_url,
     data_extraction_config,
     template_config,
     accessible_flag,
+    owning_dept,
+    regulatory_flag,
+    notification_needed,
+    message_center_doc_flag,
+    record_status,
+    legacy_template_id,
+    legacy_template_name,
+    template_type_old,
     created_by,
     created_timestamp
 ) VALUES (
@@ -2407,10 +2584,19 @@ INSERT INTO document_hub.master_template_definition (
     ${templateData.ownership === 'shared'},
     '${templateData.sharingScope}',
     ${startDateEpoch},
+    ${endDateEpoch},
     ${config.mock_api_url ? `'${config.mock_api_url}'` : 'NULL'},
     '${JSON.stringify(config.data_extraction_config).replace(/'/g, "''")}',
     '${JSON.stringify(templateConfig).replace(/'/g, "''")}',
     ${templateData.accessibleFlag},
+    ${templateData.owningDept ? `'${templateData.owningDept.replace(/'/g, "''")}'` : 'NULL'},
+    ${templateData.regulatoryFlag},
+    ${templateData.notificationNeeded},
+    ${templateData.messageCenterDocFlag},
+    '${templateData.recordStatus}',
+    ${templateData.legacyTemplateId ? `'${templateData.legacyTemplateId.replace(/'/g, "''")}'` : 'NULL'},
+    ${templateData.legacyTemplateName ? `'${templateData.legacyTemplateName.replace(/'/g, "''")}'` : 'NULL'},
+    ${templateData.templateTypeOld ? `'${templateData.templateTypeOld.replace(/'/g, "''")}'` : 'NULL'},
     'wizard',
     NOW()
 );
