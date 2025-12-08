@@ -853,6 +853,48 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Template Version</label>
+                        <input type="number" id="templateVersion" value="1" min="1" placeholder="1">
+                        <small style="color: #718096;">Version number (default: 1)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Language</label>
+                        <select id="languageCode">
+                            <option value="EN_US" selected>English (US)</option>
+                            <option value="ES_US">Spanish (US)</option>
+                            <option value="FR_CA">French (Canada)</option>
+                            <option value="ZH_CN">Chinese (Simplified)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="startDate">
+                        <small style="color: #718096;">When template becomes effective</small>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 16px;">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="activeFlag" checked style="width: auto;">
+                            Active
+                        </label>
+                        <small style="color: #718096;">Is this template currently active?</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="accessibleFlag" checked style="width: auto;">
+                            Accessible
+                        </label>
+                        <small style="color: #718096;">Is this template accessible to users?</small>
+                    </div>
+                </div>
             </div>
 
             <!-- Step 2: Document Ownership -->
@@ -1205,6 +1247,10 @@
                         <span class="review-value" id="reviewName">-</span>
                     </div>
                     <div class="review-item">
+                        <span class="review-label">Version:</span>
+                        <span class="review-value" id="reviewVersion">-</span>
+                    </div>
+                    <div class="review-item">
                         <span class="review-label">Category:</span>
                         <span class="review-value" id="reviewCategory">-</span>
                     </div>
@@ -1213,8 +1259,24 @@
                         <span class="review-value" id="reviewLOB">-</span>
                     </div>
                     <div class="review-item">
+                        <span class="review-label">Language:</span>
+                        <span class="review-value" id="reviewLanguage">-</span>
+                    </div>
+                    <div class="review-item">
                         <span class="review-label">Ownership:</span>
                         <span class="review-value" id="reviewOwnership">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Sharing Scope:</span>
+                        <span class="review-value" id="reviewSharingScope">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Start Date:</span>
+                        <span class="review-value" id="reviewStartDate">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Status:</span>
+                        <span class="review-value" id="reviewStatus">-</span>
                     </div>
                 </div>
 
@@ -1274,7 +1336,13 @@
             description: '',
             category: '',
             lineOfBusiness: '',
+            templateVersion: 1,
+            languageCode: 'EN_US',
+            startDate: '',
+            activeFlag: true,
+            accessibleFlag: true,
             ownership: 'account',
+            sharingScope: 'ACCOUNT',
             fields: [],
             referenceKeyType: '',
             referenceKeySource: '',
@@ -1871,8 +1939,21 @@
                 templateData.description = document.getElementById('templateDescription').value.trim();
                 templateData.category = document.getElementById('templateCategory').value;
                 templateData.lineOfBusiness = document.getElementById('lineOfBusiness').value;
+                templateData.templateVersion = parseInt(document.getElementById('templateVersion').value) || 1;
+                templateData.languageCode = document.getElementById('languageCode').value;
+                templateData.startDate = document.getElementById('startDate').value;
+                templateData.activeFlag = document.getElementById('activeFlag').checked;
+                templateData.accessibleFlag = document.getElementById('accessibleFlag').checked;
             } else if (currentStep === 2) {
                 templateData.ownership = document.querySelector('input[name="ownership"]:checked').value;
+                // Derive sharing_scope from ownership
+                const ownershipToScope = {
+                    'account': 'ACCOUNT',
+                    'customer': 'CUSTOMER',
+                    'shared': 'ALL',
+                    'conditional': 'CONDITIONAL'
+                };
+                templateData.sharingScope = ownershipToScope[templateData.ownership] || 'ACCOUNT';
             } else if (currentStep === 3) {
                 templateData.fields = [];
                 document.querySelectorAll('.field-item input:checked').forEach(cb => {
@@ -2027,8 +2108,17 @@
 
             document.getElementById('reviewTemplateType').textContent = templateData.templateType;
             document.getElementById('reviewName').textContent = templateData.name;
+            document.getElementById('reviewVersion').textContent = templateData.templateVersion;
             document.getElementById('reviewCategory').textContent = templateData.category;
             document.getElementById('reviewLOB').textContent = templateData.lineOfBusiness;
+
+            const languageLabels = {
+                'EN_US': 'English (US)',
+                'ES_US': 'Spanish (US)',
+                'FR_CA': 'French (Canada)',
+                'ZH_CN': 'Chinese (Simplified)'
+            };
+            document.getElementById('reviewLanguage').textContent = languageLabels[templateData.languageCode] || templateData.languageCode;
 
             const ownershipLabels = {
                 'account': 'Account-Specific',
@@ -2037,6 +2127,16 @@
                 'conditional': 'Conditional Access'
             };
             document.getElementById('reviewOwnership').textContent = ownershipLabels[templateData.ownership];
+            document.getElementById('reviewSharingScope').textContent = templateData.sharingScope;
+            document.getElementById('reviewStartDate').textContent = templateData.startDate || 'Not set';
+
+            // Status badges
+            const statusParts = [];
+            if (templateData.activeFlag) statusParts.push('<span style="color: #48bb78;">● Active</span>');
+            else statusParts.push('<span style="color: #f56565;">○ Inactive</span>');
+            if (templateData.accessibleFlag) statusParts.push('<span style="color: #48bb78;">● Accessible</span>');
+            else statusParts.push('<span style="color: #f56565;">○ Not Accessible</span>');
+            document.getElementById('reviewStatus').innerHTML = statusParts.join(' &nbsp; ');
 
             // Fields
             const fieldsHtml = templateData.fields.map(f =>
@@ -2100,12 +2200,17 @@
 
             const config = {
                 template_type: templateType,
-                template_version: 1,
+                template_version: templateData.templateVersion,
+                template_name: templateData.name,
+                template_description: templateData.description,
                 template_category: templateData.category,
-                display_name: templateData.name,
-                description: templateData.description,
                 line_of_business: templateData.lineOfBusiness,
-                shared_flag: templateData.ownership === 'shared',
+                language_code: templateData.languageCode,
+                active_flag: templateData.activeFlag,
+                shared_document_flag: templateData.ownership === 'shared',
+                sharing_scope: templateData.sharingScope,
+                start_date: templateData.startDate || null,
+                accessible_flag: templateData.accessibleFlag,
                 mock_api_url: api?.endpoint || null,
                 data_extraction_config: {
                     fields: templateData.fields.map(f => ({
@@ -2178,36 +2283,53 @@ ${config.api_spec_source.selected_fields.map(f => `--   - ${f.name}: ${f.path}`)
 `;
             }
 
+            // Convert start_date to epoch milliseconds if provided
+            const startDateEpoch = templateData.startDate
+                ? new Date(templateData.startDate).getTime()
+                : 'NULL';
+
             const sql = `-- Generated Template SQL
 -- Template: ${templateData.name}
 -- Generated: ${new Date().toISOString()}
 ${apiSourceComment}
 INSERT INTO document_hub.master_template_definition (
-    template_id,
-    template_type,
+    master_template_id,
     template_version,
+    template_name,
+    template_description,
     template_category,
-    display_name,
-    description,
     line_of_business,
-    shared_flag,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    start_date,
     mock_api_url,
     data_extraction_config,
     template_config,
-    accessible_flag
+    accessible_flag,
+    created_by,
+    created_timestamp
 ) VALUES (
     gen_random_uuid(),
-    '${templateType}',
-    1,
-    '${templateData.category}',
+    ${templateData.templateVersion},
     '${templateData.name.replace(/'/g, "''")}',
     '${(templateData.description || '').replace(/'/g, "''")}',
+    '${templateData.category}',
     '${templateData.lineOfBusiness}',
+    '${templateType}',
+    '${templateData.languageCode}',
+    ${templateData.activeFlag},
     ${templateData.ownership === 'shared'},
+    '${templateData.sharingScope}',
+    ${startDateEpoch},
     ${config.mock_api_url ? `'${config.mock_api_url}'` : 'NULL'},
     '${JSON.stringify(config.data_extraction_config).replace(/'/g, "''")}',
     '${JSON.stringify(templateConfig).replace(/'/g, "''")}',
-    true
+    ${templateData.accessibleFlag},
+    'wizard',
+    NOW()
 );
 `;
 
