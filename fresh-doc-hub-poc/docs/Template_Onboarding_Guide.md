@@ -11,14 +11,18 @@ Defines the document template metadata.
 
 | Column | Required | Description | Example |
 |--------|----------|-------------|---------|
-| template_type | Yes | Unique identifier for the template | `CREDIT_CARD_STATEMENT` |
+| template_type | Yes | **Unique identifier** for the template (primary key) | `CREDIT_CARD_STATEMENT` |
 | template_version | Yes | Version number (integer) | `1` |
-| template_category | Yes | Category for grouping | `Statement` |
+| template_category | Yes | Category for grouping (display only) | `Statement` |
 | display_name | Yes | User-friendly name | `Credit Card Statement` |
 | description | Yes | Brief description | `Monthly credit card statement` |
-| line_of_business | Yes | Business line | `CREDIT_CARD`, `MORTGAGE`, `TAX` |
+| line_of_business | Yes | Business line | `credit_card`, `digital_banking`, `enterprise` |
 | shared_flag | Yes | Is this shared across all accounts? | `TRUE` or `FALSE` |
 | mock_api_url | No | URL for eligibility check (if needed) | `http://localhost:8080/api/v1/mock-api/...` |
+
+**Key Notes:**
+- **template_type** is the unique identifier (not template_category)
+- **line_of_business** has only 3 valid values: `credit_card`, `digital_banking`, `enterprise`
 
 ### Sheet 2: DataExtractionConfig
 Defines what data fields should be extracted from documents of this template type.

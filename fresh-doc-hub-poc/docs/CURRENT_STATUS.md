@@ -1,6 +1,6 @@
 # Document Hub POC - Current Status
 
-**Last Updated:** 2024-12-07
+**Last Updated:** 2024-12-07 (LOB/template_type corrections)
 
 ## Quick Start
 
