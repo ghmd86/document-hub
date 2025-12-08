@@ -832,15 +832,19 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Document Category *</label>
-                        <select id="templateCategory">
-                            <option value="">Select a category...</option>
-                            <option value="Statement">Statement (monthly bills, summaries)</option>
-                            <option value="Legal">Legal/Agreement (terms, contracts)</option>
-                            <option value="Tax">Tax Document (1099, W-2, etc.)</option>
-                            <option value="Regulatory">Regulatory (privacy, disclosures)</option>
-                            <option value="Notice">Notice/Alert (important updates)</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <select id="templateCategory" style="flex: 1;">
+                                <option value="">Select a category...</option>
+                                <option value="Statement">Statement (monthly bills, summaries)</option>
+                                <option value="Legal">Legal/Agreement (terms, contracts)</option>
+                                <option value="Tax">Tax Document (1099, W-2, etc.)</option>
+                                <option value="Regulatory">Regulatory (privacy, disclosures)</option>
+                                <option value="Notice">Notice/Alert (important updates)</option>
+                                <option value="Promotional">Promotional (offers, marketing)</option>
+                                <option value="Correspondence">Correspondence (letters, communications)</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary" onclick="addNewCategory()" style="white-space: nowrap;">+ Add</button>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -2102,6 +2106,32 @@
 
         function removeRule(ruleId) {
             document.getElementById(`rule-${ruleId}`)?.remove();
+        }
+
+        function addNewCategory() {
+            const categoryName = prompt('Enter the new Document Category name:\n(e.g., Application, Report, Certificate)');
+            if (categoryName && categoryName.trim()) {
+                const value = categoryName.trim().replace(/\b\w/g, l => l.toUpperCase());
+
+                const select = document.getElementById('templateCategory');
+
+                // Check if already exists
+                const exists = Array.from(select.options).some(opt => opt.value.toLowerCase() === value.toLowerCase());
+                if (exists) {
+                    alert('This category already exists in the dropdown.');
+                    select.value = value;
+                    return;
+                }
+
+                // Add new option
+                const newOption = document.createElement('option');
+                newOption.value = value;
+                newOption.textContent = value;
+                select.appendChild(newOption);
+
+                // Select the new option
+                select.value = value;
+            }
         }
 
         function addNewRefKeyType() {
