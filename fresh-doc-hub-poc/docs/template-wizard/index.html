@@ -815,7 +815,10 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Template Type * <small style="color: #718096; font-weight: normal;">(Unique identifier)</small></label>
-                        <input type="text" id="templateType" list="templateTypeList" placeholder="Start typing or select..." autocomplete="off">
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <input type="text" id="templateType" list="templateTypeList" placeholder="Start typing or select..." autocomplete="off" style="flex: 1;">
+                            <button type="button" class="btn-add" onclick="addNewTemplateType()" title="Add new template type">+ Add Type</button>
+                        </div>
                         <datalist id="templateTypeList">
                             <option value="PaymentLetter">Payment Letter</option>
                             <option value="StatementInsert">Statement Insert</option>
@@ -838,7 +841,7 @@
                             <option value="MiscellaneousLetter">Miscellaneous Letter</option>
                             <option value="AutopayLetter">Autopay Letter</option>
                         </datalist>
-                        <small style="color: #718096;">Select from suggestions or enter a new type. This is the primary key.</small>
+                        <small style="color: #718096;">Select from suggestions or click "+ Add Type" to add a new one. This is the primary key.</small>
                     </div>
                     <div class="form-group">
                         <label>Display Name *</label>
@@ -2286,6 +2289,45 @@
 
                 // Select the new option
                 select.value = value;
+            }
+        }
+
+        function addNewTemplateType() {
+            const typeName = prompt('Enter the new Template Type name:\n(Use PascalCase, e.g., AccountClosureLetter, RewardsSummary)');
+            if (typeName && typeName.trim()) {
+                // Convert to PascalCase: remove spaces and capitalize each word
+                const value = typeName.trim()
+                    .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+                    .split(/\s+/)
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join('');
+
+                const displayName = typeName.trim()
+                    .replace(/([A-Z])/g, ' $1') // Add space before capitals
+                    .replace(/^\s/, '') // Remove leading space
+                    .replace(/\b\w/g, l => l.toUpperCase()); // Capitalize first letter of each word
+
+                const datalist = document.getElementById('templateTypeList');
+                const input = document.getElementById('templateType');
+
+                // Check if already exists in datalist
+                const exists = Array.from(datalist.options).some(opt => opt.value.toLowerCase() === value.toLowerCase());
+                if (exists) {
+                    alert('This template type already exists in the suggestions.');
+                    input.value = value;
+                    return;
+                }
+
+                // Add new option to datalist
+                const newOption = document.createElement('option');
+                newOption.value = value;
+                newOption.textContent = displayName;
+                datalist.appendChild(newOption);
+
+                // Set the input value
+                input.value = value;
+
+                alert(`Template type "${value}" added to suggestions and selected.`);
             }
         }
 
