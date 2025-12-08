@@ -974,21 +974,19 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Reference Key Type</label>
-                        <select id="referenceKeyType">
-                            <option value="">None - No reference key needed</option>
-                            <option value="ACCOUNT_ID">Account ID</option>
-                            <option value="CUSTOMER_ID">Customer ID</option>
-                            <option value="APPLICANT_ID">Applicant ID (pre-customer)</option>
-                            <option value="DISCLOSURE_CODE">Disclosure Code (e.g., D164)</option>
-                            <option value="PRICING_ID">Pricing ID (product pricing)</option>
-                            <option value="PRODUCT_CODE">Product Code</option>
-                            <option value="ARRANGEMENT_ID">Arrangement ID</option>
-                            <option value="CUSTOM">Custom Reference Type</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="customRefTypeGroup" style="display: none;">
-                        <label>Custom Reference Type Name</label>
-                        <input type="text" id="customRefType" placeholder="e.g., Region_Code">
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <select id="referenceKeyType" style="flex: 1;">
+                                <option value="">None - No reference key needed</option>
+                                <option value="ACCOUNT_ID">Account ID</option>
+                                <option value="CUSTOMER_ID">Customer ID</option>
+                                <option value="APPLICANT_ID">Applicant ID (pre-customer)</option>
+                                <option value="DISCLOSURE_CODE">Disclosure Code (e.g., D164)</option>
+                                <option value="PRICING_ID">Pricing ID (product pricing)</option>
+                                <option value="PRODUCT_CODE">Product Code</option>
+                                <option value="ARRANGEMENT_ID">Arrangement ID</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary" onclick="addNewRefKeyType()" style="white-space: nowrap;">+ Add Type</button>
+                        </div>
                     </div>
                 </div>
 
@@ -2104,6 +2102,36 @@
 
         function removeRule(ruleId) {
             document.getElementById(`rule-${ruleId}`)?.remove();
+        }
+
+        function addNewRefKeyType() {
+            const typeName = prompt('Enter the new Reference Key Type name:\n(e.g., REGION_CODE, BRANCH_ID, POLICY_NUMBER)');
+            if (typeName && typeName.trim()) {
+                const value = typeName.trim().toUpperCase().replace(/\s+/g, '_');
+                const displayName = typeName.trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                const select = document.getElementById('referenceKeyType');
+
+                // Check if already exists
+                const exists = Array.from(select.options).some(opt => opt.value === value);
+                if (exists) {
+                    alert('This type already exists in the dropdown.');
+                    select.value = value;
+                    return;
+                }
+
+                // Add new option before the last position
+                const newOption = document.createElement('option');
+                newOption.value = value;
+                newOption.textContent = displayName;
+                select.appendChild(newOption);
+
+                // Select the new option
+                select.value = value;
+
+                // Trigger change event to show source options
+                select.dispatchEvent(new Event('change'));
+            }
         }
 
         function updateReview() {
