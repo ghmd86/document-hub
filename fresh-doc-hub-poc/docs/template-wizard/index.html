@@ -815,8 +815,30 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Template Type * <small style="color: #718096; font-weight: normal;">(Unique identifier)</small></label>
-                        <input type="text" id="templateType" placeholder="e.g., CREDIT_CARD_STATEMENT" style="text-transform: uppercase;">
-                        <small style="color: #718096;">Use UPPER_SNAKE_CASE. This is the primary key for the template.</small>
+                        <input type="text" id="templateType" list="templateTypeList" placeholder="Start typing or select..." autocomplete="off">
+                        <datalist id="templateTypeList">
+                            <option value="PaymentLetter">Payment Letter</option>
+                            <option value="StatementInsert">Statement Insert</option>
+                            <option value="AdverseActionNotice">Adverse Action Notice</option>
+                            <option value="ChangeInTermsNotice">Change In Terms Notice</option>
+                            <option value="AnnualFeeNotice">Annual Fee Notice</option>
+                            <option value="PrivacyNotice">Privacy Notice</option>
+                            <option value="NachaLetter">NACHA Letter</option>
+                            <option value="DelinquencyNotice">Delinquency Notice</option>
+                            <option value="EsignInformation">E-Sign Information</option>
+                            <option value="CustomerLetter">Customer Letter</option>
+                            <option value="FraudLetter">Fraud Letter</option>
+                            <option value="Statement">Statement</option>
+                            <option value="ReturnedPaymentLetter">Returned Payment Letter</option>
+                            <option value="FreeCLILetter">Free CLI Letter</option>
+                            <option value="PaidCLILetter">Paid CLI Letter</option>
+                            <option value="CardholderAgreement">Cardholder Agreement</option>
+                            <option value="CreditProtectionLetter">Credit Protection Letter</option>
+                            <option value="BalanceTransferLetter">Balance Transfer Letter</option>
+                            <option value="MiscellaneousLetter">Miscellaneous Letter</option>
+                            <option value="AutopayLetter">Autopay Letter</option>
+                        </datalist>
+                        <small style="color: #718096;">Select from suggestions or enter a new type. This is the primary key.</small>
                     </div>
                     <div class="form-group">
                         <label>Display Name *</label>
@@ -1939,7 +1961,7 @@
 
         function saveStepData() {
             if (currentStep === 1) {
-                templateData.templateType = document.getElementById('templateType').value.trim().toUpperCase().replace(/\s+/g, '_');
+                templateData.templateType = document.getElementById('templateType').value.trim();
                 templateData.name = document.getElementById('templateName').value.trim();
                 templateData.description = document.getElementById('templateDescription').value.trim();
                 templateData.category = document.getElementById('templateCategory').value;
