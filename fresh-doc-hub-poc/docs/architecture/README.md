@@ -7,7 +7,10 @@ This directory contains detailed architecture documentation for the Document Hub
 | Document | Description |
 |----------|-------------|
 | [Document Enquiry Flow](./document-enquiry-flow.md) | Comprehensive diagrams showing the `/documents-enquiry` endpoint logic |
-| [Use Cases & Design Review](./use-cases-design-review.md) | Complete analysis of use cases, database, and API design |
+| [Use Cases & Design Review](./use-cases-design-review.md) | Analysis of current 10 use cases, database, and API design |
+| [Business Use Cases (Comprehensive)](./business-use-cases-comprehensive.md) | Full 53 use cases for complete document management platform |
+| [Gap Analysis](./gap-analysis.md) | Comparison of current implementation vs comprehensive use cases |
+| [Schema Analysis: Versioning & Vendors](./schema-analysis-versioning-vendor.md) | Deep dive into template versioning and vendor mapping schema |
 
 ## Quick Links
 
