@@ -616,11 +616,9 @@ components:
           example: 2024_PRIVACY_POLICY
           x-data-classification: public
         lineOfBusiness:
-          type: array
+          type: string
           example: CREDIT_CARD
           x-data-classification: public
-          items:
-            type: string
         category:
           type: string
           example: PaymentConfirmationNotice
