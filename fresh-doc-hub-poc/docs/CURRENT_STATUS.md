@@ -40,6 +40,10 @@ fresh-doc-hub-poc/
 ├── src/main/resources/
 │   └── data.sql                    # Schema + seed data (ONLY SQL file)
 ├── docs/
+│   ├── architecture/               # Architecture documentation
+│   │   ├── README.md               # Architecture overview
+│   │   ├── document-enquiry-flow.md # Detailed flow diagrams
+│   │   └── use-cases-design-review.md # Use cases & design analysis
 │   ├── template-wizard/            # Interactive HTML wizard
 │   │   ├── index.html              # Main wizard
 │   │   ├── sample-api-spec.json    # Sample OpenAPI spec
@@ -115,9 +119,18 @@ User: postgres
 Password: 1qaz#EDC
 ```
 
+## Architecture Documentation
+
+See the [architecture](./architecture/) folder for detailed documentation:
+
+- **[Document Enquiry Flow](./architecture/document-enquiry-flow.md)** - Detailed sequence diagrams, flowcharts, and decision trees for the document retrieval logic
+- **[Use Cases & Design Review](./architecture/use-cases-design-review.md)** - Complete analysis of all 10 use cases, database schema review, and recommendations
+
 ## Next Steps / Pending Items
 
 1. Update documentation files that still reference old schema files
 2. Add YAML support to API spec upload (currently JSON only)
 3. Consider adding document preview in wizard
 4. Integrate wizard output with actual database insert API
+5. Implement download/upload/delete endpoints (currently spec only)
+6. Add circuit breaker for external API calls
