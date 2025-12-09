@@ -596,7 +596,7 @@ public class DocumentEnquiryService {
 
                 // Set lineOfBusiness from template
                 if (template.getLineOfBusiness() != null && !template.getLineOfBusiness().isEmpty()) {
-                    node.setLineOfBusiness(Collections.singletonList(template.getLineOfBusiness()));
+                    node.setLineOfBusiness(template.getLineOfBusiness());
                 }
 
                 // Add metadata

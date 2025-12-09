@@ -1,0 +1,194 @@
+
+Transcript. Use arrow keys to navigate between transcript entries. Select an entry to navigate the media to the time of the entry.
+
+
+Search
+
+AI-generated content may be incorrect
+
+Taher Ghulam Mohammed started transcription
+TM
+
+Taher Ghulam Mohammed
+0 minutes 7 seconds0:07
+Taher Ghulam Mohammed 0 minutes 7 seconds
+Yep.
+JC
+
+Jagadeesh Chitta
+0 minutes 12 seconds0:12
+Jagadeesh Chitta 0 minutes 12 seconds
+OK, so I have made all the modifications that we talked about yesterday.
+Jagadeesh Chitta 0 minutes 18 seconds
+So.
+Jagadeesh Chitta 0 minutes 22 seconds
+For all the endpoints, I've added these two header parameters for the auditory tracking purpose.
+
+John Drum
+0 minutes 27 seconds0:27
+John Drum 0 minutes 27 seconds
+Speak up a little bit. Your voice is very soft.
+JC
+
+Jagadeesh Chitta
+0 minutes 31 seconds0:31
+Jagadeesh Chitta 0 minutes 31 seconds
+Uh, so I have added these two header parameters for all the requests.
+Jagadeesh Chitta 0 minutes 37 seconds
+Uh, for the tracking purpose.
+Jagadeesh Chitta 0 minutes 40 seconds
+And in the post request for templates, I got rid of the template version. Sorry. Yeah.
+
+John Drum
+0 minutes 45 seconds0:45
+John Drum 0 minutes 45 seconds
+What is?
+John Drum 0 minutes 47 seconds
+What is that ID for?
+TM
+Taher Ghulam Mohammed
+48 minutes 56 seconds48:56
+Taher Ghulam Mohammed 48 minutes 56 seconds
+So.
+
+John Drum
+48 minutes 56 seconds48:56
+John Drum 48 minutes 56 seconds
+Strike fields.
+John Drum 49 minutes 1 second
+OK.
+TM
+Taher Ghulam Mohammed
+49 minutes 1 second49:01
+Taher Ghulam Mohammed 49 minutes 1 second
+Doing better.
+
+John Drum
+49 minutes 6 seconds49:06
+John Drum 49 minutes 6 seconds
+I mean, it's a start, but it needs to be cleaned up and then show the entire looping operation because like like I said, if if you tried to give this to a developer, they wouldn't be able to do anything with it.
+John Drum 49 minutes 22 seconds
+So it's a good start. Don't get me wrong. I don't want to beat you up on it, but.
+TM
+Taher Ghulam Mohammed
+49 minutes 25 seconds49:25
+Taher Ghulam Mohammed 49 minutes 25 seconds
+Mhm.
+
+John Drum
+49 minutes 30 seconds49:30
+John Drum 49 minutes 30 seconds
+But we need to make it useful so.
+TM
+Taher Ghulam Mohammed
+49 minutes 32 seconds49:32
+Taher Ghulam Mohammed 49 minutes 32 seconds
+OK.
+Taher Ghulam Mohammed 49 minutes 35 seconds
+OK. Yeah, let me work on it. Yep. But I'll I'll take the feedbacks. Yeah, I think there are quite a few today. So need to work on it. Yeah, I'll, I'll, I'll do that.
+
+John Drum
+49 minutes 38 seconds49:38
+John Drum 49 minutes 38 seconds
+OK.
+John Drum 49 minutes 44 seconds
+Mm.
+John Drum 49 minutes 46 seconds
+Yeah, I don't wanna give you too much feedback at one time if you lost it.
+TM
+Taher Ghulam Mohammed
+49 minutes 48 seconds49:48
+Taher Ghulam Mohammed 49 minutes 48 seconds
+Yes, yeah, that's all I think.
+Taher Ghulam Mohammed 49 minutes 53 seconds
+OK, I'll do that to him.
+
+John Drum
+49 minutes 56 seconds49:56
+John Drum 49 minutes 56 seconds
+Alright, anything else?
+TM
+Taher Ghulam Mohammed
+49 minutes 58 seconds49:58
+Taher Ghulam Mohammed 49 minutes 58 seconds
+I think that's it. Anything else guys?
+
+Pankaj Singh
+50 minutes 6 seconds50:06
+Pankaj Singh 50 minutes 6 seconds
+Yeah, a lot of action to go for.
+Pankaj Singh 50 minutes 10 seconds
+A little.
+TM
+Taher Ghulam Mohammed
+50 minutes 10 seconds50:10
+Taher Ghulam Mohammed 50 minutes 10 seconds
+When are you back, John?
+
+John Drum
+50 minutes 12 seconds50:12
+John Drum 50 minutes 12 seconds
+January 3rd.
+
+Pankaj Singh
+50 minutes 14 seconds50:14
+Pankaj Singh 50 minutes 14 seconds
+Next year.
+TM
+Taher Ghulam Mohammed
+50 minutes 16 seconds50:16
+Taher Ghulam Mohammed 50 minutes 16 seconds
+That we heard.
+
+John Drum
+50 minutes 17 seconds50:17
+John Drum 50 minutes 17 seconds
+Yeah.
+TM
+Taher Ghulam Mohammed
+50 minutes 18 seconds50:18
+Taher Ghulam Mohammed 50 minutes 18 seconds
+OK.
+
+Pankaj Singh
+50 minutes 19 seconds50:19
+Pankaj Singh 50 minutes 19 seconds
+I hope we have a clarity for Jagadeesh, Sundar, Satish and Modi right to at least continue the APIs that they need to work on correct after this or do we still need some guidance?
+TM
+Taher Ghulam Mohammed
+50 minutes 34 seconds50:34
+Taher Ghulam Mohammed 50 minutes 34 seconds
+I can't tell you that once you get the feedback, unless you take the feedback. So yeah, we'll we'll update those things again, then we'll show it to Jonathan. It's yeah, that.
+
+Pankaj Singh
+50 minutes 40 seconds50:40
+Pankaj Singh 50 minutes 40 seconds
+We got the feedback right now, right? So what feedback we are waiting for?
+Pankaj Singh 50 minutes 48 seconds
+OK, OK, fine. Let's let's have a final review tomorrow and then try to see what we can. My only thing is that this side, this guy should start working on the items. They should not be blocked. So OK, fine, let's see.
+TM
+Taher Ghulam Mohammed
+50 minutes 51 seconds50:51
+Taher Ghulam Mohammed 50 minutes 51 seconds
+Yeah.
+Taher Ghulam Mohammed 50 minutes 55 seconds
+Sure.
+
+John Drum
+50 minutes 55 seconds50:55
+John Drum 50 minutes 55 seconds
+Yeah.
+John Drum 51 minutes 2 seconds
+Right. Focus on the things that they need to be able to continue work.
+
+Pankaj Singh
+51 minutes 6 seconds51:06
+Pankaj Singh 51 minutes 6 seconds
+Right. All right. Thank you all for joining. Bye.
+
+John Drum
+51 minutes 11 seconds51:11
+John Drum 51 minutes 11 seconds
+Alright, thanks.
+
+Taher Ghulam Mohammed stopped transcription

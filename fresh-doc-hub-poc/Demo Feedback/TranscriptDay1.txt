@@ -1,0 +1,200 @@
+
+Transcript. Use arrow keys to navigate between transcript entries. Select an entry to navigate the media to the time of the entry.
+
+
+Search
+
+AI-generated content may be incorrect
+
+Taher Ghulam Mohammed started transcription
+TM
+
+Taher Ghulam Mohammed
+0 minutes 3 seconds0:03
+Taher Ghulam Mohammed 0 minutes 3 seconds
+The API specifications for template management. I think he'll go through that.
+Taher Ghulam Mohammed 0 minutes 21 seconds
+No.
+
+Prachi Kulkarni
+0 minutes 28 seconds0:28
+Prachi Kulkarni 0 minutes 28 seconds
+I think Jatish was speaking on mute.
+TM
+
+Taher Ghulam Mohammed
+0 minutes 30 seconds0:30
+Taher Ghulam Mohammed 0 minutes 30 seconds
+OK John, OK if if you mean meanwhile I can demo the what do you call this is what do you call rules engine what do you call where we can dynamically pick the shared documents.
+SB
+
+Satheesh Babu
+0 minutes 31 seconds0:31
+Satheesh Babu 0 minutes 31 seconds
+mute
+TM
+
+Taher Ghulam Mohammed
+0 minutes 45 seconds0:45
+Taher Ghulam Mohammed 0 minutes 45 seconds
+Uh, shall we go through that first?
+Taher Ghulam Mohammed 0 minutes 54 seconds
+John, yeah.
+
+John Drum
+0 minutes 58 seconds0:58
+John Drum 0 minutes 58 seconds
+Sorry, I was muted. Yeah, go ahead.
+TM
+
+Taher Ghulam Mohammed
+1 minute1:00
+Taher Ghulam Mohammed 1 minute
+Uh, sure. Yeah, let me share my screen. OK, this is the OK.
+Taher Ghulam Mohammed 1 minute 11 seconds
+Let me bring this here. OK, so John, let me go to the database. What are you called?
+TM
+Taher Ghulam Mohammed
+1 hour 56 minutes 48 seconds1:56:48
+Taher Ghulam Mohammed 1 hour 56 minutes 48 seconds
+Yeah, we are storing it as a name, right? Yeah, yeah.
+SB
+Satheesh Babu
+1 hour 56 minutes 56 seconds1:56:56
+Satheesh Babu 1 hour 56 minutes 56 seconds
+That that we have.
+Satheesh Babu 1 hour 57 minutes 1 second
+And normally that is fine. Uh, you can come to upload file.
+TM
+Taher Ghulam Mohammed
+1 hour 57 minutes 1 second1:57:01
+Taher Ghulam Mohammed 1 hour 57 minutes 1 second
+Andy.
+MN
+Murali Naramamidi
+1 hour 57 minutes 7 seconds1:57:07
+Murali Naramamidi 1 hour 57 minutes 7 seconds
+Upload trailer OK.
+SB
+Satheesh Babu
+1 hour 57 minutes 9 seconds1:57:09
+Satheesh Babu 1 hour 57 minutes 9 seconds
+This is fine even though the file name only we we we have to concentrate. So if you come to file upload file. So here we have the file name option now.
+MN
+Murali Naramamidi
+1 hour 57 minutes 11 seconds1:57:11
+Murali Naramamidi 1 hour 57 minutes 11 seconds
+What?
+SB
+Satheesh Babu
+1 hour 57 minutes 23 seconds1:57:23
+Satheesh Babu 1 hour 57 minutes 23 seconds
+There is a header level we are passing header level we are passing the file name.
+MN
+Murali Naramamidi
+1 hour 57 minutes 27 seconds1:57:27
+Murali Naramamidi 1 hour 57 minutes 27 seconds
+OK.
+TM
+Taher Ghulam Mohammed
+1 hour 57 minutes 27 seconds1:57:27
+Taher Ghulam Mohammed 1 hour 57 minutes 27 seconds
+Body, body, body level, body level.
+SB
+Satheesh Babu
+1 hour 57 minutes 29 seconds1:57:29
+Satheesh Babu 1 hour 57 minutes 29 seconds
+Yeah.
+MN
+Murali Naramamidi
+1 hour 57 minutes 30 seconds1:57:30
+Murali Naramamidi 1 hour 57 minutes 30 seconds
+Stop.
+TM
+Taher Ghulam Mohammed
+1 hour 57 minutes 31 seconds1:57:31
+Taher Ghulam Mohammed 1 hour 57 minutes 31 seconds
+As a form parameter, just call check in the.
+Taher Ghulam Mohammed 1 hour 57 minutes 36 seconds
+Yeah, demo dot PDF.
+SB
+Satheesh Babu
+1 hour 57 minutes 37 seconds1:57:37
+Satheesh Babu 1 hour 57 minutes 37 seconds
+Yes, see that the file file name.
+TM
+Taher Ghulam Mohammed
+1 hour 57 minutes 39 seconds1:57:39
+Taher Ghulam Mohammed 1 hour 57 minutes 39 seconds
+Yes.
+SB
+Satheesh Babu
+1 hour 57 minutes 40 seconds1:57:40
+Satheesh Babu 1 hour 57 minutes 40 seconds
+So if you upload this file, so.
+MN
+Murali Naramamidi
+1 hour 57 minutes 40 seconds1:57:40
+Murali Naramamidi 1 hour 57 minutes 40 seconds
+Demo PDF in between.
+TM
+Taher Ghulam Mohammed
+1 hour 57 minutes 41 seconds1:57:41
+Taher Ghulam Mohammed 1 hour 57 minutes 41 seconds
+Stop.
+Taher Ghulam Mohammed 1 hour 57 minutes 43 seconds
+When you download this file, you need to get that same name.
+SB
+Satheesh Babu
+1 hour 57 minutes 45 seconds1:57:45
+Satheesh Babu 1 hour 57 minutes 45 seconds
+So take this ID and download this file. We'll see what happen.
+Satheesh Babu 1 hour 57 minutes 53 seconds
+Yeah, take this ID.
+MN
+
+Murali Naramamidi
+1 hour 57 minutes 54 seconds1:57:54
+Murali Naramamidi 1 hour 57 minutes 54 seconds
+It's even.
+SB
+Satheesh Babu
+1 hour 58 minutes 4 seconds1:58:04
+Satheesh Babu 1 hour 58 minutes 4 seconds
+I'm passion to get it and then it's there only. No, no, yeah, he here.
+TM
+Taher Ghulam Mohammed
+1 hour 58 minutes 6 seconds1:58:06
+Taher Ghulam Mohammed 1 hour 58 minutes 6 seconds
+Get call.
+SB
+Satheesh Babu
+1 hour 58 minutes 12 seconds1:58:12
+Satheesh Babu 1 hour 58 minutes 12 seconds
+No, yeah, come come to that.
+TM
+Taher Ghulam Mohammed
+1 hour 58 minutes 16 seconds1:58:16
+Taher Ghulam Mohammed 1 hour 58 minutes 16 seconds
+Go to the postman URL low. Uh, Chinchi document ID document ID Chinchi.
+MN
+
+Murali Naramamidi
+1 hour 58 minutes 16 seconds1:58:16
+Murali Naramamidi 1 hour 58 minutes 16 seconds
+Nikana.
+SB
+Satheesh Babu
+1 hour 58 minutes 19 seconds1:58:19
+Satheesh Babu 1 hour 58 minutes 19 seconds
+Or else here itself. Yeah, here only. Yeah, here only.
+Satheesh Babu 1 hour 58 minutes 24 seconds
+Local host.
+MN
+
+Murali Naramamidi
+1 hour 58 minutes 28 seconds1:58:28
+Murali Naramamidi 1 hour 58 minutes 28 seconds
+Look at them.
+
+Taher Ghulam Mohammed stopped transcription
