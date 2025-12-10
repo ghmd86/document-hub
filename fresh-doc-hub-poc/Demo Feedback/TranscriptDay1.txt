@@ -1,200 +1,2423 @@
+0:0:7.36 --> 0:0:7.156 
+Taher Ghulam Mohammed 
+Yep. 
 
-Transcript. Use arrow keys to navigate between transcript entries. Select an entry to navigate the media to the time of the entry.
-
-
-Search
-
-AI-generated content may be incorrect
-
-Taher Ghulam Mohammed started transcription
-TM
+0:0:12.356 --> 0:0:15.516 
+Jagadeesh Chitta 
+OK, so I have made all the modifications that we talked about yesterday. 
 
-Taher Ghulam Mohammed
-0 minutes 3 seconds0:03
-Taher Ghulam Mohammed 0 minutes 3 seconds
-The API specifications for template management. I think he'll go through that.
-Taher Ghulam Mohammed 0 minutes 21 seconds
-No.
+0:0:18.76 --> 0:0:18.796 
+Jagadeesh Chitta 
+So. 
 
-Prachi Kulkarni
-0 minutes 28 seconds0:28
-Prachi Kulkarni 0 minutes 28 seconds
-I think Jatish was speaking on mute.
-TM
+0:0:22.556 --> 0:0:28.556 
+Jagadeesh Chitta 
+For all the endpoints, I've added these two header parameters for the auditory tracking purpose. 
 
-Taher Ghulam Mohammed
-0 minutes 30 seconds0:30
-Taher Ghulam Mohammed 0 minutes 30 seconds
-OK John, OK if if you mean meanwhile I can demo the what do you call this is what do you call rules engine what do you call where we can dynamically pick the shared documents.
-SB
+0:0:27.996 --> 0:0:29.556 
+John Drum 
+Speak up a little bit. Your voice is very soft. 
 
-Satheesh Babu
-0 minutes 31 seconds0:31
-Satheesh Babu 0 minutes 31 seconds
-mute
-TM
+0:0:31.236 --> 0:0:35.196 
+Jagadeesh Chitta 
+Uh, so I have added these two header parameters for all the requests. 
 
-Taher Ghulam Mohammed
-0 minutes 45 seconds0:45
-Taher Ghulam Mohammed 0 minutes 45 seconds
-Uh, shall we go through that first?
-Taher Ghulam Mohammed 0 minutes 54 seconds
-John, yeah.
+0:0:37.716 --> 0:0:39.236 
+Jagadeesh Chitta 
+Uh, for the tracking purpose. 
 
-John Drum
-0 minutes 58 seconds0:58
-John Drum 0 minutes 58 seconds
-Sorry, I was muted. Yeah, go ahead.
-TM
+0:0:40.996 --> 0:0:47.436 
+Jagadeesh Chitta 
+And in the post request for templates, I got rid of the template version. Sorry. Yeah. 
 
-Taher Ghulam Mohammed
-1 minute1:00
-Taher Ghulam Mohammed 1 minute
-Uh, sure. Yeah, let me share my screen. OK, this is the OK.
-Taher Ghulam Mohammed 1 minute 11 seconds
-Let me bring this here. OK, so John, let me go to the database. What are you called?
-TM
-Taher Ghulam Mohammed
-1 hour 56 minutes 48 seconds1:56:48
-Taher Ghulam Mohammed 1 hour 56 minutes 48 seconds
-Yeah, we are storing it as a name, right? Yeah, yeah.
-SB
-Satheesh Babu
-1 hour 56 minutes 56 seconds1:56:56
-Satheesh Babu 1 hour 56 minutes 56 seconds
-That that we have.
-Satheesh Babu 1 hour 57 minutes 1 second
-And normally that is fine. Uh, you can come to upload file.
-TM
-Taher Ghulam Mohammed
-1 hour 57 minutes 1 second1:57:01
-Taher Ghulam Mohammed 1 hour 57 minutes 1 second
-Andy.
-MN
-Murali Naramamidi
-1 hour 57 minutes 7 seconds1:57:07
-Murali Naramamidi 1 hour 57 minutes 7 seconds
-Upload trailer OK.
-SB
-Satheesh Babu
-1 hour 57 minutes 9 seconds1:57:09
-Satheesh Babu 1 hour 57 minutes 9 seconds
-This is fine even though the file name only we we we have to concentrate. So if you come to file upload file. So here we have the file name option now.
-MN
-Murali Naramamidi
-1 hour 57 minutes 11 seconds1:57:11
-Murali Naramamidi 1 hour 57 minutes 11 seconds
-What?
-SB
-Satheesh Babu
-1 hour 57 minutes 23 seconds1:57:23
-Satheesh Babu 1 hour 57 minutes 23 seconds
-There is a header level we are passing header level we are passing the file name.
-MN
-Murali Naramamidi
-1 hour 57 minutes 27 seconds1:57:27
-Murali Naramamidi 1 hour 57 minutes 27 seconds
-OK.
-TM
-Taher Ghulam Mohammed
-1 hour 57 minutes 27 seconds1:57:27
-Taher Ghulam Mohammed 1 hour 57 minutes 27 seconds
-Body, body, body level, body level.
-SB
-Satheesh Babu
-1 hour 57 minutes 29 seconds1:57:29
-Satheesh Babu 1 hour 57 minutes 29 seconds
-Yeah.
-MN
-Murali Naramamidi
-1 hour 57 minutes 30 seconds1:57:30
-Murali Naramamidi 1 hour 57 minutes 30 seconds
-Stop.
-TM
-Taher Ghulam Mohammed
-1 hour 57 minutes 31 seconds1:57:31
-Taher Ghulam Mohammed 1 hour 57 minutes 31 seconds
-As a form parameter, just call check in the.
-Taher Ghulam Mohammed 1 hour 57 minutes 36 seconds
-Yeah, demo dot PDF.
-SB
-Satheesh Babu
-1 hour 57 minutes 37 seconds1:57:37
-Satheesh Babu 1 hour 57 minutes 37 seconds
-Yes, see that the file file name.
-TM
-Taher Ghulam Mohammed
-1 hour 57 minutes 39 seconds1:57:39
-Taher Ghulam Mohammed 1 hour 57 minutes 39 seconds
-Yes.
-SB
-Satheesh Babu
-1 hour 57 minutes 40 seconds1:57:40
-Satheesh Babu 1 hour 57 minutes 40 seconds
-So if you upload this file, so.
-MN
-Murali Naramamidi
-1 hour 57 minutes 40 seconds1:57:40
-Murali Naramamidi 1 hour 57 minutes 40 seconds
-Demo PDF in between.
-TM
-Taher Ghulam Mohammed
-1 hour 57 minutes 41 seconds1:57:41
-Taher Ghulam Mohammed 1 hour 57 minutes 41 seconds
-Stop.
-Taher Ghulam Mohammed 1 hour 57 minutes 43 seconds
-When you download this file, you need to get that same name.
-SB
-Satheesh Babu
-1 hour 57 minutes 45 seconds1:57:45
-Satheesh Babu 1 hour 57 minutes 45 seconds
-So take this ID and download this file. We'll see what happen.
-Satheesh Babu 1 hour 57 minutes 53 seconds
-Yeah, take this ID.
-MN
+0:0:45.196 --> 0:0:45.716 
+John Drum 
+What is? 
 
-Murali Naramamidi
-1 hour 57 minutes 54 seconds1:57:54
-Murali Naramamidi 1 hour 57 minutes 54 seconds
-It's even.
-SB
-Satheesh Babu
-1 hour 58 minutes 4 seconds1:58:04
-Satheesh Babu 1 hour 58 minutes 4 seconds
-I'm passion to get it and then it's there only. No, no, yeah, he here.
-TM
-Taher Ghulam Mohammed
-1 hour 58 minutes 6 seconds1:58:06
-Taher Ghulam Mohammed 1 hour 58 minutes 6 seconds
-Get call.
-SB
-Satheesh Babu
-1 hour 58 minutes 12 seconds1:58:12
-Satheesh Babu 1 hour 58 minutes 12 seconds
-No, yeah, come come to that.
-TM
-Taher Ghulam Mohammed
-1 hour 58 minutes 16 seconds1:58:16
-Taher Ghulam Mohammed 1 hour 58 minutes 16 seconds
-Go to the postman URL low. Uh, Chinchi document ID document ID Chinchi.
-MN
+0:0:47.156 --> 0:0:48.756 
+John Drum 
+What is that ID for? 
 
-Murali Naramamidi
-1 hour 58 minutes 16 seconds1:58:16
-Murali Naramamidi 1 hour 58 minutes 16 seconds
-Nikana.
-SB
-Satheesh Babu
-1 hour 58 minutes 19 seconds1:58:19
-Satheesh Babu 1 hour 58 minutes 19 seconds
-Or else here itself. Yeah, here only. Yeah, here only.
-Satheesh Babu 1 hour 58 minutes 24 seconds
-Local host.
-MN
+0:0:47.476 --> 0:0:47.636 
+Murali Naramamidi 
+And. 
 
-Murali Naramamidi
-1 hour 58 minutes 28 seconds1:58:28
-Murali Naramamidi 1 hour 58 minutes 28 seconds
-Look at them.
-
-Taher Ghulam Mohammed stopped transcription
+0:0:51.156 --> 0:0:54.196 
+John Drum 
+There's a trace ID, but what does that mean? 
+
+0:0:52.36 --> 0:0:52.396 
+Jagadeesh Chitta 
+These two. 
+
+0:0:58.276 --> 0:1:5.596 
+Jagadeesh Chitta 
+So where the request is coming from? I mean, I just picked this parameters from document communication service that we're already using. 
+
+0:1:8.716 --> 0:1:13.236 
+John Drum 
+I'm sorry, I can barely hear your voice. Maybe it's just me, but can you? 
+
+0:1:14.476 --> 0:1:16.916 
+John Drum 
+Speak up a little louder. 
+
+0:1:16.916 --> 0:1:17.836 
+Jagadeesh Chitta 
+Oh, just a second. 
+
+0:2:5.996 --> 0:2:6.796 
+Jagadeesh Chitta 
+Can you hear me now? 
+
+0:2:6.796 --> 0:2:8.596 
+John Drum 
+Yes, much better. 
+
+0:2:9.676 --> 0:2:9.796 
+Jagadeesh Chitta 
+OK. 
+
+0:2:12.716 --> 0:2:28.276 
+Jagadeesh Chitta 
+Yeah, so I picked these two parameters from the document communication service. I'm really not sure exactly how we get these values and how do we use them. I was going to discuss with Taher later, but I just picked those two parameters. 
+
+0:2:29.636 --> 0:2:32.956 
+Jagadeesh Chitta 
+From the other endpoints that we already have in place. 
+
+0:2:31.76 --> 0:2:31.196 
+John Drum 
+OK. 
+
+0:2:33.996 --> 0:2:40.356 
+John Drum 
+And that's great, except we don't want to add stuff that we don't know what they're actually for. Um. 
+
+0:2:41.756 --> 0:2:46.36 
+John Drum 
+Because you're gonna have to add this to the data dictionary. 
+
+0:2:47.676 --> 0:2:48.76 
+Jagadeesh Chitta 
+OK. 
+
+0:2:49.716 --> 0:2:57.116 
+John Drum 
+So I mean the fact that it says trace ID, I'm thinking it's something that's going to be used as part of the audit log, but. 
+
+0:2:58.476 --> 0:3:15.396 
+John Drum 
+When I'm asking, it seems like you don't know yourself what it's for, especially since there seems to be a version attached to it. Is that the version of the API call? Is it the version of the trace ID? What does that refer to? 
+
+0:3:16.996 --> 0:3:29.836 
+Taher Ghulam Mohammed 
+I believe there is a X version ID which is being used in every API specifications. So that's that's that's what we continue here. 
+
+0:3:17.916 --> 0:3:18.436 
+John Drum 
+Yeah. 
+
+0:3:29.676 --> 0:3:42.116 
+John Drum 
+Is it part of customer 365? I mean, I'm not against using something that's supposed to be there, but I want to know what it is. I don't like things showing up without any idea what its purpose is. 
+
+0:3:44.156 --> 0:3:51.956 
+John Drum 
+So let's research that to find out exactly what it is for. Otherwise, how do you implement it correctly? 
+
+0:3:54.356 --> 0:3:57.956 
+Jagadeesh Chitta 
+OK, then sure, we'll we'll research on that. 
+
+0:3:58.676 --> 0:3:59.876 
+John Drum 
+OK, continue. 
+
+0:4:1.356 --> 0:4:2.396 
+Jagadeesh Chitta 
+And uh. 
+
+0:4:3.876 --> 0:4:10.916 
+Jagadeesh Chitta 
+In the request body, I got rid of the template version because we decided on incrementing the version automatically. 
+
+0:4:12.676 --> 0:4:16.596 
+Jagadeesh Chitta 
+If match templated exists already in the records. 
+
+0:4:18.356 --> 0:4:21.716 
+Jagadeesh Chitta 
+So those are the updates to the post end endpoint. 
+
+0:4:25.916 --> 0:4:30.36 
+John Drum 
+On the create, right? That's the one that you were looking at on the, OK. 
+
+0:4:28.36 --> 0:4:42.356 
+Jagadeesh Chitta 
+Yeah, on the, yeah, yeah, on the create, yeah. And in the get endpoint it have added the line of business that it is active or not in department these three query parameters. 
+
+0:4:38.516 --> 0:4:39.156 
+John Drum 
+Mhm. 
+
+0:4:43.596 --> 0:4:49.36 
+John Drum 
+You have that in the crate also, right? So when you're creating it, you can tell the line of business. 
+
+0:4:44.156 --> 0:4:46.276 
+Jagadeesh Chitta 
+But to give more control for the. 
+
+0:4:50.636 --> 0:4:53.356 
+Jagadeesh Chitta 
+Yeah, in the create also we have a input. 
+
+0:4:50.956 --> 0:4:56.476 
+John Drum 
+This is just a you already have that, so this is just a filter for pulling it back, OK? 
+
+0:4:56.756 --> 0:4:57.356 
+Jagadeesh Chitta 
+Good. 
+
+0:4:59.236 --> 0:4:59.316 
+John Drum 
+Um. 
+
+0:5:4.516 --> 0:5:13.516 
+Jagadeesh Chitta 
+We did not have any changes for this get endpoint. This is just to retrieve based on the template ID. We'll get all the versions for a particular template. 
+
+0:5:17.796 --> 0:5:29.516 
+Jagadeesh Chitta 
+And this is just to return the template configuration. I think one of the team members asked for this requirement. They just want the template config for a particular template inversion. 
+
+0:5:29.516 --> 0:5:42.276 
+John Drum 
+So we also talked about adding that field for the template type, like if it was a letter, e-mail, push, SMS, are those added into these filters? 
+
+0:5:45.276 --> 0:5:50.196 
+Jagadeesh Chitta 
+No, those are not added into the filters, but I had. Did you update the table for that? 
+
+0:5:48.276 --> 0:5:49.396 
+John Drum 
+So let me. 
+
+0:5:50.876 --> 0:5:59.876 
+John Drum 
+Yes, the table has to be updated for it, but also you need to have a filter condition so when you get it, you don't get a mixture of different types of templates. 
+
+0:6:2.716 --> 0:6:10.156 
+Jagadeesh Chitta 
+OK, so here we need an additional query param for the mode of delivery. Basically like letter e-mail or. 
+
+0:6:9.116 --> 0:6:12.716 
+Taher Ghulam Mohammed 
+What? What is that for, John? What is that for? 
+
+0:6:12.396 --> 0:6:28.556 
+John Drum 
+I don't know what you called it, but we talked yesterday about adding another field for the the communication type. Like is it a letter? Is it a SMS? But that also means you got to build a filter so that when you go get a list of the templates, you don't want to get the. 
+
+0:6:19.636 --> 0:6:22.556 
+Taher Ghulam Mohammed 
+Yeah, yeah, yeah, yeah, yeah, yeah. OK. Yes, yes, yeah. 
+
+0:6:26.876 --> 0:6:27.236 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:6:28.636 --> 0:6:31.356 
+John Drum 
+E-mail templates mixed in with the letter templates. 
+
+0:6:31.516 --> 0:6:31.996 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:6:33.356 --> 0:6:42.916 
+Taher Ghulam Mohammed 
+Yeah, I think I I let me, I think, let me check. I think I've did it yesterday on it. I'm not sure. Add to this table. Let me check. 
+
+0:6:48.196 --> 0:6:52.276 
+Jagadeesh Chitta 
+OK, uh, I'll add that filter so. 
+
+0:6:53.196 --> 0:6:53.556 
+John Drum 
+OK. 
+
+0:6:59.796 --> 0:7:19.236 
+Jagadeesh Chitta 
+I have changed this from put to patch and got rid of the legacy template details since we don't need to. I mean we should not allow anyone to update that through this end point. We're accepting only these like display name, template name, all the template related fields can be. 
+
+0:7:19.716 --> 0:7:24.756 
+Jagadeesh Chitta 
+Updated sharing scope configurations, channels, all these things. 
+
+0:7:25.876 --> 0:7:29.276 
+Jagadeesh Chitta 
+Not the legacy details and the template ID and portion. 
+
+0:7:40.556 --> 0:7:44.36 
+Jagadeesh Chitta 
+That's the only change we add in this one. 
+
+0:7:46.196 --> 0:7:48.796 
+Jagadeesh Chitta 
+And delete we did not have any changes. 
+
+0:7:50.636 --> 0:7:51.916 
+Jagadeesh Chitta 
+Stayed as it is. 
+
+0:7:58.556 --> 0:7:59.876 
+Jagadeesh Chitta 
+Template vendors. 
+
+0:8:1.476 --> 0:8:4.356 
+Jagadeesh Chitta 
+But create it also will not have any changes. 
+
+0:8:4.196 --> 0:8:8.836 
+John Drum 
+Can you go back in there a second? That's the. Let me see the crate. 
+
+0:8:7.516 --> 0:8:7.756 
+Jagadeesh Chitta 
+Sure. 
+
+0:8:16.596 --> 0:8:16.636 
+John Drum 
+Oh. 
+
+0:8:31.156 --> 0:8:31.316 
+John Drum 
+OK. 
+
+0:8:37.836 --> 0:8:52.196 
+John Drum 
+The reason I wanted to see it is because we're we're using the same structure for other communication types besides letters. I wanted to make sure that it had the information in there necessary to identify a vendor like Salesforce versus. 
+
+0:8:53.36 --> 0:8:55.796 
+John Drum 
+A print vendor like Smartcom so. 
+
+0:8:56.556 --> 0:8:56.676 
+Jagadeesh Chitta 
+OK. 
+
+0:8:57.436 --> 0:8:59.396 
+John Drum 
+That's fine. It looks like it should be okay. 
+
+0:9:2.556 --> 0:9:4.756 
+Jagadeesh Chitta 
+And we have the. 
+
+0:9:5.956 --> 0:9:7.676 
+Jagadeesh Chitta 
+Get in point uh. 
+
+0:9:9.236 --> 0:9:13.596 
+Jagadeesh Chitta 
+With some vendor is active is primary filters. 
+
+0:9:13.916 --> 0:9:15.556 
+John Drum 
+I'll go back again. 
+
+0:9:16.116 --> 0:9:16.876 
+Jagadeesh Chitta 
+Mhm. 
+
+0:9:18.796 --> 0:9:21.396 
+John Drum 
+Stop that vendor. That's not a. 
+
+0:9:24.116 --> 0:9:27.196 
+John Drum 
+It's not a enumeration or anything, right? 
+
+0:9:26.996 --> 0:9:29.476 
+Jagadeesh Chitta 
+No, it's not in emulation, it's a sync type. 
+
+0:9:31.436 --> 0:9:39.36 
+John Drum 
+OK, because it needs to because there could be other ones like Salesforce and stuff that could be the vendor. We don't want to restrict it to a certain. 
+
+0:9:36.996 --> 0:9:39.396 
+Jagadeesh Chitta 
+Yeah, and we Yeah. 
+
+0:9:40.356 --> 0:9:54.316 
+Jagadeesh Chitta 
+Yeah, we decided to leave this as string and string type now and have these possible vendors in the application properties to validate against. So the application properties can be updated when there is a new vendor. 
+
+0:9:40.476 --> 0:9:40.596 
+John Drum 
+OK. 
+
+0:9:55.956 --> 0:10:0.316 
+Jagadeesh Chitta 
+Just so that you know not any string can be passed as a vendor. 
+
+0:10:1.636 --> 0:10:4.116 
+Jagadeesh Chitta 
+But not restricting it as an enumeration. 
+
+0:10:5.156 --> 0:10:6.356 
+John Drum 
+Say that one more time. 
+
+0:10:6.276 --> 0:10:18.796 
+Jagadeesh Chitta 
+Like so, but even though if it is, it is a string type, it's not an enumeration. We cannot just take any string that is passed in the request folder, right? Like let's say somebody sent ABC. 
+
+0:10:20.596 --> 0:10:21.796 
+Jagadeesh Chitta 
+We want to allow that. 
+
+0:10:20.876 --> 0:10:21.476 
+John Drum 
+Why not? 
+
+0:10:23.356 --> 0:10:27.396 
+John Drum 
+Why not? What would be the reason for restricting it? 
+
+0:10:25.476 --> 0:10:25.596 
+Jagadeesh Chitta 
+OK. 
+
+0:10:31.756 --> 0:10:34.396 
+Jagadeesh Chitta 
+no particular reason. We thought that, you know. 
+
+0:10:35.836 --> 0:10:43.36 
+Jagadeesh Chitta 
+The idea to not have it as enumeration is because it's possible to have a new vendor in the future. 
+
+0:10:43.636 --> 0:10:43.796 
+John Drum 
+Yeah. 
+
+0:10:44.756 --> 0:10:45.196 
+Jagadeesh Chitta 
+But uh. 
+
+0:10:47.36 --> 0:10:49.836 
+Jagadeesh Chitta 
+Getting any string value in there. 
+
+0:10:51.956 --> 0:10:56.796 
+Jagadeesh Chitta 
+When we we wanted to add some kind of validation that can be configurable. 
+
+0:10:58.236 --> 0:11:0.756 
+Jagadeesh Chitta 
+Instead of restricting at a code level. 
+
+0:11:1.356 --> 0:11:18.516 
+John Drum 
+The only way I would do that is if it's those items are in a config file and because I don't want to have to make code changes to add it. If you want to make just a config file entry to where you can just go into a document and add a new one, then that's fine, but I don't want any code that restricts it. 
+
+0:11:19.436 --> 0:11:21.956 
+Jagadeesh Chitta 
+Yeah, yeah, that that's what we thought of. 
+
+0:11:23.196 --> 0:11:33.956 
+Jagadeesh Chitta 
+So whenever there is a change in the vendor list, we'll just update the configuration and without touching the code, the validation should work as expected. 
+
+0:11:34.396 --> 0:11:51.396 
+John Drum 
+So that that needs to go against more than just a vendor, because there's a vendor list per communication type. Like for letters you might have smart comma sent as handlebars or emails you might have Salesforce. 
+
+0:11:41.836 --> 0:11:42.596 
+Jagadeesh Chitta 
+Mhm. 
+
+0:11:51.916 --> 0:12:9.116 
+John Drum 
+Or some other vendor, but you'll never have Salesforce for a letter. You know what I'm saying. So if you're going to put a check, that vendor needs to be also categorized by the communication type. 
+
+0:12:0.516 --> 0:12:0.636 
+Jagadeesh Chitta 
+OK. 
+
+0:12:9.876 --> 0:12:14.316 
+John Drum 
+Which is like letter, e-mail, SMS, push, that type thing. 
+
+0:12:17.396 --> 0:12:18.876 
+Jagadeesh Chitta 
+OK, got it. Yeah. 
+
+0:12:21.516 --> 0:12:23.276 
+John Drum 
+OK, continue. 
+
+0:12:24.156 --> 0:12:24.676 
+Jagadeesh Chitta 
+Yeah, so. 
+
+0:12:26.596 --> 0:12:37.596 
+Jagadeesh Chitta 
+For this at end point and I have added this another get end point which takes master template ID and returns all the vendor mappings for that particular template. 
+
+0:12:38.916 --> 0:12:40.36 
+John Drum 
+OK. Yeah. 
+
+0:12:42.876 --> 0:12:45.196 
+Jagadeesh Chitta 
+The standard structure uh. 
+
+0:12:47.756 --> 0:12:48.596 
+Jagadeesh Chitta 
+Yeah. 
+
+0:12:51.836 --> 0:13:0.316 
+Jagadeesh Chitta 
+This one we did not have any changes. It's to retrieve template vendor mapping based on the unique identifier in that table template vendor ID. 
+
+0:13:1.36 --> 0:13:3.836 
+John Drum 
+No one returns all the templates to have that vendor. 
+
+0:13:5.36 --> 0:13:14.796 
+Jagadeesh Chitta 
+No, no no. This is just like master template ID. Template vendor mapping also has a unique ID. This is to retrieve based on that ID. This is just written one entry. 
+
+0:13:12.356 --> 0:13:14.116 
+John Drum 
+OK, oh. 
+
+0:13:15.516 --> 0:13:23.836 
+John Drum 
+One of the things we had talked about was to be able to return all the templates based on a particular vendor, which which item does that? 
+
+0:13:22.356 --> 0:13:30.916 
+Jagadeesh Chitta 
+Yeah, that that this get endpoint has that rendered as a query parameter, so we can use this one to retrieve. 
+
+0:13:31.476 --> 0:13:31.596 
+John Drum 
+OK. 
+
+0:13:33.196 --> 0:13:36.156 
+Jagadeesh Chitta 
+all the template mappings for that particular vendor. 
+
+0:13:38.196 --> 0:13:40.196 
+John Drum 
+OK. And that that's a string that'll work, OK. 
+
+0:13:47.196 --> 0:13:51.516 
+Jagadeesh Chitta 
+I have changed this from put to patch. 
+
+0:13:50.476 --> 0:13:52.596 
+John Drum 
+OK, update. 
+
+0:13:53.516 --> 0:14:2.996 
+Jagadeesh Chitta 
+I got rid of a couple of fields that like master template ID and template version should be updated. So I got rid of those only the fields that can be updated. 
+
+0:14:5.276 --> 0:14:6.796 
+Jagadeesh Chitta 
+This request body now. 
+
+0:14:9.996 --> 0:14:16.876 
+Jagadeesh Chitta 
+We can change the status or you know, make it active, primary, all those things through this endpoint. 
+
+0:14:19.596 --> 0:14:19.876 
+John Drum 
+OK. 
+
+0:14:25.516 --> 0:14:29.756 
+Jagadeesh Chitta 
+and we have the delete based on the template one of ID and 
+
+0:14:31.156 --> 0:14:38.636 
+Jagadeesh Chitta 
+If you have any changes, it just takes the ID and deletes soft deletes that particular entry. We'll update both the status and. 
+
+0:14:40.316 --> 0:14:40.756 
+Jagadeesh Chitta 
+Archive flag. 
+
+0:14:43.636 --> 0:14:44.36 
+John Drum 
+OK. 
+
+0:14:45.636 --> 0:14:53.596 
+John Drum 
+Don't forget, since we're doing soft deletes, if you delete a template, they need to make sure you also soft delete all the vendors assigned to that template. 
+
+0:14:55.876 --> 0:14:56.956 
+Jagadeesh Chitta 
+OK. Yeah. 
+
+0:14:57.916 --> 0:15:0.676 
+Jagadeesh Chitta 
+Yeah, we'll we'll take a note of that. 
+
+0:15:9.676 --> 0:15:13.436 
+Jagadeesh Chitta 
+Yeah, that's all the updates I've done to the template API spec. 
+
+0:15:14.836 --> 0:15:16.756 
+John Drum 
+Do you have a copy function? 
+
+0:15:21.436 --> 0:15:22.436 
+Jagadeesh Chitta 
+The copy of. 
+
+0:15:21.436 --> 0:15:34.996 
+John Drum 
+Let's say that we want to, yeah, let's say that we want to create a new vendor, but we only need to modify a few values. Can I copy an old one to use as a starting point to modify to create a new one? 
+
+0:15:37.756 --> 0:15:39.956 
+Jagadeesh Chitta 
+No, we don't have that effort. 
+
+0:15:41.956 --> 0:15:43.956 
+John Drum 
+We should create something like that. 
+
+0:15:47.636 --> 0:15:47.756 
+Jagadeesh Chitta 
+OK. 
+
+0:15:49.236 --> 0:15:49.476 
+Jagadeesh Chitta 
+So. 
+
+0:15:51.956 --> 0:15:58.76 
+John Drum 
+Let me think about that a second. This is on the API level. Do we wanna do it there? Do we wanna do it in the? 
+
+0:15:59.36 --> 0:16:14.196 
+John Drum 
+I take that back cause you could they can just retrieve the one they want to copy from that'll that should preload whatever editor that's going to be in and then you can use that to save it and that'll give them a simulated effect because I don't want. 
+
+0:16:6.956 --> 0:16:7.956 
+Jagadeesh Chitta 
+Mhm. 
+
+0:16:14.476 --> 0:16:29.716 
+John Drum 
+To actually create the record, which the copy API would do until they've actually finalized what they're going to create. Otherwise we'll have a bunch of just junk entries out there that don't never gets. 
+
+0:16:31.156 --> 0:16:31.916 
+John Drum 
+Finalized. 
+
+0:16:34.556 --> 0:16:37.76 
+John Drum 
+OK, I talked myself out of that. 
+
+0:16:39.76 --> 0:16:39.196 
+Jagadeesh Chitta 
+OK. 
+
+0:16:44.596 --> 0:16:45.836 
+John Drum 
+What else we got? 
+
+0:16:45.76 --> 0:16:45.236 
+Jagadeesh Chitta 
+Mm. 
+
+0:16:47.276 --> 0:16:50.556 
+Jagadeesh Chitta 
+That's all I have. Uh, Tahir. Do you want to continue? 
+
+0:16:55.236 --> 0:17:10.916 
+Taher Ghulam Mohammed 
+Oh yeah, yeah, I'm yeah, I can share it, but OK. Yesterday we were OK domain, we got the feedback like you want to have a sequence diagram for this flow, right? So I did that and. 
+
+0:17:11.436 --> 0:17:12.116 
+Taher Ghulam Mohammed 
+Uh, habits. 
+
+0:17:11.596 --> 0:17:18.756 
+John Drum 
+Well, a flow diagram or sequence or something. Those don't have to be now, but I mean, we're going to need that as part of the documentation. 
+
+0:17:14.236 --> 0:17:14.516 
+Taher Ghulam Mohammed 
+Yes, yeah. 
+
+0:17:18.836 --> 0:17:21.36 
+Taher Ghulam Mohammed 
+Yes, I did that and. 
+
+0:17:22.796 --> 0:17:28.436 
+Taher Ghulam Mohammed 
+So this is the flow diagram. OK, so lapping at each other. 
+
+0:17:27.916 --> 0:17:28.676 
+John Drum 
+Looks like teams. 
+
+0:17:29.556 --> 0:17:35.636 
+Pankaj Singh 
+Where you keep kept it that is that the same that you're using it for document app? 
+
+0:17:29.956 --> 0:17:31.236 
+Taher Ghulam Mohammed 
+Oh, that ****. 
+
+0:17:32.636 --> 0:17:36.356 
+Taher Ghulam Mohammed 
+In the Lucid Lucid. 
+
+0:17:36.836 --> 0:17:38.36 
+Pankaj Singh 
+Same listed, right? OK. 
+
+0:17:37.956 --> 0:17:38.516 
+Taher Ghulam Mohammed 
+Yes, yes. 
+
+0:17:41.76 --> 0:17:41.316 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:17:45.476 --> 0:17:51.916 
+Taher Ghulam Mohammed 
+So this is the inquiry flow which we you you see this or is it very small John? 
+
+0:17:51.916 --> 0:17:52.836 
+John Drum 
+Yeah. 
+
+0:17:52.516 --> 0:17:55.236 
+Pankaj Singh 
+You can uh minimize the left hand side one. 
+
+0:17:55.876 --> 0:17:56.76 
+Taher Ghulam Mohammed 
+OK. 
+
+0:17:57.876 --> 0:18:3.156 
+Pankaj Singh 
+Yeah. And now increase that to 70% or something. Yeah, should be fine now. 
+
+0:18:3.636 --> 0:18:4.436 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:18:5.196 --> 0:18:11.116 
+John Drum 
+OK, and this is a a post. So this is the create the template. 
+
+0:18:9.796 --> 0:18:14.596 
+Taher Ghulam Mohammed 
+Yes, no, this is the this is the document inquiry to fetch check ones. 
+
+0:18:15.236 --> 0:18:17.636 
+John Drum 
+To fetch all the documents, OK. 
+
+0:18:16.876 --> 0:18:17.636 
+Taher Ghulam Mohammed 
+Yes, yes. 
+
+0:18:22.316 --> 0:18:26.116 
+Taher Ghulam Mohammed 
+Which all of them? All of them. Yeah. Yes. Yeah. 
+
+0:18:22.396 --> 0:18:25.436 
+John Drum 
+Not just the shared ones, but all of them for a given person. 
+
+0:18:26.836 --> 0:18:26.956 
+John Drum 
+OK. 
+
+0:18:28.956 --> 0:18:34.876 
+Taher Ghulam Mohammed 
+So when we get the inquiry, we'll get we'll find the list of templates. 
+
+0:18:33.316 --> 0:18:38.956 
+John Drum 
+What's the validate request? Start from the beginning here. What's the validate request for? 
+
+0:18:35.876 --> 0:18:35.916 
+Taher Ghulam Mohammed 
+Uh. 
+
+0:18:39.436 --> 0:18:54.316 
+Taher Ghulam Mohammed 
+It is validating what's what we are putting in in port like we are checking for account ID, it's present or not. Those kind of stuff. Yes, yes, yes. Then that goes to service inquiry document, a query service where? 
+
+0:18:46.796 --> 0:18:49.956 
+John Drum 
+So you just check in for required parameters, OK. 
+
+0:18:51.156 --> 0:18:51.356 
+John Drum 
+Next. 
+
+0:18:55.76 --> 0:19:2.276 
+Taher Ghulam Mohammed 
+Queries the database to find the templates, active templates and we get back the. 
+
+0:19:1.676 --> 0:19:3.836 
+John Drum 
+For a given person. 
+
+0:19:4.76 --> 0:19:5.876 
+Taher Ghulam Mohammed 
+Not a given person. 
+
+0:19:4.836 --> 0:19:17.796 
+John Drum 
+Which because there's two separate, there's two separate things that you're doing, right? One for the one-to-one documents and then the ones for the shared documents. So which are we doing first? Are this for the one-to-one assigned documents? 
+
+0:19:11.676 --> 0:19:13.676 
+Taher Ghulam Mohammed 
+Yes, yes. 
+
+0:19:17.396 --> 0:19:23.476 
+Taher Ghulam Mohammed 
+This this this is for all documents like if you if you pass in the desktop documents which we need, yeah. 
+
+0:19:22.556 --> 0:19:27.236 
+John Drum 
+I know the whole thing is, but I'm talking about this particular step, Step 4. 
+
+0:19:29.516 --> 0:19:30.516 
+John Drum 
+Says find active templates. 
+
+0:19:33.156 --> 0:19:34.116 
+Taher Ghulam Mohammed 
+The pitch. 
+
+0:19:33.436 --> 0:19:38.36 
+John Drum 
+You're not looking for every active template in the bloody database, right? 
+
+0:19:38.876 --> 0:19:40.796 
+Taher Ghulam Mohammed 
+Uh, let me check. 
+
+0:19:39.196 --> 0:19:42.116 
+John Drum 
+You're looking for the ones that this person necessarily has. 
+
+0:19:45.76 --> 0:19:45.836 
+Taher Ghulam Mohammed 
+Repository. 
+
+0:19:50.956 --> 0:19:52.596 
+Taher Ghulam Mohammed 
+I like to templates start date. 
+
+0:19:55.996 --> 0:20:0.676 
+Taher Ghulam Mohammed 
+The active flag is true and yeah, it's doing all actually. 
+
+0:20:1.116 --> 0:20:10.956 
+John Drum 
+So that that's a problem because we may have 1000 templates, but a given person is not going to have 1000 letters. 
+
+0:20:1.716 --> 0:20:2.556 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:20:11.596 --> 0:20:13.116 
+Taher Ghulam Mohammed 
+I don't know. 
+
+0:20:14.676 --> 0:20:31.236 
+John Drum 
+So why would we query against all the active templates if we're only looking for the letters that this person has? Now the reason you would do that is for shared documents to find out which shared documents you need to see what matches, but not all active templates are shared. 
+
+0:20:24.756 --> 0:20:25.396 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:20:32.116 --> 0:20:32.756 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:20:33.836 --> 0:20:39.996 
+John Drum 
+So that's why I said there are two separate operations, one to get the one to one assigned documents. 
+
+0:20:35.236 --> 0:20:35.716 
+Taher Ghulam Mohammed 
+There. 
+
+0:20:42.36 --> 0:20:42.556 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:20:42.36 --> 0:20:47.436 
+John Drum 
+And then two, to get the list of the shared documents and then see if this person has any of those. 
+
+0:20:49.716 --> 0:20:50.116 
+Taher Ghulam Mohammed 
+OK. 
+
+0:20:51.556 --> 0:20:53.756 
+Taher Ghulam Mohammed 
+OK, yeah, uh. 
+
+0:20:55.316 --> 0:20:59.516 
+John Drum 
+They have to be two different operations. You can't do them both at the same time. 
+
+0:20:59.516 --> 0:21:0.916 
+Taher Ghulam Mohammed 
+OK, mm-hmm. 
+
+0:21:0.436 --> 0:21:2.436 
+John Drum 
+And then you got to orchestrate between them. 
+
+0:21:4.476 --> 0:21:5.396 
+Taher Ghulam Mohammed 
+OK, OK. 
+
+0:21:7.756 --> 0:21:8.276 
+Taher Ghulam Mohammed 
+She. 
+
+0:21:9.196 --> 0:21:20.436 
+Taher Ghulam Mohammed 
+Yeah, I'll do that. Yeah, that's good point. Yeah. Don't need to do all get pitch all the right active. That's makes sense. Yeah. So yeah, so then. 
+
+0:21:21.596 --> 0:21:24.116 
+Taher Ghulam Mohammed 
+I will check the sharing. 
+
+0:21:22.876 --> 0:21:39.516 
+John Drum 
+Because I I take it this is the inquiry to return the documents for a person for the message center or the document center in the website, right? This isn't for the draft editor to just list all the the templates that they could be creating because that one doesn't. The draft editor doesn't show shared documents, only the. 
+
+0:21:29.676 --> 0:21:30.156 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:21:35.956 --> 0:21:36.196 
+Taher Ghulam Mohammed 
+M. 
+
+0:21:40.556 --> 0:21:44.196 
+John Drum 
+the uh individually assigned ones right? 
+
+0:21:46.196 --> 0:21:51.796 
+Taher Ghulam Mohammed 
+Draft editor OK, this is for document inquiry that the one for the website. 
+
+0:21:49.876 --> 0:21:50.436 
+John Drum 
+This. 
+
+0:21:51.676 --> 0:22:6.356 
+John Drum 
+I understand. That's why I said this is just the inquiry for the the message center. So that one, yes, you have to separate the query for the documents that are assigned directly to that account from the ones that are shared documents. 
+
+0:21:53.276 --> 0:21:53.796 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:21:55.116 --> 0:21:55.236 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:22:3.916 --> 0:22:4.396 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:22:6.716 --> 0:22:9.356 
+John Drum 
+Because you you go about finding them different ways. 
+
+0:22:9.756 --> 0:22:10.996 
+Taher Ghulam Mohammed 
+Mm-hmm. 
+
+0:22:10.956 --> 0:22:23.996 
+John Drum 
+So when you're looking for the ones that are assigned to a person, right, you don't need to look at the template at all. You can just hit the instance table for the the matches for that account ID. 
+
+0:22:13.436 --> 0:22:14.596 
+Taher Ghulam Mohammed 
+Mm-hmm. 
+
+0:22:17.276 --> 0:22:18.156 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:22:21.436 --> 0:22:25.836 
+Taher Ghulam Mohammed 
+Mm-hmm. Yep. Mm-hmm. 
+
+0:22:27.36 --> 0:22:34.116 
+John Drum 
+Right. But for the shared documents, that one you have to go out and find a list. Well, I take it back. 
+
+0:22:28.116 --> 0:22:28.356 
+Taher Ghulam Mohammed 
+Hmm. 
+
+0:22:36.636 --> 0:22:46.116 
+John Drum 
+You do have to join on the templates to make sure that that document that they have is actually assigned to the message center. 
+
+0:22:48.316 --> 0:22:50.916 
+Taher Ghulam Mohammed 
+Mhm, yeah, we're gonna have a radio system. 
+
+0:22:49.196 --> 0:23:4.436 
+John Drum 
+Because not every document that they have in the document hub is displayed in the message center. So you do have to filter on that also, but that's that's still not every document out there now for the. 
+
+0:23:2.636 --> 0:23:3.236 
+Taher Ghulam Mohammed 
+Mm-hmm. 
+
+0:23:4.716 --> 0:23:20.116 
+John Drum 
+The shared documents. That's just the opposite. You got to go out and find out what's all the shared documents, which shared documents are actually in the message center, and then find out if that person actually which shared document they have, right? And then pull that back. 
+
+0:23:11.756 --> 0:23:12.276 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:23:18.276 --> 0:23:18.796 
+Taher Ghulam Mohammed 
+Hmm. Yep. Yep. 
+
+0:23:20.956 --> 0:23:25.356 
+John Drum 
+So they're two separate operations. You you find the documents differently. 
+
+0:23:26.956 --> 0:23:36.356 
+Taher Ghulam Mohammed 
+Yep. Yeah, yeah, I think, Yep, that's the that's a good point. I'll Yep. 
+
+0:23:37.516 --> 0:23:40.836 
+Taher Ghulam Mohammed 
+So to continue like, yeah. 
+
+0:23:38.636 --> 0:23:45.276 
+John Drum 
+So does this. OK, So what do? So you got fine account specific documents. 
+
+0:23:45.836 --> 0:23:45.956 
+Taher Ghulam Mohammed 
+OK. 
+
+0:23:48.156 --> 0:23:53.756 
+Taher Ghulam Mohammed 
+Yeah, this is account specific. Find account specific. 
+
+0:23:52.596 --> 0:23:54.516 
+John Drum 
+And when you say temlate type. 
+
+0:23:56.356 --> 0:23:57.356 
+John Drum 
+What does that mean? 
+
+0:23:58.836 --> 0:24:4.276 
+Taher Ghulam Mohammed 
+This is the template type is our. 
+
+0:24:8.956 --> 0:24:10.676 
+Taher Ghulam Mohammed 
+We have a template type here. 
+
+0:24:11.716 --> 0:24:11.756 
+Taher Ghulam Mohammed 
+Uh. 
+
+0:24:12.396 --> 0:24:13.596 
+Taher Ghulam Mohammed 
+Oh, this is. 
+
+0:24:15.196 --> 0:24:17.396 
+Taher Ghulam Mohammed 
+Type. Yeah, this is the. 
+
+0:24:20.276 --> 0:24:23.676 
+Taher Ghulam Mohammed 
+Month statement disclosure and electronic disclosure kind of things. 
+
+0:24:28.36 --> 0:24:29.796 
+Taher Ghulam Mohammed 
+So this is the. 
+
+0:24:30.956 --> 0:24:33.596 
+Taher Ghulam Mohammed 
+Oh yeah, this is the. 
+
+0:24:31.156 --> 0:24:39.716 
+John Drum 
+OK, but why are you filtering on that? Because that means you have to make that call separately for every single type, right? 
+
+0:24:42.796 --> 0:24:47.36 
+Taher Ghulam Mohammed 
+Every single. So you mean to say the query? 
+
+0:24:45.436 --> 0:24:51.956 
+John Drum 
+Because if you just call and ask for all the ones for that account ID, you're gonna get all the template types, right? 
+
+0:24:48.116 --> 0:24:48.316 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:24:53.276 --> 0:24:58.36 
+John Drum 
+The things you should be filtered on is like line of business, the Um. 
+
+0:24:53.316 --> 0:24:53.836 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:24:59.356 --> 0:25:5.956 
+John Drum 
+The communication type and account ID. That way you get all the the. 
+
+0:25:3.796 --> 0:25:4.36 
+Taher Ghulam Mohammed 
+And. 
+
+0:25:7.556 --> 0:25:10.36 
+John Drum 
+And also the whether it's the Um. 
+
+0:25:10.876 --> 0:25:28.636 
+John Drum 
+There's an another field in here for a message center document flag that has to be true. And then those other types, you know one should be like letter and then the account ID and line of business for credit card and that should bring back all of the documents just for that person. 
+
+0:25:24.796 --> 0:25:25.516 
+Taher Ghulam Mohammed 
+Are we? 
+
+0:25:29.236 --> 0:25:29.396 
+John Drum 
+Right. 
+
+0:25:31.276 --> 0:25:39.556 
+Taher Ghulam Mohammed 
+So how do we know this? This we're not passing this flag John in the API spec, so as a center flag. 
+
+0:25:36.636 --> 0:25:38.436 
+John Drum 
+You should be. 
+
+0:25:40.596 --> 0:25:47.956 
+John Drum 
+Yeah, if you don't, if you don't pass that flag, how do you know that you're gonna get all the documents, not just the one for the message center? 
+
+0:25:52.396 --> 0:25:52.876 
+Taher Ghulam Mohammed 
+OK. 
+
+0:25:53.596 --> 0:26:8.276 
+John Drum 
+Because you know what? I mean, you may want all the documents in some other scenario, but not for use on the web. You only want the ones that we've actually marked to be displayed there. And then if we want to display new correspondence in the future, we just go to the template and turn that flag on. 
+
+0:25:59.876 --> 0:26:0.596 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:26:8.956 --> 0:26:14.316 
+John Drum 
+And then it automatically will get picked up to be displayed in the future by the category that it's in. 
+
+0:26:14.36 --> 0:26:14.676 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:26:15.396 --> 0:26:21.796 
+John Drum 
+But if you don't pass that flag, how's the API gonna know that this is being called from the website versus some other system? 
+
+0:26:26.236 --> 0:26:26.556 
+Taher Ghulam Mohammed 
+OK. 
+
+0:26:28.996 --> 0:26:31.716 
+Taher Ghulam Mohammed 
+You are just looking specifications OK. 
+
+0:26:32.916 --> 0:26:35.116 
+John Drum 
+Remember the scenarios that we're talking about? 
+
+0:26:34.716 --> 0:26:35.236 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:26:36.436 --> 0:26:40.356 
+Taher Ghulam Mohammed 
+So what does the regulatory flag signify, John? 
+
+0:26:40.396 --> 0:26:51.796 
+John Drum 
+The regulatory one says OK, if we go to print this and they're in a do not contact contact state, you know that's turned on. Regulatory still has to get printed. 
+
+0:26:43.996 --> 0:26:44.636 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:26:51.676 --> 0:26:52.316 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:26:53.756 --> 0:26:53.876 
+Taher Ghulam Mohammed 
+OK. 
+
+0:26:55.196 --> 0:27:0.516 
+John Drum 
+Where if regulatory is false and they have do not contact, then we don't actually print it. 
+
+0:26:55.396 --> 0:26:55.876 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:27:2.716 --> 0:27:2.836 
+Taher Ghulam Mohammed 
+OK. 
+
+0:27:3.796 --> 0:27:8.316 
+John Drum 
+It's used by a different control mechanism. 
+
+0:27:9.36 --> 0:27:9.516 
+Taher Ghulam Mohammed 
+OK. 
+
+0:27:18.396 --> 0:27:26.556 
+Taher Ghulam Mohammed 
+OK, yeah, I think this this one is like communication flag. The communication type is required. It's check against message. 
+
+0:27:25.756 --> 0:27:31.276 
+John Drum 
+Right, 'cause we have templates in there that also are like e-mail communication, so you gotta have that filter. 
+
+0:27:32.676 --> 0:27:35.436 
+Taher Ghulam Mohammed 
+OK, e-mail, OK. 
+
+0:27:34.956 --> 0:27:52.356 
+John Drum 
+And and then for the one like your inquiry, that one you're only pulling that back for the web stuff. So that has to have you know that message center the doc flag for the ones that are true. Otherwise you're going to get every correspondence that that person has and that's for the document hub. 
+
+0:27:53.116 --> 0:27:55.956 
+John Drum 
+So that has to be passed. 
+
+0:27:56.796 --> 0:27:57.316 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:27:59.316 --> 0:28:0.996 
+Taher Ghulam Mohammed 
+This is central offline, OK. 
+
+0:28:3.436 --> 0:28:5.36 
+Taher Ghulam Mohammed 
+OK. 
+
+0:28:6.516 --> 0:28:17.876 
+Taher Ghulam Mohammed 
+Coming back to this sequence diagram again. So OK, so you are checking all three types. One is account specific, sharing, scoping all and there is. 
+
+0:28:19.116 --> 0:28:37.716 
+Taher Ghulam Mohammed 
+Account type kind of sharing scope where based on the line of business we'll be segregating that. Then also we have custom rules where we have few documents, too few templates that are configured differently for. 
+
+0:28:37.796 --> 0:28:41.116 
+Taher Ghulam Mohammed 
+Yeah, different purpose. So then. 
+
+0:28:41.196 --> 0:28:45.756 
+John Drum 
+You're very vague on those things. I I don't understand what you're talking about. 
+
+0:28:53.276 --> 0:28:54.436 
+John Drum 
+The enterprise. 
+
+0:28:57.836 --> 0:28:58.356 
+John Drum 
+Mhm. 
+
+0:28:58.396 --> 0:29:1.196 
+Taher Ghulam Mohammed 
+And that those also are picked up and. 
+
+0:29:0.476 --> 0:29:3.636 
+John Drum 
+So how is Sherry's scope different than line of business then? 
+
+0:29:7.356 --> 0:29:8.996 
+Taher Ghulam Mohammed 
+Uh, she she. 
+
+0:29:12.476 --> 0:29:12.676 
+Taher Ghulam Mohammed 
+3. 
+
+0:29:13.716 --> 0:29:20.156 
+Taher Ghulam Mohammed 
+No, actually this is this tells it's it's it's across the the document is OK. 
+
+0:29:22.156 --> 0:29:23.516 
+John Drum 
+It sounds like the same thing. 
+
+0:29:24.956 --> 0:29:25.916 
+Taher Ghulam Mohammed 
+This is a sharing score. 
+
+0:29:25.996 --> 0:29:42.756 
+John Drum 
+Except you've got like the word all versus enterprise, but basically the lines of business is enterprise, which is all the lines of businesses, right? Then you have individual line of business like credit card, digital banking, whatever else they come up with in the future. 
+
+0:29:29.276 --> 0:29:29.596 
+Taher Ghulam Mohammed 
+Uhuh. 
+
+0:29:35.436 --> 0:29:36.156 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:29:43.36 --> 0:29:47.836 
+John Drum 
+So you're sharing scope all is like enterprise. 
+
+0:29:43.116 --> 0:29:43.596 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:29:49.436 --> 0:29:59.636 
+John Drum 
+And then you mentioned credit card or account type. So I'm I'm not sure what sharing scope versus line of business is how they're different. 
+
+0:29:59.916 --> 0:30:4.76 
+Taher Ghulam Mohammed 
+OK. OK. OK. I got your point. Like, OK, line of business. 
+
+0:30:5.836 --> 0:30:20.196 
+Taher Ghulam Mohammed 
+I get your point. Yeah, yeah, I think, yeah, the line of business should be like digital enterprise and credit card and I think also can we have all on that? 
+
+0:30:15.996 --> 0:30:16.556 
+John Drum 
+Yep. 
+
+0:30:19.196 --> 0:30:33.996 
+John Drum 
+Because sharing scope, I thought you meant is like I thought originally sharing scope was who could access the the file. Maybe I misunderstood. I I didn't think you were using it like for the line of business thing. 
+
+0:30:29.276 --> 0:30:29.916 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:30:37.676 --> 0:30:43.236 
+John Drum 
+Because some things, some correspondence may only be shared with like DNF. 
+
+0:30:38.436 --> 0:30:38.596 
+Taher Ghulam Mohammed 
+Mm. 
+
+0:30:45.796 --> 0:30:45.836 
+John Drum 
+Uh. 
+
+0:30:46.276 --> 0:30:46.516 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:30:49.636 --> 0:30:53.956 
+John Drum 
+But maybe that's not what you were using it for. That's just what I thought when I saw it the first time. 
+
+0:30:56.36 --> 0:31:10.676 
+Taher Ghulam Mohammed 
+Yeah, OK, this is like if it is null then it means that it's specific to an account. I thought of putting all wins it it this type of template is accessible to all the types of line of businesses or any any type of accounts. 
+
+0:31:12.516 --> 0:31:16.156 
+Taher Ghulam Mohammed 
+Then there will be an account specific like. 
+
+0:31:17.596 --> 0:31:22.196 
+Taher Ghulam Mohammed 
+For specifically for a digital bank or it will be for. 
+
+0:31:23.516 --> 0:31:25.396 
+John Drum 
+But again, that's line of business, right? 
+
+0:31:23.836 --> 0:31:32.836 
+Taher Ghulam Mohammed 
+Enterprise, yes. And then there will be custom rules, right? So there could be customized rules that could apply. 
+
+0:31:33.676 --> 0:31:34.196 
+John Drum 
+Mhm. 
+
+0:31:34.196 --> 0:31:37.316 
+Taher Ghulam Mohammed 
+So I thought of that on that line, so. 
+
+0:31:38.956 --> 0:31:42.436 
+John Drum 
+Well, I suppose if you you could use it just for customized rules. 
+
+0:31:42.516 --> 0:31:43.76 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:31:43.916 --> 0:31:45.436 
+John Drum 
+Regardless of line of business. 
+
+0:31:46.156 --> 0:31:46.676 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:31:47.36 --> 0:32:0.556 
+John Drum 
+But you need to define it better than that. What is, what is, what does a customized rule mean? So I'm not adverse to having it, but it needs to be defined what it is and it shouldn't be something that we already have like line of business. 
+
+0:31:57.436 --> 0:31:57.956 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:32:2.716 --> 0:32:3.196 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:32:4.316 --> 0:32:17.636 
+Taher Ghulam Mohammed 
+So for example, if you want to share documents across across the types of documents, types of accounts, what is enterprise? Oh OK, so enterprise means everything. 
+
+0:32:13.156 --> 0:32:14.356 
+John Drum 
+And it's enterprise. 
+
+0:32:19.36 --> 0:32:20.956 
+John Drum 
+Yeah, your whole enterprise. 
+
+0:32:19.996 --> 0:32:31.156 
+Taher Ghulam Mohammed 
+Oh, OK, OK, OK. So OK, enterprise mean everything. So OK, we'll have three credit card and digital bank enterprise mean both. 
+
+0:32:32.236 --> 0:32:32.396 
+John Drum 
+Yep. 
+
+0:32:33.236 --> 0:32:38.436 
+Taher Ghulam Mohammed 
+OK, so OK, OK, got it. OK, OK, OK, this case up. OK, OK. 
+
+0:32:41.636 --> 0:32:45.796 
+Taher Ghulam Mohammed 
+Mm-hmm. OK, that's. Yeah, that clears something. Yep. 
+
+0:32:47.36 --> 0:32:53.796 
+Taher Ghulam Mohammed 
+OK. So OK, so for no, so I'll change that to line of business and. 
+
+0:32:55.476 --> 0:32:58.676 
+Taher Ghulam Mohammed 
+If it is enterprise, we'll have some custom rules. 
+
+0:33:0.196 --> 0:33:0.516 
+John Drum 
+OK. 
+
+0:33:0.916 --> 0:33:6.996 
+Taher Ghulam Mohammed 
+So that would much clearer. OK, OK, got it. Mm-hmm. 
+
+0:33:6.316 --> 0:33:10.836 
+John Drum 
+OK, so then you got to find shared documents. At least you got these separated. That's good. 
+
+0:33:11.836 --> 0:33:12.836 
+John Drum 
+Let's see. 
+
+0:33:14.876 --> 0:33:19.396 
+John Drum 
+And then you have your customer rules for E shared document using rules. 
+
+0:33:20.276 --> 0:33:20.436 
+Taher Ghulam Mohammed 
+M. 
+
+0:33:22.716 --> 0:33:32.716 
+Taher Ghulam Mohammed 
+Yeah, you'll get if there is an external API call and we'll make get after getting a response, we'll extract that variable and add add it to the context. 
+
+0:33:30.396 --> 0:33:30.916 
+John Drum 
+Mhm. 
+
+0:33:33.276 --> 0:33:34.356 
+John Drum 
+Happy. 
+
+0:33:33.636 --> 0:33:34.116 
+Taher Ghulam Mohammed 
+So. 
+
+0:33:35.276 --> 0:33:35.756 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:33:41.356 --> 0:33:45.916 
+Taher Ghulam Mohammed 
+Then if there is an eligibility criteria, then we'll uh. 
+
+0:33:47.356 --> 0:33:50.396 
+Taher Ghulam Mohammed 
+Evaluate that and if it is true then it will be picked up. 
+
+0:33:54.756 --> 0:33:54.996 
+Taher Ghulam Mohammed 
+Then. 
+
+0:33:54.876 --> 0:33:59.156 
+John Drum 
+And that's that's actually a loop operation, right? For each one of the shared documents. 
+
+0:33:57.276 --> 0:33:59.556 
+Taher Ghulam Mohammed 
+Yeah, yes, yes, Yep. 
+
+0:34:5.236 --> 0:34:5.356 
+John Drum 
+OK. 
+
+0:34:15.436 --> 0:34:17.756 
+Taher Ghulam Mohammed 
+Then we'll query the storage dot index table. 
+
+0:34:20.116 --> 0:34:22.156 
+Taher Ghulam Mohammed 
+And then you'll find those documents. 
+
+0:34:30.276 --> 0:34:32.436 
+John Drum 
+What's the item 27 for? 
+
+0:34:34.636 --> 0:34:38.636 
+Taher Ghulam Mohammed 
+Or duplicating documents if if you find multiple documents. 
+
+0:34:41.276 --> 0:34:44.796 
+John Drum 
+But what's aggregate? Aggregate typically means when you combine things together. 
+
+0:34:43.596 --> 0:34:53.476 
+Taher Ghulam Mohammed 
+It's like all yes, yes, yeah, we're we're aggregating all the account specific and the documents which we find by custom rules and stuff and. 
+
+0:34:55.756 --> 0:34:58.956 
+Taher Ghulam Mohammed 
+Uh, build that list of documents, right? 
+
+0:34:59.516 --> 0:35:12.156 
+John Drum 
+So this is to build the list of documents that you're returning. So you're you're basically compiling both the one to one and the shared document into a comprehensive list organized by category. 
+
+0:35:2.316 --> 0:35:2.916 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:35:11.316 --> 0:35:11.636 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:35:13.196 --> 0:35:13.716 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:35:15.756 --> 0:35:17.836 
+John Drum 
+And then you're applying pagination. 
+
+0:35:22.956 --> 0:35:28.236 
+John Drum 
+What's the Hatos links? I know they talked about that, but I don't remember what it is. 
+
+0:35:25.116 --> 0:35:26.596 
+Taher Ghulam Mohammed 
+I'll be happy. 
+
+0:35:27.876 --> 0:35:31.356 
+Taher Ghulam Mohammed 
+Yeah, we have a links here in the response. 
+
+0:35:33.476 --> 0:35:34.556 
+Taher Ghulam Mohammed 
+For download. 
+
+0:35:36.356 --> 0:35:38.476 
+Taher Ghulam Mohammed 
+Delete and. 
+
+0:35:40.236 --> 0:35:43.716 
+John Drum 
+But what is the link? What is the link referred to? 
+
+0:35:40.316 --> 0:35:41.876 
+Taher Ghulam Mohammed 
+For next step. 
+
+0:35:46.436 --> 0:35:57.596 
+Taher Ghulam Mohammed 
+These are the what do you call links to the download the documents that comes from the ECMS. 
+
+0:36:0.916 --> 0:36:4.436 
+John Drum 
+Oh, so it's the retrieval link. 
+
+0:36:2.476 --> 0:36:12.596 
+Taher Ghulam Mohammed 
+Yes, little link and also for next item in the pagination we have next link and previous link. 
+
+0:36:13.436 --> 0:36:17.636 
+John Drum 
+So that's being, that's being returned as part of the inquiry. 
+
+0:36:17.796 --> 0:36:18.196 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:36:21.316 --> 0:36:23.156 
+John Drum 
+And it has a time frame. 
+
+0:36:24.396 --> 0:36:29.636 
+Taher Ghulam Mohammed 
+Yes, I think that's that 10 minutes. So you mean to say the the ECMS one, yes. 
+
+0:36:29.756 --> 0:36:37.76 
+John Drum 
+Yeah, so you're retrieving the links, but you don't have a a lifetime object that I see with it. So how do they know how long that that link's good for? 
+
+0:36:38.756 --> 0:36:39.116 
+Taher Ghulam Mohammed 
+Oh, OK. 
+
+0:36:43.196 --> 0:36:57.956 
+John Drum 
+So not a adverse to having a link, but if you're going to give a link that expires, you need to let them know when it expires so that they can refresh the link. Otherwise they'll make they'll get an error when they try to call it if it's past the expiration time, right? 
+
+0:36:51.156 --> 0:36:51.276 
+Taher Ghulam Mohammed 
+OK. 
+
+0:36:57.636 --> 0:36:58.596 
+Taher Ghulam Mohammed 
+Mhm, Yep. 
+
+0:37:2.236 --> 0:37:5.796 
+Taher Ghulam Mohammed 
+Yeah, I think so. 
+
+0:37:8.436 --> 0:37:8.636 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:37:12.956 --> 0:37:14.396 
+Taher Ghulam Mohammed 
+We should have that, yeah. 
+
+0:37:22.436 --> 0:37:25.596 
+John Drum 
+And we we also have. 
+
+0:37:22.676 --> 0:37:23.476 
+Taher Ghulam Mohammed 
+OK. Yeah. 
+
+0:37:30.996 --> 0:37:34.716 
+John Drum 
+The document ID for it and see that. 
+
+0:37:35.156 --> 0:37:35.276 
+Taher Ghulam Mohammed 
+Is. 
+
+0:37:38.956 --> 0:37:46.196 
+John Drum 
+But that's for the. I mean, the document ID is per document, right? This says it's a document list or is that a? Is that an array? 
+
+0:37:43.996 --> 0:37:44.436 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:37:46.396 --> 0:37:47.76 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:37:49.116 --> 0:37:50.596 
+John Drum 
+Yeah, which one? 
+
+0:37:49.716 --> 0:37:50.76 
+Taher Ghulam Mohammed 
+Is. 
+
+0:37:51.36 --> 0:37:54.676 
+Taher Ghulam Mohammed 
+This is an array and each yeah, yeah. 
+
+0:37:51.756 --> 0:37:55.276 
+John Drum 
+All right. OK, so you have multiple entries each in there with the. 
+
+0:37:57.76 --> 0:37:59.596 
+Taher Ghulam Mohammed 
+Talk on ID and it's all. 
+
+0:37:57.716 --> 0:37:57.836 
+John Drum 
+OK. 
+
+0:38:0.596 --> 0:38:2.916 
+John Drum 
+And those others are links for a given action. 
+
+0:38:7.756 --> 0:38:12.356 
+John Drum 
+So if they call that link, they're going to try to delete that document. 
+
+0:38:8.236 --> 0:38:9.916 
+Taher Ghulam Mohammed 
+There are two types of links. 
+
+0:38:15.36 --> 0:38:19.116 
+Taher Ghulam Mohammed 
+We have this here, but I don't think we should be. 
+
+0:38:18.156 --> 0:38:21.556 
+John Drum 
+Yeah, there should be no delete function in the get inquiry. 
+
+0:38:23.796 --> 0:38:26.236 
+John Drum 
+At least not when they're doing it for the web. 
+
+0:38:26.676 --> 0:38:27.196 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:38:32.356 --> 0:38:32.676 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:38:32.876 --> 0:38:37.396 
+John Drum 
+Besides, I thought we had different fields on the template that. 
+
+0:38:35.156 --> 0:38:35.276 
+Taher Ghulam Mohammed 
+OK. 
+
+0:38:38.556 --> 0:38:46.36 
+John Drum 
+Expose the actions that were available. Are we checking that as far as before we send these things back? 
+
+0:38:47.476 --> 0:38:49.796 
+Taher Ghulam Mohammed 
+What type of actions on? 
+
+0:38:50.676 --> 0:38:56.516 
+John Drum 
+So on our template we have metadata that says what actions are available for that document, right? 
+
+0:39:4.436 --> 0:39:4.476 
+Taher Ghulam Mohammed 
+Oh. 
+
+0:39:4.516 --> 0:39:10.796 
+John Drum 
+Filtering these actions here based upon the template for that given document type. 
+
+0:39:4.556 --> 0:39:4.596 
+Taher Ghulam Mohammed 
+Oh. 
+
+0:39:10.516 --> 0:39:10.556 
+Taher Ghulam Mohammed 
+Uh. 
+
+0:39:13.396 --> 0:39:21.476 
+John Drum 
+Because it looks like you're just giving all the actions every time, which doesn't match what we have in our metadata for the template. 
+
+0:39:13.836 --> 0:39:15.476 
+Taher Ghulam Mohammed 
+Not yet. 
+
+0:39:17.36 --> 0:39:17.556 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:39:20.636 --> 0:39:20.756 
+Taher Ghulam Mohammed 
+OK. 
+
+0:39:23.716 --> 0:39:30.356 
+Taher Ghulam Mohammed 
+Yeah, we have an access control. Yeah, that has viewed. OK, download. Yeah, yeah, or. 
+
+0:39:29.236 --> 0:39:36.396 
+John Drum 
+Right, so you should only be providing these items here that match that metadata that we have. 
+
+0:39:33.236 --> 0:39:33.396 
+Taher Ghulam Mohammed 
+Uh huh. 
+
+0:39:36.796 --> 0:39:36.916 
+Taher Ghulam Mohammed 
+OK. 
+
+0:39:45.996 --> 0:39:46.916 
+Taher Ghulam Mohammed 
+OK, yeah. 
+
+0:39:55.36 --> 0:39:55.76 
+Taher Ghulam Mohammed 
+I. 
+
+0:40:2.516 --> 0:40:5.676 
+Taher Ghulam Mohammed 
+This is the sequence diagram for. 
+
+0:40:7.876 --> 0:40:12.76 
+Taher Ghulam Mohammed 
+Extracting a price disclosure code example. 
+
+0:40:14.596 --> 0:40:24.276 
+Taher Ghulam Mohammed 
+So this is how we are extracting. This is an example sequence diagram to extract disclosure code from the custom rules, yes. 
+
+0:40:15.316 --> 0:40:17.116 
+John Drum 
+It's it's what again? 
+
+0:40:21.636 --> 0:40:23.636 
+John Drum 
+All for the uh like shared document. 
+
+0:40:25.76 --> 0:40:25.436 
+John Drum 
+OK. 
+
+0:40:27.996 --> 0:40:28.76 
+Taher Ghulam Mohammed 
+O. 
+
+0:40:27.996 --> 0:40:32.516 
+John Drum 
+What do we got? Can you zoom in a little bit? Those are very small letters, OK? 
+
+0:40:34.916 --> 0:40:37.556 
+John Drum 
+Extract fields. 
+
+0:40:44.796 --> 0:40:44.876 
+Taher Ghulam Mohammed 
+So. 
+
+0:40:45.356 --> 0:40:55.916 
+John Drum 
+Which fields are you talking about? So the fields you need are based upon the the shared document type, right? 
+
+0:40:52.996 --> 0:40:54.76 
+Taher Ghulam Mohammed 
+Configuration. 
+
+0:40:55.916 --> 0:40:56.236 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:40:57.156 --> 0:41:0.396 
+John Drum 
+Because that's part of the configuration you have in there. 
+
+0:40:57.836 --> 0:41:2.276 
+Taher Ghulam Mohammed 
+Let me let me show you. Yeah, let me show you previous. 
+
+0:41:3.636 --> 0:41:6.436 
+John Drum 
+Yeah, I remember the other day you showed me there was. 
+
+0:41:6.236 --> 0:41:6.396 
+Taher Ghulam Mohammed 
+M. 
+
+0:41:7.436 --> 0:41:10.756 
+John Drum 
+Field in the template that had the. 
+
+0:41:13.356 --> 0:41:13.676 
+Taher Ghulam Mohammed 
+OK. 
+
+0:41:13.916 --> 0:41:15.476 
+John Drum 
+The mapping for the fields. 
+
+0:41:17.156 --> 0:41:17.756 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:41:22.956 --> 0:41:24.756 
+John Drum 
+For a given endpoint. 
+
+0:41:32.756 --> 0:41:33.196 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:41:38.596 --> 0:41:39.516 
+Taher Ghulam Mohammed 
+Yeah, yeah. 
+
+0:41:41.636 --> 0:41:42.76 
+Taher Ghulam Mohammed 
+See. 
+
+0:41:44.996 --> 0:41:47.916 
+Taher Ghulam Mohammed 
+Yeah, so here like we have fields to extract. 
+
+0:41:49.556 --> 0:41:52.316 
+John Drum 
+Right. So go back to your other diagram again. 
+
+0:41:49.756 --> 0:41:50.916 
+Taher Ghulam Mohammed 
+I single yeah. 
+
+0:41:54.356 --> 0:41:54.476 
+John Drum 
+So. 
+
+0:41:56.916 --> 0:42:1.756 
+John Drum 
+You have a different is this call for all shared documents or is it their given type? 
+
+0:42:3.796 --> 0:42:7.756 
+Taher Ghulam Mohammed 
+This is for all shared documents like fields to extract. Yeah, we'll yeah. 
+
+0:42:5.396 --> 0:42:15.356 
+John Drum 
+OK, so first thing you have to know is which your document you're working with, right? Then you're finding which fields go to that shared document. 
+
+0:42:10.676 --> 0:42:10.956 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:42:15.796 --> 0:42:16.116 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:42:16.756 --> 0:42:19.596 
+John Drum 
+Then build dependency graph. What is that? 
+
+0:42:25.756 --> 0:42:30.796 
+Taher Ghulam Mohammed 
+So we are extracting where exactly we are pulling that information, right? So. 
+
+0:42:29.796 --> 0:42:40.516 
+John Drum 
+So this is the are you OK? Does that mean you're you're defining new endpoints to go pull that or is it information you already have? 
+
+0:42:37.716 --> 0:42:46.396 
+Taher Ghulam Mohammed 
+Yes, so so so so pricing ID requests. So basically pricing ID requires account ID and disclosure requires pricing ID. 
+
+0:42:47.716 --> 0:42:48.716 
+Taher Ghulam Mohammed 
+That's the dependency. 
+
+0:42:53.36 --> 0:42:53.156 
+John Drum 
+OK. 
+
+0:42:55.156 --> 0:42:58.396 
+John Drum 
+What's doing that function? Which part? 
+
+0:42:58.356 --> 0:43:2.476 
+Taher Ghulam Mohammed 
+This is configured data, extract service, yeah. 
+
+0:43:1.116 --> 0:43:2.476 
+John Drum 
+Extraction service. 
+
+0:43:5.796 --> 0:43:13.236 
+John Drum 
+An account arrangement API to get pricing ID pricing API to get disclosure code. 
+
+0:43:14.916 --> 0:43:18.956 
+John Drum 
+And that's happening all inside of the this microservice. 
+
+0:43:19.316 --> 0:43:20.36 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:43:23.36 --> 0:43:25.636 
+John Drum 
+You have a different microservice per uh. 
+
+0:43:25.716 --> 0:43:30.636 
+Taher Ghulam Mohammed 
+No, no, it's all same X followed them, yeah. 
+
+0:43:27.756 --> 0:43:33.476 
+John Drum 
+It's the same microservice for all of them. OK, so how do you know which one you're working on? 
+
+0:43:37.956 --> 0:43:40.956 
+Taher Ghulam Mohammed 
+So this is configurable, right? So just need to. 
+
+0:43:39.476 --> 0:43:43.196 
+John Drum 
+I I know, but let me give you the scenario. You have three shared documents. 
+
+0:43:42.36 --> 0:43:42.516 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:43:43.836 --> 0:43:43.956 
+Taher Ghulam Mohammed 
+OK. 
+
+0:43:46.196 --> 0:44:1.236 
+John Drum 
+Are you? You're not trying to return all three at the same time, right? They have all different criteria. So I'm taking it. You're looping through the three different ones. So where are you passing which shared document you're working on in this process? 
+
+0:43:51.116 --> 0:43:51.276 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:43:53.956 --> 0:43:54.716 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:44:2.676 --> 0:44:8.116 
+Taher Ghulam Mohammed 
+Uh, it's coming from the aquari service, so each will look through. 
+
+0:44:6.596 --> 0:44:16.76 
+John Drum 
+But you don't have a parameter there for the document. You got an account ID, a customer ID and a correlation ID. I don't see anything about the document type. 
+
+0:44:17.476 --> 0:44:20.236 
+John Drum 
+So how do you even know that you're working on disclosure? 
+
+0:44:28.36 --> 0:44:34.876 
+John Drum 
+You said this is handling all the different types, so that means when you call it, you're gonna have to tell it which type you're working with, right? 
+
+0:44:30.956 --> 0:44:31.396 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:44:36.36 --> 0:44:36.876 
+John Drum 
+Unless I'm missing something. 
+
+0:44:38.396 --> 0:44:44.836 
+Taher Ghulam Mohammed 
+It's it's it's the code itself, right? So it's it's the it's a function that does this whole thing the method. 
+
+0:44:45.316 --> 0:44:48.956 
+John Drum 
+So you're saying you got one function that's called that's? 
+
+0:44:47.636 --> 0:45:1.396 
+Taher Ghulam Mohammed 
+There there are multiple function function that does different steps, but we just it has its own called responsibility. So let me go through the code actually. 
+
+0:45:0.716 --> 0:45:6.316 
+John Drum 
+But you don't, you don't show a loop operation going on here. So what I'm seeing is that. 
+
+0:45:4.116 --> 0:45:4.636 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:45:5.876 --> 0:45:16.396 
+Taher Ghulam Mohammed 
+Oh, OK. So every OK, I think in a query service for each template type will go through the loop. OK, you want to see the loop, OK. 
+
+0:45:17.396 --> 0:45:32.476 
+John Drum 
+Well, yeah, otherwise, how do I know if you're if you're doing everything correctly? Because if you have to do a loop because you have multiples, and then when you're in that loop, you have to know which document type you're working with, right? 
+
+0:45:21.276 --> 0:45:21.396 
+Taher Ghulam Mohammed 
+OK. 
+
+0:45:23.516 --> 0:45:23.996 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:45:27.156 --> 0:45:27.676 
+Taher Ghulam Mohammed 
+Yes, yes. 
+
+0:45:32.516 --> 0:45:32.876 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:45:33.236 --> 0:45:38.796 
+John Drum 
+Because the the fields for disclosure may be different than for privacy notice. 
+
+0:45:39.916 --> 0:45:40.156 
+John Drum 
+Um. 
+
+0:45:44.396 --> 0:45:44.516 
+Taher Ghulam Mohammed 
+OK. 
+
+0:45:46.196 --> 0:45:50.156 
+John Drum 
+Because this this diagram is just sort of a vague flow. 
+
+0:45:46.276 --> 0:45:47.716 
+Taher Ghulam Mohammed 
+Let it be here. 
+
+0:45:51.756 --> 0:45:55.556 
+John Drum 
+But it's nothing that you could actually give a developer to say, OK, develop this. 
+
+0:45:55.236 --> 0:45:55.956 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:46:6.476 --> 0:46:7.956 
+John Drum 
+So you have. 
+
+0:46:9.316 --> 0:46:10.476 
+John Drum 
+Step one extract pricing ID. 
+
+0:46:11.516 --> 0:46:11.996 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:46:13.796 --> 0:46:20.156 
+John Drum 
+What if you're that given document doesn't use pricing ID? Are these steps different? 
+
+0:46:18.596 --> 0:46:25.316 
+Taher Ghulam Mohammed 
+Uh, it it will have different different stuff different. Yeah, this is only for example for getting the disclosure code. 
+
+0:46:28.476 --> 0:46:31.876 
+Taher Ghulam Mohammed 
+Specific for that one, how we are accepting this information. 
+
+0:46:31.996 --> 0:46:32.116 
+John Drum 
+OK. 
+
+0:46:35.316 --> 0:46:37.196 
+John Drum 
+With resolve Uri. 
+
+0:46:38.596 --> 0:46:38.996 
+John Drum 
+URL. 
+
+0:46:38.716 --> 0:46:49.476 
+Taher Ghulam Mohammed 
+So we'll, yeah, we have the in the configuration, we'll have the end point. Yeah, yes. 
+
+0:46:47.436 --> 0:46:50.676 
+John Drum 
+Oh, that's the end point, right? OK, gotcha. OK. 
+
+0:46:55.236 --> 0:46:56.516 
+Taher Ghulam Mohammed 
+We'll call that endpoint. 
+
+0:46:56.516 --> 0:47:10.436 
+John Drum 
+So this is going to making the call to return the pricing strategy based for the whatever it's looking for here pricing and it says disclosure code. The account arrangement API was for the pricing ID. 
+
+0:46:59.796 --> 0:47:0.516 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:47:13.236 --> 0:47:17.996 
+John Drum 
+And does the pricing API use the pricing ID as part of the retrieval for the disclosure code? 
+
+0:47:18.516 --> 0:47:18.836 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:47:20.396 --> 0:47:20.796 
+John Drum 
+OK. 
+
+0:47:28.836 --> 0:47:33.636 
+John Drum 
+If I remember correctly, that PRC was part of the domain was used for the call. 
+
+0:47:35.636 --> 0:47:39.996 
+John Drum 
+Say context put pricing. What's step 13 doing? 
+
+0:47:41.76 --> 0:47:46.196 
+Taher Ghulam Mohammed 
+Putting is putting that a variable into context, so for next step it will be required. 
+
+0:47:48.36 --> 0:47:53.196 
+John Drum 
+Put it in the context. So you're making an API call passing this context. 
+
+0:47:53.836 --> 0:48:5.516 
+Taher Ghulam Mohammed 
+No, it it is getting passed to the next step. Just the context. It's an object with global variable that would hold all the variables information. 
+
+0:47:55.796 --> 0:47:56.476 
+John Drum 
+The contact. 
+
+0:48:1.196 --> 0:48:1.316 
+John Drum 
+OK. 
+
+0:48:6.156 --> 0:48:6.276 
+John Drum 
+OK. 
+
+0:48:9.76 --> 0:48:10.716 
+Taher Ghulam Mohammed 
+It's collecting all the information here. 
+
+0:48:9.236 --> 0:48:13.356 
+John Drum 
+Extract disclosure code. All right, let's see. 
+
+0:48:13.956 --> 0:48:21.156 
+Taher Ghulam Mohammed 
+Similar steps like it's making extracting the URL and then populating the fields. 
+
+0:48:22.836 --> 0:48:26.556 
+Taher Ghulam Mohammed 
+And building the URL, making it API call. 
+
+0:48:23.836 --> 0:48:24.396 
+John Drum 
+OK. 
+
+0:48:28.116 --> 0:48:29.876 
+Taher Ghulam Mohammed 
+To the endpoint. 
+
+0:48:32.516 --> 0:48:36.116 
+John Drum 
+What's it? What's the TNC code? 
+
+0:48:32.836 --> 0:48:35.36 
+Taher Ghulam Mohammed 
+Expecting, yeah. 
+
+0:48:38.516 --> 0:48:42.316 
+Taher Ghulam Mohammed 
+This is the Cardel agreement TNC code. That's the disclosure code. 
+
+0:48:42.996 --> 0:48:44.476 
+John Drum 
+Disclosure code OK. 
+
+0:48:44.356 --> 0:48:44.636 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:48:50.676 --> 0:48:53.956 
+John Drum 
+And then you're putting that in the context and what do we got? Scroll down. 
+
+0:48:56.716 --> 0:48:57.276 
+Taher Ghulam Mohammed 
+So. 
+
+0:48:56.796 --> 0:48:58.236 
+John Drum 
+Strike fields. 
+
+0:49:1.596 --> 0:49:1.716 
+John Drum 
+OK. 
+
+0:49:1.596 --> 0:49:2.476 
+Taher Ghulam Mohammed 
+Doing better. 
+
+0:49:6.116 --> 0:49:17.196 
+John Drum 
+I mean, it's a start, but it needs to be cleaned up and then show the entire looping operation because like like I said, if if you tried to give this to a developer, they wouldn't be able to do anything with it. 
+
+0:49:22.516 --> 0:49:28.956 
+John Drum 
+So it's a good start. Don't get me wrong. I don't want to beat you up on it, but. 
+
+0:49:25.396 --> 0:49:25.996 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:49:30.236 --> 0:49:33.36 
+John Drum 
+But we need to make it useful so. 
+
+0:49:32.476 --> 0:49:32.596 
+Taher Ghulam Mohammed 
+OK. 
+
+0:49:35.556 --> 0:49:47.156 
+Taher Ghulam Mohammed 
+OK. Yeah, let me work on it. Yep. But I'll I'll take the feedbacks. Yeah, I think there are quite a few today. So need to work on it. Yeah, I'll, I'll, I'll do that. 
+
+0:49:38.956 --> 0:49:39.76 
+John Drum 
+OK. 
+
+0:49:44.636 --> 0:49:44.876 
+John Drum 
+Mm. 
+
+0:49:46.916 --> 0:49:50.196 
+John Drum 
+Yeah, I don't wanna give you too much feedback at one time if you lost it. 
+
+0:49:48.996 --> 0:49:52.236 
+Taher Ghulam Mohammed 
+Yes, yeah, that's all I think. 
+
+0:49:53.996 --> 0:49:55.396 
+Taher Ghulam Mohammed 
+OK, I'll do that to him. 
+
+0:49:56.596 --> 0:49:58.356 
+John Drum 
+Alright, anything else? 
+
+0:49:58.596 --> 0:50:1.396 
+Taher Ghulam Mohammed 
+I think that's it. Anything else guys? 
+
+0:50:6.356 --> 0:50:8.796 
+Pankaj Singh 
+Yeah, a lot of action to go for. 
+
+0:50:10.156 --> 0:50:11.116 
+Pankaj Singh 
+A little. 
+
+0:50:10.316 --> 0:50:11.516 
+Taher Ghulam Mohammed 
+When are you back, John? 
+
+0:50:12.956 --> 0:50:15.196 
+John Drum 
+January 3rd. 
+
+0:50:14.796 --> 0:50:16.76 
+Pankaj Singh 
+Next year. 
+
+0:50:16.356 --> 0:50:17.716 
+Taher Ghulam Mohammed 
+That we heard. 
+
+0:50:17.876 --> 0:50:18.196 
+John Drum 
+Yeah. 
+
+0:50:18.796 --> 0:50:18.916 
+Taher Ghulam Mohammed 
+OK. 
+
+0:50:19.236 --> 0:50:34.516 
+Pankaj Singh 
+I hope we have a clarity for Jagadeesh, Sundar, Satish and Modi right to at least continue the APIs that they need to work on correct after this or do we still need some guidance? 
+
+0:50:34.436 --> 0:50:50.236 
+Taher Ghulam Mohammed 
+I can't tell you that once you get the feedback, unless you take the feedback. So yeah, we'll we'll update those things again, then we'll show it to Jonathan. It's yeah, that. 
+
+0:50:40.76 --> 0:50:43.516 
+Pankaj Singh 
+We got the feedback right now, right? So what feedback we are waiting for? 
+
+0:50:48.356 --> 0:51:3.676 
+Pankaj Singh 
+OK, OK, fine. Let's let's have a final review tomorrow and then try to see what we can. My only thing is that this side, this guy should start working on the items. They should not be blocked. So OK, fine, let's see. 
+
+0:50:51.396 --> 0:50:51.676 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:50:55.76 --> 0:50:55.396 
+Taher Ghulam Mohammed 
+Sure. 
+
+0:50:55.796 --> 0:50:56.396 
+John Drum 
+Yeah. 
+
+0:51:2.236 --> 0:51:6.116 
+John Drum 
+Right. Focus on the things that they need to be able to continue work. 
+
+0:51:6.236 --> 0:51:11.196 
+Pankaj Singh 
+Right. All right. Thank you all for joining. Bye. 
+
+0:51:11.556 --> 0:51:12.996 
+John Drum 
+Alright, thanks. 

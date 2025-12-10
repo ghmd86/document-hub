@@ -1,194 +1,4959 @@
+0:0:3.514 --> 0:0:10.274 
+Taher Ghulam Mohammed 
+The API specifications for template management. I think he'll go through that. 
 
-Transcript. Use arrow keys to navigate between transcript entries. Select an entry to navigate the media to the time of the entry.
-
-
-Search
-
-AI-generated content may be incorrect
-
-Taher Ghulam Mohammed started transcription
-TM
+0:0:21.234 --> 0:0:21.874 
+Taher Ghulam Mohammed 
+No. 
 
-Taher Ghulam Mohammed
-0 minutes 7 seconds0:07
-Taher Ghulam Mohammed 0 minutes 7 seconds
-Yep.
-JC
+0:0:28.594 --> 0:0:30.754 
+Prachi Kulkarni 
+I think Jatish was speaking on mute. 
 
-Jagadeesh Chitta
-0 minutes 12 seconds0:12
-Jagadeesh Chitta 0 minutes 12 seconds
-OK, so I have made all the modifications that we talked about yesterday.
-Jagadeesh Chitta 0 minutes 18 seconds
-So.
-Jagadeesh Chitta 0 minutes 22 seconds
-For all the endpoints, I've added these two header parameters for the auditory tracking purpose.
+0:0:30.754 --> 0:0:45.634 
+Taher Ghulam Mohammed 
+OK John, OK if if you mean meanwhile I can demo the what do you call this is what do you call rules engine what do you call where we can dynamically pick the shared documents. 
 
-John Drum
-0 minutes 27 seconds0:27
-John Drum 0 minutes 27 seconds
-Speak up a little bit. Your voice is very soft.
-JC
+0:0:31.74 --> 0:0:31.754 
+Satheesh Babu 
+mute 
 
-Jagadeesh Chitta
-0 minutes 31 seconds0:31
-Jagadeesh Chitta 0 minutes 31 seconds
-Uh, so I have added these two header parameters for all the requests.
-Jagadeesh Chitta 0 minutes 37 seconds
-Uh, for the tracking purpose.
-Jagadeesh Chitta 0 minutes 40 seconds
-And in the post request for templates, I got rid of the template version. Sorry. Yeah.
+0:0:45.954 --> 0:0:47.514 
+Taher Ghulam Mohammed 
+Uh, shall we go through that first? 
 
-John Drum
-0 minutes 45 seconds0:45
-John Drum 0 minutes 45 seconds
-What is?
-John Drum 0 minutes 47 seconds
-What is that ID for?
-TM
-Taher Ghulam Mohammed
-48 minutes 56 seconds48:56
-Taher Ghulam Mohammed 48 minutes 56 seconds
-So.
+0:0:54.354 --> 0:0:56.34 
+Taher Ghulam Mohammed 
+John, yeah. 
 
-John Drum
-48 minutes 56 seconds48:56
-John Drum 48 minutes 56 seconds
-Strike fields.
-John Drum 49 minutes 1 second
-OK.
-TM
-Taher Ghulam Mohammed
-49 minutes 1 second49:01
-Taher Ghulam Mohammed 49 minutes 1 second
-Doing better.
+0:0:58.554 --> 0:1:0.514 
+John Drum 
+Sorry, I was muted. Yeah, go ahead. 
 
-John Drum
-49 minutes 6 seconds49:06
-John Drum 49 minutes 6 seconds
-I mean, it's a start, but it needs to be cleaned up and then show the entire looping operation because like like I said, if if you tried to give this to a developer, they wouldn't be able to do anything with it.
-John Drum 49 minutes 22 seconds
-So it's a good start. Don't get me wrong. I don't want to beat you up on it, but.
-TM
-Taher Ghulam Mohammed
-49 minutes 25 seconds49:25
-Taher Ghulam Mohammed 49 minutes 25 seconds
-Mhm.
+0:1:0.994 --> 0:1:8.314 
+Taher Ghulam Mohammed 
+Uh, sure. Yeah, let me share my screen. OK, this is the OK. 
 
-John Drum
-49 minutes 30 seconds49:30
-John Drum 49 minutes 30 seconds
-But we need to make it useful so.
-TM
-Taher Ghulam Mohammed
-49 minutes 32 seconds49:32
-Taher Ghulam Mohammed 49 minutes 32 seconds
-OK.
-Taher Ghulam Mohammed 49 minutes 35 seconds
-OK. Yeah, let me work on it. Yep. But I'll I'll take the feedbacks. Yeah, I think there are quite a few today. So need to work on it. Yeah, I'll, I'll, I'll do that.
+0:1:11.514 --> 0:1:18.354 
+Taher Ghulam Mohammed 
+Let me bring this here. OK, so John, let me go to the database. What are you called? 
 
-John Drum
-49 minutes 38 seconds49:38
-John Drum 49 minutes 38 seconds
-OK.
-John Drum 49 minutes 44 seconds
-Mm.
-John Drum 49 minutes 46 seconds
-Yeah, I don't wanna give you too much feedback at one time if you lost it.
-TM
-Taher Ghulam Mohammed
-49 minutes 48 seconds49:48
-Taher Ghulam Mohammed 49 minutes 48 seconds
-Yes, yeah, that's all I think.
-Taher Ghulam Mohammed 49 minutes 53 seconds
-OK, I'll do that to him.
+0:1:22.34 --> 0:1:36.674 
+Taher Ghulam Mohammed 
+So we have two types of shared document templates. One is to grab the cardholder agreement, another is another what you call. 
 
-John Drum
-49 minutes 56 seconds49:56
-John Drum 49 minutes 56 seconds
-Alright, anything else?
-TM
-Taher Ghulam Mohammed
-49 minutes 58 seconds49:58
-Taher Ghulam Mohammed 49 minutes 58 seconds
-I think that's it. Anything else guys?
+0:1:37.394 --> 0:1:45.674 
+Taher Ghulam Mohammed 
+Rule based tired card agreement where let me go through the this record. 
 
-Pankaj Singh
-50 minutes 6 seconds50:06
-Pankaj Singh 50 minutes 6 seconds
-Yeah, a lot of action to go for.
-Pankaj Singh 50 minutes 10 seconds
-A little.
-TM
-Taher Ghulam Mohammed
-50 minutes 10 seconds50:10
-Taher Ghulam Mohammed 50 minutes 10 seconds
-When are you back, John?
+0:1:48.754 --> 0:1:51.314 
+Taher Ghulam Mohammed 
+Put up this actually so. 
 
-John Drum
-50 minutes 12 seconds50:12
-John Drum 50 minutes 12 seconds
-January 3rd.
+0:1:50.714 --> 0:1:52.514 
+John Drum 
+Should also have privacy statements too. 
 
-Pankaj Singh
-50 minutes 14 seconds50:14
-Pankaj Singh 50 minutes 14 seconds
-Next year.
-TM
-Taher Ghulam Mohammed
-50 minutes 16 seconds50:16
-Taher Ghulam Mohammed 50 minutes 16 seconds
-That we heard.
+0:1:54.874 --> 0:2:1.194 
+Taher Ghulam Mohammed 
+Yeah, actually I did two. OK, So what? What's the requirement for that, John? Like privacy statement? 
 
-John Drum
-50 minutes 17 seconds50:17
-John Drum 50 minutes 17 seconds
-Yeah.
-TM
-Taher Ghulam Mohammed
-50 minutes 18 seconds50:18
-Taher Ghulam Mohammed 50 minutes 18 seconds
-OK.
+0:2:1.34 --> 0:2:4.674 
+John Drum 
+I don't know. You have to look in the legacy system, but it's another shared document. 
 
-Pankaj Singh
-50 minutes 19 seconds50:19
-Pankaj Singh 50 minutes 19 seconds
-I hope we have a clarity for Jagadeesh, Sundar, Satish and Modi right to at least continue the APIs that they need to work on correct after this or do we still need some guidance?
-TM
-Taher Ghulam Mohammed
-50 minutes 34 seconds50:34
-Taher Ghulam Mohammed 50 minutes 34 seconds
-I can't tell you that once you get the feedback, unless you take the feedback. So yeah, we'll we'll update those things again, then we'll show it to Jonathan. It's yeah, that.
+0:2:5.194 --> 0:2:14.754 
+Taher Ghulam Mohammed 
+I I I did two two of these things to just to demo the work. Yeah, yeah, yeah, so yeah, so one is the. 
 
-Pankaj Singh
-50 minutes 40 seconds50:40
-Pankaj Singh 50 minutes 40 seconds
-We got the feedback right now, right? So what feedback we are waiting for?
-Pankaj Singh 50 minutes 48 seconds
-OK, OK, fine. Let's let's have a final review tomorrow and then try to see what we can. My only thing is that this side, this guy should start working on the items. They should not be blocked. So OK, fine, let's see.
-TM
-Taher Ghulam Mohammed
-50 minutes 51 seconds50:51
-Taher Ghulam Mohammed 50 minutes 51 seconds
-Yeah.
-Taher Ghulam Mohammed 50 minutes 55 seconds
-Sure.
+0:2:9.994 --> 0:2:11.514 
+John Drum 
+For the demo, that's fine. 
 
-John Drum
-50 minutes 55 seconds50:55
-John Drum 50 minutes 55 seconds
-Yeah.
-John Drum 51 minutes 2 seconds
-Right. Focus on the things that they need to be able to continue work.
+0:2:16.74 --> 0:2:33.874 
+Taher Ghulam Mohammed 
+To get the pricing details and all the stuff to to get the cardholder agreement. So there is currently we are doing 2 steps, API calls. One is to get the pricing ID from this endpoint. I created a mock endpoint for that to get the information. 
 
-Pankaj Singh
-51 minutes 6 seconds51:06
-Pankaj Singh 51 minutes 6 seconds
-Right. All right. Thank you all for joining. Bye.
+0:2:23.554 --> 0:2:24.34 
+John Drum 
+Mhm. 
 
-John Drum
-51 minutes 11 seconds51:11
-John Drum 51 minutes 11 seconds
-Alright, thanks.
-
-Taher Ghulam Mohammed stopped transcription
+0:2:34.154 --> 0:2:39.354 
+Taher Ghulam Mohammed 
+Then using this uh pricing ID, we'll be calling the arrangements IP to get the. 
+
+0:2:40.554 --> 0:2:42.994 
+Taher Ghulam Mohammed 
+What is this? 
+
+0:2:45.594 --> 0:3:1.434 
+Taher Ghulam Mohammed 
+No, no, sorry, sorry. This is other way around. Step one is to get the to take the account ID from the payload and get the pricing ID. Using pricing ID we're getting the arrangement ID what is called. 
+
+0:3:1.754 --> 0:3:5.474 
+Taher Ghulam Mohammed 
+Cardholder agreement. That's a discretion. 
+
+0:3:4.34 --> 0:3:7.394 
+John Drum 
+OK, and this code is stored where? 
+
+0:3:9.154 --> 0:3:11.114 
+Taher Ghulam Mohammed 
+Uh, in the uh. 
+
+0:3:12.74 --> 0:3:14.914 
+Taher Ghulam Mohammed 
+As a reference key as a disclosure group. 
+
+0:3:15.114 --> 0:3:17.154 
+John Drum 
+No, no, no, that's not my question. So this is. 
+
+0:3:19.714 --> 0:3:22.354 
+John Drum 
+A table in the master template. 
+
+0:3:23.674 --> 0:3:26.434 
+Taher Ghulam Mohammed 
+Yes, Yep, this is a Yep, Yep, this is a yes, this is, this is. 
+
+0:3:24.634 --> 0:3:40.434 
+John Drum 
+The definition field. OK, so this is data that's in there and then you use this and pass this to the because what I'm looking for is the flow. This this is being passed to the rules engine. 
+
+0:3:30.74 --> 0:3:32.34 
+Taher Ghulam Mohammed 
+Yeah, it's in the data. 
+
+0:3:36.514 --> 0:3:36.634 
+Taher Ghulam Mohammed 
+OK. 
+
+0:3:40.394 --> 0:3:42.554 
+Taher Ghulam Mohammed 
+Yes, yes, Yep, it. 
+
+0:3:40.954 --> 0:3:49.994 
+John Drum 
+Or something else. So you so you create the rules engine. It passes this. Does the rules engine query the database to pull back that data? How's that work? 
+
+0:3:47.34 --> 0:3:47.474 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:3:51.194 --> 0:4:6.314 
+Taher Ghulam Mohammed 
+We we Oh yeah we we are the the code already posts this information for the shared information shared what we call templates then it will passes to the rules code part where service where it will. 
+
+0:4:6.74 --> 0:4:9.754 
+John Drum 
+So it passes those fields in when it calls the rules engine. 
+
+0:4:6.314 --> 0:4:6.594 
+Taher Ghulam Mohammed 
+1. 
+
+0:4:9.794 --> 0:4:12.114 
+Taher Ghulam Mohammed 
+Yes, Yep. And then. 
+
+0:4:10.634 --> 0:4:13.634 
+John Drum 
+OK, that's the kind of information I'm looking for. 
+
+0:4:13.994 --> 0:4:28.994 
+Taher Ghulam Mohammed 
+Yep so it will yeah and it it it takes looks at the steps what we need it needs to perform. If if it is an external source we need to pull pull that information from then it will make that API call and pulls it through the looking at this particular. 
+
+0:4:15.834 --> 0:4:15.954 
+John Drum 
+OK. 
+
+0:4:29.594 --> 0:4:32.994 
+Taher Ghulam Mohammed 
+Where exactly it needs to pull this? This is a Jason. 
+
+0:4:32.394 --> 0:4:35.554 
+John Drum 
+Where's the code that passes this these parameters? 
+
+0:4:35.794 --> 0:4:35.914 
+Taher Ghulam Mohammed 
+OK. 
+
+0:4:36.794 --> 0:4:39.394 
+John Drum 
+How does it know what those those values are? 
+
+0:4:40.594 --> 0:4:41.914 
+Taher Ghulam Mohammed 
+Let me uh. 
+
+0:4:44.434 --> 0:4:48.754 
+Taher Ghulam Mohammed 
+OK, this is the yeah, this is the config. OK, so. 
+
+0:4:50.434 --> 0:4:51.874 
+John Drum 
+What am I looking at? 
+
+0:4:51.354 --> 0:4:54.674 
+Taher Ghulam Mohammed 
+This is the code where it's it's doing the steps like uh. 
+
+0:4:54.954 --> 0:4:59.914 
+John Drum 
+I understand that. What is this code called? What's it located? What is it? 
+
+0:4:59.354 --> 0:5:2.954 
+Taher Ghulam Mohammed 
+In the service in the service um configurable. 
+
+0:5:1.554 --> 0:5:4.994 
+John Drum 
+So you created a a microservice. 
+
+0:5:5.554 --> 0:5:5.834 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:5:7.594 --> 0:5:9.714 
+John Drum 
+OK, and what does this service do? 
+
+0:5:9.674 --> 0:5:16.674 
+Taher Ghulam Mohammed 
+It it's basically sitting under the what you call document hub application itself. 
+
+0:5:17.714 --> 0:5:18.354 
+John Drum 
+Mhm. 
+
+0:5:18.514 --> 0:5:32.834 
+Taher Ghulam Mohammed 
+So it's when we get when we query the the data inquiry document inquiry endpoint, it it pulls the shared documents we need to pull and check each one of these. 
+
+0:5:34.34 --> 0:5:39.634 
+Taher Ghulam Mohammed 
+Templates if that customer is qualified or not and then it matches the. 
+
+0:5:39.754 --> 0:5:48.754 
+John Drum 
+So that's configured inside of the this configuration service. So when we add a new shared document, we'll have to come in here and add that into this. 
+
+0:5:43.114 --> 0:5:43.794 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:5:48.794 --> 0:6:6.314 
+Taher Ghulam Mohammed 
+Into the this table? No, no, it needs to add. We just need to add this in this data extraction config so it will do all the stuff like it goes to the external data service. If there is a new service we need to pull the information from, we just need to configure this in this configuration. That's it. 
+
+0:6:3.34 --> 0:6:3.594 
+John Drum 
+Mhm. 
+
+0:6:6.714 --> 0:6:13.714 
+Taher Ghulam Mohammed 
+And it will take care of all these steps and pull that information and it will bring that data. 
+
+0:6:12.714 --> 0:6:19.634 
+John Drum 
+OK, sometime I need to see a flow diagram or see and a sequence diagram of how that's all working. 
+
+0:6:16.594 --> 0:6:16.714 
+Taher Ghulam Mohammed 
+OK. 
+
+0:6:20.194 --> 0:6:20.314 
+Taher Ghulam Mohammed 
+OK. 
+
+0:6:20.834 --> 0:6:27.754 
+John Drum 
+because that in the future that's going to be uh something that's not clear to people, so 
+
+0:6:26.474 --> 0:6:34.594 
+Taher Ghulam Mohammed 
+Mm-hmm. I know I'm I I'm just wanted to remove the working model so far. I'm I'm working on it, so yeah. 
+
+0:6:33.354 --> 0:6:37.34 
+John Drum 
+No problem. Like I said, I just saying those are future steps when you get in. 
+
+0:6:36.874 --> 0:6:37.234 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:6:37.834 --> 0:6:47.794 
+John Drum 
+I'm trying to understand as we go through. So OK, so you have this, it's pulling the parameters and everything. You're calling a rules engine, passing those parameters, then what? 
+
+0:6:43.714 --> 0:6:44.274 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:6:46.914 --> 0:6:47.394 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:6:49.394 --> 0:6:57.834 
+Taher Ghulam Mohammed 
+Then it will query the based on the selection of the templates, what you call template ID and the version. It will query the storage index table. 
+
+0:6:58.954 --> 0:7:15.514 
+Taher Ghulam Mohammed 
+To pull that information from there. So we have like 9 records in the storage index table with this templates. Both templates are shared documents. 
+
+0:7:15.874 --> 0:7:18.874 
+Taher Ghulam Mohammed 
+And each one has different type of. 
+
+0:7:19.674 --> 0:7:37.354 
+Taher Ghulam Mohammed 
+Code called reference ID like like this one is for disclosure codes and this this is create tires like platinum, gold and standard. So that that comes based on the customer's what do you call? 
+
+0:7:31.874 --> 0:7:32.354 
+John Drum 
+Mhm. 
+
+0:7:37.554 --> 0:7:52.674 
+Taher Ghulam Mohammed 
+Create history credit limit. So if if the customer is above some some threshold we we pull the platinum document for that if it is between any in mid level so we'll go for gold. 
+
+0:7:53.194 --> 0:8:8.714 
+Taher Ghulam Mohammed 
+That kind of decision we it will performs and that's all configured in in this data extraction logic. Let me go through that. So so it pulls the credit info basically. 
+
+0:8:9.34 --> 0:8:14.34 
+Taher Ghulam Mohammed 
+And based on that, oh sure. 
+
+0:8:11.154 --> 0:8:14.914 
+John Drum 
+Can you make that window a little bit bigger? It's a it's a little small. 
+
+0:8:19.34 --> 0:8:31.834 
+Taher Ghulam Mohammed 
+So this is a, this is a sort of conditional matching. So credit limit is greater than or equal to 50,000. It picks the reference key as platinum. 
+
+0:8:32.554 --> 0:8:33.74 
+John Drum 
+Mhm. 
+
+0:8:33.274 --> 0:8:52.754 
+Taher Ghulam Mohammed 
+And if so on so like for gold it checks greater or equal to 25 and it's below 25,000 goes for standard tire how do you call reference key. So and based on that it will build the query to query the data data storage. 
+
+0:8:52.954 --> 0:8:54.274 
+Taher Ghulam Mohammed 
+Table and it fix it though. 
+
+0:8:58.474 --> 0:9:3.714 
+John Drum 
+OK. Have you had a chance to baseline any kind of performance on this? 
+
+0:9:4.554 --> 0:9:15.314 
+Taher Ghulam Mohammed 
+I need to do it, but so far it's pretty fast because the data is very small. Yeah, so I can demo it, yeah. 
+
+0:9:10.754 --> 0:9:10.994 
+John Drum 
+Sure. 
+
+0:9:13.114 --> 0:9:17.594 
+John Drum 
+We're not looking in seconds or anything, right? When you're doing your testing, it's in the milliseconds. 
+
+0:9:16.954 --> 0:9:18.874 
+Taher Ghulam Mohammed 
+Yes, yes, milliseconds, yeah. 
+
+0:9:20.314 --> 0:9:36.234 
+Taher Ghulam Mohammed 
+Yeah, yeah. So for arrangements APIs there are two steps right? So to pull the disclosure codes. So for first step is to pull put in the what do you call account ID and we get the. 
+
+0:9:20.434 --> 0:9:20.754 
+John Drum 
+Yeah. 
+
+0:9:36.234 --> 0:9:53.354 
+Taher Ghulam Mohammed 
+It checks the domain ID domain equals to pricing and it pulls the domain ID as a pricing code. Then this is the this is how the arrangement IP arrangement API from accounts. 
+
+0:9:45.914 --> 0:9:48.354 
+John Drum 
+What is the domain ID? 
+
+0:10:6.234 --> 0:10:8.514 
+John Drum 
+Where do we get that information from? 
+
+0:10:8.554 --> 0:10:9.914 
+Taher Ghulam Mohammed 
+Uh, Accounts Accounts team. 
+
+0:10:10.834 --> 0:10:15.114 
+John Drum 
+I mean, this is some static data that they have set up somewhere. 
+
+0:10:14.874 --> 0:10:19.234 
+Taher Ghulam Mohammed 
+Uh, no. Actually, uh, there is a endpoint. Let me go through the. 
+
+0:10:20.434 --> 0:10:27.314 
+Taher Ghulam Mohammed 
+Uh, let me recall. OK, let me. Yeah, I think, uh, they gave me an example here. Let me. 
+
+0:10:28.834 --> 0:10:30.114 
+Taher Ghulam Mohammed 
+What is this? OK. 
+
+0:10:31.954 --> 0:10:39.914 
+Taher Ghulam Mohammed 
+This is an existing flow that Ved gave me an example for for pulling the disclosure codes. 
+
+0:10:40.594 --> 0:10:41.314 
+John Drum 
+Mhm. 
+
+0:10:42.434 --> 0:10:56.954 
+Taher Ghulam Mohammed 
+So so this is out of the actual endpoints like the credit card accounts slash account ID and arrangements and there's a get call. It gives us the information and using the pricing code we will be. 
+
+0:10:52.394 --> 0:10:53.274 
+John Drum 
+Mhm. 
+
+0:10:57.954 --> 0:10:59.194 
+Taher Ghulam Mohammed 
+Pulling up the. 
+
+0:11:0.834 --> 0:11:3.634 
+Taher Ghulam Mohammed 
+Card roller agreement from that so. 
+
+0:11:3.194 --> 0:11:7.234 
+John Drum 
+Is this legacy you're talking about or the modern platform? 
+
+0:11:7.674 --> 0:11:14.114 
+Taher Ghulam Mohammed 
+How the.net is picking the agreements right now? 
+
+0:11:13.994 --> 0:11:17.994 
+John Drum 
+OK. And does that still work when you're looking at the modern platform? 
+
+0:11:19.114 --> 0:11:22.194 
+John Drum 
+Because we have to query from there, right? 
+
+0:11:19.194 --> 0:11:22.114 
+Taher Ghulam Mohammed 
+Yeah, I think so. Yep. Yeah. Yep. 
+
+0:11:23.274 --> 0:11:23.714 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:11:25.194 --> 0:11:41.594 
+Taher Ghulam Mohammed 
+This whole logic is built on that. Yeah, if if something changed, we need to change the extraction record. Just we need if if you change this thing, it should work perfectly. If there is a so we don't need to go and change the code for that. 
+
+0:11:37.154 --> 0:11:37.474 
+John Drum 
+OK. 
+
+0:11:43.354 --> 0:12:1.194 
+Taher Ghulam Mohammed 
+So let me OK, so this is the first step. Then using this domain ID or the pricing ID we'll pull the particular respective Cartel agreement that gives us the Cartel agreement TNC code that's 164 and we are storing this information in. 
+
+0:12:1.354 --> 0:12:15.754 
+Taher Ghulam Mohammed 
+Our against the each document. So this is the reference keys like for the same template we have different types of disclosures. 
+
+0:12:11.954 --> 0:12:12.274 
+John Drum 
+OK. 
+
+0:12:16.954 --> 0:12:21.794 
+John Drum 
+But that doesn't show there. That reference key doesn't have a version, does it? 
+
+0:12:23.994 --> 0:12:31.794 
+Taher Ghulam Mohammed 
+Uh, for reference key? No, I think this is for master. The version is against the master. 
+
+0:12:29.674 --> 0:12:41.74 
+John Drum 
+OK, but so let's let's back up a second. I understand what you're doing there. OK, that's fine. The document itself. 
+
+0:12:34.514 --> 0:12:34.634 
+Taher Ghulam Mohammed 
+OK. 
+
+0:12:37.74 --> 0:12:37.554 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:12:41.594 --> 0:12:42.74 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:12:42.834 --> 0:12:45.74 
+John Drum 
+the D one sixty-five. 
+
+0:12:45.354 --> 0:12:45.674 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:12:46.834 --> 0:12:54.314 
+John Drum 
+in our instance table for the document hub. It's there. 
+
+0:12:51.874 --> 0:12:52.194 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:12:54.74 --> 0:12:54.554 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:12:55.194 --> 0:13:0.674 
+John Drum 
+You have or can have multiple versions of them as they revise it, right? 
+
+0:13:0.954 --> 0:13:10.354 
+Taher Ghulam Mohammed 
+Yes, yes, yeah, that's yeah, we have the this information in the what do you call it? We can put that information in the effective date like. 
+
+0:13:11.674 --> 0:13:18.634 
+Taher Ghulam Mohammed 
+The validity of that thing. Basically we can have multiple, same thing with multiple. 
+
+0:13:20.434 --> 0:13:34.194 
+Taher Ghulam Mohammed 
+Validity printed like this. This particular disclosure should be valid for 2025. So so we we have that check like it will check for the effective date. 
+
+0:13:28.474 --> 0:13:28.594 
+John Drum 
+OK. 
+
+0:13:33.114 --> 0:13:35.354 
+John Drum 
+And what if it returns more than one document? 
+
+0:13:37.754 --> 0:13:39.994 
+Taher Ghulam Mohammed 
+If it returns more than one document. 
+
+0:13:40.714 --> 0:13:56.314 
+John Drum 
+Yeah. So let's say you have an effective date in there that that returns one document today. Somebody adds a new one that's in the future. So at that point, when you run that same query with the effective date, it's going to pull back the one it used to plus the new one. 
+
+0:13:45.874 --> 0:13:46.354 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:13:56.634 --> 0:13:58.954 
+John Drum 
+What do you do when you get more than one returned? 
+
+0:14:5.74 --> 0:14:8.514 
+Taher Ghulam Mohammed 
+Effective date, so the affected it and. 
+
+0:14:12.634 --> 0:14:20.554 
+John Drum 
+And you're also taking for granted that the new one that's added is the current one. It may not go into effect. 
+
+0:14:14.194 --> 0:14:14.634 
+Taher Ghulam Mohammed 
+I think. 
+
+0:14:17.194 --> 0:14:17.954 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:14:23.714 --> 0:14:24.994 
+John Drum 
+For, let's say. 
+
+0:14:27.514 --> 0:14:31.314 
+John Drum 
+Two months, but they added it to the document hub today. 
+
+0:14:33.714 --> 0:14:52.434 
+Taher Ghulam Mohammed 
+No, I, I, I, I, I, I yeah, I think you get what you're saying like no for future date. Yeah. So we are checking for like the effective date when it is valid. So we are we have dates against the template as well as in against each instance. 
+
+0:14:34.914 --> 0:14:35.434 
+John Drum 
+So while that's. 
+
+0:14:52.874 --> 0:15:0.554 
+Taher Ghulam Mohammed 
+For effect effective date from where it is valid and till what date it is ending. So there. Mm-hmm. 
+
+0:14:58.394 --> 0:14:59.914 
+John Drum 
+Let me give you a scenario. 
+
+0:15:1.234 --> 0:15:9.154 
+John Drum 
+So we're we're we have an effective date that covers the latest version of let's say a privacy statements in production. 
+
+0:15:8.474 --> 0:15:9.834 
+Taher Ghulam Mohammed 
+OK, mm-hmm. 
+
+0:15:10.474 --> 0:15:17.154 
+John Drum 
+They have another privacy statement that they've just got. They want it to go into production two months from now, so they add it to the document. 
+
+0:15:15.714 --> 0:15:15.834 
+Taher Ghulam Mohammed 
+OK. 
+
+0:15:17.594 --> 0:15:18.74 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:15:18.394 --> 0:15:23.194 
+John Drum 
+That effective date is later than the effective date for the one that they're currently using. 
+
+0:15:23.514 --> 0:15:23.994 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:15:24.554 --> 0:15:30.314 
+John Drum 
+But they don't want to use it yet because it's not there, but so when you pull back this one. 
+
+0:15:32.74 --> 0:15:35.114 
+John Drum 
+You're going to get this one plus the future one too, right? 
+
+0:15:35.34 --> 0:15:37.154 
+Taher Ghulam Mohammed 
+No, no, no, no, no, you shouldn't. 
+
+0:15:36.514 --> 0:15:43.474 
+John Drum 
+Well, the effective date is before the other effective date, so it's going to return everything that's after it. 
+
+0:15:45.514 --> 0:15:51.674 
+Taher Ghulam Mohammed 
+No, no, we're checking the date range like if it is the current, it falls under the first effective. 
+
+0:15:50.154 --> 0:15:52.594 
+John Drum 
+I didn't see a date range. I only seen one date. 
+
+0:15:52.914 --> 0:16:9.314 
+Taher Ghulam Mohammed 
+Yeah, actually what I did it for on the other branch, but there are there were a huge modification to the data. I don't want to disturb the demo part, so I have just moving that. So yeah, I did like checked for like. 
+
+0:16:9.754 --> 0:16:29.394 
+Taher Ghulam Mohammed 
+Future dates like if the what you call disclosure needs to go for effective from January 1st, 2026, it won't come. If I pull that information today, it won't pull. So if we've pulled it for on January 1st, the the December one would. 
+
+0:16:29.594 --> 0:16:44.514 
+Taher Ghulam Mohammed 
+It was be skipped because the effective date validity expires on say December 31st, 2025 but it will pick the one, the new one from the January on January 1st. 
+
+0:16:45.154 --> 0:16:53.554 
+Taher Ghulam Mohammed 
+So I did that part, but I couldn't demo this today because I don't want it to. I've tested this whole things on Friday for. 
+
+0:16:54.714 --> 0:17:4.794 
+John Drum 
+That's fine. I just want to make sure when we do our QA criteria testing, it it tests all those scenarios because those are the kind of things that bite us. 
+
+0:16:58.474 --> 0:17:0.314 
+Taher Ghulam Mohammed 
+Mm-hmm. Yeah. 
+
+0:17:3.154 --> 0:17:4.34 
+Taher Ghulam Mohammed 
+Yes, I I I I get you. 
+
+0:17:5.314 --> 0:17:21.274 
+Taher Ghulam Mohammed 
+Yeah, I I did. I I I'm going to demo this tomorrow. I think I just wanted to just take your record approval for the logic I'm trying to do because if I invest more time in this and I'm not going anywhere, then that's that would be a blocker. 
+
+0:17:15.754 --> 0:17:16.474 
+John Drum 
+Mhm. 
+
+0:17:22.34 --> 0:17:38.154 
+Taher Ghulam Mohammed 
+So that's why I want to. Yeah. Yeah. No. Yeah, I totally get that. Yep, that's totally. Yeah. So. So and let. OK, so this is how we. OK, so we have the. 
+
+0:17:23.434 --> 0:17:28.34 
+John Drum 
+I'm not saying to stop, I'm just bringing up issues as I think of them. 
+
+0:17:38.274 --> 0:17:38.354 
+Taher Ghulam Mohammed 
+Uh. 
+
+0:17:40.194 --> 0:17:45.74 
+Taher Ghulam Mohammed 
+This is the old one and like effective date is OK, let me see. 
+
+0:17:43.914 --> 0:17:49.874 
+John Drum 
+I see you have a version number in your uh criteria too. 
+
+0:17:46.314 --> 0:17:46.674 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:17:51.954 --> 0:17:52.754 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:17:52.74 --> 0:17:53.954 
+John Drum 
+Is that referring to the D165? 
+
+0:17:56.154 --> 0:17:58.594 
+Taher Ghulam Mohammed 
+D165 Yeah, yeah. 
+
+0:17:58.74 --> 0:18:14.794 
+John Drum 
+Now like if you go back to your document creation date extraction thing there at the very beginning it says version 1.0, the document type and then disclosure code. Does it use that version number as part of that disclosure code or is it referencing something else? 
+
+0:18:8.514 --> 0:18:8.674 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:18:14.394 --> 0:18:28.834 
+Taher Ghulam Mohammed 
+I need to check like been like on I did this on Thursday. I think I need to check if we are referencing this version or not, but I I believe it is checking for the effective date. 
+
+0:18:30.314 --> 0:18:31.74 
+John Drum 
+Yeah. 
+
+0:18:30.834 --> 0:18:35.634 
+Taher Ghulam Mohammed 
+You're checking for it for two days. Yeah. So, OK, so. 
+
+0:18:35.754 --> 0:18:37.954 
+John Drum 
+So I understand that part. Go ahead. 
+
+0:18:37.114 --> 0:18:53.874 
+Taher Ghulam Mohammed 
+And then yeah so if for D 164 so for for OK so if if you check for account ID 01 we have pricing code 1224 and. 
+
+0:18:54.154 --> 0:18:55.634 
+Taher Ghulam Mohammed 
+Disclosure code as 160. 
+
+0:18:58.114 --> 0:19:1.594 
+Taher Ghulam Mohammed 
+164 So if I query this document inquiry. 
+
+0:19:3.434 --> 0:19:10.394 
+Taher Ghulam Mohammed 
+For this particular account, it should give me this particular specific disclosure code. 
+
+0:19:14.514 --> 0:19:24.794 
+Taher Ghulam Mohammed 
+Value 164 and particular file name and and this this customer has. 
+
+0:19:26.154 --> 0:19:27.554 
+Taher Ghulam Mohammed 
+Record. 
+
+0:19:29.474 --> 0:19:44.554 
+Taher Ghulam Mohammed 
+Platinum tire. I just made this up like it's this is not specific URL what you call API in our system, but just tells us that if the credit info for this particular account is platinum it. 
+
+0:19:44.714 --> 0:19:48.834 
+Taher Ghulam Mohammed 
+It picks up the platinum level agreement. 
+
+0:19:50.234 --> 0:19:52.314 
+Taher Ghulam Mohammed 
+Or offer something kind of thing. 
+
+0:19:53.834 --> 0:19:57.474 
+Taher Ghulam Mohammed 
+So it picks up this Platinum credit card agreement. 
+
+0:19:59.994 --> 0:20:5.274 
+Taher Ghulam Mohammed 
+And Yep, this is one example. Then for 165 we have another so. 
+
+0:20:5.314 --> 0:20:5.434 
+John Drum 
+OK. 
+
+0:20:8.74 --> 0:20:13.714 
+Taher Ghulam Mohammed 
+So it's not picking other disclosures for this particular account. 
+
+0:20:15.914 --> 0:20:20.74 
+Taher Ghulam Mohammed 
+And this is 166 example. 
+
+0:20:21.954 --> 0:20:23.194 
+Taher Ghulam Mohammed 
+This is. 
+
+0:20:26.114 --> 0:20:27.234 
+Taher Ghulam Mohammed 
+Do you want 166? 
+
+0:20:29.754 --> 0:20:38.594 
+Taher Ghulam Mohammed 
+And it's this. This is a gold tire agreement for this particular user customer. 
+
+0:20:38.994 --> 0:20:39.154 
+John Drum 
+OK. 
+
+0:20:41.554 --> 0:20:42.114 
+Taher Ghulam Mohammed 
+So. 
+
+0:20:44.274 --> 0:20:46.114 
+Taher Ghulam Mohammed 
+So, OK, so. 
+
+0:20:48.714 --> 0:20:50.34 
+Taher Ghulam Mohammed 
+OK, uh, I think. 
+
+0:20:52.514 --> 0:20:54.394 
+Taher Ghulam Mohammed 
+Does this look good, John? 
+
+0:20:56.874 --> 0:21:9.354 
+John Drum 
+Yeah, the only thing I don't and maybe it's not important because you have an account ID, but wasn't there supposed to be line of business in here somewhere or you just take it for account that line of business would be different for the account ID? 
+
+0:21:4.754 --> 0:21:5.874 
+Taher Ghulam Mohammed 
+Uh, yeah. 
+
+0:21:9.634 --> 0:21:22.914 
+Taher Ghulam Mohammed 
+No, I this, this, this would come in picture, but this is just for POC for building the logic how it picks the shared document right so that I was concentrating on that one. So yeah. 
+
+0:21:20.234 --> 0:21:25.794 
+John Drum 
+So it's. I didn't know if it was one of the parameters that you're passing to filter on. 
+
+0:21:24.394 --> 0:21:39.594 
+Taher Ghulam Mohammed 
+Mm-hmm. Yeah, yeah, it it it it this would get in picture once once I put that information. So as it just does POCS, so I didn't concentrate on that part. Should we we'll be, yeah, we'll be pulling this information, yes. 
+
+0:21:33.74 --> 0:21:33.234 
+John Drum 
+OK. 
+
+0:21:37.434 --> 0:21:37.754 
+John Drum 
+Yeah. 
+
+0:21:40.954 --> 0:21:43.394 
+Taher Ghulam Mohammed 
+Maybe against the line up in this. 
+
+0:21:44.834 --> 0:21:44.954 
+John Drum 
+OK. 
+
+0:21:48.234 --> 0:21:48.394 
+Taher Ghulam Mohammed 
+And. 
+
+0:21:50.354 --> 0:21:57.234 
+Taher Ghulam Mohammed 
+OK, so I will also want to demo this another thing. Let me go to the git check on. 
+
+0:22:11.794 --> 0:22:11.914 
+Taher Ghulam Mohammed 
+OK. 
+
+0:22:16.74 --> 0:22:31.954 
+Taher Ghulam Mohammed 
+This is the part which I have what you call created multiple scenarios like the validity period and how the effective date box. I I'll demo this tomorrow but I want to show you this one which I did yesterday. 
+
+0:22:33.554 --> 0:22:35.314 
+John Drum 
+Who's in the demo tomorrow? 
+
+0:22:35.594 --> 0:22:39.514 
+Taher Ghulam Mohammed 
+Yeah, I I I will reset setting up something tomorrow. 
+
+0:22:42.154 --> 0:22:53.74 
+Taher Ghulam Mohammed 
+I I didn't test it this completely, but that's why I'm not demoing it. OK, so I build a disk dot gifs. I can open this. 
+
+0:23:1.114 --> 0:23:11.154 
+Taher Ghulam Mohammed 
+So for populating this information like to build the templates John like how how we are going to. 
+
+0:23:8.314 --> 0:23:8.834 
+John Drum 
+Mhm. 
+
+0:23:12.514 --> 0:23:19.674 
+Taher Ghulam Mohammed 
+Uh, get this information like uh so I build a HTML page that does few things. 
+
+0:23:20.554 --> 0:23:27.474 
+Taher Ghulam Mohammed 
+And we need to put that information at template type document category what outline. 
+
+0:23:26.514 --> 0:23:28.114 
+John Drum 
+What is the? What's the template type? 
+
+0:23:28.874 --> 0:23:31.834 
+Taher Ghulam Mohammed 
+Temperate type is the Uh. 
+
+0:23:32.834 --> 0:23:39.874 
+Taher Ghulam Mohammed 
+Different types of templates, right? So like you remember so we can add this type here. 
+
+0:23:36.154 --> 0:23:38.154 
+John Drum 
+But what if I have a new template type? 
+
+0:23:43.434 --> 0:23:54.594 
+Taher Ghulam Mohammed 
+And it comes up in the OK in the drop down. But I mean I need to link this with the database. This is just a plain HTML. 
+
+0:23:54.914 --> 0:23:55.434 
+John Drum 
+Mhm. 
+
+0:23:56.394 --> 0:24:6.314 
+Taher Ghulam Mohammed 
+So this is, yeah, we can add this type and if there is a document category, we can add that too. We have three line of businesses, credit card, digital and enterprise. 
+
+0:24:7.914 --> 0:24:13.554 
+Taher Ghulam Mohammed 
+And template versions we need to if if there are that. 
+
+0:24:12.234 --> 0:24:15.994 
+John Drum 
+Where do you say whether it's shared or not? 
+
+0:24:14.874 --> 0:24:26.674 
+Taher Ghulam Mohammed 
+That's the next step. Like next step, actually that's the next step. So we have this flags active, accessible, regulatory, notification needed. 
+
+0:24:19.154 --> 0:24:19.274 
+John Drum 
+OK. 
+
+0:24:28.74 --> 0:24:37.74 
+Taher Ghulam Mohammed 
+And next step, so is it account specific or a customer wide or say conditional or shared public? 
+
+0:24:38.314 --> 0:24:52.994 
+Taher Ghulam Mohammed 
+Then next and if what feels it needs to put in the metadata instance so we can add few customized variables, we can add some permission. 
+
+0:24:54.434 --> 0:24:57.594 
+John Drum 
+OK, this is just for the master template, right? 
+
+0:24:57.754 --> 0:25:10.994 
+Taher Ghulam Mohammed 
+Yeah, this is for master number, yes. So how what reference key type we need to put in here like account ID or a disclosure code or something like that. Or we could just add a new one altogether. 
+
+0:25:17.74 --> 0:25:31.754 
+Taher Ghulam Mohammed 
+So that can be used for future purpose. Then next we so this will build the like what you called where exactly we need to put this pull this information from so like. 
+
+0:25:32.354 --> 0:25:33.74 
+John Drum 
+Good. 
+
+0:25:32.794 --> 0:25:39.994 
+Taher Ghulam Mohammed 
+We can upload a API specifications like. 
+
+0:25:38.754 --> 0:25:39.674 
+John Drum 
+I like it. 
+
+0:25:42.714 --> 0:25:45.234 
+Taher Ghulam Mohammed 
+What is this? 
+
+0:25:47.234 --> 0:25:47.394 
+Taher Ghulam Mohammed 
+Uh. 
+
+0:25:54.674 --> 0:25:55.154 
+Taher Ghulam Mohammed 
+Docs. 
+
+0:25:57.234 --> 0:26:1.794 
+Taher Ghulam Mohammed 
+Yeah, so this would, uh, give us the. 
+
+0:26:3.194 --> 0:26:5.74 
+Taher Ghulam Mohammed 
+Uh, what are you called? 
+
+0:26:6.754 --> 0:26:10.994 
+Taher Ghulam Mohammed 
+Information like what are, what are these we can pull this from. 
+
+0:26:12.354 --> 0:26:18.434 
+Taher Ghulam Mohammed 
+You can just select this part and it will put this in the extraction config. 
+
+0:26:20.114 --> 0:26:23.714 
+Taher Ghulam Mohammed 
+And then and then next step is to. 
+
+0:26:20.514 --> 0:26:20.834 
+John Drum 
+OK. 
+
+0:26:25.34 --> 0:26:39.514 
+Taher Ghulam Mohammed 
+I had access rules. I I didn't did anything for this one. Then review this thing. We can either download an SQL or we could end and and what do you call it? 
+
+0:26:40.394 --> 0:26:47.994 
+Taher Ghulam Mohammed 
+OK, we can integrate with an API and that would call that API and store that information. So yeah. 
+
+0:26:49.74 --> 0:26:58.114 
+Taher Ghulam Mohammed 
+This is this is work in progress, not complicated yet. So that's just a model. Yeah, so yeah. 
+
+0:26:55.354 --> 0:26:56.394 
+John Drum 
+Understood. 
+
+0:26:57.914 --> 0:27:0.434 
+John Drum 
+I mean what I see so far, it looks good. 
+
+0:27:0.154 --> 0:27:6.34 
+Taher Ghulam Mohammed 
+Mm-hmm. So this would go and store gets stored in the master template definition table. 
+
+0:27:7.274 --> 0:27:14.954 
+Taher Ghulam Mohammed 
+And Yep, and this would be. I think we could just put in a download in SQL. 
+
+0:27:16.514 --> 0:27:16.914 
+Taher Ghulam Mohammed 
+See. 
+
+0:27:25.154 --> 0:27:38.354 
+John Drum 
+And do we have just questions? I know you've not had enough time to do all this stuff, but is it going to be the same editor to do the vendor specific template piece or is that going to be a different screen? 
+
+0:27:40.874 --> 0:27:53.34 
+Taher Ghulam Mohammed 
+There there will be another tab here or we could or we could or we could. Once we put this information then we we get the template ID and version ID. Using that we could. 
+
+0:27:44.114 --> 0:27:46.514 
+John Drum 
+Another tab for the vendor. 
+
+0:27:51.954 --> 0:27:55.794 
+John Drum 
+'Cause yeah, it has to be linked to the master template, right? That you're right there. 
+
+0:27:54.34 --> 0:28:3.394 
+Taher Ghulam Mohammed 
+Yes, yes, yes, Yep. That would require a Yep. Let me open with this. OK. 
+
+0:28:8.594 --> 0:28:15.114 
+Taher Ghulam Mohammed 
+Oh, this is the this is the one which build. It was just built here. Let me see if it works. 
+
+0:28:19.794 --> 0:28:20.34 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:28:21.714 --> 0:28:27.34 
+Taher Ghulam Mohammed 
+OK, it's not building it correctly, so yeah, but let let's see if. 
+
+0:28:31.354 --> 0:28:34.34 
+Taher Ghulam Mohammed 
+It if it works or not. 
+
+0:28:39.34 --> 0:28:41.994 
+Taher Ghulam Mohammed 
+Yeah, there is some issue. It's not building the correct. 
+
+0:28:43.394 --> 0:28:49.274 
+Taher Ghulam Mohammed 
+SQL. But yeah, this is concept POC. So yeah, still working on it. 
+
+0:28:50.274 --> 0:28:53.594 
+Taher Ghulam Mohammed 
+Yeah, just wanted to show you those things. Are we on the right track too? 
+
+0:28:54.154 --> 0:29:5.754 
+John Drum 
+I think so. It looks good to me after it works, of course. But yes, it's the it's the exact idea of what I wanted the. 
+
+0:28:56.394 --> 0:28:57.114 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:29:0.234 --> 0:29:0.754 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:29:9.434 --> 0:29:25.394 
+John Drum 
+Of course you'll need because this is creating a new one, right? You'll need to be able to modify existing ones and you know all those functions, add, modify, delete type of thing. Plus you'll want an audit trail for what happens in here. 
+
+0:29:10.874 --> 0:29:11.434 
+Taher Ghulam Mohammed 
+Hmm. 
+
+0:29:13.314 --> 0:29:13.554 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:29:15.234 --> 0:29:15.434 
+Taher Ghulam Mohammed 
+No. 
+
+0:29:20.234 --> 0:29:21.794 
+Taher Ghulam Mohammed 
+Yes, Yep. 
+
+0:29:25.834 --> 0:29:37.994 
+John Drum 
+And how are you limiting scope or what was your thought on who has access to this and where does this? Where are you accessing this from? 
+
+0:29:38.554 --> 0:29:43.554 
+Taher Ghulam Mohammed 
+Oh, this is just a HTML page right now. I think we should be building, yeah. 
+
+0:29:42.314 --> 0:29:47.34 
+John Drum 
+I understand. I'm just talking about what your thoughts are on how this was going to go. 
+
+0:29:47.154 --> 0:29:57.34 
+Taher Ghulam Mohammed 
+OK, I think this should be only accessible to few people like who can like admin people. 
+
+0:29:56.74 --> 0:30:6.514 
+John Drum 
+Mhm. So you're going to integrate it in with SSO, you're going to integrate it in with just Active Directory. What? What were your thoughts? 
+
+0:30:15.714 --> 0:30:16.34 
+John Drum 
+OK. 
+
+0:30:16.114 --> 0:30:16.274 
+John Drum 
+OK. 
+
+0:30:16.114 --> 0:30:21.514 
+Taher Ghulam Mohammed 
+Build the Um role based access Uh settings so that. 
+
+0:30:21.474 --> 0:30:27.754 
+John Drum 
+Because remember, this will have to be accessed by back office every time they create a new. 
+
+0:30:25.794 --> 0:30:26.114 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:30:28.954 --> 0:30:30.634 
+John Drum 
+Document type, right? 
+
+0:30:31.34 --> 0:30:32.234 
+Taher Ghulam Mohammed 
+Yep, Yep, Yep. 
+
+0:30:33.674 --> 0:30:41.634 
+John Drum 
+And then also remember this has to integrate into a process flow because they'll be approval processes for these things. 
+
+0:30:42.34 --> 0:30:43.154 
+Taher Ghulam Mohammed 
+Mhm, mhm. 
+
+0:30:43.314 --> 0:30:52.674 
+John Drum 
+So that's why I was asking what you're thinking about hosting, because it's actually, I believe it would be hosted by the workflow process, right? 
+
+0:30:53.234 --> 0:30:53.714 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:30:53.634 --> 0:30:58.714 
+John Drum 
+This is the first step in the workflow and then after this is created. 
+
+0:31:0.114 --> 0:31:7.714 
+John Drum 
+And the vendor piece of it is created, then this would have to go through a work will process to get approval before it's ever approved. 
+
+0:31:2.754 --> 0:31:3.274 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:31:8.474 --> 0:31:8.554 
+Taher Ghulam Mohammed 
+She. 
+
+0:31:10.594 --> 0:31:11.754 
+Taher Ghulam Mohammed 
+Yep. Yeah. 
+
+0:31:10.594 --> 0:31:26.114 
+John Drum 
+I just wanted to see if you were thinking along those lines. If you're thinking, oh, this is going to be its own little website, so it's out there and just does this. It has more integration needs than just that, so. 
+
+0:31:22.914 --> 0:31:28.114 
+Taher Ghulam Mohammed 
+Mm-hmm. This. Mm-hmm. Yep. Uh. 
+
+0:31:26.954 --> 0:31:39.634 
+John Drum 
+Continue to work through what you're doing, but it is part of a bigger process. It has to be part of, you know, and The thing is, is all these things that you're doing can't go into effect yet. 
+
+0:31:29.74 --> 0:31:29.594 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:31:32.874 --> 0:31:33.354 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:31:39.74 --> 0:31:40.394 
+Taher Ghulam Mohammed 
+Mm-hmm. 
+
+0:31:41.714 --> 0:31:57.594 
+John Drum 
+But that's part of the there's a status on the template, right? Like pending and stuff. So we have to make sure that when we're using those templates, the APIs that use it, look at that status and don't pull back any pending ones that haven't been approved. 
+
+0:31:45.314 --> 0:31:45.634 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:31:54.74 --> 0:31:54.794 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:31:59.874 --> 0:32:0.154 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:32:0.274 --> 0:32:4.474 
+John Drum 
+But I like this. This is it had a nice flow to it. Um. 
+
+0:32:4.114 --> 0:32:4.714 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:32:7.754 --> 0:32:8.754 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:32:8.434 --> 0:32:10.514 
+John Drum 
+And I think it'll get us where we need to go. 
+
+0:32:10.754 --> 0:32:11.274 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:32:13.234 --> 0:32:16.594 
+Taher Ghulam Mohammed 
+Yeah, Jagdish, Are you ready for the template management piece? 
+
+0:32:17.794 --> 0:32:18.274 
+Jagadeesh Chitta 
+S the header. 
+
+0:32:21.674 --> 0:32:21.794 
+John Drum 
+So. 
+
+0:32:21.874 --> 0:32:22.874 
+Jagadeesh Chitta 
+Shall I share my screen? 
+
+0:32:23.634 --> 0:32:28.154 
+Taher Ghulam Mohammed 
+Yeah, but your voice is very low, man. Can you speak or? 
+
+0:32:27.194 --> 0:32:29.754 
+John Drum 
+Yeah, I can't hear him at all. 
+
+0:32:29.394 --> 0:32:32.154 
+Jagadeesh Chitta 
+Can you hear me now? 
+
+0:32:32.434 --> 0:32:33.954 
+John Drum 
+Very soft. 
+
+0:32:32.994 --> 0:32:34.794 
+Taher Ghulam Mohammed 
+It's better, but it's very soft. 
+
+0:32:39.594 --> 0:32:40.794 
+Jagadeesh Chitta 
+OK, just give me a second. 
+
+0:32:49.554 --> 0:32:50.754 
+Jagadeesh Chitta 
+OK, how about now? 
+
+0:32:53.434 --> 0:32:56.234 
+Taher Ghulam Mohammed 
+It's same actually nothing. Nothing changed. 
+
+0:32:55.554 --> 0:32:59.394 
+John Drum 
+Yeah, no difference. It's like you're at the end of a tunnel. 
+
+0:33:0.594 --> 0:33:4.554 
+Jagadeesh Chitta 
+Oh, I'm sorry. Let me rejoin otherwise. 
+
+0:33:32.594 --> 0:33:35.234 
+Jagadeesh Chitta 
+Hi, is it any better or it's still the same? 
+
+0:33:35.714 --> 0:33:40.274 
+John Drum 
+It's better, yeah. Bit of an echo effect, but it's it's better. 
+
+0:33:35.914 --> 0:33:36.314 
+Taher Ghulam Mohammed 
+Nice. 
+
+0:34:23.874 --> 0:34:23.994 
+Taher Ghulam Mohammed 
+OK. 
+
+0:34:31.954 --> 0:34:32.554 
+Jagadeesh Chitta 
+Yeah. 
+
+0:34:38.34 --> 0:34:39.594 
+Jagadeesh Chitta 
+Hi, can you guys hear me? 
+
+0:34:39.874 --> 0:34:41.394 
+John Drum 
+Much better. 
+
+0:34:42.754 --> 0:34:51.634 
+Jagadeesh Chitta 
+I'm sorry, I think my laptop is having some Bluetooth and Wi-Fi issues, so Bahir, is it possible for you to share the screen? I can walk you through the specifications. 
+
+0:34:52.754 --> 0:34:54.474 
+Taher Ghulam Mohammed 
+OK, yeah, can you? 
+
+0:34:54.754 --> 0:34:59.234 
+Jagadeesh Chitta 
+I shared the API spec in the web chat. 
+
+0:34:57.274 --> 0:34:58.154 
+Taher Ghulam Mohammed 
+OK, OK. 
+
+0:35:18.394 --> 0:35:20.74 
+Taher Ghulam Mohammed 
+OK, let me share my screen. 
+
+0:35:25.274 --> 0:35:27.994 
+Taher Ghulam Mohammed 
+You can't see my screen, right? Or it's very. 
+
+0:35:27.714 --> 0:35:29.674 
+Jagadeesh Chitta 
+Yeah, we can see. 
+
+0:35:34.154 --> 0:35:35.474 
+Jagadeesh Chitta 
+OK, yeah. 
+
+0:35:36.794 --> 0:35:37.754 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:35:38.74 --> 0:35:46.674 
+Jagadeesh Chitta 
+So these are all the API specifications that we have create, read, update and delete the templates and template vendor mappings. 
+
+0:35:48.394 --> 0:35:53.714 
+Jagadeesh Chitta 
+So the first API endpoint we have is for the templates create. It's a post endpoint. 
+
+0:35:55.474 --> 0:36:4.714 
+Jagadeesh Chitta 
+Here basically we have the Jason structure to gather all the fields that are required to create an entry in the table if you go to the schema. 
+
+0:36:7.394 --> 0:36:8.754 
+Taher Ghulam Mohammed 
+You just. 
+
+0:36:8.634 --> 0:36:8.754 
+Jagadeesh Chitta 
+But. 
+
+0:36:11.234 --> 0:36:12.914 
+Taher Ghulam Mohammed 
+You want to go to the screen, OK? 
+
+0:36:13.274 --> 0:36:13.594 
+Jagadeesh Chitta 
+Yeah. 
+
+0:36:14.794 --> 0:36:34.34 
+Jagadeesh Chitta 
+Yeah, so here we, I mean all these fields represent the TV columns of the master template table and we have some required fields like display name, line of business, template type which we thought were important start date if you think there are any other important fields that we need to be required. 
+
+0:36:15.874 --> 0:36:16.114 
+Taher Ghulam Mohammed 
+And. 
+
+0:36:34.154 --> 0:36:35.834 
+Jagadeesh Chitta 
+We can update them. 
+
+0:36:41.234 --> 0:36:41.874 
+Taher Ghulam Mohammed 
+You know. 
+
+0:36:43.634 --> 0:36:46.874 
+John Drum 
+Is this a list of just all the fields in that table? 
+
+0:36:47.514 --> 0:36:47.914 
+Jagadeesh Chitta 
+Yes. 
+
+0:36:55.554 --> 0:37:8.714 
+Jagadeesh Chitta 
+And some some don't need to be passed, like things like you know, updated timestamp and updated by. Those are just put there so that when we retrieve the entry we we need to provide those values back in the response. 
+
+0:37:12.34 --> 0:37:18.354 
+John Drum 
+Who's do we have an owner? Oh, yeah, we got the owner department. Yeah, that's there. OK, that's cool. 
+
+0:37:20.914 --> 0:37:36.314 
+Jagadeesh Chitta 
+And actually master template ID also need to be part of this request. So the idea is if you are creating a new template altogether, we don't need to pass the master template ID, it will be auto-generated. But if you are trying to create a new version. 
+
+0:37:36.754 --> 0:37:40.914 
+Jagadeesh Chitta 
+Then you can pass an existing master template ID and. 
+
+0:37:37.234 --> 0:37:39.34 
+John Drum 
+Yeah, of course you would need it then. 
+
+0:37:42.314 --> 0:37:45.834 
+Jagadeesh Chitta 
+Do you think we can auto implement the version or? 
+
+0:37:42.994 --> 0:37:48.34 
+John Drum 
+And how are you linking them? It's the master template ID that that links them together. 
+
+0:37:49.74 --> 0:37:50.394 
+Jagadeesh Chitta 
+Yeah, yeah, correct. 
+
+0:37:50.554 --> 0:37:54.314 
+John Drum 
+Different versions and then we only have one active flag on all of those. 
+
+0:37:52.674 --> 0:37:52.874 
+Jagadeesh Chitta 
+Yes. 
+
+0:37:56.514 --> 0:38:9.34 
+Jagadeesh Chitta 
+So the active flag and start date and end date. So if we have a start date mentioned, that template can be used after that point. Let's say if it is 20th December, that template will be used after 20th December, correct? 
+
+0:38:10.194 --> 0:38:13.194 
+Taher Ghulam Mohammed 
+Oh, we also have an active cloud. 
+
+0:38:12.594 --> 0:38:18.874 
+Jagadeesh Chitta 
+Yeah, yeah, we do. My question is like, you know, what is the purpose of both? 
+
+0:38:22.314 --> 0:38:26.274 
+Taher Ghulam Mohammed 
+Actually we can have both actually start date and end date as well as active flag. 
+
+0:38:29.114 --> 0:38:32.554 
+Taher Ghulam Mohammed 
+So only one one template can have be active at a time. 
+
+0:38:35.834 --> 0:38:40.914 
+Jagadeesh Chitta 
+And and can templates uh overlapping periods like started and ended? 
+
+0:38:36.514 --> 0:38:36.714 
+John Drum 
+Yeah. 
+
+0:38:38.394 --> 0:38:39.554 
+John Drum 
+Is that true? 
+
+0:38:41.634 --> 0:39:0.154 
+John Drum 
+That's something I don't know. We need to ask. Make a note to query somebody from the FDR team to find out if you can have multiple versions of a shared document active at the same time because active flag. 
+
+0:39:0.554 --> 0:39:16.154 
+John Drum 
+Only really comes into the only time that you could have more that possibly could be active at the same time would be for shared document for a regular one to one document, you know where it's one document per one. 
+
+0:39:16.514 --> 0:39:32.114 
+John Drum 
+Account ID instance, then that it doesn't really matter. But when it comes to shared documents that add to flag, we need to know if you can have two different versions of a. 
+
+0:39:33.434 --> 0:39:36.674 
+John Drum 
+A shared document active at the same time. 
+
+0:39:37.874 --> 0:39:41.514 
+John Drum 
+And then different accounts pull back different versions. 
+
+0:39:43.314 --> 0:39:47.834 
+John Drum 
+I don't think they can, but we need to know that for sure. 
+
+0:39:50.834 --> 0:39:52.34 
+John Drum 
+Because if they. 
+
+0:39:50.874 --> 0:39:54.34 
+Jagadeesh Chitta 
+And does it apply to the start date and end date also? 
+
+0:39:54.674 --> 0:40:11.474 
+John Drum 
+Well, that's it could. It could if they can have that. If they don't. If you can't have multiples at the active at the same time, then start date and end date doesn't matter. All you need is the active flag because the one that's active is the only one that should be returned. 
+
+0:39:55.354 --> 0:39:55.994 
+Jagadeesh Chitta 
+Like can. 
+
+0:40:0.634 --> 0:40:0.754 
+Jagadeesh Chitta 
+OK. 
+
+0:40:12.194 --> 0:40:24.314 
+John Drum 
+For that template type, right? But if you can have multiples active at any given time, then you need to start and end dates so you know which version to pull back per account. 
+
+0:40:13.74 --> 0:40:13.674 
+Jagadeesh Chitta 
+Yeah. 
+
+0:40:27.154 --> 0:40:34.74 
+Jagadeesh Chitta 
+OK, and in any case, the start date and end date of any two different templates should not overlap, right? 
+
+0:40:35.354 --> 0:40:37.194 
+John Drum 
+Should never overlap. 
+
+0:40:38.74 --> 0:40:38.194 
+Jagadeesh Chitta 
+OK. 
+
+0:40:40.594 --> 0:40:44.314 
+John Drum 
+That's when you get multiple documents come and being returned, and that's a problem. 
+
+0:40:47.554 --> 0:40:52.434 
+Jagadeesh Chitta 
+OK, we can probably add a validation whenever we are trying to create an entry. 
+
+0:40:53.154 --> 0:40:54.714 
+John Drum 
+Yeah, there needs to be. 
+
+0:40:53.474 --> 0:40:55.994 
+Jagadeesh Chitta 
+See if there is an overlap and written an error. 
+
+0:40:57.34 --> 0:41:12.394 
+John Drum 
+But we need to find out if which rule is in effect. So we need to get with somebody because all shared documents come from Fiserv. So we need to ask somebody from the Fiserv team if we can have multiple versions of a shared document active at any given time. 
+
+0:41:12.874 --> 0:41:13.674 
+John Drum 
+Or a. 
+
+0:41:15.354 --> 0:41:16.754 
+John Drum 
+You know, different accounts. 
+
+0:41:17.714 --> 0:41:20.394 
+John Drum 
+Or should it always just be the very latest version? 
+
+0:41:21.594 --> 0:41:21.714 
+Taher Ghulam Mohammed 
+OK. 
+
+0:41:23.74 --> 0:41:25.554 
+John Drum 
+I don't know the answer to that. We need to ask them. 
+
+0:41:26.114 --> 0:41:42.434 
+Jagadeesh Chitta 
+OK, and the other was we were debating if we want to pass the version number or not, because if we have a master template ID and if there is an already template existing with that master template ID, we cannot increment the version. 
+
+0:41:42.954 --> 0:41:52.994 
+Jagadeesh Chitta 
+Or we can just ask consumer to provide a version number and we can validate if it is not a duplicate version, which one do you think would be better? 
+
+0:41:54.554 --> 0:41:55.74 
+John Drum 
+Mm. 
+
+0:41:58.234 --> 0:42:0.514 
+John Drum 
+Which one would be better? 
+
+0:42:2.914 --> 0:42:7.994 
+John Drum 
+I think we should auto generate the version number, but give them the option to change it. 
+
+0:42:8.874 --> 0:42:19.354 
+Jagadeesh Chitta 
+OK, so in that case, in the request body we get either master template ID or version. If we get a master template ID, we increment the existing version. 
+
+0:42:20.594 --> 0:42:24.674 
+Jagadeesh Chitta 
+Oh, we don't need version number at all. Either we get the match template ID or we don't. 
+
+0:42:29.714 --> 0:42:32.74 
+John Drum 
+Well, what's the scenario you're referring to? 
+
+0:42:33.314 --> 0:42:49.474 
+Jagadeesh Chitta 
+No, no. What I'm saying is like if if if it is a brand new template in the request we are expecting only we are expecting neither template ID nor the version. We'll auto generate template ID and then we'll auto generate a version number. 
+
+0:42:33.594 --> 0:42:34.394 
+John Drum 
+I. 
+
+0:42:49.794 --> 0:42:53.114 
+Jagadeesh Chitta 
+and next time if they want to create a new version of that. 
+
+0:42:50.834 --> 0:43:1.194 
+John Drum 
+Yeah, on a on a brand new one, yeah, you only need to worry about modifying the version number on a modify on the very first generate. It's always gonna start with 1.0, right? 
+
+0:42:55.34 --> 0:42:55.234 
+Jagadeesh Chitta 
+Yeah. 
+
+0:42:58.394 --> 0:42:58.714 
+Jagadeesh Chitta 
+Correct. 
+
+0:43:2.874 --> 0:43:2.994 
+Jagadeesh Chitta 
+Yeah. 
+
+0:43:5.114 --> 0:43:5.234 
+Jagadeesh Chitta 
+OK. 
+
+0:43:9.154 --> 0:43:16.594 
+Jagadeesh Chitta 
+Yeah, that's all we have regarding this template request. All the fields are directly related to the columns of the table, so. 
+
+0:43:17.994 --> 0:43:19.874 
+John Drum 
+And what do you have? Do you have a delete flag? 
+
+0:43:20.834 --> 0:43:30.474 
+Jagadeesh Chitta 
+That that was my other question. It's going to be sorted late, so we were wondering if we can use the archive archive field or. 
+
+0:43:21.554 --> 0:43:22.714 
+John Drum 
+Or is that just your archive? 
+
+0:43:27.674 --> 0:43:27.834 
+John Drum 
+Right. 
+
+0:43:31.474 --> 0:43:35.994 
+Jagadeesh Chitta 
+We need a separate flag or I I don't think active flag can be used, but. 
+
+0:43:36.794 --> 0:43:40.674 
+John Drum 
+No, you can't use the active flag, but I think you can use the archive indicator. 
+
+0:43:37.394 --> 0:43:38.274 
+Jagadeesh Chitta 
+Either or cable. 
+
+0:43:41.994 --> 0:43:43.34 
+Jagadeesh Chitta 
+Yeah, OK. 
+
+0:43:44.834 --> 0:43:53.154 
+John Drum 
+And then we just make sure that if it's if that's set for true, then you never return that as part of the query. 
+
+0:43:54.314 --> 0:43:54.434 
+Jagadeesh Chitta 
+OK. 
+
+0:43:56.274 --> 0:44:2.834 
+John Drum 
+What's in the record status? Is that the edit status like pending or approved or? 
+
+0:44:3.874 --> 0:44:8.114 
+Jagadeesh Chitta 
+No, I think that is some DB required column from the. 
+
+0:44:11.354 --> 0:44:11.994 
+Jagadeesh Chitta 
+Yeah, well. 
+
+0:44:14.554 --> 0:44:17.114 
+John Drum 
+Where do we have our approval status at? 
+
+0:44:21.194 --> 0:44:36.794 
+Taher Ghulam Mohammed 
+Remember John, I think we had that approval file column here, but it said you don't need to have it at template master master template definition table. We put it in the vendor mapping table. 
+
+0:44:21.274 --> 0:44:23.34 
+Jagadeesh Chitta 
+Can you go to the bottom? 
+
+0:44:37.74 --> 0:44:46.474 
+John Drum 
+We you need in both places because you you're approving the vendor ones also, but you still have a workflow to create the the original one, right? The master also. 
+
+0:44:39.274 --> 0:44:39.354 
+Taher Ghulam Mohammed 
+Hey. 
+
+0:44:48.914 --> 0:44:53.674 
+Taher Ghulam Mohammed 
+I we we originally had that actually if we if I go to yes. 
+
+0:44:52.394 --> 0:44:53.434 
+John Drum 
+Are you sure? 
+
+0:44:54.754 --> 0:44:56.314 
+John Drum 
+Now let's think about it a second. 
+
+0:44:57.394 --> 0:45:2.194 
+Taher Ghulam Mohammed 
+Yeah, let me see. I think we had this flag. Let me see. 
+
+0:45:3.154 --> 0:45:17.114 
+Taher Ghulam Mohammed 
+Template status we had this column but in version 24 you said that for every new version you don't need to have it. So something happened that in the discussion so we didn't move that thing column. 
+
+0:45:17.74 --> 0:45:21.154 
+John Drum 
+Hmm. OK. But we do have it in the vendor one, right? 
+
+0:45:21.674 --> 0:45:22.674 
+Taher Ghulam Mohammed 
+Yes, we have that. 
+
+0:45:24.314 --> 0:45:30.434 
+John Drum 
+Because probably if if we said that, because you can't really do anything without a vendor record. 
+
+0:45:24.394 --> 0:45:25.514 
+Taher Ghulam Mohammed 
+In the. 
+
+0:45:28.34 --> 0:45:29.194 
+Taher Ghulam Mohammed 
+Yeah, yeah, we add. 
+
+0:45:33.314 --> 0:45:35.74 
+Taher Ghulam Mohammed 
+Yeah, this is the same. Yep. 
+
+0:45:34.554 --> 0:45:36.634 
+John Drum 
+Right. Is that a true statement? 
+
+0:45:39.154 --> 0:45:40.154 
+Taher Ghulam Mohammed 
+Come again, John. 
+
+0:45:39.714 --> 0:45:49.634 
+John Drum 
+What will we plan on doing for vendor records whenever it's generated by, let's say, Fiserv like a statement because we still have to have a template record? 
+
+0:45:52.794 --> 0:45:57.554 
+John Drum 
+But then again, approval doesn't matter because that's already generated. 
+
+0:45:58.514 --> 0:46:0.314 
+John Drum 
+Yeah, that'll probably be OK. 
+
+0:46:3.554 --> 0:46:6.794 
+John Drum 
+We could always add it later if we find out we need it. 
+
+0:46:9.314 --> 0:46:25.994 
+John Drum 
+Because if I think about it now, usually the pending and approval stuff is what's needed when you're looking at like a new document or a or a modification to a document which is at the vendor level level. The master template shouldn't actually change that often. 
+
+0:46:27.914 --> 0:46:28.154 
+John Drum 
+Um. 
+
+0:46:31.874 --> 0:46:33.554 
+Taher Ghulam Mohammed 
+Yeah, I think that this. 
+
+0:46:32.194 --> 0:46:40.314 
+John Drum 
+Except for shared documents, but that's the only one I'm a little concerned about is the shared document one. 
+
+0:46:48.34 --> 0:46:49.674 
+John Drum 
+But we do have a effective date. 
+
+0:46:51.754 --> 0:46:53.914 
+Taher Ghulam Mohammed 
+Yes, active flag and. 
+
+0:46:53.954 --> 0:46:55.434 
+John Drum 
+Is when it becomes active. 
+
+0:46:53.994 --> 0:46:54.154 
+Taher Ghulam Mohammed 
+OK. 
+
+0:46:55.474 --> 0:46:57.474 
+Taher Ghulam Mohammed 
+Start date and end date. 
+
+0:46:59.154 --> 0:47:9.234 
+John Drum 
+And these will only be administrative functions anyway, so I think it'll be OK for now. Well, we'll look at it more when we look at the process, but I think it'll be OK. 
+
+0:47:11.514 --> 0:47:15.474 
+Taher Ghulam Mohammed 
+OK. Uh, next where is that window? Yeah, OK. 
+
+0:47:20.274 --> 0:47:26.34 
+Jagadeesh Chitta 
+Yeah, and the next endpoint we have is a get endpoint to retrieve this master templates. 
+
+0:47:28.114 --> 0:47:34.634 
+Jagadeesh Chitta 
+So we here we have two get endpoints. One, we pass the master complete ID and we retrieve all the versions available. 
+
+0:47:36.234 --> 0:47:36.874 
+John Drum 
+Mhm. 
+
+0:47:37.714 --> 0:47:38.154 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:47:38.954 --> 0:47:52.554 
+Jagadeesh Chitta 
+And the other one is we have a templates get endpoint. We have some query params that can be sent. For example, we can send a particular template type and all the templates of that type will be retrieved so. 
+
+0:47:41.754 --> 0:47:41.914 
+Taher Ghulam Mohammed 
+Mm. 
+
+0:47:54.634 --> 0:47:58.514 
+Jagadeesh Chitta 
+We have added a couple of parameters here that we thought may be of use. 
+
+0:47:59.634 --> 0:48:9.354 
+Jagadeesh Chitta 
+If you think you know any one of these are not required in the real time scenario, we can get get rid of them or or add a new one. 
+
+0:48:10.234 --> 0:48:17.594 
+John Drum 
+So what? Let's go on back again. What is this? These are parameters for it, so template type. That's like the. 
+
+0:48:14.914 --> 0:48:15.314 
+Taher Ghulam Mohammed 
+Fluttering. 
+
+0:48:16.554 --> 0:48:17.514 
+Jagadeesh Chitta 
+So if we set up. 
+
+0:48:19.514 --> 0:48:22.714 
+John Drum 
+OK, so then you have category, what's in the search? 
+
+0:48:24.874 --> 0:48:39.514 
+Jagadeesh Chitta 
+And the search we're planning like you know if we if we send a keyword, we look through the description or display name, template name. If a keyword matches any of those fields, then we pull those records. 
+
+0:48:39.634 --> 0:48:53.794 
+John Drum 
+So let me ask you a scenario. So we're creating this draft editor that Backoff is going to use and we need to show all the templates that they're available that they can use to pick to create a a letter, right? 
+
+0:48:46.634 --> 0:48:47.194 
+Jagadeesh Chitta 
+Mhm. 
+
+0:48:54.834 --> 0:48:55.354 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:48:54.914 --> 0:48:55.674 
+Jagadeesh Chitta 
+Mhm. 
+
+0:48:55.74 --> 0:48:57.434 
+John Drum 
+What parameters would I pass to do that? 
+
+0:48:59.794 --> 0:49:11.554 
+John Drum 
+Because I don't see line of business on here, so I don't want to get letters from, you know, all the templates from different line of businesses. I just want the ones for like credit cards. 
+
+0:49:0.354 --> 0:49:0.474 
+Jagadeesh Chitta 
+OK. 
+
+0:49:12.274 --> 0:49:13.34 
+Jagadeesh Chitta 
+Oh, OK. 
+
+0:49:14.354 --> 0:49:16.354 
+Jagadeesh Chitta 
+Yeah, we cannot line a business also. 
+
+0:49:14.474 --> 0:49:14.554 
+John Drum 
+So. 
+
+0:49:16.434 --> 0:49:19.434 
+John Drum 
+OK, because if we're going to use this to. 
+
+0:49:17.314 --> 0:49:20.554 
+Jagadeesh Chitta 
+I mean, we were not sure of the actual scenario, so that's why. 
+
+0:49:21.114 --> 0:49:37.554 
+John Drum 
+Yeah, because you got a little thing about the use cases that we're going to be doing. The first use case would be for like the draft editor that's being created. So back office can actually come in and you know, create letters. So they would list, they would get a list of all the templates that's been defined. 
+
+0:49:21.634 --> 0:49:21.834 
+Jagadeesh Chitta 
+Yes. 
+
+0:49:38.114 --> 0:49:53.754 
+John Drum 
+To start their letter creation process. So but you know you don't want every template in the template database with all the different versions. We would want the latest active version like for a given template. 
+
+0:49:54.514 --> 0:49:58.514 
+John Drum 
+Per line of business and then possibly. 
+
+0:49:56.154 --> 0:49:56.274 
+Taher Ghulam Mohammed 
+OK. 
+
+0:50:0.594 --> 0:50:15.994 
+John Drum 
+Add us another query as far as department, but not necessarily. So that would be like an optional parameter, but that would give us typically a list of, you know, templates to choose from to start a document creation. 
+
+0:50:20.594 --> 0:50:21.194 
+Jagadeesh Chitta 
+Yeah. 
+
+0:50:21.554 --> 0:50:28.314 
+John Drum 
+So yeah, I think if you add a line of business there and you've got category, but. 
+
+0:50:27.994 --> 0:50:29.274 
+Jagadeesh Chitta 
+Active and department. 
+
+0:50:29.914 --> 0:50:36.474 
+John Drum 
+Department. Yeah, I think you need the active in department on there. 
+
+0:50:36.274 --> 0:50:39.914 
+Jagadeesh Chitta 
+And is sharing, is there something that's useful or? 
+
+0:50:41.314 --> 0:50:42.794 
+Jagadeesh Chitta 
+Like shared all shared templates. 
+
+0:50:42.194 --> 0:50:45.114 
+John Drum 
+Uh, shared templates should not be. 
+
+0:50:46.834 --> 0:50:56.434 
+John Drum 
+Yeah, you should have something that says if it's shared or not. You got that. I think already a shared document though, right? Yeah, that's fine. I would keep that. 
+
+0:50:51.274 --> 0:50:51.394 
+Jagadeesh Chitta 
+OK. 
+
+0:50:53.554 --> 0:50:54.874 
+Jagadeesh Chitta 
+Yeah, yeah, yeah. 
+
+0:50:58.74 --> 0:51:13.274 
+John Drum 
+Because we'll use that as a filter when we go to like, they don't do shared documents in the draft editor, so that filter condition would be no. So it doesn't return any of the templates for shared documents, right? 
+
+0:51:14.674 --> 0:51:15.354 
+Jagadeesh Chitta 
+Mhm. 
+
+0:51:16.674 --> 0:51:16.954 
+Jagadeesh Chitta 
+Yeah. 
+
+0:51:19.74 --> 0:51:27.514 
+Jagadeesh Chitta 
+And all these parameters can be used in conjunction like this particular type and this category. So we pull out the records that's ads for both of them. 
+
+0:51:33.234 --> 0:51:38.354 
+Jagadeesh Chitta 
+Alright, and then we have to put endpoint that's to make updates. 
+
+0:51:39.514 --> 0:51:41.314 
+Jagadeesh Chitta 
+For any entry. 
+
+0:51:43.34 --> 0:51:52.514 
+Taher Ghulam Mohammed 
+This we need to have another variable here, sorry path here like version slash diversion ID so differentiates. 
+
+0:51:43.834 --> 0:51:43.914 
+Jagadeesh Chitta 
+So. 
+
+0:51:52.114 --> 0:51:54.114 
+Jagadeesh Chitta 
+The template ID slash version we have. 
+
+0:51:54.34 --> 0:52:7.274 
+Taher Ghulam Mohammed 
+Templates. No, we need to have one more. What do you call path in here like version slash template version ID kind of. So yeah, path path. Yeah. Segmentation. Yeah, yeah. 
+
+0:52:1.634 --> 0:52:10.834 
+Jagadeesh Chitta 
+Oh, okay, okay, okay, okay. You're talking about a path segment representative to be a version. Okay, okay, got it. Yeah, I I'll do that. 
+
+0:52:12.74 --> 0:52:13.514 
+Taher Ghulam Mohammed 
+Good, good, sorry. 
+
+0:52:13.194 --> 0:52:19.914 
+Jagadeesh Chitta 
+So this will directly target a particular template ID and version and we can update any of the fields that we want. 
+
+0:52:17.34 --> 0:52:17.674 
+John Drum 
+Mhm. 
+
+0:52:21.994 --> 0:52:22.114 
+John Drum 
+OK. 
+
+0:52:22.434 --> 0:52:26.954 
+Taher Ghulam Mohammed 
+I believe this should be put patch patch, right John? 
+
+0:52:24.994 --> 0:52:36.34 
+John Drum 
+So question, if we have an audit trail for all these changes, I don't see your passing any kind of ID to like who made the change? How are you doing that? 
+
+0:52:28.114 --> 0:52:29.554 
+Jagadeesh Chitta 
+Mhm. 
+
+0:52:40.674 --> 0:52:45.114 
+Taher Ghulam Mohammed 
+Hmm, I think that those are our header. 
+
+0:52:42.154 --> 0:52:44.274 
+Jagadeesh Chitta 
+Oh yeah, we we we. 
+
+0:52:46.354 --> 0:52:54.34 
+John Drum 
+As we said, this is you're integrating with Active Directory or whatever, right? So from a. 
+
+0:52:51.554 --> 0:52:52.74 
+Taher Ghulam Mohammed 
+Mhm. 
+
+0:52:54.954 --> 0:52:59.714 
+John Drum 
+From a security perspective, how are you limiting? We can call these? 
+
+0:53:1.714 --> 0:53:2.474 
+John Drum 
+APIs. 
+
+0:53:3.394 --> 0:53:6.314 
+Taher Ghulam Mohammed 
+This will be an identifier like yeah. 
+
+0:53:7.874 --> 0:53:16.874 
+Taher Ghulam Mohammed 
+We have this correlation ID and we call it requester ID and those stuff right in the other endpoints we need to add those things here too. 
+
+0:53:9.514 --> 0:53:9.914 
+Jagadeesh Chitta 
+So it. 
+
+0:53:16.794 --> 0:53:16.914 
+Jagadeesh Chitta 
+OK. 
+
+0:53:17.154 --> 0:53:26.74 
+John Drum 
+You know what I'm getting at, right? Because we want to make first we want the audit trail and then we want to make sure not just anybody can sit down with postman and start calling these things. 
+
+0:53:18.114 --> 0:53:18.234 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:53:19.634 --> 0:53:19.794 
+Jagadeesh Chitta 
+You. 
+
+0:53:29.394 --> 0:53:30.594 
+Jagadeesh Chitta 
+Yeah, yeah. 
+
+0:53:33.714 --> 0:53:43.594 
+Jagadeesh Chitta 
+Yeah, we'll add, we'll add those. I think they're probably header parameters identifying where is the request coming from and I believe we can pull. 
+
+0:53:40.674 --> 0:53:40.954 
+John Drum 
+Yeah. 
+
+0:53:42.754 --> 0:53:54.834 
+John Drum 
+The identifier, the request. I would make that optional. I wouldn't make it forced, but it should be there so that you know if we have it, we can log it as part of the the log, the audit log. 
+
+0:53:53.34 --> 0:53:53.354 
+Jagadeesh Chitta 
+OK. 
+
+0:53:54.834 --> 0:53:57.834 
+Jagadeesh Chitta 
+Yeah, yeah, sure. We'll add that. 
+
+0:54:0.154 --> 0:54:6.634 
+Taher Ghulam Mohammed 
+Uh, I believe John, this should be a patch one, right? You should be able to do a update only. 
+
+0:54:5.114 --> 0:54:8.434 
+John Drum 
+For the modify, I would have thought it was a patch, yeah. 
+
+0:54:9.714 --> 0:54:17.554 
+Taher Ghulam Mohammed 
+So we we should only be able to modify certain fields and not change other fields. So yeah, it should be a patch. 
+
+0:54:17.994 --> 0:54:19.554 
+Jagadeesh Chitta 
+OK, yeah, I'll update that. 
+
+0:54:18.194 --> 0:54:22.554 
+John Drum 
+We got like the template ID. You can't modify that, right? 
+
+0:54:23.354 --> 0:54:24.954 
+Taher Ghulam Mohammed 
+No, yeah. 
+
+0:54:23.714 --> 0:54:25.354 
+John Drum 
+Because then you would break everything. 
+
+0:54:26.34 --> 0:54:26.714 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:54:28.354 --> 0:54:33.314 
+Taher Ghulam Mohammed 
+You can't update these two fields, right? And even even the unique identifiers. 
+
+0:54:30.594 --> 0:54:32.234 
+Jagadeesh Chitta 
+Yeah, yeah, yeah. 
+
+0:54:34.994 --> 0:54:37.114 
+Taher Ghulam Mohammed 
+My line of business and all the stuff. 
+
+0:54:38.834 --> 0:54:41.314 
+Jagadeesh Chitta 
+Look I I'll update this input. 
+
+0:54:49.74 --> 0:54:49.274 
+Taher Ghulam Mohammed 
+And the. 
+
+0:54:50.74 --> 0:55:5.714 
+Jagadeesh Chitta 
+Yeah, and then we have this delete endpoint. Again, we pass a template version and it's a soft delete, so we'll use the archive indicator field. If something is being deleted, we update the timestamp, archive timestamp and. 
+
+0:55:5.714 --> 0:55:6.154 
+John Drum 
+Yeah. 
+
+0:55:5.874 --> 0:55:7.474 
+Jagadeesh Chitta 
+I feel true. 
+
+0:55:8.474 --> 0:55:8.794 
+John Drum 
+OK. 
+
+0:55:11.714 --> 0:55:21.834 
+Jagadeesh Chitta 
+And we have the template vendors endpoints, same format, the quick body changed. Now here all the fields represent the template vendor mapping columns. 
+
+0:55:26.514 --> 0:55:29.274 
+Jagadeesh Chitta 
+Uh, can you go to schema here? 
+
+0:55:33.634 --> 0:55:43.514 
+Jagadeesh Chitta 
+Here also the template ID version vendor and the template key reference key type start date. We have made all these as required fields. 
+
+0:55:37.714 --> 0:55:38.394 
+Taher Ghulam Mohammed 
+Are required. 
+
+0:55:45.394 --> 0:55:49.794 
+John Drum 
+Which field did we set aside to show which one was the default? 
+
+0:55:51.754 --> 0:55:57.674 
+Jagadeesh Chitta 
+That one is a primary flag or active flag? There are primary flag probably. 
+
+0:55:54.954 --> 0:55:55.434 
+Taher Ghulam Mohammed 
+Mm. 
+
+0:55:57.914 --> 0:55:58.114 
+Taher Ghulam Mohammed 
+So. 
+
+0:55:59.154 --> 0:56:2.274 
+Taher Ghulam Mohammed 
+Which vendor is the primary one, right, John? 
+
+0:56:2.834 --> 0:56:15.394 
+John Drum 
+Yeah, because, well, yeah. So if there's like two different vendors for a given template and they don't pass which one to use, we're going to use one by default, which which field did we set aside for that? 
+
+0:56:18.514 --> 0:56:22.154 
+Taher Ghulam Mohammed 
+Primarily, I think it's that's primary factor. 
+
+0:56:27.474 --> 0:56:29.274 
+John Drum 
+Well, that just says. 
+
+0:56:31.34 --> 0:56:34.834 
+John Drum 
+It doesn't indicate that on your description. Now you need to update that. 
+
+0:56:33.794 --> 0:56:34.234 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:56:37.954 --> 0:56:42.354 
+John Drum 
+Because when they go to do the draft editor. 
+
+0:56:44.994 --> 0:56:48.154 
+John Drum 
+If there's multiple vendors available for that template. 
+
+0:56:49.234 --> 0:56:50.394 
+John Drum 
+We should indicate that. 
+
+0:56:51.954 --> 0:56:54.794 
+John Drum 
+So they can pick which rint vendor they want to print that. 
+
+0:57:1.634 --> 0:57:8.674 
+Taher Ghulam Mohammed 
+Let's see, did I build that now? This is lecture one. 
+
+0:57:9.794 --> 0:57:14.954 
+Taher Ghulam Mohammed 
+OK, I did. I didn't do that just for this part. OK, I'll do that. 
+
+0:57:19.74 --> 0:57:21.354 
+Taher Ghulam Mohammed 
+OK, so this, yeah. 
+
+0:57:22.994 --> 0:57:27.154 
+Jagadeesh Chitta 
+Yeah, and here we have the template status. Uh, like the app editing. 
+
+0:57:27.274 --> 0:57:28.834 
+John Drum 
+Whether it's approved or not. 
+
+0:57:29.274 --> 0:57:31.794 
+Jagadeesh Chitta 
+Yeah, last speed. 
+
+0:57:34.754 --> 0:57:34.914 
+Taher Ghulam Mohammed 
+OK. 
+
+0:57:35.754 --> 0:57:40.754 
+John Drum 
+And that primary flag cannot be set unless it's in an approved status, right? 
+
+0:57:41.834 --> 0:57:42.34 
+Taher Ghulam Mohammed 
+Yep. 
+
+0:57:43.274 --> 0:57:49.34 
+Taher Ghulam Mohammed 
+Yeah, OK, yeah, yeah, make this. So unless we this. 
+
+0:57:47.274 --> 0:57:54.634 
+Jagadeesh Chitta 
+So yeah, it should be a condition that primary cannot be set to true unless until the status is approved. 
+
+0:57:54.514 --> 0:57:54.954 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:57:54.634 --> 0:57:55.74 
+John Drum 
+Yeah. 
+
+0:58:6.554 --> 0:58:9.794 
+Jagadeesh Chitta 
+Yeah, and we have get 10 points. 
+
+0:58:10.954 --> 0:58:14.314 
+Jagadeesh Chitta 
+Save As for our templates. Yeah, right. 
+
+0:58:11.314 --> 0:58:11.794 
+John Drum 
+So. 
+
+0:58:13.194 --> 0:58:14.434 
+John Drum 
+Go back down again. 
+
+0:58:19.634 --> 0:58:21.314 
+John Drum 
+Which one did you say was the status? 
+
+0:58:22.394 --> 0:58:24.394 
+Jagadeesh Chitta 
+The last one template status. 
+
+0:58:22.874 --> 0:58:23.74 
+Taher Ghulam Mohammed 
+Your. 
+
+0:58:23.834 --> 0:58:26.114 
+John Drum 
+Bottom one, right? The template status. 
+
+0:58:25.754 --> 0:58:26.474 
+Jagadeesh Chitta 
+Yeah. 
+
+0:58:30.434 --> 0:58:30.554 
+John Drum 
+OK. 
+
+0:58:30.874 --> 0:58:34.914 
+Taher Ghulam Mohammed 
+I think this should be renamed to vendors template status, right? 
+
+0:58:35.354 --> 0:58:37.794 
+John Drum 
+It's for that particular vendor, yes. 
+
+0:58:36.194 --> 0:58:37.154 
+Taher Ghulam Mohammed 
+Enter. 
+
+0:58:36.514 --> 0:58:37.34 
+Jagadeesh Chitta 
+Yes. 
+
+0:58:38.234 --> 0:58:38.674 
+Taher Ghulam Mohammed 
+Yes. 
+
+0:58:41.674 --> 0:58:48.754 
+John Drum 
+Because that's why it confused me for a minute because when I say template, I'm thinking master template, but it's just it's for this specific vendor. 
+
+0:58:46.794 --> 0:58:51.234 
+Taher Ghulam Mohammed 
+Yeah, yeah. Vendors vendor template status, yeah. 
+
+0:59:3.554 --> 0:59:3.834 
+Taher Ghulam Mohammed 
+Schema. 
+
+0:59:6.994 --> 0:59:7.234 
+Taher Ghulam Mohammed 
+Sure. 
+
+0:59:11.394 --> 0:59:14.394 
+Taher Ghulam Mohammed 
+Don't need to pass this, this will be auto generated. 
+
+0:59:15.954 --> 0:59:16.74 
+Jagadeesh Chitta 
+OK. 
+
+0:59:18.754 --> 0:59:21.874 
+Taher Ghulam Mohammed 
+Oh no, this is OK. This is this should be coming from the. 
+
+0:59:23.114 --> 0:59:24.794 
+Taher Ghulam Mohammed 
+Uh, vendor right so. 
+
+0:59:28.314 --> 0:59:29.74 
+John Drum 
+Yeah, is it that? 
+
+0:59:33.34 --> 0:59:46.834 
+John Drum 
+Well, I guess it depends on where what's your your template keys. You got like reference keys, vendor template keys. I don't know what all of them are referencing off the top of my head just looking at this. That's why you need that data dictionary. 
+
+0:59:51.314 --> 0:59:51.554 
+Taher Ghulam Mohammed 
+Yeah. 
+
+0:59:54.714 --> 1:0:3.394 
+Taher Ghulam Mohammed 
+I didn't concentrate much on this table, so probably need to get sit down and revisit it again. 
+
+1:0:8.434 --> 1:0:8.594 
+Taher Ghulam Mohammed 
+Yep. 
+
+1:0:16.874 --> 1:0:18.434 
+Jagadeesh Chitta 
+Yeah, uh, so. 
+
+1:0:21.314 --> 1:0:21.554 
+Jagadeesh Chitta 
+We have. 
+
+1:0:22.314 --> 1:0:28.434 
+Jagadeesh Chitta 
+Yeah, we we have get end points the same way we have a couple of. 
+
+1:0:29.194 --> 1:0:32.914 
+Jagadeesh Chitta 
+Very parameters here based on vendor whether it is active or not. 
+
+1:0:34.594 --> 1:0:34.634 
+Jagadeesh Chitta 
+Uh. 
+
+1:0:36.674 --> 1:0:43.74 
+Jagadeesh Chitta 
+If it is a primary or not, we can pass these fields and direct to those particular template vendor mappings. 
+
+1:0:42.394 --> 1:0:52.794 
+John Drum 
+So if I just want to call this to say, get me the default vendor for this template, what parameters would I pass? 
+
+1:0:50.114 --> 1:0:50.314 
+Taher Ghulam Mohammed 
+Please. 
+
+1:0:53.354 --> 1:0:55.314 
+Jagadeesh Chitta 
+Is primitive true and. 
+
+1:0:56.834 --> 1:0:57.354 
+Taher Ghulam Mohammed 
+Is active. 
+
+1:0:57.314 --> 1:0:59.674 
+Jagadeesh Chitta 
+Oh, you want for a particular template? 
+
+1:1:0.474 --> 1:1:0.594 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:1:0.714 --> 1:1:15.674 
+John Drum 
+Well, I mean, I don't know the vendors that are when I'm coming from a a UI perspective, all I know is this is my template. I don't know which vendors is belong to that template yet. So if I want to know what's the. 
+
+1:1:7.314 --> 1:1:7.434 
+Jagadeesh Chitta 
+OK. 
+
+1:1:16.154 --> 1:1:21.754 
+John Drum 
+Default vendor for this template. What parameters would I pass to this? 
+
+1:1:23.514 --> 1:1:30.514 
+Jagadeesh Chitta 
+I think we need to add our template type for category here, but that would require us merging those two tables. 
+
+1:1:29.354 --> 1:1:36.794 
+John Drum 
+We already know your template. You already know the template. These are just child records off of that template, right? 
+
+1:1:33.754 --> 1:1:34.914 
+Jagadeesh Chitta 
+Only have them. 
+
+1:1:36.474 --> 1:1:41.994 
+Taher Ghulam Mohammed 
+Yeah yeah you have to do like this way like template slash template master template ID. 
+
+1:1:37.554 --> 1:1:38.434 
+Jagadeesh Chitta 
+Correct. 
+
+1:1:43.594 --> 1:1:48.474 
+Taher Ghulam Mohammed 
+Then followed by slash template windows so. 
+
+1:1:50.314 --> 1:1:53.794 
+Taher Ghulam Mohammed 
+You will have to have the reference to the master template ID here. 
+
+1:1:52.314 --> 1:1:55.954 
+Jagadeesh Chitta 
+OK, so so you're saying we can just use master template ID? 
+
+1:1:55.914 --> 1:1:56.914 
+Taher Ghulam Mohammed 
+Slash yeah. 
+
+1:1:57.274 --> 1:2:6.634 
+Jagadeesh Chitta 
+uh We retrieve all the mappings for that particular template. We don't need to look look up the types and category. 
+
+1:2:1.34 --> 1:2:4.314 
+Taher Ghulam Mohammed 
+Yeah, slash template windows, so it. 
+
+1:2:6.714 --> 1:2:21.314 
+John Drum 
+No, because yeah, you don't need to do that. That would never happen. You're you're going to want to know the master templates for like a category, but not the vendor templates. The vendor templates only comes into play once you have the master template. 
+
+1:2:11.234 --> 1:2:12.434 
+Jagadeesh Chitta 
+OK, OK. 
+
+1:2:23.554 --> 1:2:34.154 
+Jagadeesh Chitta 
+OK, then we can have a we can have an endpoint or we can have a query param here itself that takes a master template ID. 
+
+1:2:32.434 --> 1:2:35.514 
+Taher Ghulam Mohammed 
+No, I believe should have something like this. 
+
+1:2:38.834 --> 1:2:40.234 
+Taher Ghulam Mohammed 
+So like uh. 
+
+1:2:42.74 --> 1:2:42.994 
+Taher Ghulam Mohammed 
+Slash templates. 
+
+1:2:44.514 --> 1:2:46.74 
+Jagadeesh Chitta 
+Yeah, yeah. 
+
+1:2:46.274 --> 1:2:46.954 
+Taher Ghulam Mohammed 
+Master template. 
+
+1:2:47.34 --> 1:2:52.514 
+Jagadeesh Chitta 
+That's what you're saying. It's going to be another end point if we go with that approach since. 
+
+1:2:48.754 --> 1:2:49.434 
+John Drum 
+No. 
+
+1:2:51.674 --> 1:2:58.274 
+John Drum 
+There could be some reports and stuff that where you want to go just find give me all the vendor templates for let's say Smartcom. 
+
+1:2:51.954 --> 1:2:52.514 
+Taher Ghulam Mohammed 
+Slash. 
+
+1:3:0.354 --> 1:3:2.314 
+John Drum 
+So you can see what's been created. 
+
+1:3:11.594 --> 1:3:14.674 
+Taher Ghulam Mohammed 
+Uh, you mean to what? What is that John like? 
+
+1:3:14.314 --> 1:3:31.874 
+John Drum 
+So I'm just thinking through the different scenarios, right? Most of the time I I have my master ID, my master template and I want to know what my vendor templates off of it are. But there could be some other cases where just for maintenance type of stuff I'm going to say. 
+
+1:3:16.554 --> 1:3:17.34 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:3:21.274 --> 1:3:21.394 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:3:24.914 --> 1:3:25.434 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:3:32.514 --> 1:3:35.474 
+John Drum 
+OK, what templates do I have? 
+
+1:3:38.594 --> 1:3:42.314 
+John Drum 
+Created a vendor template for Real Estate Smart Home. 
+
+1:3:43.354 --> 1:3:46.74 
+John Drum 
+And then get a list of the templates back from that. 
+
+1:3:43.554 --> 1:3:43.794 
+Taher Ghulam Mohammed 
+M. 
+
+1:3:43.994 --> 1:3:45.274 
+Jagadeesh Chitta 
+Yeah, that. 
+
+1:3:47.354 --> 1:3:52.914 
+Jagadeesh Chitta 
+Yeah, that can be done through this gate endpoint. We have a vendor query panel which will take. 
+
+1:3:54.714 --> 1:3:55.994 
+Taher Ghulam Mohammed 
+Window ID. 
+
+1:3:55.354 --> 1:3:56.634 
+Jagadeesh Chitta 
+Yeah, this one. 
+
+1:3:55.434 --> 1:3:59.674 
+John Drum 
+And does that return value from that also return the master template ID? 
+
+1:3:59.834 --> 1:4:3.714 
+Jagadeesh Chitta 
+Yeah, it'll get the match template ID also in the response. 
+
+1:4:2.794 --> 1:4:6.194 
+John Drum 
+OK, so you want to keep that. You don't want to get rid of it. 
+
+1:4:3.194 --> 1:4:3.394 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:4:7.194 --> 1:4:9.754 
+Jagadeesh Chitta 
+Yeah, So what I'm asking is. 
+
+1:4:7.394 --> 1:4:9.914 
+John Drum 
+You just need to add some more stuff to give you. 
+
+1:4:10.714 --> 1:4:24.34 
+Jagadeesh Chitta 
+Yeah, for a particular template ID to get all the mappings, do you think we can we go with a new endpoint that takes the master template ID in the path parameter or we can just add master template ID as a query parameter in the same get endpoint? 
+
+1:4:14.434 --> 1:4:14.914 
+John Drum 
+Mhm. 
+
+1:4:23.754 --> 1:4:27.874 
+John Drum 
+I would make it as an optional query parameter, but that's just me. 
+
+1:4:24.394 --> 1:4:25.314 
+Taher Ghulam Mohammed 
+No. 
+
+1:4:32.34 --> 1:4:32.154 
+Jagadeesh Chitta 
+OK. 
+
+1:4:34.634 --> 1:4:35.874 
+Jagadeesh Chitta 
+And uh. 
+
+1:4:34.634 --> 1:4:38.754 
+John Drum 
+You thought it sounded like you had some ideas down here. 
+
+1:4:39.794 --> 1:4:42.434 
+Taher Ghulam Mohammed 
+Uh, yeah, we could. Um. 
+
+1:4:43.914 --> 1:4:45.834 
+Taher Ghulam Mohammed 
+Yeah, we could go either way, but. 
+
+1:4:47.994 --> 1:4:51.954 
+John Drum 
+Think about your use cases. Where would you use it one way or the other? 
+
+1:4:57.994 --> 1:5:13.314 
+John Drum 
+The use case I was giving was OK, we're we're going to be going through this massive undertaking of migrating our our templates from you know, Ascentis and LPS over to Smartcom, so. 
+
+1:5:13.594 --> 1:5:28.274 
+John Drum 
+I I want to know the progress we've made so far, which templates have we already done. So then I would go in and you know, say, OK, give me all the templates that have been done by Smartcom and then get that list back so I know what's been done and what's not. 
+
+1:5:19.754 --> 1:5:20.234 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:5:29.154 --> 1:5:42.994 
+John Drum 
+Different scenarios. I'm actually inside my draft editor. I'm working on a template. I get ready to print it and it comes up and say do you want to use the default print vendor or do you want to use one of the others? 
+
+1:5:36.34 --> 1:5:36.154 
+Taher Ghulam Mohammed 
+Mom. 
+
+1:5:44.314 --> 1:6:1.834 
+John Drum 
+And if they do nothing, we'll select the default. Otherwise they can choose one of the other print vendors and we'll pass that as part of the API to to force to go down that path. So like I said, whenever I think of things, I try to think through this scenario to see what we need the APIs to do. 
+
+1:5:44.434 --> 1:5:44.914 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:6:1.754 --> 1:6:1.914 
+Taher Ghulam Mohammed 
+1. 
+
+1:6:5.314 --> 1:6:10.434 
+Taher Ghulam Mohammed 
+Yeah, uh, but if if we add multiple optional fields, that query get complicated. 
+
+1:6:13.354 --> 1:6:20.194 
+Taher Ghulam Mohammed 
+So we're doing much many things in the same same MP endpoint, so I would rather prefer to have it separate. 
+
+1:6:18.514 --> 1:6:18.754 
+John Drum 
+Yeah. 
+
+1:6:20.794 --> 1:6:29.554 
+John Drum 
+And that's fine. Like I said, I'm letting you guys design how you want those endpoints to look. I'm just telling you to temp the scenarios that we need to solve for. 
+
+1:6:21.354 --> 1:6:22.114 
+Taher Ghulam Mohammed 
+Yeah, yeah. 
+
+1:6:28.874 --> 1:6:29.514 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:6:30.474 --> 1:6:30.594 
+Taher Ghulam Mohammed 
+Yep. 
+
+1:6:31.914 --> 1:6:38.714 
+Jagadeesh Chitta 
+OK, OK, then I'll create a new endpoint which takes match template and returns all the mappings for that particular template. 
+
+1:6:39.314 --> 1:6:39.474 
+Taher Ghulam Mohammed 
+Yep. 
+
+1:6:40.714 --> 1:6:52.354 
+Jagadeesh Chitta 
+OK, and one more thing, when we're creating this mapping, so when a mapping is created, it's going to be in draft version, right? Unless until it goes to the data flow and gets approved. 
+
+1:6:52.474 --> 1:7:2.114 
+Taher Ghulam Mohammed 
+Yeah, workflow. Yeah, yeah, it could. It would go through the workflow and then it. So for that we need to have an endpoint to change the status. 
+
+1:7:0.394 --> 1:7:4.874 
+John Drum 
+Well, you need to fill. That needs to be a filter condition that's optional. 
+
+1:7:5.874 --> 1:7:6.194 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:7:6.474 --> 1:7:11.354 
+John Drum 
+Because I may want to return all the the vendor templates that are in a pending condition. 
+
+1:7:12.354 --> 1:7:30.194 
+Jagadeesh Chitta 
+Yeah, yeah, I was thinking the same. And another thing is, so let's say once a template vendor mapping is approved, let's say it's like for a template that is the only mapping we have and make it primary. Do we have to make a separate and? 
+
+1:7:15.834 --> 1:7:15.914 
+Taher Ghulam Mohammed 
+Oh. 
+
+1:7:31.434 --> 1:7:43.354 
+Taher Ghulam Mohammed 
+Yeah, yeah, we need to have an endpoint. We need to have another separate endpoint so that that could change the status of the particular endpoint or make it a primary. 
+
+1:7:32.354 --> 1:7:33.954 
+Jagadeesh Chitta 
+How do we want to? 
+
+1:7:44.434 --> 1:7:48.394 
+John Drum 
+Or you can use your patch end point to just modify that field. 
+
+1:7:45.874 --> 1:7:45.994 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:7:45.954 --> 1:7:48.394 
+Jagadeesh Chitta 
+Yeah, patch endpoint can be used. 
+
+1:7:48.194 --> 1:7:52.874 
+Taher Ghulam Mohammed 
+Yep, patch. Yeah, yeah, yeah. We can use a patching. Yep, that should work, yeah. 
+
+1:7:55.194 --> 1:7:55.314 
+Jagadeesh Chitta 
+OK. 
+
+1:7:58.994 --> 1:8:5.954 
+Jagadeesh Chitta 
+And we have one get point that will just take the template one to mapping ID and returns that particular entry. 
+
+1:8:7.314 --> 1:8:7.674 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:8:9.994 --> 1:8:12.674 
+Jagadeesh Chitta 
+It's going to be a single entry returned back. 
+
+1:8:17.74 --> 1:8:17.754 
+Jagadeesh Chitta 
+Mhm. 
+
+1:8:18.914 --> 1:8:23.274 
+Jagadeesh Chitta 
+Next we have put here. I'll update that to be a patch and 
+
+1:8:22.554 --> 1:8:28.914 
+Taher Ghulam Mohammed 
+OK, there this could return an arrange, Jagdish, because there could be multiple versions, right? 
+
+1:8:32.234 --> 1:8:36.754 
+Taher Ghulam Mohammed 
+If you're just putting a vendor template ID here, template vendor ID. 
+
+1:8:37.954 --> 1:8:48.914 
+Taher Ghulam Mohammed 
+Thing there could be a list of versions that that might be what you called inactive or not. 
+
+1:8:39.34 --> 1:8:39.74 
+John Drum 
+Oh. 
+
+1:8:47.674 --> 1:8:51.914 
+Jagadeesh Chitta 
+Oh, I thought. I thought template vendor ID is a unique field. 
+
+1:8:52.754 --> 1:8:53.154 
+Jagadeesh Chitta 
+Mm. 
+
+1:8:53.154 --> 1:9:6.714 
+Taher Ghulam Mohammed 
+For example, if there is a change to what you call something, oh, there could be a new version template, right? So for example, a few variables were added to the template, so we have a new version for that. 
+
+1:9:7.434 --> 1:9:7.914 
+Jagadeesh Chitta 
+Mhm. 
+
+1:9:9.154 --> 1:9:13.474 
+Taher Ghulam Mohammed 
+Uh, in the vendor template ID, so we'll be adding that to. 
+
+1:9:14.434 --> 1:9:14.634 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:9:15.714 --> 1:9:18.714 
+Taher Ghulam Mohammed 
+Uh, the new version, right? So. 
+
+1:9:19.874 --> 1:9:21.994 
+Taher Ghulam Mohammed 
+We might have a new version here. 
+
+1:9:20.354 --> 1:9:20.714 
+Jagadeesh Chitta 
+Yeah. 
+
+1:9:22.434 --> 1:9:30.154 
+Jagadeesh Chitta 
+Yeah, yeah, we might have a new version, but I thought this would be an auto generated field that is not in combination. 
+
+1:9:32.754 --> 1:9:34.514 
+Jagadeesh Chitta 
+Of the unique keys for this table. 
+
+1:9:32.954 --> 1:9:44.914 
+Taher Ghulam Mohammed 
+What do you think John? So this is for vendor specific, sorry vendor specific records John. 
+
+1:9:35.434 --> 1:9:41.314 
+John Drum 
+Is this for which? Which API is this? Is this the? 
+
+1:9:43.714 --> 1:9:50.234 
+John Drum 
+I know, but is this the the generate the patch or the which which one are we looking at? 
+
+1:9:49.874 --> 1:9:52.434 
+Taher Ghulam Mohammed 
+Get we're getting get. 
+
+1:9:50.954 --> 1:9:51.994 
+Jagadeesh Chitta 
+Get. Get. 
+
+1:9:52.594 --> 1:10:2.274 
+John Drum 
+To get it, there could be multiples, because what could happen is you may have two or three different versions of a letter and they're all active. 
+
+1:10:1.914 --> 1:10:2.394 
+Jagadeesh Chitta 
+Mhm. 
+
+1:10:4.834 --> 1:10:13.754 
+John Drum 
+Because this is different than shared documents, and when I say versions, it could be though the only difference in the versions is the header and footer. 
+
+1:10:8.154 --> 1:10:8.274 
+Jagadeesh Chitta 
+OK. 
+
+1:10:16.594 --> 1:10:34.434 
+John Drum 
+You know, so any of that can be used. It's just when they go to create their draft in the draft editor, they pick which version they want to use for a given situation, right? So it's definitely going to be possible that there could be more than one version that's active. 
+
+1:10:35.34 --> 1:10:37.114 
+John Drum 
+For a non shared document. 
+
+1:10:40.354 --> 1:10:55.274 
+John Drum 
+When they go to edit it, they have to tell which version that they're editing. That's why I say this wouldn't necessarily be auto-generated. They need to pass that value for this. We can auto-generate a value to stick in it, but. 
+
+1:10:40.594 --> 1:10:43.314 
+Jagadeesh Chitta 
+OK, but but when the mapping is. 
+
+1:10:55.634 --> 1:11:14.434 
+John Drum 
+Because when they're modifying something, we're not creating a new version automatically. They're modifying that version, especially when this isn't approved yet. You know, this may go through three or four different iterations before it's approved. You don't want that version number to get incremented every single time. 
+
+1:11:15.114 --> 1:11:15.194 
+John Drum 
+Um. 
+
+1:11:17.634 --> 1:11:21.794 
+John Drum 
+The only time that the version number should be incremented is on an approval. 
+
+1:11:22.874 --> 1:11:28.234 
+John Drum 
+And then I would give them the option to increment it or use the same one. 
+
+1:11:32.354 --> 1:11:35.554 
+John Drum 
+Am I making sense to you guys or am I confusing you? 
+
+1:11:36.834 --> 1:11:41.674 
+Jagadeesh Chitta 
+I'm a little bit confused, so here we're talking about the template window. 
+
+1:11:39.194 --> 1:11:40.994 
+John Drum 
+So let's say that we have. 
+
+1:11:42.634 --> 1:11:51.74 
+John Drum 
+Yes. So we got the template vendor. We have three different versions of the letter, right? With different footers. 
+
+1:11:43.314 --> 1:11:44.434 
+Jagadeesh Chitta 
+Yeah, go ahead. 
+
+1:11:50.74 --> 1:11:50.314 
+Jagadeesh Chitta 
+Right. 
+
+1:11:52.714 --> 1:11:53.194 
+Jagadeesh Chitta 
+Mhm. 
+
+1:11:53.634 --> 1:12:9.34 
+John Drum 
+And they have different version numbers for the different footers, but they're from the same vendor. It's the same document, it's just got different footers. So they want to go back and modify a misspelling on. 
+
+1:12:0.74 --> 1:12:0.194 
+Jagadeesh Chitta 
+OK. 
+
+1:12:9.714 --> 1:12:28.754 
+John Drum 
+You know, one of the previous versions, well, they want to fix that, but they don't want to increment the version because that's the version that you know everybody knows to use to get that footer. So we had to let them do a modify without actually incrementing the version number. But if they want to increment it, we should allow them. 
+
+1:12:9.754 --> 1:12:10.234 
+Jagadeesh Chitta 
+Mhm. 
+
+1:12:21.434 --> 1:12:21.554 
+Jagadeesh Chitta 
+OK. 
+
+1:12:29.314 --> 1:12:39.554 
+John Drum 
+Because basically at that point, if they do increment it, they're creating a whole new version that they should use in the past and not use that old version anymore. So we need to give them the ability to do either one. 
+
+1:12:38.634 --> 1:12:39.514 
+Jagadeesh Chitta 
+OK, but but. 
+
+1:12:41.794 --> 1:12:54.794 
+Jagadeesh Chitta 
+So updating this version number like not version number, updating this fields or whatever you're talking about, updating the template, that update is going to take place in the master template table, correct? 
+
+1:12:54.754 --> 1:13:0.114 
+John Drum 
+No, no, no. The version number for the vendor is different than the version number for the master template. 
+
+1:13:2.794 --> 1:13:7.514 
+Jagadeesh Chitta 
+Oh, but here, can you go to the table once? Go ahead. 
+
+1:13:14.274 --> 1:13:16.554 
+Jagadeesh Chitta 
+Yeah, so here in this template vendor mapping. 
+
+1:13:18.34 --> 1:13:23.194 
+Jagadeesh Chitta 
+The master template ID and template version we have here are the foreign keys that. 
+
+1:13:23.634 --> 1:13:25.114 
+John Drum 
+Yeah, those don't get. 
+
+1:13:24.474 --> 1:13:25.394 
+Jagadeesh Chitta 
+Map entry. 
+
+1:13:26.354 --> 1:13:28.74 
+John Drum 
+Yeah, those don't get modified. 
+
+1:13:26.914 --> 1:13:27.34 
+Jagadeesh Chitta 
+Good. 
+
+1:13:29.554 --> 1:13:44.954 
+Jagadeesh Chitta 
+Correct. So now the question is the template vendor ID the the first field. So every time a mapping is created for a particular template ID and a particular version, we want to auto generate it to be a unique one. 
+
+1:13:45.394 --> 1:13:51.314 
+Jagadeesh Chitta 
+Or do you think the match template ID, template version, untemplate vendor ID or a unique combination? 
+
+1:13:50.914 --> 1:14:1.514 
+John Drum 
+Oh, I I don't think you can use the master exemplate version number in the vendor one. Otherwise you have to create new vendor records every time you create a new version for the master. 
+
+1:14:5.954 --> 1:14:18.994 
+John Drum 
+If you use that combination of the template ID and template version as a like a primary key, anytime you change the version number in the master, you have to create all new vendor records, right? 
+
+1:14:22.834 --> 1:14:27.314 
+Jagadeesh Chitta 
+Yes, but uh, in the master template, the combination of those two is uh. 
+
+1:14:28.474 --> 1:14:30.874 
+Jagadeesh Chitta 
+Primary key for us, yeah. 
+
+1:14:28.674 --> 1:14:29.994 
+John Drum 
+It's unique, right? 
+
+1:14:34.314 --> 1:14:35.394 
+Jagadeesh Chitta 
+It's unique. 
+
+1:14:36.634 --> 1:14:41.194 
+Jagadeesh Chitta 
+Well, let's say we have a template ID one and what? Yeah, yeah, go ahead. 
+
+1:14:36.634 --> 1:14:53.354 
+John Drum 
+So are you going to? So you can do that under one scenario if you give them the option to carry over whenever they bring a new version of the master template and it's got vendor records assigned. 
+
+1:14:51.234 --> 1:14:51.754 
+Jagadeesh Chitta 
+Mhm. 
+
+1:14:53.954 --> 1:15:1.114 
+John Drum 
+You need to give them the option to copy vendor records over to the new master version number. 
+
+1:15:3.634 --> 1:15:11.234 
+John Drum 
+Because they're not going to want to go through and recreate all those vendor records just because they've incremented the vendor, the version number in the master. 
+
+1:15:15.154 --> 1:15:16.474 
+Jagadeesh Chitta 
+Right. Yeah. 
+
+1:15:19.714 --> 1:15:34.634 
+Jagadeesh Chitta 
+So Tahir, what was the original idea like? Like let's say when a new version is created, I I was in the mindset that a new vendor mapping also has to be created, maybe copying from the old mapping or make a new. 
+
+1:15:30.674 --> 1:15:30.994 
+John Drum 
+But. 
+
+1:15:33.314 --> 1:15:49.994 
+John Drum 
+That's fine. Like I said it cause the way you're set up it that has to happen because if you have the version number as part of the primary key changing it, it's going to change primary key and it would break all the child records. So that means you need to create new records to tie back to that new. 
+
+1:15:35.34 --> 1:15:35.594 
+Jagadeesh Chitta 
+Request. 
+
+1:15:49.194 --> 1:15:49.434 
+Jagadeesh Chitta 
+Correct. 
+
+1:15:50.554 --> 1:16:5.74 
+John Drum 
+Template version number and that's that's fine to do, but we need to do that automatically. We can't make the the whoever's using the system go through and recreate all those vendor records. That would just make the the system a pain in the ***. 
+
+1:16:5.634 --> 1:16:14.874 
+John Drum 
+So anytime that that version numbers in the master template is incremented, we need to give them an option to carry over. 
+
+1:16:15.634 --> 1:16:35.74 
+John Drum 
+The previous versions, vendor records to the new version and then they may need to go in and edit whatever they need to. But otherwise, you know, maybe they've got three different vendors that's already set up for it. We don't want them to have to go through and fill out all that information over again just because they implemented the master. 
+
+1:16:35.154 --> 1:16:43.994 
+John Drum 
+Template because it could be a modification that has nothing to do with the vendor specific piece. So why make them recreate that you know? 
+
+1:16:42.474 --> 1:16:43.434 
+Jagadeesh Chitta 
+OK, got that so. 
+
+1:16:45.34 --> 1:16:50.634 
+Jagadeesh Chitta 
+Yeah, we need to make a copy of all those 3 records and port them to the new version as well. 
+
+1:16:50.754 --> 1:16:54.274 
+John Drum 
+Yes, that's fine. Yeah. And then what we were doing would work. 
+
+1:16:56.834 --> 1:17:0.114 
+Jagadeesh Chitta 
+OK, so in this scenario attempt. 
+
+1:16:58.354 --> 1:17:5.34 
+John Drum 
+But my point before when we were discussion was not the linkage back to the master, it was for the vendor record itself. 
+
+1:17:4.74 --> 1:17:4.554 
+Jagadeesh Chitta 
+Mhm. 
+
+1:17:5.754 --> 1:17:6.714 
+Jagadeesh Chitta 
+Correct. 
+
+1:17:6.594 --> 1:17:9.394 
+John Drum 
+So you have a version of the vendor record, right? 
+
+1:17:11.754 --> 1:17:14.554 
+Jagadeesh Chitta 
+Uh, when you go back to the table, Tahir. 
+
+1:17:24.554 --> 1:17:27.354 
+Jagadeesh Chitta 
+Yeah, vendor mapping version you're talking about, right? 
+
+1:17:27.714 --> 1:17:42.754 
+John Drum 
+Yes. So for the vendor record, this has a version also, right? Yeah, vendor mapping version. So this they need to have the option to either keep the version or increment the version. 
+
+1:17:29.554 --> 1:17:31.714 
+Jagadeesh Chitta 
+Will you enter it? 
+
+1:17:45.874 --> 1:17:45.994 
+Jagadeesh Chitta 
+OK. 
+
+1:17:46.994 --> 1:17:48.74 
+John Drum 
+Either one. 
+
+1:17:50.514 --> 1:18:2.154 
+John Drum 
+Because this, unlike the master, you know the master can only have basically one of them active at a time. Vendors. You can have multiple vendors active. 
+
+1:18:6.554 --> 1:18:6.674 
+Jagadeesh Chitta 
+OK. 
+
+1:18:10.354 --> 1:18:14.914 
+John Drum 
+You know, you may have three different versions that are all valid that they could choose from. 
+
+1:18:19.34 --> 1:18:30.154 
+Jagadeesh Chitta 
+OK, got it. And Taher, we we can discuss about the template when ready being, whether it being unique or not, but I think it should be unique with respect to the version. 
+
+1:18:31.634 --> 1:18:34.874 
+Jagadeesh Chitta 
+Because it's an auto generated for each mapping entry. 
+
+1:18:34.754 --> 1:18:37.914 
+Taher Ghulam Mohammed 
+Vendor template which one? 
+
+1:18:36.914 --> 1:18:39.674 
+Jagadeesh Chitta 
+Template vendor ID the first column. 
+
+1:18:40.274 --> 1:18:43.714 
+Taher Ghulam Mohammed 
+This this this this would be unique for each record in this table. 
+
+1:18:45.274 --> 1:18:54.874 
+Jagadeesh Chitta 
+Yeah. So that's what I'm talking in the get end point that I was talking earlier. This is the field that we were expecting there. So it's not going to be a multiple entries in that get end point. 
+
+1:18:56.474 --> 1:19:1.114 
+Taher Ghulam Mohammed 
+Yeah, OK. Yeah, yeah, yeah. I think so. Yeah, you're right. 
+
+1:19:1.994 --> 1:19:2.714 
+Jagadeesh Chitta 
+Focus. 
+
+1:19:5.954 --> 1:19:8.554 
+Jagadeesh Chitta 
+Can you go back to the spec? 
+
+1:19:9.954 --> 1:19:11.434 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:19:13.34 --> 1:19:23.514 
+Jagadeesh Chitta 
+Yeah. OK. So those are the gate points we have and yeah, we'll be adding a new one and then we have a patch to update one and then delete. 
+
+1:19:24.794 --> 1:19:25.434 
+John Drum 
+Mhm. 
+
+1:19:25.74 --> 1:19:39.554 
+Jagadeesh Chitta 
+It's again going to be a soft delete. We'll be using that indicator field and I believe since we have a separate status field in this table, whenever we delete something, do you think the status also need to be changed to our correct? 
+
+1:19:40.394 --> 1:19:40.874 
+John Drum 
+To what? 
+
+1:19:41.554 --> 1:19:45.394 
+Jagadeesh Chitta 
+So we have a template status field. I like template when mapping status. 
+
+1:19:46.234 --> 1:19:50.434 
+John Drum 
+Oh you yes, you should change the status to archive when you do the other field archive. 
+
+1:19:51.434 --> 1:19:51.554 
+Jagadeesh Chitta 
+OK. 
+
+1:19:53.514 --> 1:19:56.194 
+Taher Ghulam Mohammed 
+Yeah, I think, yeah, yeah, you have. 
+
+1:19:57.274 --> 1:19:59.514 
+Jagadeesh Chitta 
+I think those are all the endpoints that we have. 
+
+1:20:11.354 --> 1:20:14.794 
+John Drum 
+So can you go back to the master template again? 
+
+1:20:23.714 --> 1:20:27.354 
+John Drum 
+What field in here tells me that this is a letter versus an e-mail? 
+
+1:20:30.594 --> 1:20:32.194 
+Taher Ghulam Mohammed 
+Take this. 
+
+1:20:43.34 --> 1:20:46.474 
+Taher Ghulam Mohammed 
+Will this be sufficient to differentiate so? 
+
+1:20:46.314 --> 1:20:52.554 
+John Drum 
+No, it needs to be something that can be queried to say I want to see all my e-mail templates. 
+
+1:20:55.74 --> 1:20:59.514 
+John Drum 
+If you put it in there, that's gonna be a a very long running query. 
+
+1:21:2.274 --> 1:21:7.354 
+Jagadeesh Chitta 
+So so the mode of delivery is based on template, it's not based on vendor. 
+
+1:21:11.34 --> 1:21:11.114 
+John Drum 
+So. 
+
+1:21:13.394 --> 1:21:26.314 
+John Drum 
+Can you? Maybe I'm not seeing this right? Zoom in a little bit better because half of what you're showing me is fuzzy here. OK, so these are these are the channels for a given template, right? 
+
+1:21:18.394 --> 1:21:18.954 
+Taher Ghulam Mohammed 
+OK, sure. 
+
+1:21:26.794 --> 1:21:27.274 
+Taher Ghulam Mohammed 
+Yep. 
+
+1:21:31.554 --> 1:21:34.234 
+John Drum 
+And then your vendor tells you which channel it's in. 
+
+1:21:36.394 --> 1:21:40.154 
+Taher Ghulam Mohammed 
+If vendor tells us in what channel? 
+
+1:21:39.714 --> 1:21:48.234 
+John Drum 
+As you're saying, I got a master template and it can go to a letter and it can go to the the um, what was the other one? 
+
+1:21:50.594 --> 1:21:51.914 
+John Drum 
+Let's say it's e-mail. 
+
+1:21:51.914 --> 1:21:52.274 
+Jagadeesh Chitta 
+E-mail. 
+
+1:21:54.234 --> 1:21:59.154 
+John Drum 
+Now the way that's formatted and everything is going to be based upon the channel. 
+
+1:22:4.314 --> 1:22:7.514 
+Taher Ghulam Mohammed 
+Yeah, I think we need to add a column that differentiates. 
+
+1:22:9.234 --> 1:22:11.794 
+Taher Ghulam Mohammed 
+That in the window. 
+
+1:22:10.914 --> 1:22:17.434 
+John Drum 
+Because I thought that column is where it could be supported, but if I'm trying to actually return because you know we're going to be. 
+
+1:22:23.914 --> 1:22:24.234 
+John Drum 
+The. 
+
+1:22:26.674 --> 1:22:31.274 
+John Drum 
+Yeah, I'm sitting here thinking second guessing myself here. Give me a second. 
+
+1:22:40.74 --> 1:22:42.394 
+John Drum 
+Scroll down to the channel again. 
+
+1:22:48.194 --> 1:22:50.794 
+John Drum 
+This is in the master, not the the vendor, right? 
+
+1:22:50.194 --> 1:22:52.954 
+Taher Ghulam Mohammed 
+Not in, not in the window here. 
+
+1:23:4.434 --> 1:23:19.74 
+John Drum 
+Because see this, this tells me this is a channel. It's not the type of template because it's saying OK this. Let's say that this is a letter. This letter can be emailed, it can be printed, or it could be displayed on the web. 
+
+1:23:18.914 --> 1:23:19.274 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:23:20.594 --> 1:23:27.234 
+John Drum 
+But I have a template that I'm actually is my e-mail template, not a letter to be emailed. 
+
+1:23:27.194 --> 1:23:28.114 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:23:28.394 --> 1:23:31.674 
+John Drum 
+So this template I'm going to be sending to. 
+
+1:23:33.634 --> 1:23:40.394 
+John Drum 
+Salesforce, right? My vendor for this template will be Salesforce, not Smartcom or whatever. 
+
+1:23:41.394 --> 1:23:42.114 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:23:45.74 --> 1:23:55.834 
+John Drum 
+This the fact that it says e-mail doesn't tell me that this is a basically a Salesforce template versus one that's for just printed letters. 
+
+1:23:55.914 --> 1:23:56.874 
+John Drum 
+Good letters. 
+
+1:23:57.954 --> 1:24:13.514 
+John Drum 
+So I think you need another field that differentiates the fact that this template is meant to do printed communications, regardless of how you're going to send that printed communication. You know, it may be. 
+
+1:24:13.794 --> 1:24:16.394 
+John Drum 
+Have all these channels true? 
+
+1:24:17.834 --> 1:24:22.794 
+John Drum 
+As a printed communication letters versus an e-mail only one. 
+
+1:24:24.754 --> 1:24:26.914 
+John Drum 
+That the type would only be e-mail. 
+
+1:24:29.394 --> 1:24:30.554 
+John Drum 
+Then all this information. 
+
+1:24:32.274 --> 1:24:44.834 
+John Drum 
+Is pertinent to the e-mail body, not to an attachment that goes on the e-mail. Because if this channel is e-mail, that means it's an attachment for an e-mail, right? 
+
+1:24:45.274 --> 1:24:48.354 
+Taher Ghulam Mohammed 
+Yeah, could. Yep, Yep. Mm-hmm. 
+
+1:24:46.314 --> 1:24:47.434 
+John Drum 
+The letter itself. 
+
+1:24:48.834 --> 1:24:55.674 
+John Drum 
+Versus the other template I'm talking about would be the body of the e-mail. When you create it, attachment could be a separate thing. 
+
+1:24:57.234 --> 1:25:12.794 
+John Drum 
+Because eventually we want to use the same template system for more than just letters. We also want to use it for the e-mail delivery and it could be for push. So for that type it could be like letter. 
+
+1:25:0.914 --> 1:25:1.594 
+Taher Ghulam Mohammed 
+Mm-hmm. 
+
+1:25:13.394 --> 1:25:19.194 
+John Drum 
+E-mail, SMS, you know, different types of communication. 
+
+1:25:20.594 --> 1:25:25.514 
+Taher Ghulam Mohammed 
+OK, that should be at master template definition, right? 
+
+1:25:25.274 --> 1:25:27.634 
+John Drum 
+That's at the master template level. 
+
+1:25:28.114 --> 1:25:30.674 
+Taher Ghulam Mohammed 
+Type of communication, OK. 
+
+1:25:29.954 --> 1:25:44.434 
+John Drum 
+Because then all the vendors off of that master would be just for that type, like it would just be for e-mail body. What vendors can do that? Well, so far all we got is Salesforce, but it could be Exchange or could be some other e-mail vendor in the future, right? Those would be your vendor. 
+
+1:25:44.234 --> 1:25:44.754 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:25:46.514 --> 1:25:57.154 
+John Drum 
+Specific ones for that type and like SMS that would be air. Was it airship? I think we use but if we ever have any other push ones. 
+
+1:25:48.594 --> 1:25:49.234 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:25:58.754 --> 1:26:4.834 
+John Drum 
+Or, you know, there's SMS and then there's push notifications too, so there could be some different types. 
+
+1:26:6.634 --> 1:26:8.794 
+John Drum 
+That we would have templates for. 
+
+1:26:13.394 --> 1:26:17.474 
+John Drum 
+And this structure should still work for that. 
+
+1:26:23.34 --> 1:26:25.274 
+John Drum 
+That's why we've made it so configurable. 
+
+1:26:28.114 --> 1:26:28.714 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:26:31.594 --> 1:26:32.234 
+Taher Ghulam Mohammed 
+OK. 
+
+1:26:36.394 --> 1:26:37.474 
+Taher Ghulam Mohammed 
+So print. 
+
+1:26:40.194 --> 1:26:41.594 
+Taher Ghulam Mohammed 
+E-mail SMS. 
+
+1:26:45.74 --> 1:26:47.34 
+John Drum 
+Well, you got. Are you looking for the types? 
+
+1:26:45.834 --> 1:26:46.34 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:26:47.34 --> 1:26:48.314 
+Taher Ghulam Mohammed 
+Yeah, types, yeah. 
+
+1:26:48.674 --> 1:26:53.394 
+John Drum 
+Yeah, you got letter, you got, uh, e-mail, you got SMS and you got push. 
+
+1:26:57.874 --> 1:26:59.474 
+Taher Ghulam Mohammed 
+Yeah, push. Yeah. 
+
+1:27:0.234 --> 1:27:0.474 
+Taher Ghulam Mohammed 
+Thanks. 
+
+1:27:24.154 --> 1:27:24.474 
+Taher Ghulam Mohammed 
+OK. 
+
+1:27:33.874 --> 1:27:41.794 
+Taher Ghulam Mohammed 
+John, we don't need to have this information here, right John? Print policy like default template, default print vendor. 
+
+1:27:34.954 --> 1:27:35.114 
+John Drum 
+M. 
+
+1:27:43.354 --> 1:27:44.954 
+Taher Ghulam Mohammed 
+Add Mahtuk. 
+
+1:27:43.954 --> 1:27:52.74 
+John Drum 
+I thought you were gonna put the default in the vendor record. I mean, you can put it there too, but then you got to update it in two places. 
+
+1:27:48.714 --> 1:27:49.74 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:27:59.994 --> 1:28:0.514 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:28:0.994 --> 1:28:17.834 
+John Drum 
+The reprint policy you still need there because that's that doesn't matter the the print vendor, that's just the print policy. So reprint's fine, but the the default that belongs in the the vendor specific fields or. 
+
+1:28:17.154 --> 1:28:18.194 
+Taher Ghulam Mohammed 
+Mm-hmm. 
+
+1:28:18.154 --> 1:28:18.434 
+John Drum 
+Table. 
+
+1:28:23.594 --> 1:28:25.834 
+John Drum 
+Your cooldown is fine there. 
+
+1:28:29.314 --> 1:28:36.714 
+Taher Ghulam Mohammed 
+I think that the which one is primary is the default, right? That should be implicit. 
+
+1:28:36.994 --> 1:28:44.314 
+John Drum 
+Whatever field you define, as long as you got it so that everybody knows what it is in your data dictionary. 
+
+1:28:39.154 --> 1:28:39.914 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:28:42.514 --> 1:28:43.234 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:28:45.514 --> 1:28:45.634 
+Taher Ghulam Mohammed 
+OK. 
+
+1:28:48.674 --> 1:28:54.954 
+Taher Ghulam Mohammed 
+That should be, yeah, yeah, primary flag should be the default vendor. 
+
+1:28:54.874 --> 1:29:0.994 
+John Drum 
+It needs to be not just the vendor. It needs uh. 
+
+1:29:9.74 --> 1:29:11.754 
+John Drum 
+Uh, 'cause we have different ones. 
+
+1:29:15.594 --> 1:29:18.74 
+John Drum 
+It needs to be the vendor and version. 
+
+1:29:21.474 --> 1:29:23.794 
+John Drum 
+Let me think about that. 
+
+1:29:33.954 --> 1:29:43.674 
+Taher Ghulam Mohammed 
+Yeah, that could be a the old, old, yeah, old version can go to Sentis. The new version goes to Smartcom. 
+
+1:29:36.914 --> 1:29:38.674 
+John Drum 
+That's a that's a problem. 
+
+1:29:45.194 --> 1:29:48.914 
+John Drum 
+No, that would be a different print vendor. Uh. 
+
+1:29:50.434 --> 1:29:52.394 
+John Drum 
+I I hmm. 
+
+1:29:53.874 --> 1:30:6.74 
+John Drum 
+Because I'm if we have multiple versions that are active at any given time, when they do the default, the default just goes by the the master template and the vendor. 
+
+1:30:8.754 --> 1:30:9.834 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:30:8.794 --> 1:30:10.954 
+John Drum 
+Not necessarily a version. 
+
+1:30:12.874 --> 1:30:18.554 
+John Drum 
+At least I don't want it to go by the version, but versions can actually have different things on it. 
+
+1:30:14.314 --> 1:30:14.634 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:30:20.474 --> 1:30:21.114 
+John Drum 
+So. 
+
+1:30:23.794 --> 1:30:25.234 
+John Drum 
+I'm thinking. 
+
+1:30:27.954 --> 1:30:37.594 
+John Drum 
+We're gonna have to get rid of we're we're not gonna be able to allow to have multiple versions on the vendor active at any given time because we need to support the default so. 
+
+1:30:39.874 --> 1:30:46.74 
+John Drum 
+If they want to create three different versions, they're going to have to create three different master templates, different footers. 
+
+1:30:47.474 --> 1:31:2.714 
+John Drum 
+That's the only other way to do it. So forget what I was saying earlier about having multiple vendors active for different versions. There's only gonna be for a given vendor. There can only be one version that's active. 
+
+1:31:11.714 --> 1:31:13.354 
+Taher Ghulam Mohammed 
+Uh, come again, John again. 
+
+1:31:14.114 --> 1:31:30.714 
+John Drum 
+So before I I had mentioned that we could have different versions of the same vendor active, right? But that doesn't allow us to pick which one is default and you know the customer is not going to know which one is. The guy mentioned that they may have different footers, right? 
+
+1:31:15.794 --> 1:31:16.114 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:31:18.594 --> 1:31:18.954 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:31:20.914 --> 1:31:21.514 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:31:32.554 --> 1:31:32.914 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:31:33.234 --> 1:31:49.74 
+John Drum 
+Well, those actually have different functionalities. So I I'm when I'm thinking about this, that doesn't make sense for that to be different versions from the vendor. It should actually be different master templates that indicate that the footer is different. So at that point. 
+
+1:31:49.554 --> 1:32:5.554 
+John Drum 
+There's no reason for any given vendor record on a master template. There should only be one of them that's active. Even if there's different versions, it may not be the highest version that's active, but there can only be one of them that's active, right? 
+
+1:32:5.594 --> 1:32:20.994 
+John Drum 
+So for a given, for a given vendor, there can only be one active record and then the one of those vendors has to be the default. So then it'll just be the default vendor and then. 
+
+1:32:21.594 --> 1:32:24.674 
+John Drum 
+the active version for that vendor. 
+
+1:32:27.794 --> 1:32:29.434 
+John Drum 
+And that could all be done in the vendor might be. 
+
+1:32:32.274 --> 1:32:35.354 
+John Drum 
+But that you have an active flag on the vendor mapping. 
+
+1:32:37.474 --> 1:32:38.754 
+Taher Ghulam Mohammed 
+When I'm updating, yes. 
+
+1:32:41.634 --> 1:32:49.114 
+John Drum 
+So that can only be only one of those can be like if there's three different versions, only one of those can be active at any given time. 
+
+1:32:56.994 --> 1:32:57.114 
+Taher Ghulam Mohammed 
+OK. 
+
+1:32:58.674 --> 1:33:7.234 
+John Drum 
+So you could have your primary flag set and the active flag set for the the version that's basically active at that time. 
+
+1:33:16.914 --> 1:33:23.874 
+John Drum 
+And then other vendors can have an active flag, but their primary flag should never be set because they're not the default. 
+
+1:33:24.834 --> 1:33:25.554 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:33:28.914 --> 1:33:36.114 
+John Drum 
+And then we'll just say if you change anything, even footers or headers or whatever has to be a new master template record. 
+
+1:33:42.34 --> 1:33:43.634 
+John Drum 
+That'll keep it simple. 
+
+1:33:44.714 --> 1:33:47.274 
+John Drum 
+I was hoping to be, yeah. 
+
+1:33:44.994 --> 1:33:50.714 
+Taher Ghulam Mohammed 
+Master template. OK, so that that would generate a new master templated. 
+
+1:33:49.154 --> 1:33:58.514 
+John Drum 
+Let's say they want to change the footer on a record, right? They're going to have to create a new master record, not a new master record version, a new master template. 
+
+1:33:52.74 --> 1:33:52.634 
+Taher Ghulam Mohammed 
+Uh. 
+
+1:33:59.714 --> 1:34:0.274 
+Taher Ghulam Mohammed 
+OK. 
+
+1:34:0.634 --> 1:34:16.914 
+John Drum 
+If they want to be able to use both, let's say they want to have DCS 153, right? But they have two versions of it, one with the one footer and a different footer on a different one. Those are going to have to be different templates. 
+
+1:34:7.514 --> 1:34:7.634 
+Taher Ghulam Mohammed 
+Uh huh. 
+
+1:34:13.914 --> 1:34:14.794 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:34:22.874 --> 1:34:37.194 
+John Drum 
+Not different versions of D153, they need to be like D53 under score version 1D53 under score version two and then in our records you would have version one of both of those. 
+
+1:34:38.954 --> 1:34:44.194 
+John Drum 
+Because the content of those are actually different. They're different templates. 
+
+1:34:49.234 --> 1:34:49.714 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:34:54.234 --> 1:34:55.354 
+John Drum 
+You following what I'm saying? 
+
+1:34:56.234 --> 1:34:58.34 
+Taher Ghulam Mohammed 
+Yeah, with the template the. 
+
+1:34:56.714 --> 1:34:59.634 
+John Drum 
+Silence makes me think you guys are confused. 
+
+1:34:58.954 --> 1:35:4.914 
+Taher Ghulam Mohammed 
+Yeah, I think, yeah, following a little bit, but yeah, so just trying to observe this thing. 
+
+1:35:4.74 --> 1:35:16.394 
+John Drum 
+Just do it. Just forget what I said earlier about using the version numbers to have different content. Anytime they're going to have different content, they're going to have to make a new version, excuse me, a new template. 
+
+1:35:14.954 --> 1:35:15.154 
+Taher Ghulam Mohammed 
+3. 
+
+1:35:18.314 --> 1:35:27.34 
+Taher Ghulam Mohammed 
+OK, so that template type would be different, right? For example, for example SV0019 have under score version one, version 2, so on. 
+
+1:35:27.154 --> 1:35:43.754 
+John Drum 
+Yes, if they want to have multiple SV0019 letters with different content, let's say that they let's say that this is a vendor specific letter and they have two different vendors. So they would have SV0019 under score vendor name. 
+
+1:35:32.114 --> 1:35:32.674 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:35:37.34 --> 1:35:38.34 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:35:44.714 --> 1:35:45.234 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:35:45.834 --> 1:35:53.554 
+John Drum 
+For one and then a different vendor name for the other. So it's two different templates and then they may have version one or two or three, whatever underneath each one of those. 
+
+1:35:49.754 --> 1:35:50.194 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:35:55.474 --> 1:35:57.194 
+John Drum 
+And that way it keeps it simple. 
+
+1:36:7.634 --> 1:36:8.674 
+Taher Ghulam Mohammed 
+1232. 
+
+1:36:19.514 --> 1:36:19.554 
+Taher Ghulam Mohammed 
+Oh. 
+
+1:36:19.514 --> 1:36:22.994 
+Jagadeesh Chitta 
+Not thoroughly, but. 
+
+1:36:23.34 --> 1:36:25.314 
+Taher Ghulam Mohammed 
+Need to go through this regarding again. 
+
+1:36:26.314 --> 1:36:28.994 
+Jagadeesh Chitta 
+Yeah, I I think I'm getting. 
+
+1:36:29.234 --> 1:36:29.314 
+Taher Ghulam Mohammed 
+Oh. 
+
+1:36:33.514 --> 1:36:45.874 
+John Drum 
+Yeah, only basically what I'm saying is we're going to force the back office because it's only going to happen for back office, right? We're going to force them to create a brand new template anytime. 
+
+1:36:40.194 --> 1:36:40.354 
+Taher Ghulam Mohammed 
+H. 
+
+1:36:47.274 --> 1:36:55.474 
+John Drum 
+They have different information that they're going to send out on the letter, so they may have a letter that they call SB0019. 
+
+1:36:57.194 --> 1:37:4.594 
+John Drum 
+But if if there's going to be different content on it other than just the drop downs and stuff they pick. 
+
+1:37:5.634 --> 1:37:9.354 
+John Drum 
+They need to create a new template, not just a new version. 
+
+1:37:18.914 --> 1:37:21.794 
+Jagadeesh Chitta 
+But it's not something that we can force, right? It's just. 
+
+1:37:22.114 --> 1:37:29.954 
+John Drum 
+Yeah, we can force it because if we only allow one to be active at a time, then it's it forces, it enforces itself. 
+
+1:37:23.314 --> 1:37:25.434 
+Taher Ghulam Mohammed 
+Uh, I'm thinking of a problem. 
+
+1:37:29.914 --> 1:37:44.314 
+Taher Ghulam Mohammed 
+I'm thinking of a problem John here. Like Yep, so they are trying to. We have placed unicorn line of business template type and what is that version template version. 
+
+1:37:30.514 --> 1:37:30.994 
+Jagadeesh Chitta 
+OK. 
+
+1:37:32.994 --> 1:37:33.394 
+John Drum 
+What's that? 
+
+1:37:45.514 --> 1:37:45.754 
+John Drum 
+Uhuh. 
+
+1:37:45.994 --> 1:38:0.514 
+Taher Ghulam Mohammed 
+So when the when the document inquiry is querying for a particular electronic disclosure site, so they need to they would look at the template type as a unique identifier, right? 
+
+1:37:47.194 --> 1:37:47.394 
+John Drum 
+Yep. 
+
+1:37:55.114 --> 1:37:55.274 
+John Drum 
+Uh huh. 
+
+1:38:3.474 --> 1:38:3.594 
+John Drum 
+OK. 
+
+1:38:5.34 --> 1:38:16.754 
+Taher Ghulam Mohammed 
+So when they're querying that, do we just name it as SV? But like you said that SV0019 under score V1 would be a new entry template type. 
+
+1:38:19.874 --> 1:38:22.714 
+John Drum 
+I'm not sure what you're saying. Are you? 
+
+1:38:21.754 --> 1:38:30.194 
+Taher Ghulam Mohammed 
+So so template type is SV 0019 under score V1 for each one of them. So any new version in here would require. 
+
+1:38:30.234 --> 1:38:46.34 
+John Drum 
+No, I that was just an example. Typically there won't be a version number in there. The only reason you would have anything else after it is if they want to use that first part of the name to be the same, but they have a be in different purposes. 
+
+1:38:33.594 --> 1:38:34.194 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:38:40.34 --> 1:38:40.714 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:38:47.114 --> 1:38:47.634 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:38:47.354 --> 1:38:54.594 
+John Drum 
+Then they could use an under score to give it the first part of the categorization the same and then after the under score the specific item. 
+
+1:38:55.874 --> 1:38:58.794 
+John Drum 
+I don't want him to use the version number to pick. 
+
+1:39:0.74 --> 1:39:13.234 
+John Drum 
+The use case for the letter. So and 9999% of the time it won't happen. It'll always be. They just got SB0019 and that's the letter. 
+
+1:39:15.594 --> 1:39:17.914 
+John Drum 
+Once in a blue moon, they may have. 
+
+1:39:19.194 --> 1:39:33.954 
+John Drum 
+Let's say SB0019 under score Ford and then SB0019 under score Chevy, right? Because it's the same type of letter, but they have two different vendors they send it to. 
+
+1:39:34.634 --> 1:39:51.114 
+John Drum 
+Right. Because maybe we're doing branded credit cards for those two companies. So when we're sending out correspondence, it has to be branded to that that company. So then when they create their templates, they they use their letter. 
+
+1:39:39.634 --> 1:39:40.234 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:39:51.634 --> 1:40:11.74 
+John Drum 
+Prefix SV0019, then the under score and then the vendor after it. That way we don't have to worry about version numbers. So when you were when you go to retrieve this, First off of the retrieve basically the list of all the templates, right? So when that comes back as a template, you'll see two entries. 
+
+1:40:11.354 --> 1:40:21.594 
+John Drum 
+One for SV0019 under score Ford and one for SV0019 under score Chevy and they could pick either one of those to create their letter from. 
+
+1:40:23.554 --> 1:40:31.794 
+John Drum 
+But basically they're different letters. They're just used the first part to let them know that this is used for the same thing. 
+
+1:40:35.514 --> 1:40:50.514 
+John Drum 
+And forget about the version number, because it won't matter. Now when you return the template, that brings up a different thing. Now when you when you get the list of those templates, you don't have to pass the version number to return all the list, right? 
+
+1:40:53.234 --> 1:40:53.594 
+Taher Ghulam Mohammed 
+Mm. 
+
+1:40:54.554 --> 1:41:2.994 
+John Drum 
+Because we're just saying we want templates for this line of business and it should just return all of those with the whichever one's active. 
+
+1:41:6.874 --> 1:41:15.474 
+John Drum 
+Because you're not gonna be querying it on basically the template type. At that point you're you're just querying on. 
+
+1:41:17.34 --> 1:41:21.234 
+John Drum 
+uh the line of business, and whether it's a shared document or not. 
+
+1:41:22.314 --> 1:41:24.834 
+John Drum 
+And then getting the the list back. 
+
+1:41:25.914 --> 1:41:27.234 
+John Drum 
+So it should still work fine. 
+
+1:41:26.954 --> 1:41:27.34 
+Taher Ghulam Mohammed 
+The. 
+
+1:41:31.514 --> 1:41:46.514 
+Taher Ghulam Mohammed 
+My concern was this John like so for example UI would be need to display types of documents in the UI right? So they will be querying based on particular types, template types, right? We we're going to maintain. 
+
+1:41:46.154 --> 1:41:47.594 
+John Drum 
+What do you mean by type? 
+
+1:41:47.434 --> 1:41:49.674 
+Taher Ghulam Mohammed 
+Template types are like dog types in the UI. 
+
+1:41:51.994 --> 1:41:52.994 
+John Drum 
+It could be. 
+
+1:41:54.34 --> 1:41:55.754 
+Taher Ghulam Mohammed 
+And that. 
+
+1:41:54.154 --> 1:42:0.674 
+John Drum 
+They they may be doing all of them, or they may be doing it by a category. They they could have different filter conditions. 
+
+1:42:1.394 --> 1:42:16.914 
+Taher Ghulam Mohammed 
+Yes, so so the how they are right now the inquiry inquiry APIs, they're passing category and under that there is some mappings of document types which we renamed to template types here. 
+
+1:42:17.354 --> 1:42:21.154 
+John Drum 
+OK, you got that information, so you can still do that. 
+
+1:42:17.714 --> 1:42:18.354 
+Taher Ghulam Mohammed 
+So that. 
+
+1:42:21.474 --> 1:42:38.754 
+Taher Ghulam Mohammed 
+Yeah, so if you keep on adding this here like we are like template types, you're adding new, adding new types of templates, then how how would they come to know which templates to pick up on the UI? 
+
+1:42:37.674 --> 1:42:46.794 
+John Drum 
+Well, they still have the category, right? So you still filter by the category and then it's just going to list those. Then they pick the one from the list. 
+
+1:42:43.754 --> 1:42:43.914 
+Taher Ghulam Mohammed 
+M. 
+
+1:42:49.354 --> 1:42:59.434 
+John Drum 
+Now are you asking how do they know SV0019 is like a disclosure letter or not disclosure, but they should know that because they created the template right? 
+
+1:42:54.714 --> 1:42:55.354 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:43:0.74 --> 1:43:0.514 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:43:3.714 --> 1:43:3.834 
+Taher Ghulam Mohammed 
+OK. 
+
+1:43:4.154 --> 1:43:13.554 
+John Drum 
+And if we have to be some other master document that's not in here that says SV00, isn't there a description? I thought we had a template description somewhere. 
+
+1:43:15.234 --> 1:43:15.434 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:43:16.314 --> 1:43:20.834 
+Taher Ghulam Mohammed 
+Template description which is a the column descriptions. 
+
+1:43:20.314 --> 1:43:21.474 
+Jagadeesh Chitta 
+It's about the template category. 
+
+1:43:28.794 --> 1:43:30.34 
+Taher Ghulam Mohammed 
+You miss. 
+
+1:43:33.634 --> 1:43:37.314 
+Taher Ghulam Mohammed 
+Yeah, yeah, we have. We have this description, yeah. 
+
+1:43:39.794 --> 1:43:46.594 
+John Drum 
+So yeah, you can just have it. If they hover over it, maybe that's a tool tip on it, you know, gives you a description of the. 
+
+1:43:47.714 --> 1:43:49.434 
+John Drum 
+Individual template name. 
+
+1:44:0.834 --> 1:44:2.514 
+John Drum 
+I think it still works. 
+
+1:44:20.74 --> 1:44:28.834 
+Taher Ghulam Mohammed 
+Takes time to absorb this information, John. Think about it. It will take some time to absorb this information and think about it. 
+
+1:44:23.394 --> 1:44:23.874 
+John Drum 
+What's that? 
+
+1:44:27.714 --> 1:44:32.594 
+John Drum 
+Oh yeah, there's a lot of stuff there. I've been thinking about it for a year, so you guys are just catching up. 
+
+1:44:31.994 --> 1:44:40.714 
+Taher Ghulam Mohammed 
+Yeah, yeah, yeah. First thing off, like, like, you just need to sort out the. 
+
+1:44:34.434 --> 1:44:34.794 
+Jagadeesh Chitta 
+It. 
+
+1:44:43.514 --> 1:44:54.514 
+Taher Ghulam Mohammed 
+Start date and active date flags, then add it types of templates like letter emails, SMS, push then this versioning. 
+
+1:44:56.514 --> 1:44:56.674 
+Taher Ghulam Mohammed 
+Art. 
+
+1:44:57.394 --> 1:45:16.34 
+John Drum 
+Yeah, I what I would do if I were you and I would sit there and, you know, write down the different scenarios for back office versus just our API, the system API and say, OK, if I'm doing these things, what parameters am I going to see on my screen? What am I going to be able to pick? 
+
+1:45:0.234 --> 1:45:0.394 
+Taher Ghulam Mohammed 
+8. 
+
+1:45:8.274 --> 1:45:8.994 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:45:16.234 --> 1:45:32.834 
+John Drum 
+And then make sure that everything supports that, because that's how I think of it. I I'm sitting here, if I'm a back office person and I got my GUI in front of me, you know, I got some scenarios that I'm doing. I have to be able to pick a template and I need to be able to query a an account. 
+
+1:45:19.794 --> 1:45:20.314 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:45:25.394 --> 1:45:25.914 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:45:33.434 --> 1:45:41.874 
+John Drum 
+To initially populate my data model so that when it shows in my draft editor, some of those fields are pre-populated, right? 
+
+1:45:41.554 --> 1:45:42.394 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:45:43.34 --> 1:45:55.194 
+John Drum 
+You know, so how do I make all that happen? And then understanding that everything I'm doing has to be completely configurable. When I add new stuff, I don't want to have to go in and make code changes. 
+
+1:45:55.994 --> 1:46:2.874 
+John Drum 
+Because at some point what you really want to be able to do is say, OK, if I want to wrap this up and make it a product and sell it to somebody like FICO. 
+
+1:46:3.634 --> 1:46:16.754 
+John Drum 
+You know, I don't want to have to make code changes to do that to a different person. Yeah, I just want to be able to come in and have a, you know, documented how all the configuration works and then another company could use the product that you developed. 
+
+1:46:6.874 --> 1:46:7.674 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:46:17.634 --> 1:46:17.874 
+Taher Ghulam Mohammed 
+M. 
+
+1:46:19.434 --> 1:46:35.794 
+John Drum 
+That's why I go out of the way, you know, to do everything configurable the way I do, so that in the future you just support, you know, bug fixes, not enhance functionality, because to enhance functionality. 
+
+1:46:36.154 --> 1:46:38.594 
+John Drum 
+You just go in and add new configuration stuff. 
+
+1:46:40.114 --> 1:46:40.554 
+Taher Ghulam Mohammed 
+Mm. 
+
+1:46:43.114 --> 1:46:49.474 
+John Drum 
+Because based on all this too, we can add new templates to the document area of the website. 
+
+1:46:52.74 --> 1:46:52.754 
+John Drum 
+You know. 
+
+1:46:53.314 --> 1:46:53.794 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:46:56.154 --> 1:46:56.354 
+Taher Ghulam Mohammed 
+Yep. 
+
+1:46:59.594 --> 1:47:3.674 
+John Drum 
+I think there's a field in there that says whether it's displayed in the web, right? 
+
+1:47:4.714 --> 1:47:5.114 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:47:6.154 --> 1:47:6.914 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:47:14.314 --> 1:47:22.474 
+Taher Ghulam Mohammed 
+Yeah, I I think I'll, I'll go through this recording again and see what's we need to do and implement those changes and then. 
+
+1:47:24.74 --> 1:47:30.114 
+Taher Ghulam Mohammed 
+We'll come back tomorrow. Yep. It's time to think and yeah. 
+
+1:47:29.34 --> 1:47:36.434 
+John Drum 
+But yeah, this is the most complex piece of the document hub, so everything is based on this. We need to make sure it's right. 
+
+1:47:42.994 --> 1:47:50.914 
+Taher Ghulam Mohammed 
+Yeah, Yep, Yep, Yep. It's getting much, much, much more complex. Yeah. 
+
+1:47:47.194 --> 1:47:48.994 
+John Drum 
+That's why they pay the big bucks, man. 
+
+1:47:51.994 --> 1:47:52.354 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:47:54.634 --> 1:47:57.914 
+John Drum 
+Now you see why the data dictionary is so important for this stuff. 
+
+1:47:57.994 --> 1:47:58.474 
+Taher Ghulam Mohammed 
+Mm. 
+
+1:48:2.754 --> 1:48:5.754 
+John Drum 
+Sometimes these names are a little vague on what they actually do. 
+
+1:48:12.714 --> 1:48:28.914 
+John Drum 
+Is what we haven't documented yet are the use case scenarios. At some point we need to sit down and do that because QA will need it so that we can, you know, test all the scenarios because we have two scenarios, right? This is used for. 
+
+1:48:12.874 --> 1:48:13.194 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:48:21.154 --> 1:48:21.474 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:48:29.394 --> 1:48:44.154 
+John Drum 
+Back office generation of letters. It's used for creating new templates through our workflow. It's used for the just the API when we go to send out a letter. 
+
+1:48:30.994 --> 1:48:31.434 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:48:34.154 --> 1:48:34.434 
+Taher Ghulam Mohammed 
+That's. 
+
+1:48:38.474 --> 1:48:39.194 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:48:46.554 --> 1:49:1.594 
+John Drum 
+Because there's, you know, there's some documents that we don't generate that come from, let's say Fiserv, but they still have to have a master template record, even if they have no vendor template records because nothing. 
+
+1:48:59.634 --> 1:49:0.114 
+Taher Ghulam Mohammed 
+Mhm. 
+
+1:49:1.634 --> 1:49:5.514 
+John Drum 
+Gets added into the document hub. It doesn't have a master template. 
+
+1:49:7.874 --> 1:49:8.34 
+John Drum 
+Right. 
+
+1:49:11.274 --> 1:49:17.274 
+John Drum 
+It could be added to ECMS, but it doesn't get added to document hub without having a master template record. 
+
+1:49:29.754 --> 1:49:38.714 
+Taher Ghulam Mohammed 
+Yeah, let's let's regroup tomorrow, John. Like I'll let me let the team think about this and and do the team. 
+
+1:49:37.74 --> 1:49:42.234 
+John Drum 
+OK, you got tomorrow and Wednesday. After that I'm on vacation for the new year, so. 
+
+1:49:41.994 --> 1:49:43.634 
+Taher Ghulam Mohammed 
+Yep. Uh, OK. 
+
+1:49:46.74 --> 1:49:51.234 
+Taher Ghulam Mohammed 
+Yeah, I'll, I'll, I'll get something. Yep, get this polished by just Wednesday. 
+
+1:49:53.714 --> 1:49:54.34 
+John Drum 
+OK. 
+
+1:49:54.34 --> 1:49:55.954 
+Taher Ghulam Mohammed 
+Hopefully, yeah. Thanks, Tom. 
+
+1:49:55.794 --> 1:49:56.354 
+John Drum 
+Thank you much. 
+
+1:49:57.354 --> 1:49:58.114 
+Taher Ghulam Mohammed 
+Goodbye. Bye. 
+
+1:50:0.394 --> 1:50:0.514 
+Murali Naramamidi 
+OK. 
+
+1:50:1.154 --> 1:50:2.354 
+Jagadeesh Chitta 
+Thank you, guys. 
+
+1:50:2.114 --> 1:50:3.634 
+Taher Ghulam Mohammed 
+Uh, Jagish. 
+
+1:50:4.874 --> 1:50:5.394 
+Jagadeesh Chitta 
+Mhm. 
+
+1:50:5.194 --> 1:50:5.394 
+Sundaravadivelan Kotti 
+And. 
+
+1:50:5.354 --> 1:50:7.794 
+Taher Ghulam Mohammed 
+Yeah, I don't know. 
+
+1:50:8.714 --> 1:50:13.74 
+Murali Naramamidi 
+Sorry, I had actually my review. 
+
+1:50:14.674 --> 1:50:16.74 
+Taher Ghulam Mohammed 
+Depending on the. 
+
+1:50:17.474 --> 1:50:21.394 
+Taher Ghulam Mohammed 
+Hmm. Yeah, bump. Uh, Shelty. Screenshot it. 
+
+1:50:18.434 --> 1:50:18.474 
+Murali Naramamidi 
+Oh. 
+
+1:50:21.234 --> 1:50:40.154 
+Pankaj Singh 
+Yeah. So guys, I believe we can do those all modifications before we meet tomorrow. OK, so I know this call from one hour to it we it did went till two hours. So that's OK. I mean that's what we wanted, right? So we have maximum information what we can. 
+
+1:50:35.674 --> 1:50:35.954 
+Taher Ghulam Mohammed 
+Yeah. 
+
+1:50:40.514 --> 1:50:50.194 
+Pankaj Singh 
+Work to us it and see how much we can cover by tomorrow. OK, I'll let you guys to, you know, continue on this and do let me know if you need my help, OK? 
+
+1:50:44.154 --> 1:50:44.274 
+Taher Ghulam Mohammed 
+Yep. 
+
+1:50:49.834 --> 1:50:51.714 
+Taher Ghulam Mohammed 
+Sure. Thank you. Thanks. Thanks very much. 
+
+1:50:51.474 --> 1:51:9.514 
+Pankaj Singh 
+Yeah, and thank you guys for having the demo and I believe we are making progress. My more concern will be to have other API which Satish, Sundar and you know Jagdish has to work on need to be clarified so that we these guys can work. 
+
+1:50:51.514 --> 1:50:51.794 
+Murali Naramamidi 
+Yeah. 
+
+1:50:52.914 --> 1:50:54.74 
+Jagadeesh Chitta 
+Pankaj. 
+
+1:51:9.754 --> 1:51:19.954 
+Pankaj Singh 
+And support you there. So that also we need to keep in, you know, our mind, right. I'll let you guys to continue, but let me know if you need anything. OK. Yeah. Bye. Bye. 
+
+1:51:15.34 --> 1:51:16.434 
+Taher Ghulam Mohammed 
+Mm-hmm. Yeah. 
+
+1:51:17.834 --> 1:51:21.114 
+Taher Ghulam Mohammed 
+Sure, sure. Thank you. Bye. 
+
+1:51:22.594 --> 1:51:22.754 
+Jagadeesh Chitta 
+OK. 
+
+1:51:24.954 --> 1:51:30.594 
+Taher Ghulam Mohammed 
+Yeah, what are you showing, John? Murali, What are you working? Get. 
+
+1:51:32.394 --> 1:51:34.834 
+Taher Ghulam Mohammed 
+Get in to find NT. 
+
+1:51:35.754 --> 1:51:37.474 
+Murali Naramamidi 
+The download document. 
+
+1:51:37.154 --> 1:51:37.194 
+Taher Ghulam Mohammed 
+Uh. 
+
+1:51:39.514 --> 1:51:41.474 
+Murali Naramamidi 
+Download. 
+
+1:51:43.154 --> 1:51:43.794 
+Taher Ghulam Mohammed 
+OK. 
+
+1:51:44.114 --> 1:51:44.994 
+Murali Naramamidi 
+Download ID. 
+
+1:51:45.314 --> 1:51:45.434 
+Taher Ghulam Mohammed 
+OK. 
+
+1:51:58.994 --> 1:52:3.634 
+Murali Naramamidi 
+I can document. 
+
+1:52:5.554 --> 1:52:7.954 
+Taher Ghulam Mohammed 
+Andy, save, sorry. 
+
+1:52:6.954 --> 1:52:7.554 
+Murali Naramamidi 
+OK. 
+
+1:52:9.514 --> 1:52:11.914 
+Taher Ghulam Mohammed 
+Save CC0 document. 
+
+1:52:13.554 --> 1:52:15.474 
+Murali Naramamidi 
+Same thing. OK, same thing. 
+
+1:52:14.874 --> 1:52:19.634 
+Taher Ghulam Mohammed 
+I could have went to the I could have went to the save button postman low. 
+
+1:52:22.194 --> 1:52:24.434 
+Taher Ghulam Mohammed 
+Kinda, Kinda, Kinda response body. 
+
+1:52:27.114 --> 1:52:33.634 
+Taher Ghulam Mohammed 
+Right side save to a file. 
+
+1:52:29.114 --> 1:52:31.474 
+Jagadeesh Chitta 
+Save response. 
+
+1:52:29.114 --> 1:52:31.154 
+Satheesh Babu 
+After one, maybe. 
+
+1:52:36.314 --> 1:52:38.434 
+Taher Ghulam Mohammed 
+Uh, Chudo. Oh, Karandu. 
+
+1:52:39.754 --> 1:52:42.354 
+Taher Ghulam Mohammed 
+A document repair correct on the. 
+
+1:52:52.514 --> 1:52:53.954 
+Taher Ghulam Mohammed 
+Guidos Nagda. 
+
+1:52:54.954 --> 1:52:55.434 
+Murali Naramamidi 
+Hmm. 
+
+1:52:56.114 --> 1:52:57.74 
+Taher Ghulam Mohammed 
+Correct, Ali. 
+
+1:53:2.314 --> 1:53:4.994 
+Murali Naramamidi 
+Uh, file name much better. 
+
+1:53:3.554 --> 1:53:5.674 
+Taher Ghulam Mohammed 
+A file. 
+
+1:53:9.434 --> 1:53:15.314 
+Murali Naramamidi 
+Yeah, put this in file like that. If I'll you could add a document. 
+
+1:53:16.274 --> 1:53:24.274 
+Taher Ghulam Mohammed 
+File name entry. Database file name entry. 
+
+1:53:25.154 --> 1:53:27.354 
+Murali Naramamidi 
+PDF of Ventil. 
+
+1:53:27.474 --> 1:53:27.554 
+Taher Ghulam Mohammed 
+Uh. 
+
+1:53:33.274 --> 1:53:34.234 
+Murali Naramamidi 
+To this. 
+
+1:53:41.354 --> 1:53:42.314 
+Taher Ghulam Mohammed 
+So file name. 
+
+1:53:48.994 --> 1:53:49.794 
+Taher Ghulam Mohammed 
+OK, Babu. 
+
+1:53:51.234 --> 1:53:51.434 
+Murali Naramamidi 
+Yeah. 
+
+1:53:51.594 --> 1:53:54.754 
+Taher Ghulam Mohammed 
+No, upload just a database. 
+
+1:53:55.954 --> 1:53:58.594 
+Taher Ghulam Mohammed 
+I record query J. 
+
+1:54:2.354 --> 1:54:4.714 
+Murali Naramamidi 
+Cadi Semesko opens up. 
+
+1:54:4.754 --> 1:54:5.434 
+Taher Ghulam Mohammed 
+You did. 
+
+1:54:14.874 --> 1:54:16.234 
+Murali Naramamidi 
+SMS Kulhid. 
+
+1:54:17.154 --> 1:54:22.34 
+Taher Ghulam Mohammed 
+I use table no document metadata. 
+
+1:54:23.754 --> 1:54:31.914 
+Taher Ghulam Mohammed 
+Column low storage storage index low e-file key E document key my document metadata entity. 
+
+1:54:38.754 --> 1:54:39.314 
+Murali Naramamidi 
+OK, Sir. 
+
+1:54:41.354 --> 1:54:43.274 
+Murali Naramamidi 
+Play Dokmal Vaide Kunta. 
+
+1:54:44.114 --> 1:54:46.274 
+Taher Ghulam Mohammed 
+ECMS need to document dollar J same. 
+
+1:54:47.834 --> 1:54:50.794 
+Murali Naramamidi 
+He's a medicine. 
+
+1:54:52.74 --> 1:54:59.514 
+Taher Ghulam Mohammed 
+API call just same API use JC call J ECMS. 
+
+1:54:54.634 --> 1:54:55.74 
+Murali Naramamidi 
+Mm. 
+
+1:55:4.154 --> 1:55:4.274 
+Murali Naramamidi 
+OK. 
+
+1:55:5.314 --> 1:55:10.914 
+Taher Ghulam Mohammed 
+OK, first storage index open J file name entry. 
+
+1:55:16.794 --> 1:55:17.634 
+Taher Ghulam Mohammed 
+What is easy? 
+
+1:55:31.394 --> 1:55:32.674 
+Murali Naramamidi 
+Go to index. 
+
+1:55:37.194 --> 1:55:40.914 
+Taher Ghulam Mohammed 
+Document info document data data. 
+
+1:55:42.394 --> 1:55:42.794 
+Murali Naramamidi 
+I. 
+
+1:55:44.874 --> 1:55:57.594 
+Satheesh Babu 
+Tahir, I think this was they did it manually initial time to get the data through get end point. So through they people are directly uploaded in the ECMS itself. 
+
+1:55:45.34 --> 1:55:45.234 
+Murali Naramamidi 
+No. 
+
+1:55:58.394 --> 1:55:58.594 
+Taher Ghulam Mohammed 
+Uhuh. 
+
+1:55:58.994 --> 1:56:2.514 
+Satheesh Babu 
+And manually they write in the storage index level. 
+
+1:56:4.234 --> 1:56:9.794 
+Murali Naramamidi 
+Satheesh Nidagra Unthakangi document Chachevak Sari. 
+
+1:56:8.154 --> 1:56:22.474 
+Satheesh Babu 
+Yeah, yeah, yes, yes. Maybe not sure. Tahil, I'm not confident the file name what they mentioned on the storage index and they mentioned in the EC ECMS. So if if it is required. 
+
+1:56:15.794 --> 1:56:23.594 
+Murali Naramamidi 
+Yes, yes. 
+
+1:56:24.154 --> 1:56:37.634 
+Satheesh Babu 
+One second. So if it is required, we can rename in the source level file name whatever the file name we are using in the storage index. Same file name we can modify in the while of a a bind data to yes. 
+
+1:56:34.194 --> 1:56:38.274 
+Taher Ghulam Mohammed 
+Uh, check the ECMS database database uh. 
+
+1:56:38.914 --> 1:56:39.994 
+Satheesh Babu 
+Yes, Tahir. 
+
+1:56:39.34 --> 1:56:47.874 
+Taher Ghulam Mohammed 
+Are they returning the file name? I I don't think good good dot PDF is the right way of sending this to customer. 
+
+1:56:42.114 --> 1:56:55.714 
+Satheesh Babu 
+No, but but but we have. Yeah, yeah, but we have a name. We have a a field optional field, whatever the file name. Yeah, file name, whatever the we we required to keep it. 
+
+1:56:42.714 --> 1:56:42.754 
+Murali Naramamidi 
+Oh. 
+
+1:56:48.954 --> 1:56:52.154 
+Taher Ghulam Mohammed 
+Yeah, we are storing it as a name, right? Yeah, yeah. 
+
+1:56:56.674 --> 1:56:57.914 
+Satheesh Babu 
+That that we have. 
+
+1:57:1.674 --> 1:57:5.154 
+Satheesh Babu 
+And normally that is fine. Uh, you can come to upload file. 
+
+1:57:1.994 --> 1:57:2.154 
+Taher Ghulam Mohammed 
+Andy. 
+
+1:57:7.994 --> 1:57:9.874 
+Murali Naramamidi 
+Upload trailer OK. 
+
+1:57:9.674 --> 1:57:20.954 
+Satheesh Babu 
+This is fine even though the file name only we we we have to concentrate. So if you come to file upload file. So here we have the file name option now. 
+
+1:57:11.114 --> 1:57:11.274 
+Murali Naramamidi 
+What? 
+
+1:57:23.354 --> 1:57:28.194 
+Satheesh Babu 
+There is a header level we are passing header level we are passing the file name. 
+
+1:57:27.274 --> 1:57:27.394 
+Murali Naramamidi 
+OK. 
+
+1:57:27.394 --> 1:57:29.874 
+Taher Ghulam Mohammed 
+Body, body, body level, body level. 
+
+1:57:29.594 --> 1:57:30.74 
+Satheesh Babu 
+Yeah. 
+
+1:57:30.234 --> 1:57:30.634 
+Murali Naramamidi 
+Stop. 
+
+1:57:31.834 --> 1:57:34.194 
+Taher Ghulam Mohammed 
+As a form parameter, just call check in the. 
+
+1:57:36.314 --> 1:57:38.234 
+Taher Ghulam Mohammed 
+Yeah, demo dot PDF. 
+
+1:57:37.74 --> 1:57:39.434 
+Satheesh Babu 
+Yes, see that the file file name. 
+
+1:57:39.554 --> 1:57:40.74 
+Taher Ghulam Mohammed 
+Yes. 
+
+1:57:40.834 --> 1:57:42.794 
+Satheesh Babu 
+So if you upload this file, so. 
+
+1:57:40.874 --> 1:57:43.394 
+Murali Naramamidi 
+Demo PDF in between. 
+
+1:57:41.914 --> 1:57:42.74 
+Taher Ghulam Mohammed 
+Stop. 
+
+1:57:43.634 --> 1:57:46.394 
+Taher Ghulam Mohammed 
+When you download this file, you need to get that same name. 
+
+1:57:45.394 --> 1:57:49.874 
+Satheesh Babu 
+So take this ID and download this file. We'll see what happen. 
+
+1:57:53.554 --> 1:57:55.514 
+Satheesh Babu 
+Yeah, take this ID. 
+
+1:57:54.354 --> 1:57:55.634 
+Murali Naramamidi 
+It's even. 
+
+1:58:4.354 --> 1:58:9.314 
+Satheesh Babu 
+I'm passion to get it and then it's there only. No, no, yeah, he here. 
+
+1:58:6.114 --> 1:58:6.394 
+Taher Ghulam Mohammed 
+Get call. 
+
+1:58:12.74 --> 1:58:14.674 
+Satheesh Babu 
+No, yeah, come come to that. 
+
+1:58:16.274 --> 1:58:24.314 
+Taher Ghulam Mohammed 
+Go to the postman URL low. Uh, Chinchi document ID document ID Chinchi. 
+
+1:58:16.554 --> 1:58:16.954 
+Murali Naramamidi 
+Nikana. 
+
+1:58:19.354 --> 1:58:22.794 
+Satheesh Babu 
+Or else here itself. Yeah, here only. Yeah, here only. 
+
+1:58:24.834 --> 1:58:32.794 
+Satheesh Babu 
+Local host. 
+
+1:58:28.194 --> 1:58:28.874 
+Murali Naramamidi 
+Look at them. 
