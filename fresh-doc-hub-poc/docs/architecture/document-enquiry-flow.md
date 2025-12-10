@@ -16,12 +16,29 @@ This document provides detailed visual diagrams of the document-enquiry endpoint
 
 This diagram shows the main interaction flow between components when processing a document enquiry request.
 
+### Key Concept: Two-Step Filtering
+
+Based on John's clarification, the API implements **two separate filters**:
+
+| Step | Filter | Purpose | Values |
+|------|--------|---------|--------|
+| **STEP 1** | `line_of_business` | Which business unit's templates to load | `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` |
+| **STEP 2** | `sharing_scope` | Who can access within those templates | `NULL`, `ALL`, `CUSTOM_RULES` |
+
+- `ENTERPRISE` in line_of_business = template applies to ALL business units
+- `ALL` in sharing_scope = document is accessible to ALL users (no eligibility check)
+
+**Note:** `ACCOUNT_TYPE` was removed from `sharing_scope` as it was redundant with `line_of_business` filtering.
+
+**These are NOT interchangeable** - they are applied in sequence.
+
 ```mermaid
 sequenceDiagram
     autonumber
     participant Client
     participant Controller as DocumentEnquiryController
     participant Service as DocumentEnquiryService
+    participant AccountSvc as AccountMetadataService
     participant ExtractSvc as DataExtractionService
     participant RuleSvc as RuleEvaluationService
     participant TemplateRepo as TemplateRepository
@@ -29,62 +46,72 @@ sequenceDiagram
     participant ExternalAPI as External APIs
 
     Client->>Controller: POST /documents-enquiry
-    Note over Client,Controller: Headers: X-version, X-correlation-id,<br/>X-requestor-id, X-requestor-type<br/>Body: customerId, accountId[], filters
+    Note over Client,Controller: Headers: X-version, X-correlation-id,<br/>X-requestor-id, X-requestor-type<br/>Body: customerId, accountId[],<br/>lineOfBusiness (optional)
 
     Controller->>Controller: Validate request
     Controller->>Service: getDocuments(request)
 
-    Service->>TemplateRepo: findActiveTemplates()
-    TemplateRepo-->>Service: List<Template>
+    rect rgb(255, 250, 230)
+        Note over Service,TemplateRepo: STEP 1: LINE OF BUSINESS FILTER
 
-    loop For each accountId
-        Service->>Service: Build AccountMetadata
+        alt lineOfBusiness in request
+            Service->>Service: Use request.lineOfBusiness
+        else lineOfBusiness not provided
+            Service->>AccountSvc: getAccountMetadata(firstAccountId)
+            AccountSvc-->>Service: AccountMetadata
+            Service->>Service: Derive lineOfBusiness from accountType
+        end
 
-        loop For each Template
-            alt sharing_scope = NULL (Account-Specific)
-                Service->>StorageRepo: findAccountSpecificDocuments(accountId, templateType)
-                StorageRepo-->>Service: Account documents
+        Service->>TemplateRepo: findActiveTemplatesByLineOfBusiness(lob, currentDate)
+        Note over TemplateRepo: WHERE line_of_business = :lob<br/>OR line_of_business = 'ENTERPRISE'
+        TemplateRepo-->>Service: List<Template> (filtered by LOB)
+    end
 
-            else sharing_scope = ALL
-                Service->>StorageRepo: findSharedDocuments(templateType)
-                StorageRepo-->>Service: Shared documents (no rules check)
+    rect rgb(230, 250, 255)
+        Note over Service,StorageRepo: STEP 2: SHARING SCOPE FILTER (per template)
 
-            else sharing_scope = ACCOUNT_TYPE
-                Service->>RuleSvc: evaluateEligibility(criteria, accountMetadata)
-                RuleSvc-->>Service: eligible: boolean
-                alt eligible = true
+        loop For each accountId
+            Service->>AccountSvc: getAccountMetadata(accountId)
+            AccountSvc-->>Service: AccountMetadata
+
+            loop For each Template (already filtered by LOB)
+                alt sharing_scope = NULL (Account-Specific)
+                    Service->>StorageRepo: findAccountSpecificDocuments(accountId, templateType)
+                    StorageRepo-->>Service: Account documents
+
+                else sharing_scope = ALL
                     Service->>StorageRepo: findSharedDocuments(templateType)
-                    StorageRepo-->>Service: Shared documents
-                end
+                    StorageRepo-->>Service: Shared documents (no rules check)
 
-            else sharing_scope = CUSTOM_RULES
-                alt has data_extraction_config
-                    Service->>ExtractSvc: extractFields(config, context)
+                else sharing_scope = CUSTOM_RULES
+                    alt has data_extraction_config
+                        Service->>ExtractSvc: extractFields(config, context)
 
-                    loop For each API in dependency order
-                        ExtractSvc->>ExternalAPI: HTTP GET/POST
-                        ExternalAPI-->>ExtractSvc: API Response
-                        ExtractSvc->>ExtractSvc: Extract fields via JSONPath
+                        loop For each API in dependency order
+                            ExtractSvc->>ExternalAPI: HTTP GET/POST
+                            ExternalAPI-->>ExtractSvc: API Response
+                            ExtractSvc->>ExtractSvc: Extract fields via JSONPath
+                        end
+
+                        ExtractSvc-->>Service: extractedFields Map
+                        Service->>Service: Merge extractedFields into context
                     end
 
-                    ExtractSvc-->>Service: extractedFields Map
-                    Service->>Service: Merge extractedFields into context
-                end
+                    Service->>RuleSvc: evaluateEligibility(criteria, mergedContext)
+                    RuleSvc-->>Service: eligible: boolean
 
-                Service->>RuleSvc: evaluateEligibility(criteria, mergedContext)
-                RuleSvc-->>Service: eligible: boolean
-
-                alt eligible = true
-                    alt has documentMatching.referenceKey
-                        Service->>StorageRepo: findByReferenceKey(extractedKey, templateType)
-                    else
-                        Service->>StorageRepo: findSharedDocuments(templateType)
+                    alt eligible = true
+                        alt has documentMatching.referenceKey
+                            Service->>StorageRepo: findByReferenceKey(extractedKey, templateType)
+                        else
+                            Service->>StorageRepo: findSharedDocuments(templateType)
+                        end
+                        StorageRepo-->>Service: Matching documents
                     end
-                    StorageRepo-->>Service: Matching documents
                 end
+
+                Service->>Service: filterByValidity(documents)
             end
-
-            Service->>Service: filterByValidity(documents)
         end
     end
 
@@ -96,11 +123,117 @@ sequenceDiagram
     Controller-->>Client: 200 OK + JSON Response
 ```
 
+### Two-Step Filtering Flowchart
+
+```mermaid
+flowchart TD
+    A[Request arrives] --> B{lineOfBusiness<br/>in request?}
+
+    B -->|Yes| C[Use request.lineOfBusiness]
+    B -->|No| D[Get AccountMetadata]
+    D --> E[Derive LOB from accountType]
+    E --> C
+
+    C --> F[STEP 1: Query Templates]
+    F --> G["findActiveTemplatesByLineOfBusiness()<br/>WHERE line_of_business = :lob<br/>OR line_of_business = 'ENTERPRISE'"]
+
+    G --> H[Templates filtered by LOB]
+    H --> I[STEP 2: For each Template]
+
+    I --> J{Check sharing_scope}
+
+    J -->|NULL| K[Account-specific docs]
+    J -->|ALL| L[Shared docs - no check]
+    J -->|CUSTOM_RULES| M[Full eligibility evaluation]
+
+    K --> O[Aggregate results]
+    L --> O
+    M --> O
+
+    O --> P[Return response]
+
+    style F fill:#fff3cd
+    style G fill:#fff3cd
+    style I fill:#cfe2ff
+    style J fill:#cfe2ff
+```
+
 ---
 
 ## 2. Data Extraction Chain Flow
 
-This diagram details how the `ConfigurableDataExtractionService` processes multi-step API chains to extract fields needed for eligibility evaluation and document matching.
+This diagram details how the system **loops through each shared document template** and uses the `ConfigurableDataExtractionService` to process multi-step API chains for extracting fields needed for eligibility evaluation and document matching.
+
+### 2.1 Template Looping Overview
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Service as DocumentEnquiryService
+    participant TemplateRepo as TemplateRepository
+    participant ExtractSvc as DataExtractionService
+    participant RuleSvc as RuleEvaluationService
+    participant StorageRepo as StorageIndexRepository
+
+    Client->>Service: getDocuments(accountId, customerId)
+
+    Service->>TemplateRepo: findSharedTemplates(communicationType)
+    TemplateRepo-->>Service: List<Template> [T1, T2, T3]
+    Note over Service: Found 3 shared document templates:<br/>T1: Cardholder Agreement (CUSTOM_RULES)<br/>T2: Privacy Statement (ALL)<br/>T3: Credit Card Offer (CUSTOM_RULES)
+
+    rect rgb(255, 250, 240)
+        Note over Service: LOOP: For each Template
+
+        loop Template T1: Cardholder Agreement
+            Service->>Service: Get sharing_scope = CUSTOM_RULES
+            Service->>Service: Get data_extraction_config
+            Note over Service: Template T1 needs: disclosureCode<br/>via accountArrangements → pricing API chain
+
+            Service->>ExtractSvc: extractFields(T1.config, context)
+            Note over ExtractSvc: Execute API chain for T1...<br/>(see detailed flow below)
+            ExtractSvc-->>Service: {disclosureCode: "D164"}
+
+            Service->>RuleSvc: evaluate(T1.eligibility, context)
+            RuleSvc-->>Service: eligible = true
+
+            Service->>StorageRepo: findByReferenceKey("D164", T1.templateId)
+            StorageRepo-->>Service: [Cardholder_Agreement_D164.pdf]
+        end
+
+        loop Template T2: Privacy Statement
+            Service->>Service: Get sharing_scope = ALL
+            Note over Service: No extraction needed for ALL scope
+            Service->>StorageRepo: findSharedDocs(T2.templateId)
+            StorageRepo-->>Service: [Privacy_Statement_2024.pdf]
+        end
+
+        loop Template T3: Credit Card Offer
+            Service->>Service: Get sharing_scope = CUSTOM_RULES
+            Service->>Service: Get data_extraction_config
+            Note over Service: Template T3 needs: creditLimit<br/>via credit info API
+
+            Service->>ExtractSvc: extractFields(T3.config, context)
+            Note over ExtractSvc: Execute API chain for T3...
+            ExtractSvc-->>Service: {creditLimit: 35000}
+
+            Service->>RuleSvc: evaluate(T3.eligibility, context)
+            Note over RuleSvc: creditLimit >= 25000? YES
+            RuleSvc-->>Service: eligible = true
+
+            Note over Service: Apply conditional matching:<br/>35000 >= 50000? No (not Platinum)<br/>35000 >= 25000? Yes → GOLD
+            Service->>StorageRepo: findByReferenceKey("GOLD", T3.templateId)
+            StorageRepo-->>Service: [Gold_Card_Offer.pdf]
+        end
+    end
+
+    Service->>Service: Aggregate results from all templates
+    Service-->>Client: [Cardholder_Agreement_D164.pdf,<br/>Privacy_Statement_2024.pdf,<br/>Gold_Card_Offer.pdf]
+```
+
+### 2.2 Detailed API Chain Extraction (Per Template)
+
+This diagram shows the detailed extraction process that happens **for each template** during the loop above.
 
 ```mermaid
 sequenceDiagram
@@ -112,6 +245,8 @@ sequenceDiagram
     participant API1 as API 1<br/>(accountArrangementsApi)
     participant API2 as API 2<br/>(pricingApi)
     participant JSONPath as JSONPath Parser
+
+    Note over Service,JSONPath: Called once per template with CUSTOM_RULES scope
 
     Service->>ExtractSvc: extractFields(dataExtractionConfig, initialContext)
     Note over Service,ExtractSvc: initialContext contains:<br/>accountId, customerId, correlationId
@@ -162,7 +297,194 @@ sequenceDiagram
     end
 
     ExtractSvc-->>Service: extractedFields = {pricingId: "PRC-12345", disclosureCode: "D164"}
+    Note over Service: Continue to rule evaluation for this template...
 ```
+
+### 2.3 Looping Logic Pseudocode
+
+```java
+// DocumentEnquiryService.getDocuments()
+public Flux<Document> getDocuments(DocumentEnquiryRequest request) {
+
+    // 1. Load all active shared document templates
+    List<Template> sharedTemplates = templateRepository
+        .findActiveSharedTemplates(request.getCommunicationType());
+
+    List<Document> allDocuments = new ArrayList<>();
+
+    // 2. LOOP through each template
+    for (Template template : sharedTemplates) {
+
+        // Build initial context with request data
+        Map<String, Object> context = buildContext(request);
+
+        // 3. Check sharing scope and process accordingly
+        switch (template.getSharingScope()) {
+
+            case NULL:
+                // Account-specific: query directly by accountId
+                documents = storageRepo.findByAccountKey(request.getAccountId());
+                break;
+
+            case ALL:
+                // Shared with everyone: no eligibility check
+                documents = storageRepo.findSharedDocs(template.getId());
+                break;
+
+            case CUSTOM_RULES:
+                // 4. Extract external data if configured
+                if (template.hasDataExtractionConfig()) {
+                    Map<String, Object> extracted = dataExtractionService
+                        .extractFields(template.getDataExtractionConfig(), context);
+                    context.putAll(extracted);  // Merge extracted fields
+                }
+
+                // 5. Evaluate eligibility with merged context
+                if (ruleService.evaluate(template.getEligibility(), context)) {
+
+                    // 6. Match documents based on configuration
+                    if (template.hasDocumentMatching()) {
+                        String refKey = getMatchedReferenceKey(template, context);
+                        documents = storageRepo.findByReferenceKey(refKey, template.getId());
+                    } else {
+                        documents = storageRepo.findSharedDocs(template.getId());
+                    }
+                }
+                break;
+        }
+
+        // 7. Filter by validity dates
+        documents = filterByValidity(documents, LocalDate.now());
+
+        // 8. Add to aggregated results
+        allDocuments.addAll(documents);
+    }
+
+    // 9. Deduplicate, sort, and paginate
+    return buildResponse(allDocuments, request.getPagination());
+}
+```
+
+### 2.4 Example 2: Credit Tier Offer Selection
+
+This example shows a different scenario - selecting a credit card offer based on the customer's credit limit tier (Platinum/Gold/Standard).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Service as DocumentEnquiryService
+    participant ExtractSvc as DataExtractionService
+    participant CreditAPI as Credit Info API
+    participant RuleSvc as RuleEvaluationService
+    participant StorageRepo as StorageIndexRepository
+
+    Note over Service: Processing Template: "Credit Card Offer"<br/>sharing_scope = CUSTOM_RULES
+
+    Service->>Service: Build initial context
+    Note over Service: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123"<br/>}
+
+    rect rgb(230, 255, 230)
+        Note over Service,CreditAPI: STEP 1: Extract creditLimit from Credit Info API
+
+        Service->>ExtractSvc: extractFields(config, context)
+
+        ExtractSvc->>ExtractSvc: Resolve URL template
+        Note over ExtractSvc: /credit-info/${accountId}<br/>→ /credit-info/ACC-001
+
+        ExtractSvc->>CreditAPI: GET /credit-info/ACC-001
+        CreditAPI-->>ExtractSvc: {"creditLimit": 35000, "creditScore": 720}
+
+        ExtractSvc->>ExtractSvc: Extract via JSONPath: $.creditLimit
+        ExtractSvc->>ExtractSvc: context.put("creditLimit", 35000)
+
+        ExtractSvc-->>Service: {creditLimit: 35000}
+    end
+
+    Service->>Service: Merge extracted fields into context
+    Note over Service: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123",<br/>  creditLimit: 35000<br/>}
+
+    rect rgb(255, 255, 230)
+        Note over Service,RuleSvc: STEP 2: Evaluate Eligibility
+
+        Service->>RuleSvc: evaluate(eligibility_criteria, context)
+        Note over RuleSvc: Rule: creditLimit >= 10000
+        RuleSvc->>RuleSvc: 35000 >= 10000? YES
+        RuleSvc-->>Service: eligible = true
+    end
+
+    rect rgb(230, 240, 255)
+        Note over Service,StorageRepo: STEP 3: Conditional Document Matching
+
+        Service->>Service: Apply conditional matching rules
+        Note over Service: Conditions (evaluated in order):<br/>1. creditLimit >= 50000 → PLATINUM<br/>2. creditLimit >= 25000 → GOLD<br/>3. creditLimit >= 10000 → STANDARD
+
+        Service->>Service: Evaluate condition 1
+        Note over Service: 35000 >= 50000? NO
+
+        Service->>Service: Evaluate condition 2
+        Note over Service: 35000 >= 25000? YES → Use "GOLD"
+
+        Service->>StorageRepo: findByReferenceKey("GOLD", "BALANCE_TIER", templateId)
+        StorageRepo-->>Service: [Gold_Card_Offer_2024.pdf]
+    end
+
+    Service->>Service: Filter by validity dates
+    Note over Service: valid_from: 2024-01-01<br/>valid_until: 2024-12-31<br/>Today: 2024-12-09 ✓ Valid
+
+    Service-->>Service: Return [Gold_Card_Offer_2024.pdf]
+```
+
+### 2.5 Example 3: Privacy Statement with Region-Based Rules
+
+This example shows eligibility based on customer region without external API calls (static rules).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Service as DocumentEnquiryService
+    participant RuleSvc as RuleEvaluationService
+    participant StorageRepo as StorageIndexRepository
+
+    Note over Service: Processing Template: "Regional Privacy Statement"<br/>sharing_scope = CUSTOM_RULES<br/>No data_extraction_config (uses request data only)
+
+    Service->>Service: Build context from request
+    Note over Service: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123",<br/>  state: "CA",<br/>  accountType: "CREDIT_CARD"<br/>}
+
+    rect rgb(255, 240, 245)
+        Note over Service,RuleSvc: Evaluate Eligibility (No Extraction Needed)
+
+        Service->>RuleSvc: evaluate(eligibility_criteria, context)
+        Note over RuleSvc: Rule (OR):<br/>  - state IN ["CA", "NY", "TX"]<br/>  - accountType = "PREMIUM"
+
+        RuleSvc->>RuleSvc: Evaluate rule 1: state IN ["CA", "NY", "TX"]
+        Note over RuleSvc: "CA" IN ["CA", "NY", "TX"]? YES
+
+        RuleSvc-->>Service: eligible = true (short-circuit on first OR match)
+    end
+
+    rect rgb(240, 255, 240)
+        Note over Service,StorageRepo: Query Documents (No Reference Key Matching)
+
+        Service->>StorageRepo: findSharedDocs(templateId)
+        Note over StorageRepo: No documentMatching config,<br/>return all shared docs for template
+
+        StorageRepo-->>Service: [Privacy_Statement_CA_2024.pdf,<br/>Privacy_Statement_General_2024.pdf]
+    end
+
+    Service->>Service: Filter by validity dates
+    Service-->>Service: Return documents
+```
+
+### 2.6 Key Points About the Loop
+
+| Aspect | Description |
+|--------|-------------|
+| **What triggers the loop** | A document inquiry request with one or more accountIds |
+| **What is looped over** | Each active shared document template |
+| **When extraction runs** | Only for templates with `sharing_scope = CUSTOM_RULES` AND `data_extraction_config` is present |
+| **Context accumulation** | Each template starts with initial request context; extracted fields are merged in |
+| **Document aggregation** | Results from all templates are collected, deduplicated, and returned together |
+| **Performance consideration** | API calls are made per-template; consider caching common API responses |
 
 ### Data Extraction Configuration Example
 
@@ -393,12 +715,6 @@ flowchart TD
     F --> F1[No eligibility check needed]
     F1 --> F2[Query all shared docs for template]
 
-    D -->|ACCOUNT_TYPE| G[ACCOUNT TYPE BASED]
-    G --> G1[Get eligibility_criteria from template_config]
-    G1 --> G2{accountType matches rule?}
-    G2 -->|Yes| G3[Query shared docs]
-    G2 -->|No| G4[Skip - not eligible]
-
     D -->|CUSTOM_RULES| H[CUSTOM RULES]
     H --> H1{Has data_extraction_config?}
 
@@ -419,7 +735,6 @@ flowchart TD
 
     C2 --> O[Filter by validity dates]
     F2 --> O
-    G3 --> O
     M --> O
     N --> O
 
@@ -427,10 +742,8 @@ flowchart TD
 
     style C2 fill:#E6E6FA
     style F2 fill:#98FB98
-    style G3 fill:#87CEEB
     style M fill:#FFD700
     style N fill:#FFD700
-    style G4 fill:#FFB6C1
     style L fill:#FFB6C1
 ```
 
@@ -440,8 +753,9 @@ flowchart TD
 |-------|-------------|-------------------|----------------|
 | `NULL` | Account-specific | None | By `account_key` |
 | `ALL` | Everyone | None | All shared docs |
-| `ACCOUNT_TYPE` | Product-based | `accountType` rule | Shared if eligible |
 | `CUSTOM_RULES` | Complex criteria | Full rule evaluation | By reference_key or all shared |
+
+**Note:** `ACCOUNT_TYPE` was removed as it was redundant with `line_of_business` filtering (STEP 1).
 
 ---
 
@@ -475,14 +789,9 @@ flowchart TB
     subgraph "4. ELIGIBILITY & EXTRACTION"
         L --> M{Check sharing_scope}
 
-        M -->|Account-Specific| N1[Direct query by account]
+        M -->|NULL/Account-Specific| N1[Direct query by account]
 
         M -->|ALL| N2[No check - get shared docs]
-
-        M -->|ACCOUNT_TYPE| N3[Check accountType rule]
-        N3 --> N3a{Eligible?}
-        N3a -->|Yes| N3b[Get shared docs]
-        N3a -->|No| SKIP1[Skip template]
 
         M -->|CUSTOM_RULES| N4{Has extraction config?}
         N4 -->|Yes| N4a[DataExtractionService]
@@ -501,7 +810,6 @@ flowchart TB
     subgraph "5. DOCUMENT FILTERING"
         N1 --> O[Collected Documents]
         N2 --> O
-        N3b --> O
         N4h --> O
         N4i --> O
 

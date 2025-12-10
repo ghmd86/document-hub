@@ -25,13 +25,19 @@ This directory contains detailed architecture documentation for the Document Hub
 
 ### Key Concepts
 
+#### Two-Step Filtering
+
+| Step | Filter | Purpose |
+|------|--------|---------|
+| STEP 1 | `line_of_business` | Which business unit's templates to load (`CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE`) |
+| STEP 2 | `sharing_scope` | Who can access within those templates |
+
 #### Sharing Scopes
 
 | Scope | Use Case | Example |
 |-------|----------|---------|
 | `NULL` | Account-specific documents | Monthly statements |
 | `ALL` | Universal documents | Privacy policy |
-| `ACCOUNT_TYPE` | Product-based sharing | Credit card offers |
 | `CUSTOM_RULES` | Complex eligibility | VIP + Region targeting |
 
 #### Data Extraction

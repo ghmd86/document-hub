@@ -22,6 +22,14 @@ import java.util.UUID;
 @Slf4j
 public class AccountMetadataService {
 
+    /**
+     * Line of Business constants.
+     * These match the values in master_template_definition.line_of_business
+     */
+    public static final String LOB_CREDIT_CARD = "CREDIT_CARD";
+    public static final String LOB_DIGITAL_BANK = "DIGITAL_BANK";
+    public static final String LOB_ENTERPRISE = "ENTERPRISE";  // Applies to all LOBs
+
     // Mock data store
     private final Map<UUID, AccountMetadata> mockAccountData = new HashMap<>();
 
@@ -38,11 +46,44 @@ public class AccountMetadataService {
         AccountMetadata metadata = mockAccountData.get(accountId);
 
         if (metadata == null) {
-            log.warn("No metadata found for accountId: {}", accountId);
-            return Mono.empty();
+            log.warn("No metadata found for accountId: {}, returning default metadata", accountId);
+            // Return default metadata for unknown accounts
+            return Mono.just(AccountMetadata.builder()
+                .accountId(accountId)
+                .accountType("unknown")
+                .lineOfBusiness(LOB_CREDIT_CARD)  // Default to CREDIT_CARD
+                .isActive(true)
+                .build());
         }
 
         return Mono.just(metadata);
+    }
+
+    /**
+     * Derive lineOfBusiness from accountType.
+     * This is used when the request doesn't explicitly specify lineOfBusiness.
+     *
+     * Mapping:
+     *   - credit_card, secured_credit_card → CREDIT_CARD
+     *   - digital_bank, savings, checking → DIGITAL_BANK
+     *   - unknown/other → CREDIT_CARD (default)
+     */
+    public String deriveLineOfBusiness(String accountType) {
+        if (accountType == null) {
+            return LOB_CREDIT_CARD;
+        }
+
+        String type = accountType.toLowerCase();
+
+        if (type.contains("credit") || type.contains("card")) {
+            return LOB_CREDIT_CARD;
+        } else if (type.contains("digital") || type.contains("bank") ||
+                   type.contains("saving") || type.contains("checking")) {
+            return LOB_DIGITAL_BANK;
+        }
+
+        // Default to CREDIT_CARD for unknown types
+        return LOB_CREDIT_CARD;
     }
 
     /**
@@ -59,7 +100,7 @@ public class AccountMetadataService {
             .state("CA")
             .customerSegment("VIP")
             .accountOpenDate(Instant.now().minus(730, ChronoUnit.DAYS).toEpochMilli()) // 2 years ago
-            .lineOfBusiness("CREDIT_CARD")
+            .lineOfBusiness(LOB_CREDIT_CARD)
             .isActive(true)
             .build());
 
@@ -73,7 +114,7 @@ public class AccountMetadataService {
             .state("CA")
             .customerSegment("STANDARD")
             .accountOpenDate(Instant.now().minus(90, ChronoUnit.DAYS).toEpochMilli()) // 3 months ago
-            .lineOfBusiness("CREDIT_CARD")
+            .lineOfBusiness(LOB_CREDIT_CARD)
             .isActive(true)
             .build());
 
@@ -87,7 +128,7 @@ public class AccountMetadataService {
             .state("NY")
             .customerSegment("ENTERPRISE")
             .accountOpenDate(Instant.now().minus(365, ChronoUnit.DAYS).toEpochMilli()) // 1 year ago
-            .lineOfBusiness("BANKING")
+            .lineOfBusiness(LOB_DIGITAL_BANK)
             .isActive(true)
             .build());
 
@@ -101,7 +142,7 @@ public class AccountMetadataService {
             .state("TX")
             .customerSegment("STANDARD")
             .accountOpenDate(Instant.now().minus(30, ChronoUnit.DAYS).toEpochMilli()) // 1 month ago
-            .lineOfBusiness("BANKING")
+            .lineOfBusiness(LOB_DIGITAL_BANK)
             .isActive(true)
             .build());
 
