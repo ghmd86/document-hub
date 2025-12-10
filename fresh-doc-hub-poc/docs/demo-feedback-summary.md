@@ -252,6 +252,33 @@ These are specific questions John raised about fields and variables that need cl
 |----------|---------|-----------------|
 | "Don't forget, since we're doing soft deletes, if you delete a template, they need to make sure you also soft delete all the vendors assigned to that template" | Template deletion | Implement cascade soft delete |
 
+### Day 1 - Line of Business vs Sharing Scope Clarification
+
+John clarified the relationship between `line_of_business` and `sharing_scope`:
+
+| John's Question | Clarification |
+|-----------------|---------------|
+| "So how is sharing scope different than line of business then?" | They are separate concepts and should not be conflated |
+| "It sounds like the same thing" | Taher was incorrectly using sharing_scope values (ALL, ACCOUNT_TYPE) as line of business values |
+| "Your sharing scope ALL is like enterprise" | `sharing_scope=ALL` means "shared with everyone" (like enterprise-wide) |
+| "I thought originally sharing scope was who could access the file" | Sharing scope should define access level, not line of business |
+
+**John's Key Clarifications:**
+
+1. **Line of Business values:** `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` (enterprise means ALL lines of business)
+2. **Sharing Scope values:** Should define WHO can access:
+   - `NULL` = Account-specific (only that account)
+   - `ALL` = Everyone (enterprise-wide)
+   - `ACCOUNT_TYPE` = Based on account type
+   - `CUSTOM_RULES` = Complex eligibility rules
+
+**John's directive:** "It needs to be defined what it is and it shouldn't be something that we already have like line of business."
+
+**Action Required:**
+- Keep `line_of_business` as a separate field: `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE`
+- Keep `sharing_scope` for access control: `NULL`, `ALL`, `ACCOUNT_TYPE`, `CUSTOM_RULES`
+- Don't mix the two concepts
+
 ### Day 2 - Document Inquiry Fields
 
 | Question | Context | Action Required |
