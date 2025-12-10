@@ -331,13 +331,6 @@ public Flux<Document> getDocuments(DocumentEnquiryRequest request) {
                 documents = storageRepo.findSharedDocs(template.getId());
                 break;
 
-            case ACCOUNT_TYPE:
-                // Check simple account type rule
-                if (ruleService.evaluate(template.getEligibility(), context)) {
-                    documents = storageRepo.findSharedDocs(template.getId());
-                }
-                break;
-
             case CUSTOM_RULES:
                 // 4. Extract external data if configured
                 if (template.hasDataExtractionConfig()) {
@@ -722,12 +715,6 @@ flowchart TD
     F --> F1[No eligibility check needed]
     F1 --> F2[Query all shared docs for template]
 
-    D -->|ACCOUNT_TYPE| G[ACCOUNT TYPE BASED]
-    G --> G1[Get eligibility_criteria from template_config]
-    G1 --> G2{accountType matches rule?}
-    G2 -->|Yes| G3[Query shared docs]
-    G2 -->|No| G4[Skip - not eligible]
-
     D -->|CUSTOM_RULES| H[CUSTOM RULES]
     H --> H1{Has data_extraction_config?}
 
@@ -748,7 +735,6 @@ flowchart TD
 
     C2 --> O[Filter by validity dates]
     F2 --> O
-    G3 --> O
     M --> O
     N --> O
 
@@ -756,10 +742,8 @@ flowchart TD
 
     style C2 fill:#E6E6FA
     style F2 fill:#98FB98
-    style G3 fill:#87CEEB
     style M fill:#FFD700
     style N fill:#FFD700
-    style G4 fill:#FFB6C1
     style L fill:#FFB6C1
 ```
 
@@ -769,8 +753,9 @@ flowchart TD
 |-------|-------------|-------------------|----------------|
 | `NULL` | Account-specific | None | By `account_key` |
 | `ALL` | Everyone | None | All shared docs |
-| `ACCOUNT_TYPE` | Product-based | `accountType` rule | Shared if eligible |
 | `CUSTOM_RULES` | Complex criteria | Full rule evaluation | By reference_key or all shared |
+
+**Note:** `ACCOUNT_TYPE` was removed as it was redundant with `line_of_business` filtering (STEP 1).
 
 ---
 
@@ -804,14 +789,9 @@ flowchart TB
     subgraph "4. ELIGIBILITY & EXTRACTION"
         L --> M{Check sharing_scope}
 
-        M -->|Account-Specific| N1[Direct query by account]
+        M -->|NULL/Account-Specific| N1[Direct query by account]
 
         M -->|ALL| N2[No check - get shared docs]
-
-        M -->|ACCOUNT_TYPE| N3[Check accountType rule]
-        N3 --> N3a{Eligible?}
-        N3a -->|Yes| N3b[Get shared docs]
-        N3a -->|No| SKIP1[Skip template]
 
         M -->|CUSTOM_RULES| N4{Has extraction config?}
         N4 -->|Yes| N4a[DataExtractionService]
@@ -830,7 +810,6 @@ flowchart TB
     subgraph "5. DOCUMENT FILTERING"
         N1 --> O[Collected Documents]
         N2 --> O
-        N3b --> O
         N4h --> O
         N4i --> O
 
