@@ -16,12 +16,27 @@ This document provides detailed visual diagrams of the document-enquiry endpoint
 
 This diagram shows the main interaction flow between components when processing a document enquiry request.
 
+### Key Concept: Two-Step Filtering
+
+Based on John's clarification, the API implements **two separate filters**:
+
+| Step | Filter | Purpose | Values |
+|------|--------|---------|--------|
+| **STEP 1** | `line_of_business` | Which business unit's templates to load | `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` |
+| **STEP 2** | `sharing_scope` | Who can access within those templates | `NULL`, `ALL`, `ACCOUNT_TYPE`, `CUSTOM_RULES` |
+
+- `ENTERPRISE` in line_of_business = template applies to ALL business units
+- `ALL` in sharing_scope = document is accessible to ALL users (no eligibility check)
+
+**These are NOT interchangeable** - they are applied in sequence.
+
 ```mermaid
 sequenceDiagram
     autonumber
     participant Client
     participant Controller as DocumentEnquiryController
     participant Service as DocumentEnquiryService
+    participant AccountSvc as AccountMetadataService
     participant ExtractSvc as DataExtractionService
     participant RuleSvc as RuleEvaluationService
     participant TemplateRepo as TemplateRepository
@@ -29,62 +44,80 @@ sequenceDiagram
     participant ExternalAPI as External APIs
 
     Client->>Controller: POST /documents-enquiry
-    Note over Client,Controller: Headers: X-version, X-correlation-id,<br/>X-requestor-id, X-requestor-type<br/>Body: customerId, accountId[], filters
+    Note over Client,Controller: Headers: X-version, X-correlation-id,<br/>X-requestor-id, X-requestor-type<br/>Body: customerId, accountId[],<br/>lineOfBusiness (optional)
 
     Controller->>Controller: Validate request
     Controller->>Service: getDocuments(request)
 
-    Service->>TemplateRepo: findActiveTemplates()
-    TemplateRepo-->>Service: List<Template>
+    rect rgb(255, 250, 230)
+        Note over Service,TemplateRepo: STEP 1: LINE OF BUSINESS FILTER
 
-    loop For each accountId
-        Service->>Service: Build AccountMetadata
+        alt lineOfBusiness in request
+            Service->>Service: Use request.lineOfBusiness
+        else lineOfBusiness not provided
+            Service->>AccountSvc: getAccountMetadata(firstAccountId)
+            AccountSvc-->>Service: AccountMetadata
+            Service->>Service: Derive lineOfBusiness from accountType
+        end
 
-        loop For each Template
-            alt sharing_scope = NULL (Account-Specific)
-                Service->>StorageRepo: findAccountSpecificDocuments(accountId, templateType)
-                StorageRepo-->>Service: Account documents
+        Service->>TemplateRepo: findActiveTemplatesByLineOfBusiness(lob, currentDate)
+        Note over TemplateRepo: WHERE line_of_business = :lob<br/>OR line_of_business = 'ENTERPRISE'
+        TemplateRepo-->>Service: List<Template> (filtered by LOB)
+    end
 
-            else sharing_scope = ALL
-                Service->>StorageRepo: findSharedDocuments(templateType)
-                StorageRepo-->>Service: Shared documents (no rules check)
+    rect rgb(230, 250, 255)
+        Note over Service,StorageRepo: STEP 2: SHARING SCOPE FILTER (per template)
 
-            else sharing_scope = ACCOUNT_TYPE
-                Service->>RuleSvc: evaluateEligibility(criteria, accountMetadata)
-                RuleSvc-->>Service: eligible: boolean
-                alt eligible = true
+        loop For each accountId
+            Service->>AccountSvc: getAccountMetadata(accountId)
+            AccountSvc-->>Service: AccountMetadata
+
+            loop For each Template (already filtered by LOB)
+                alt sharing_scope = NULL (Account-Specific)
+                    Service->>StorageRepo: findAccountSpecificDocuments(accountId, templateType)
+                    StorageRepo-->>Service: Account documents
+
+                else sharing_scope = ALL
                     Service->>StorageRepo: findSharedDocuments(templateType)
-                    StorageRepo-->>Service: Shared documents
-                end
+                    StorageRepo-->>Service: Shared documents (no rules check)
 
-            else sharing_scope = CUSTOM_RULES
-                alt has data_extraction_config
-                    Service->>ExtractSvc: extractFields(config, context)
-
-                    loop For each API in dependency order
-                        ExtractSvc->>ExternalAPI: HTTP GET/POST
-                        ExternalAPI-->>ExtractSvc: API Response
-                        ExtractSvc->>ExtractSvc: Extract fields via JSONPath
-                    end
-
-                    ExtractSvc-->>Service: extractedFields Map
-                    Service->>Service: Merge extractedFields into context
-                end
-
-                Service->>RuleSvc: evaluateEligibility(criteria, mergedContext)
-                RuleSvc-->>Service: eligible: boolean
-
-                alt eligible = true
-                    alt has documentMatching.referenceKey
-                        Service->>StorageRepo: findByReferenceKey(extractedKey, templateType)
-                    else
+                else sharing_scope = ACCOUNT_TYPE
+                    Service->>RuleSvc: evaluateEligibility(criteria, accountMetadata)
+                    RuleSvc-->>Service: eligible: boolean
+                    alt eligible = true
                         Service->>StorageRepo: findSharedDocuments(templateType)
+                        StorageRepo-->>Service: Shared documents
                     end
-                    StorageRepo-->>Service: Matching documents
-                end
-            end
 
-            Service->>Service: filterByValidity(documents)
+                else sharing_scope = CUSTOM_RULES
+                    alt has data_extraction_config
+                        Service->>ExtractSvc: extractFields(config, context)
+
+                        loop For each API in dependency order
+                            ExtractSvc->>ExternalAPI: HTTP GET/POST
+                            ExternalAPI-->>ExtractSvc: API Response
+                            ExtractSvc->>ExtractSvc: Extract fields via JSONPath
+                        end
+
+                        ExtractSvc-->>Service: extractedFields Map
+                        Service->>Service: Merge extractedFields into context
+                    end
+
+                    Service->>RuleSvc: evaluateEligibility(criteria, mergedContext)
+                    RuleSvc-->>Service: eligible: boolean
+
+                    alt eligible = true
+                        alt has documentMatching.referenceKey
+                            Service->>StorageRepo: findByReferenceKey(extractedKey, templateType)
+                        else
+                            Service->>StorageRepo: findSharedDocuments(templateType)
+                        end
+                        StorageRepo-->>Service: Matching documents
+                    end
+                end
+
+                Service->>Service: filterByValidity(documents)
+            end
         end
     end
 
@@ -94,6 +127,43 @@ sequenceDiagram
 
     Service-->>Controller: DocumentRetrievalResponse
     Controller-->>Client: 200 OK + JSON Response
+```
+
+### Two-Step Filtering Flowchart
+
+```mermaid
+flowchart TD
+    A[Request arrives] --> B{lineOfBusiness<br/>in request?}
+
+    B -->|Yes| C[Use request.lineOfBusiness]
+    B -->|No| D[Get AccountMetadata]
+    D --> E[Derive LOB from accountType]
+    E --> C
+
+    C --> F[STEP 1: Query Templates]
+    F --> G["findActiveTemplatesByLineOfBusiness()<br/>WHERE line_of_business = :lob<br/>OR line_of_business = 'ENTERPRISE'"]
+
+    G --> H[Templates filtered by LOB]
+    H --> I[STEP 2: For each Template]
+
+    I --> J{Check sharing_scope}
+
+    J -->|NULL| K[Account-specific docs]
+    J -->|ALL| L[Shared docs - no check]
+    J -->|ACCOUNT_TYPE| M[Check accountType rule]
+    J -->|CUSTOM_RULES| N[Full eligibility evaluation]
+
+    K --> O[Aggregate results]
+    L --> O
+    M --> O
+    N --> O
+
+    O --> P[Return response]
+
+    style F fill:#fff3cd
+    style G fill:#fff3cd
+    style I fill:#cfe2ff
+    style J fill:#cfe2ff
 ```
 
 ---

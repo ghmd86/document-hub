@@ -440,6 +440,15 @@ components:
           x-data-classification: confidential
           items:
             type: string
+        lineOfBusiness:
+          type: string
+          description: "Filter templates by line of business. If not provided, will be derived from account type. ENTERPRISE templates are always included regardless of this filter."
+          enum:
+            - CREDIT_CARD
+            - DIGITAL_BANK
+            - ENTERPRISE
+          example: CREDIT_CARD
+          x-data-classification: public
         referenceKey:
           type: string
           description: Filter documents based on reference key associated with the document

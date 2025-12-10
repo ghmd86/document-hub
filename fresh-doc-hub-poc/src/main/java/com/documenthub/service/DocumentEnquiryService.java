@@ -50,81 +50,152 @@ public class DocumentEnquiryService {
 
     /**
      * Main entry point for document enquiry
+     *
+     * Implements TWO-STEP filtering based on John's clarification:
+     * STEP 1: Filter templates by line_of_business (which business unit's templates)
+     * STEP 2: Filter by sharing_scope (who can access within those templates)
      */
     public Mono<DocumentRetrievalResponse> getDocuments(DocumentListRequest request) {
-        log.info("Processing document enquiry - customerId: {}, accountIds: {}",
+        log.info("Processing document enquiry - customerId: {}, accountIds: {}, lineOfBusiness: {}",
             request.getCustomerId(),
-            request.getAccountId());
+            request.getAccountId(),
+            request.getLineOfBusiness());
 
         long startTime = System.currentTimeMillis();
         Long currentEpochTime = Instant.now().toEpochMilli();
 
-        // Get active templates
-        return templateRepository.findActiveTemplates(currentEpochTime)
-            .collectList()
-            .flatMap(templates -> {
+        // Process each account ID from the request
+        List<String> accountIds = request.getAccountId() != null ?
+            request.getAccountId() : Collections.emptyList();
+
+        if (accountIds.isEmpty()) {
+            // If no account IDs provided, return empty result
+            log.warn("No account IDs provided in request");
+            return Mono.just(buildEmptyResponse(request));
+        }
+
+        // STEP 1: Determine line of business for template filtering
+        // If not provided in request, derive from first account's metadata
+        return determineLineOfBusiness(request, accountIds.get(0))
+            .flatMap(lineOfBusiness -> {
                 log.info("═══════════════════════════════════════════════════════════════");
-                log.info("TEMPLATES LOADED: Found {} active templates", templates.size());
-                log.info("═══════════════════════════════════════════════════════════════");
-                for (MasterTemplateDefinitionEntity t : templates) {
-                    log.info("  Template: type={}, shared={}, sharingScope={}, hasDataConfig={}",
-                        t.getTemplateType(),
-                        t.getSharedDocumentFlag(),
-                        t.getSharingScope(),
-                        t.getDataExtractionConfig() != null);
-                }
+                log.info("STEP 1: LINE OF BUSINESS FILTER");
+                log.info("  Resolved lineOfBusiness = '{}'", lineOfBusiness);
+                log.info("  Will load templates where line_of_business = '{}' OR 'ENTERPRISE'", lineOfBusiness);
                 log.info("═══════════════════════════════════════════════════════════════");
 
-                // Process each account ID from the request
-                List<String> accountIds = request.getAccountId() != null ?
-                    request.getAccountId() : Collections.emptyList();
-
-                if (accountIds.isEmpty()) {
-                    // If no account IDs provided, return empty result
-                    log.warn("No account IDs provided in request");
-                    return Mono.just(buildEmptyResponse(request));
-                }
-
-                // Process documents for each account
-                return Flux.fromIterable(accountIds)
-                    .flatMap(accountIdStr -> processAccount(
-                        UUID.fromString(accountIdStr),
-                        templates,
-                        request
-                    ))
+                // Load templates filtered by line of business
+                return templateRepository.findActiveTemplatesByLineOfBusiness(lineOfBusiness, currentEpochTime)
                     .collectList()
-                    .map(documentLists -> {
-                        // Flatten all documents
-                        List<DocumentDetailsNode> allDocuments = documentLists.stream()
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList());
+                    .flatMap(templates -> {
+                        log.info("═══════════════════════════════════════════════════════════════");
+                        log.info("TEMPLATES LOADED: Found {} templates for lineOfBusiness='{}'",
+                            templates.size(), lineOfBusiness);
+                        log.info("═══════════════════════════════════════════════════════════════");
+                        for (MasterTemplateDefinitionEntity t : templates) {
+                            log.info("  Template: type={}, LOB={}, shared={}, sharingScope={}, hasDataConfig={}",
+                                t.getTemplateType(),
+                                t.getLineOfBusiness(),
+                                t.getSharedDocumentFlag(),
+                                t.getSharingScope(),
+                                t.getDataExtractionConfig() != null);
+                        }
+                        log.info("═══════════════════════════════════════════════════════════════");
+                        log.info("STEP 2: SHARING SCOPE FILTER (per template)");
+                        log.info("═══════════════════════════════════════════════════════════════");
 
-                        log.info("Total documents found: {}", allDocuments.size());
+                        // STEP 2: Process documents for each account, applying sharing_scope logic
+                        return Flux.fromIterable(accountIds)
+                            .flatMap(accountIdStr -> processAccount(
+                                UUID.fromString(accountIdStr),
+                                templates,
+                                request
+                            ))
+                            .collectList()
+                            .map(documentLists -> {
+                                // Flatten all documents
+                                List<DocumentDetailsNode> allDocuments = documentLists.stream()
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.toList());
 
-                        // Apply pagination
-                        int pageSize = determinePageSize(request.getPageSize());
-                        int pageNumber = determinePageNumber(request.getPageNumber());
+                                log.info("Total documents found: {}", allDocuments.size());
 
-                        List<DocumentDetailsNode> paginatedDocs = paginateDocuments(
-                            allDocuments,
-                            pageNumber,
-                            pageSize
-                        );
+                                // Apply pagination
+                                int pageSize = determinePageSize(request.getPageSize());
+                                int pageNumber = determinePageNumber(request.getPageNumber());
 
-                        // Build response
-                        long processingTime = System.currentTimeMillis() - startTime;
+                                List<DocumentDetailsNode> paginatedDocs = paginateDocuments(
+                                    allDocuments,
+                                    pageNumber,
+                                    pageSize
+                                );
 
-                        return buildResponse(
-                            paginatedDocs,
-                            allDocuments.size(),
-                            pageNumber,
-                            pageSize,
-                            processingTime
-                        );
+                                // Build response
+                                long processingTime = System.currentTimeMillis() - startTime;
+
+                                return buildResponse(
+                                    paginatedDocs,
+                                    allDocuments.size(),
+                                    pageNumber,
+                                    pageSize,
+                                    processingTime
+                                );
+                            });
                     });
             })
             .doOnError(e -> log.error("Error processing document enquiry", e))
             .onErrorResume(e -> Mono.just(buildErrorResponse(e)));
+    }
+
+    /**
+     * Determine line of business for template filtering.
+     *
+     * Priority:
+     * 1. If provided in request, use that value
+     * 2. Otherwise, derive from account metadata
+     */
+    private Mono<String> determineLineOfBusiness(DocumentListRequest request, String firstAccountId) {
+        // Check if lineOfBusiness is provided in request
+        // Note: request.getLineOfBusiness() will be available after regenerating from OpenAPI
+        String requestLineOfBusiness = getLineOfBusinessFromRequest(request);
+
+        if (requestLineOfBusiness != null && !requestLineOfBusiness.isEmpty()) {
+            log.debug("Using lineOfBusiness from request: {}", requestLineOfBusiness);
+            return Mono.just(requestLineOfBusiness);
+        }
+
+        // Derive from first account's metadata
+        log.debug("lineOfBusiness not in request, deriving from account: {}", firstAccountId);
+        return accountMetadataService.getAccountMetadata(UUID.fromString(firstAccountId))
+            .map(metadata -> {
+                String lob = metadata.getLineOfBusiness();
+                if (lob == null || lob.isEmpty()) {
+                    // Fall back to deriving from account type
+                    lob = accountMetadataService.deriveLineOfBusiness(metadata.getAccountType());
+                }
+                log.debug("Derived lineOfBusiness from account: {}", lob);
+                return lob;
+            })
+            .defaultIfEmpty(AccountMetadataService.LOB_CREDIT_CARD);
+    }
+
+    /**
+     * Extract lineOfBusiness from request using reflection.
+     * This allows the code to work before and after regenerating the OpenAPI model.
+     */
+    private String getLineOfBusinessFromRequest(DocumentListRequest request) {
+        try {
+            java.lang.reflect.Method method = request.getClass().getMethod("getLineOfBusiness");
+            Object result = method.invoke(request);
+            return result != null ? result.toString() : null;
+        } catch (NoSuchMethodException e) {
+            // Method doesn't exist yet (model not regenerated)
+            log.debug("getLineOfBusiness() method not found - model needs regeneration");
+            return null;
+        } catch (Exception e) {
+            log.warn("Error getting lineOfBusiness from request: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**
