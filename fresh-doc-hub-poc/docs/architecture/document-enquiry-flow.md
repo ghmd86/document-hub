@@ -23,10 +23,12 @@ Based on John's clarification, the API implements **two separate filters**:
 | Step | Filter | Purpose | Values |
 |------|--------|---------|--------|
 | **STEP 1** | `line_of_business` | Which business unit's templates to load | `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` |
-| **STEP 2** | `sharing_scope` | Who can access within those templates | `NULL`, `ALL`, `ACCOUNT_TYPE`, `CUSTOM_RULES` |
+| **STEP 2** | `sharing_scope` | Who can access within those templates | `NULL`, `ALL`, `CUSTOM_RULES` |
 
 - `ENTERPRISE` in line_of_business = template applies to ALL business units
 - `ALL` in sharing_scope = document is accessible to ALL users (no eligibility check)
+
+**Note:** `ACCOUNT_TYPE` was removed from `sharing_scope` as it was redundant with `line_of_business` filtering.
 
 **These are NOT interchangeable** - they are applied in sequence.
 
@@ -80,14 +82,6 @@ sequenceDiagram
                 else sharing_scope = ALL
                     Service->>StorageRepo: findSharedDocuments(templateType)
                     StorageRepo-->>Service: Shared documents (no rules check)
-
-                else sharing_scope = ACCOUNT_TYPE
-                    Service->>RuleSvc: evaluateEligibility(criteria, accountMetadata)
-                    RuleSvc-->>Service: eligible: boolean
-                    alt eligible = true
-                        Service->>StorageRepo: findSharedDocuments(templateType)
-                        StorageRepo-->>Service: Shared documents
-                    end
 
                 else sharing_scope = CUSTOM_RULES
                     alt has data_extraction_config
@@ -150,13 +144,11 @@ flowchart TD
 
     J -->|NULL| K[Account-specific docs]
     J -->|ALL| L[Shared docs - no check]
-    J -->|ACCOUNT_TYPE| M[Check accountType rule]
-    J -->|CUSTOM_RULES| N[Full eligibility evaluation]
+    J -->|CUSTOM_RULES| M[Full eligibility evaluation]
 
     K --> O[Aggregate results]
     L --> O
     M --> O
-    N --> O
 
     O --> P[Return response]
 

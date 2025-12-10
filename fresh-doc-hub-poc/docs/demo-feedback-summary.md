@@ -268,16 +268,17 @@ John clarified the relationship between `line_of_business` and `sharing_scope`:
 1. **Line of Business values:** `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` (enterprise means ALL lines of business)
 2. **Sharing Scope values:** Should define WHO can access:
    - `NULL` = Account-specific (only that account)
-   - `ALL` = Everyone (enterprise-wide)
-   - `ACCOUNT_TYPE` = Based on account type
+   - `ALL` = Everyone (enterprise-wide access)
    - `CUSTOM_RULES` = Complex eligibility rules
+
+**Note:** `ACCOUNT_TYPE` was removed from sharing_scope as it is redundant with `line_of_business` filtering.
 
 **John's directive:** "It needs to be defined what it is and it shouldn't be something that we already have like line of business."
 
-**Action Required:**
-- Keep `line_of_business` as a separate field: `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE`
-- Keep `sharing_scope` for access control: `NULL`, `ALL`, `ACCOUNT_TYPE`, `CUSTOM_RULES`
-- Don't mix the two concepts
+**Implementation:**
+- `line_of_business` is applied in STEP 1: filters which templates to load
+- `sharing_scope` is applied in STEP 2: determines who can access within those templates
+- These are two separate, sequential filters
 
 ### Day 2 - Document Inquiry Fields
 

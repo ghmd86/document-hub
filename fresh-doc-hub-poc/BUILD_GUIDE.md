@@ -179,12 +179,14 @@ mvn spring-boot:run
 This POC demonstrates:
 1. ✅ Complete reactive Spring Boot application architecture
 2. ✅ OpenAPI-first development with code generation
-3. ✅ Three-tier document sharing strategy (ALL/ACCOUNT_TYPE/CUSTOM_RULES)
-4. ✅ Dynamic rule evaluation engine with JSON-based configuration
-5. ✅ Mock account metadata service (swappable with real integration)
-6. ✅ Pagination support
-7. ✅ Clean separation of concerns (Controller → Service → Repository)
-8. ✅ Comprehensive documentation (README + IMPLEMENTATION_SUMMARY)
+3. ✅ Two-step filtering: Line of Business (STEP 1) + Sharing Scope (STEP 2)
+4. ✅ Document sharing strategies (ALL / CUSTOM_RULES)
+5. ✅ Dynamic rule evaluation engine with JSON-based configuration
+6. ✅ Data extraction from external APIs via JSONPath
+7. ✅ Mock account metadata service (swappable with real integration)
+8. ✅ Pagination support
+9. ✅ Clean separation of concerns (Controller → Service → Repository)
+10. ✅ Comprehensive documentation (README + IMPLEMENTATION_SUMMARY)
 
 **Status**: ✅ Build and startup verified. Ready for database integration and testing.
 

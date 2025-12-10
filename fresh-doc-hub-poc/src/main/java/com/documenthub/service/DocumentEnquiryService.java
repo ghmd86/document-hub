@@ -318,14 +318,22 @@ public class DocumentEnquiryService {
     }
 
     /**
-     * Check if account can access template
+     * Check if account can access template based on sharing_scope.
+     *
+     * Sharing Scope Values (after removing redundant ACCOUNT_TYPE):
+     * - NULL: Account-specific documents (only owning account can access)
+     * - ALL: Everyone can access (no eligibility check needed)
+     * - CUSTOM_RULES: Complex eligibility rules with optional data extraction
+     *
+     * Note: ACCOUNT_TYPE was removed as it's redundant with line_of_business filtering.
+     * Business unit filtering is now handled in STEP 1 via line_of_business field.
      */
     private boolean canAccessTemplate(
         MasterTemplateDefinitionEntity template,
         AccountMetadata accountMetadata,
         Map<String, Object> requestContext
     ) {
-        // Non-shared templates are always accessible if queried by account
+        // Non-shared templates (sharing_scope = NULL) are always accessible if queried by account
         if (Boolean.FALSE.equals(template.getSharedDocumentFlag())) {
             return true;
         }
@@ -333,17 +341,20 @@ public class DocumentEnquiryService {
         // Shared templates - check sharing scope
         String sharingScope = template.getSharingScope();
 
-        if ("ALL".equalsIgnoreCase(sharingScope)) {
-            // Shared with all
+        if (sharingScope == null || sharingScope.isEmpty()) {
+            // NULL/empty sharing_scope = account-specific, accessible by owning account
             return true;
-        } else if ("ACCOUNT_TYPE".equalsIgnoreCase(sharingScope)) {
-            // Shared by account type - check eligibility rules in template config
-            return evaluateTemplateEligibility(template, accountMetadata, requestContext);
+        } else if ("ALL".equalsIgnoreCase(sharingScope)) {
+            // Shared with all - no eligibility check needed
+            return true;
         } else if ("CUSTOM_RULES".equalsIgnoreCase(sharingScope)) {
             // Custom rules evaluation from template config
             return evaluateTemplateEligibility(template, accountMetadata, requestContext);
         }
 
+        // Unknown sharing_scope - log warning and deny access
+        log.warn("Unknown sharing_scope '{}' for template {}, denying access",
+            sharingScope, template.getTemplateType());
         return false;
     }
 

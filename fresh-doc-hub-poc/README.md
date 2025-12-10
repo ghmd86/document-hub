@@ -4,12 +4,15 @@ A Proof of Concept for a dynamic rule-based document retrieval system that suppo
 
 ## Features
 
+- ✅ **Two-Step Filtering**:
+  - **STEP 1 - Line of Business**: Filter templates by business unit (`CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE`)
+  - **STEP 2 - Sharing Scope**: Determine access control within filtered templates
 - ✅ **Account-Specific Documents**: Retrieve documents tied to specific accounts
-- ✅ **Shared Documents**: Three sharing strategies:
-  - `ALL`: Shared with all customers
-  - `ACCOUNT_TYPE`: Shared based on account type (credit_card, digital_bank, etc.)
-  - `CUSTOM_RULES`: Shared based on custom JSON-defined rules
+- ✅ **Shared Documents**: Two sharing strategies:
+  - `ALL`: Shared with all customers (no eligibility check)
+  - `CUSTOM_RULES`: Shared based on custom JSON-defined eligibility rules
 - ✅ **Dynamic Rule Evaluation**: Flexible rule engine supporting AND/OR logic
+- ✅ **Data Extraction**: Fetch data from external APIs for eligibility evaluation
 - ✅ **Reactive Programming**: Built with Spring WebFlux (R2DBC)
 - ✅ **Configurable for Non-Technical Users**: Rules defined in JSON format
 
