@@ -319,6 +319,85 @@ John clarified the relationship between `line_of_business` and `sharing_scope`:
 
 ---
 
+## Document Enquiry Filters - Complete Reference
+
+Based on John's feedback, here are all the filters that should be applied in the document enquiry flow:
+
+### Filter Application Order
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: TEMPLATE FILTERING (which templates to consider)                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 1. line_of_business    - CREDIT_CARD, DIGITAL_BANK, or ENTERPRISE          │
+│ 2. template_type       - Letter, Email, SMS, Push (communication type)     │
+│ 3. message_center_doc_flag - Must be true for web/message center display   │
+│ 4. active_flag         - Only active templates                              │
+│ 5. accessible_flag     - Only accessible templates                          │
+│ 6. start_date/end_date - Template validity period                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: ACCESS CONTROL (who can access within filtered templates)          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 7. sharing_scope       - NULL (account-specific), ALL, CUSTOM_RULES        │
+│ 8. eligibility_criteria - Custom rules evaluation (for CUSTOM_RULES)       │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: DOCUMENT FILTERING (which documents within matched templates)       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 9.  accountId          - Filter by account(s)                               │
+│ 10. customerId         - Filter by customer                                 │
+│ 11. reference_key      - Match by disclosure code, etc.                    │
+│ 12. valid_from/valid_until - Document validity dates                       │
+│ 13. postedFromDate/postedToDate - Document creation date range             │
+│ 14. documentTypeCategoryGroup - Filter by template_type + category         │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Filter Details
+
+| # | Filter | Location | Values/Type | Status | John's Feedback |
+|---|--------|----------|-------------|--------|-----------------|
+| 1 | `line_of_business` | Template | `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` | ✅ Implemented | "Line of business is enterprise, credit card, digital banking" |
+| 2 | `template_type` | Template | `Letter`, `Email`, `SMS`, `Push` | ⚠️ Needs filter | "Add filter so you don't get mixture of different types" |
+| 3 | `message_center_doc_flag` | Template | Boolean | ❌ Not implemented | "Make sure document is assigned to message center" |
+| 4 | `active_flag` | Template | Boolean | ✅ Implemented | - |
+| 5 | `accessible_flag` | Template | Boolean | ⚠️ Partial | Should be filtered in query |
+| 6 | `start_date`/`end_date` | Template | Epoch time | ✅ Implemented | - |
+| 7 | `sharing_scope` | Template | `NULL`, `ALL`, `CUSTOM_RULES` | ✅ Implemented | Separate from line_of_business |
+| 8 | `eligibility_criteria` | Template config | JSON rules | ✅ Implemented | - |
+| 9 | `accountId` | Request | UUID[] | ✅ Implemented | - |
+| 10 | `customerId` | Request | UUID | ⚠️ Partial | In request, not fully used |
+| 11 | `reference_key` | Request/Extracted | String | ✅ Implemented | Used for document matching |
+| 12 | `valid_from`/`valid_until` | Document metadata | Date | ✅ Implemented | "Check effective date range" |
+| 13 | `postedFromDate`/`postedToDate` | Request | Epoch | ❌ Not implemented | Filter by doc creation date |
+| 14 | `documentTypeCategoryGroup` | Request | Array | ❌ Not implemented | Filter by type + category |
+
+### Special Flags
+
+| Flag | Purpose | John's Explanation |
+|------|---------|-------------------|
+| `regulatory_flag` | Bypass do-not-contact | "If regulatory is true, it still has to get printed even if do-not-contact" |
+| `message_center_doc_flag` | Web display eligibility | "Make sure document is actually assigned to the message center" |
+| `notification_needed` | Trigger notifications | Customer notification required |
+
+### template_type Values (Communication Type)
+
+John clarified that `template_type` represents the communication channel:
+
+| template_type | Description | Example Vendors |
+|---------------|-------------|-----------------|
+| `Letter` | Physical mail | Smartcom, Handlebars |
+| `Email` | Electronic mail | Salesforce |
+| `SMS` | Text message | Twilio, etc. |
+| `Push` | Push notification | Firebase, etc. |
+
+**John's key point:** "For letters you might have Smartcom. For emails you might have Salesforce. But you'll never have Salesforce for a letter."
+
+---
+
 ## Detailed Action Items from Transcripts
 
 ### Day 1 - API Specification Actions
