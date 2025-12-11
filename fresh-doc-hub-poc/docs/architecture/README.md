@@ -2,15 +2,28 @@
 
 This directory contains detailed architecture documentation for the Document Hub service.
 
+## Implementation Status
+
+See [IMPLEMENTATION_STATUS.md](../IMPLEMENTATION_STATUS.md) for current progress and next steps.
+
 ## Documents
 
 | Document | Description |
 |----------|-------------|
+| [Questions for John](../QUESTIONS_FOR_JOHN.md) | **ACTION REQUIRED** - Consolidated questions needing clarification |
+| [Implementation Status](../IMPLEMENTATION_STATUS.md) | Current progress, completed work, and next steps |
+| [TODO Backlog](../TODO_BACKLOG.md) | **43 actionable items** organized by priority for team assignment |
+| [P0 Implementation Specs](../implementation-specs/P0-IMPLEMENTATION-SPECS.md) | **Detailed specs** for 9 critical (P0) items with code examples |
+| [P1 HATEOAS Links Access Control](../implementation-specs/P1-HATEOAS-LINKS-ACCESS-CONTROL.md) | Filter action links by requestor type and template permissions |
+| [API Specification Changes](../implementation-specs/API-SPECIFICATION-CHANGES.md) | All required changes to OpenAPI spec (doc-hub.yaml) |
+| [Document Upload Flow](../implementation-specs/DOCUMENT-UPLOAD-FLOW.md) | Complete guide for uploading documents to Document Hub |
 | [Document Enquiry Flow](./document-enquiry-flow.md) | Comprehensive diagrams showing the `/documents-enquiry` endpoint logic |
+| [Message Center Doc Flag Options](./message-center-doc-flag-options.md) | Implementation options for message_center_doc_flag filter (pending decision) |
 | [Use Cases & Design Review](./use-cases-design-review.md) | Analysis of current 10 use cases, database, and API design |
 | [Business Use Cases (Comprehensive)](./business-use-cases-comprehensive.md) | Full 53 use cases for complete document management platform |
 | [Gap Analysis](./gap-analysis.md) | Comparison of current implementation vs comprehensive use cases |
 | [Schema Analysis: Versioning & Vendors](./schema-analysis-versioning-vendor.md) | Deep dive into template versioning and vendor mapping schema |
+| [Demo Feedback Summary](../demo-feedback-summary.md) | Feedback from demo sessions and action items |
 
 ## Quick Links
 
@@ -30,6 +43,7 @@ This directory contains detailed architecture documentation for the Document Hub
 | Step | Filter | Purpose |
 |------|--------|---------|
 | STEP 1 | `line_of_business` | Which business unit's templates to load (`CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE`) |
+| STEP 1 | `template_type` | Filter by document type via `documentTypeCategoryGroup` (documentTypes = template_type) |
 | STEP 2 | `sharing_scope` | Who can access within those templates |
 
 #### Sharing Scopes

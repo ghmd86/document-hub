@@ -128,4 +128,34 @@ public class MasterTemplateDefinitionEntity {
 
     @Column("record_status")
     private String recordStatus;
+
+    // ====================================================================
+    // P0 Fields - Added December 2024
+    // ====================================================================
+
+    /**
+     * Communication channel for document delivery.
+     * Values: LETTER, EMAIL, SMS, PUSH
+     * Default: LETTER
+     * Source: P0-002
+     */
+    @Column("communication_type")
+    private String communicationType;
+
+    /**
+     * WCM workflow type for template approval.
+     * Values: 2_EYES (single approver), 4_EYES (dual approver/maker-checker)
+     * Source: P0-006
+     */
+    @Column("workflow")
+    private String workflow;
+
+    /**
+     * Controls whether queries return single or multiple documents.
+     * true (default): Return only the most recent document
+     * false: Return all matching documents (e.g., statements)
+     * Source: P0-009
+     */
+    @Column("single_document_flag")
+    private Boolean singleDocumentFlag;
 }

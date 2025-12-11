@@ -423,6 +423,22 @@ components:
       - CUSTOMER
       - AGENT
       - SYSTEM
+    CommunicationType:
+      type: string
+      description: |
+        Communication channel for document delivery.
+        - LETTER: Physical mail delivery (default)
+        - EMAIL: Electronic mail delivery
+        - SMS: Text message delivery
+        - PUSH: Push notification delivery
+      enum:
+        - LETTER
+        - EMAIL
+        - SMS
+        - PUSH
+      default: LETTER
+      example: LETTER
+      x-data-classification: public
     DocumentListRequest:
       type: object
       properties:
@@ -449,6 +465,17 @@ components:
             - ENTERPRISE
           example: CREDIT_CARD
           x-data-classification: public
+        messageCenterDocFlag:
+          type: boolean
+          description: |
+            Filter documents by message center eligibility.
+            - true (default): Return only documents displayable in message center
+            - false: Return BOTH message center and non-message center documents
+          default: true
+          example: true
+          x-data-classification: public
+        communicationType:
+          $ref: "#/components/schemas/CommunicationType"
         referenceKey:
           type: string
           description: Filter documents based on reference key associated with the document
@@ -796,6 +823,15 @@ components:
           x-data-classification: public
           items:
             type: string
+        expiresAt:
+          type: integer
+          format: int64
+          description: |
+            Epoch timestamp (seconds) when this download link expires.
+            Client should request a new link if current time exceeds this value.
+            Typical validity: 10 minutes from generation.
+          example: 1740527443
+          x-data-classification: public
     Links_delete:
       type: object
       properties:

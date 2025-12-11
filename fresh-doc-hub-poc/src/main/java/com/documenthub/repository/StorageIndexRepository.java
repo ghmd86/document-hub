@@ -84,4 +84,62 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
         @Param("templateType") String templateType,
         @Param("templateVersion") Integer templateVersion
     );
+
+    /**
+     * Find account-specific documents with date range filtering
+     * Uses doc_creation_date for posted date filtering
+     */
+    @Query("SELECT * FROM document_hub.storage_index " +
+           "WHERE account_key = :accountKey " +
+           "AND shared_flag = false " +
+           "AND accessible_flag = true " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion " +
+           "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate)")
+    Flux<StorageIndexEntity> findAccountSpecificDocumentsWithDateRange(
+        @Param("accountKey") UUID accountKey,
+        @Param("templateType") String templateType,
+        @Param("templateVersion") Integer templateVersion,
+        @Param("postedFromDate") Long postedFromDate,
+        @Param("postedToDate") Long postedToDate
+    );
+
+    /**
+     * Find shared documents with date range filtering
+     * Uses doc_creation_date for posted date filtering
+     */
+    @Query("SELECT * FROM document_hub.storage_index " +
+           "WHERE shared_flag = true " +
+           "AND accessible_flag = true " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion " +
+           "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate)")
+    Flux<StorageIndexEntity> findSharedDocumentsWithDateRange(
+        @Param("templateType") String templateType,
+        @Param("templateVersion") Integer templateVersion,
+        @Param("postedFromDate") Long postedFromDate,
+        @Param("postedToDate") Long postedToDate
+    );
+
+    /**
+     * Find documents by reference key with template filtering and date range
+     */
+    @Query("SELECT * FROM document_hub.storage_index " +
+           "WHERE reference_key = :referenceKey " +
+           "AND reference_key_type = :referenceKeyType " +
+           "AND accessible_flag = true " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion " +
+           "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate)")
+    Flux<StorageIndexEntity> findByReferenceKeyAndTemplateWithDateRange(
+        @Param("referenceKey") String referenceKey,
+        @Param("referenceKeyType") String referenceKeyType,
+        @Param("templateType") String templateType,
+        @Param("templateVersion") Integer templateVersion,
+        @Param("postedFromDate") Long postedFromDate,
+        @Param("postedToDate") Long postedToDate
+    );
 }

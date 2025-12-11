@@ -79,8 +79,9 @@ public class DocumentEnquiryController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        // Call service
-        return documentEnquiryService.getDocuments(body)
+        // Call service with requestor type for access control
+        String requestorType = xRequestorType != null ? xRequestorType.getValue() : "CUSTOMER";
+        return documentEnquiryService.getDocuments(body, requestorType)
             .map(response -> {
                 log.info("Successfully retrieved {} documents",
                     response.getDocumentList() != null ? response.getDocumentList().size() : 0);

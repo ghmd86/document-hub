@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -48,18 +49,37 @@ public class DocumentEnquiryService {
     @Value("${app.pagination.max-page-size:100}")
     private int maxPageSize;
 
+    @Value("${app.links.download.expiration-seconds:600}")
+    private int linkExpirationSeconds;
+
     /**
-     * Main entry point for document enquiry
+     * Main entry point for document enquiry (legacy - without requestor type)
+     * Defaults to CUSTOMER requestor type
+     */
+    public Mono<DocumentRetrievalResponse> getDocuments(DocumentListRequest request) {
+        return getDocuments(request, "CUSTOMER");
+    }
+
+    /**
+     * Main entry point for document enquiry with requestor type
      *
      * Implements TWO-STEP filtering based on John's clarification:
      * STEP 1: Filter templates by line_of_business (which business unit's templates)
+     *         Also applies documentTypeCategoryGroup filter (maps to template_type)
+     *         NEW: Also applies messageCenterDocFlag and communicationType filters
      * STEP 2: Filter by sharing_scope (who can access within those templates)
+     *
+     * @param request The document list request with filters
+     * @param requestorType The type of requestor (CUSTOMER, AGENT, SYSTEM) for access control
      */
-    public Mono<DocumentRetrievalResponse> getDocuments(DocumentListRequest request) {
-        log.info("Processing document enquiry - customerId: {}, accountIds: {}, lineOfBusiness: {}",
+    public Mono<DocumentRetrievalResponse> getDocuments(DocumentListRequest request, String requestorType) {
+        log.info("Processing document enquiry - customerId: {}, accountIds: {}, lineOfBusiness: {}, messageCenterDocFlag: {}, communicationType: {}, requestorType: {}",
             request.getCustomerId(),
             request.getAccountId(),
-            request.getLineOfBusiness());
+            request.getLineOfBusiness(),
+            request.getMessageCenterDocFlag(),
+            request.getCommunicationType(),
+            requestorType);
 
         long startTime = System.currentTimeMillis();
         Long currentEpochTime = Instant.now().toEpochMilli();
@@ -74,31 +94,62 @@ public class DocumentEnquiryService {
             return Mono.just(buildEmptyResponse(request));
         }
 
+        // Extract template types from documentTypeCategoryGroup (maps to template_type in DB)
+        List<String> requestedTemplateTypes = extractTemplateTypes(request);
+
+        // Extract P0 filters
+        Boolean messageCenterDocFlag = request.getMessageCenterDocFlag() != null ?
+            request.getMessageCenterDocFlag() : true; // Default to true
+        String communicationType = request.getCommunicationType() != null ?
+            request.getCommunicationType().getValue() : null;
+
+        // Extract date range filters
+        Long postedFromDate = request.getPostedFromDate();
+        Long postedToDate = request.getPostedToDate();
+
         // STEP 1: Determine line of business for template filtering
         // If not provided in request, derive from first account's metadata
         return determineLineOfBusiness(request, accountIds.get(0))
             .flatMap(lineOfBusiness -> {
                 log.info("═══════════════════════════════════════════════════════════════");
-                log.info("STEP 1: LINE OF BUSINESS FILTER");
-                log.info("  Resolved lineOfBusiness = '{}'", lineOfBusiness);
-                log.info("  Will load templates where line_of_business = '{}' OR 'ENTERPRISE'", lineOfBusiness);
+                log.info("STEP 1: TEMPLATE FILTERS");
+                log.info("  lineOfBusiness = '{}'", lineOfBusiness);
+                log.info("  messageCenterDocFlag = {}", messageCenterDocFlag);
+                log.info("  communicationType = '{}'", communicationType);
+                if (!requestedTemplateTypes.isEmpty()) {
+                    log.info("  templateTypes = {}", requestedTemplateTypes);
+                }
+                if (postedFromDate != null || postedToDate != null) {
+                    log.info("  postedFromDate = {}, postedToDate = {}", postedFromDate, postedToDate);
+                }
                 log.info("═══════════════════════════════════════════════════════════════");
 
-                // Load templates filtered by line of business
-                return templateRepository.findActiveTemplatesByLineOfBusiness(lineOfBusiness, currentEpochTime)
-                    .collectList()
+                // Load templates with all filters applied
+                Flux<MasterTemplateDefinitionEntity> templateFlux;
+                if (!requestedTemplateTypes.isEmpty()) {
+                    // Filter by line of business, template types, AND P0 filters
+                    templateFlux = templateRepository.findActiveTemplatesWithAllFilters(
+                        lineOfBusiness, requestedTemplateTypes, messageCenterDocFlag, communicationType, currentEpochTime);
+                } else {
+                    // Filter by line of business AND P0 filters only
+                    templateFlux = templateRepository.findActiveTemplatesWithFilters(
+                        lineOfBusiness, messageCenterDocFlag, communicationType, currentEpochTime);
+                }
+
+                return templateFlux.collectList()
                     .flatMap(templates -> {
                         log.info("═══════════════════════════════════════════════════════════════");
-                        log.info("TEMPLATES LOADED: Found {} templates for lineOfBusiness='{}'",
-                            templates.size(), lineOfBusiness);
+                        log.info("TEMPLATES LOADED: Found {} templates after filtering",
+                            templates.size());
                         log.info("═══════════════════════════════════════════════════════════════");
                         for (MasterTemplateDefinitionEntity t : templates) {
-                            log.info("  Template: type={}, LOB={}, shared={}, sharingScope={}, hasDataConfig={}",
+                            log.info("  Template: type={}, LOB={}, msgCenter={}, commType={}, shared={}, sharingScope={}",
                                 t.getTemplateType(),
                                 t.getLineOfBusiness(),
+                                t.getMessageCenterDocFlag(),
+                                t.getCommunicationType(),
                                 t.getSharedDocumentFlag(),
-                                t.getSharingScope(),
-                                t.getDataExtractionConfig() != null);
+                                t.getSharingScope());
                         }
                         log.info("═══════════════════════════════════════════════════════════════");
                         log.info("STEP 2: SHARING SCOPE FILTER (per template)");
@@ -109,7 +160,10 @@ public class DocumentEnquiryService {
                             .flatMap(accountIdStr -> processAccount(
                                 UUID.fromString(accountIdStr),
                                 templates,
-                                request
+                                request,
+                                postedFromDate,
+                                postedToDate,
+                                requestorType
                             ))
                             .collectList()
                             .map(documentLists -> {
@@ -199,12 +253,53 @@ public class DocumentEnquiryService {
     }
 
     /**
+     * Extract template types from documentTypeCategoryGroup in the request.
+     * The documentTypes in the API request map directly to template_type in the database.
+     *
+     * Example request structure:
+     * {
+     *   "documentTypeCategoryGroup": [
+     *     { "category": "Statement", "documentTypes": ["Statement", "SavingsStatement"] },
+     *     { "category": "PrivacyPolicy", "documentTypes": ["PrivacyNotice"] }
+     *   ]
+     * }
+     *
+     * This extracts all documentTypes: ["Statement", "SavingsStatement", "PrivacyNotice"]
+     * which map to template_type values in master_template_definition table.
+     */
+    private List<String> extractTemplateTypes(DocumentListRequest request) {
+        List<DocumentCategoryGroup> categoryGroups = request.getDocumentTypeCategoryGroup();
+
+        if (categoryGroups == null || categoryGroups.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> templateTypes = new ArrayList<>();
+        for (DocumentCategoryGroup group : categoryGroups) {
+            if (group.getDocumentTypes() != null) {
+                // documentTypes is List<String> - each string maps to template_type
+                for (String docType : group.getDocumentTypes()) {
+                    if (docType != null && !docType.isEmpty()) {
+                        templateTypes.add(docType);
+                    }
+                }
+            }
+        }
+
+        log.debug("Extracted template types from documentTypeCategoryGroup: {}", templateTypes);
+        return templateTypes;
+    }
+
+    /**
      * Process documents for a single account
      */
     private Mono<List<DocumentDetailsNode>> processAccount(
         UUID accountId,
         List<MasterTemplateDefinitionEntity> templates,
-        DocumentListRequest request
+        DocumentListRequest request,
+        Long postedFromDate,
+        Long postedToDate,
+        String requestorType
     ) {
         log.debug("Processing account: {}", accountId);
 
@@ -226,7 +321,10 @@ public class DocumentEnquiryService {
                         accountId,
                         accountMetadata,
                         requestContext,
-                        request
+                        request,
+                        postedFromDate,
+                        postedToDate,
+                        requestorType
                     ))
                     .collectList()
                     .map(documentLists -> documentLists.stream()
@@ -244,7 +342,10 @@ public class DocumentEnquiryService {
         UUID accountId,
         AccountMetadata accountMetadata,
         Map<String, Object> requestContext,
-        DocumentListRequest request
+        DocumentListRequest request,
+        Long postedFromDate,
+        Long postedToDate,
+        String requestorType
     ) {
         log.info("───────────────────────────────────────────────────────────────");
         log.info("PROCESSING TEMPLATE: {}", template.getTemplateType());
@@ -292,10 +393,10 @@ public class DocumentEnquiryService {
                         template.getTemplateType());
 
                     // Query documents (pass extracted data for document matching)
-                    return queryDocuments(template, accountId, accountMetadata, extractedData)
+                    return queryDocuments(template, accountId, accountMetadata, extractedData, postedFromDate, postedToDate)
                         .doOnNext(docs -> log.info("queryDocuments returned {} documents for template {}",
                             docs.size(), template.getTemplateType()))
-                        .map(docs -> convertToDocumentDetailsNodes(docs, template));
+                        .map(docs -> convertToDocumentDetailsNodes(docs, template, requestorType));
                 })
                 .onErrorResume(e -> {
                     log.error("Data extraction failed for template {}: {} - Skipping template",
@@ -312,8 +413,8 @@ public class DocumentEnquiryService {
             }
 
             // Query documents (no extracted data)
-            return queryDocuments(template, accountId, accountMetadata, null)
-                .map(docs -> convertToDocumentDetailsNodes(docs, template));
+            return queryDocuments(template, accountId, accountMetadata, null, postedFromDate, postedToDate)
+                .map(docs -> convertToDocumentDetailsNodes(docs, template, requestorType));
         }
     }
 
@@ -397,12 +498,15 @@ public class DocumentEnquiryService {
         MasterTemplateDefinitionEntity template,
         UUID accountId,
         AccountMetadata accountMetadata,
-        Map<String, Object> extractedData
+        Map<String, Object> extractedData,
+        Long postedFromDate,
+        Long postedToDate
     ) {
         log.info("───────────────────────────────────────────────────────────────");
         log.info("QUERY DOCUMENTS for template: {}", template.getTemplateType());
         log.info("  hasDataExtractionConfig: {}", template.getDataExtractionConfig() != null);
         log.info("  hasExtractedData: {}", extractedData != null);
+        log.info("  postedFromDate: {}, postedToDate: {}", postedFromDate, postedToDate);
         log.info("───────────────────────────────────────────────────────────────");
 
         // Check for document matching configuration
@@ -439,12 +543,14 @@ public class DocumentEnquiryService {
                             log.info("  template_version = {}", template.getTemplateVersion());
                             log.info("═══════════════════════════════════════════════════════════════");
 
-                            // Query by reference key
-                            return storageRepository.findByReferenceKeyAndTemplate(
+                            // Query by reference key with date range
+                            return storageRepository.findByReferenceKeyAndTemplateWithDateRange(
                                 referenceKeyValue.toString(),
                                 referenceKeyType,
                                 template.getTemplateType(),
-                                template.getTemplateVersion()
+                                template.getTemplateVersion(),
+                                postedFromDate,
+                                postedToDate
                             ).collectList()
                             .map(this::filterByValidity)
                             .doOnNext(docs -> log.info("findByReferenceKeyAndTemplate returned {} valid documents", docs.size()));
@@ -474,11 +580,13 @@ public class DocumentEnquiryService {
                                 log.info("  template_type = '{}'", template.getTemplateType());
                                 log.info("═══════════════════════════════════════════════════════════════");
 
-                                return storageRepository.findByReferenceKeyAndTemplate(
+                                return storageRepository.findByReferenceKeyAndTemplateWithDateRange(
                                     matchedReferenceKey,
                                     referenceKeyType,
                                     template.getTemplateType(),
-                                    template.getTemplateVersion()
+                                    template.getTemplateVersion(),
+                                    postedFromDate,
+                                    postedToDate
                                 ).collectList()
                                 .map(this::filterByValidity)
                                 .doOnNext(docs -> log.info("Conditional match returned {} valid documents", docs.size()));
@@ -504,22 +612,26 @@ public class DocumentEnquiryService {
             }
         }
 
-        // Standard document queries
+        // Standard document queries with date range filtering
         if (Boolean.TRUE.equals(template.getSharedDocumentFlag())) {
-            // Query shared documents
-            return storageRepository.findSharedDocuments(
+            // Query shared documents with date range
+            return storageRepository.findSharedDocumentsWithDateRange(
                 template.getTemplateType(),
-                template.getTemplateVersion()
+                template.getTemplateVersion(),
+                postedFromDate,
+                postedToDate
             ).collectList()
             .map(this::filterByValidity)
             .doOnNext(docs -> log.debug("findSharedDocuments returned {} valid documents for template {}",
                 docs.size(), template.getTemplateType()));
         } else {
-            // Query account-specific documents
-            return storageRepository.findAccountSpecificDocuments(
+            // Query account-specific documents with date range
+            return storageRepository.findAccountSpecificDocumentsWithDateRange(
                 accountId,
                 template.getTemplateType(),
-                template.getTemplateVersion()
+                template.getTemplateVersion(),
+                postedFromDate,
+                postedToDate
             ).collectList()
             .map(this::filterByValidity)
             .doOnNext(docs -> log.debug("findAccountSpecificDocuments returned {} valid documents for account {}",
@@ -660,11 +772,28 @@ public class DocumentEnquiryService {
 
     /**
      * Convert storage entities to API response nodes
+     * Legacy method without requestor type - defaults to CUSTOMER
      */
     private List<DocumentDetailsNode> convertToDocumentDetailsNodes(
         List<StorageIndexEntity> entities,
         MasterTemplateDefinitionEntity template
     ) {
+        return convertToDocumentDetailsNodes(entities, template, "CUSTOMER");
+    }
+
+    /**
+     * Convert storage entities to API response nodes with access control
+     * Builds HATEOAS links based on requestor type and template access_control
+     */
+    private List<DocumentDetailsNode> convertToDocumentDetailsNodes(
+        List<StorageIndexEntity> entities,
+        MasterTemplateDefinitionEntity template,
+        String requestorType
+    ) {
+        // Get permitted actions for this requestor type
+        List<String> permittedActions = getPermittedActions(template, requestorType);
+        log.debug("Permitted actions for requestorType={}: {}", requestorType, permittedActions);
+
         return entities.stream()
             .map(entity -> {
                 DocumentDetailsNode node = new DocumentDetailsNode();
@@ -700,9 +829,129 @@ public class DocumentEnquiryService {
                     }
                 }
 
+                // Build HATEOAS links based on access control
+                // IMPORTANT: Never include delete link in enquiry response (per John's requirement)
+                Links links = buildLinksForDocument(entity, permittedActions);
+                node.setLinks(links);
+
                 return node;
             })
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Build HATEOAS links for a document based on permitted actions.
+     * IMPORTANT: Delete link is NEVER included in enquiry response (per John's Day 1 feedback).
+     */
+    private Links buildLinksForDocument(StorageIndexEntity document, List<String> permittedActions) {
+        Links links = new Links();
+
+        // Only add download link if permitted (View or Download action allowed)
+        if (permittedActions.contains("Download") || permittedActions.contains("View")) {
+            LinksDownload download = new LinksDownload();
+            download.setHref("/documents/" + document.getStorageDocumentKey());
+            download.setType("GET");
+            download.setRel("download");
+            download.setTitle("Download this document");
+            download.setResponseTypes(Arrays.asList("application/pdf", "application/octet-stream"));
+
+            // Add expiration timestamp (configurable, default 10 minutes)
+            long expiresAt = Instant.now().plusSeconds(linkExpirationSeconds).getEpochSecond();
+            download.setExpiresAt(expiresAt);
+
+            links.setDownload(download);
+        }
+
+        // NEVER add delete link in enquiry response (per John's requirement)
+        // Delete action should only be available through direct DELETE /documents/{documentId} endpoint
+
+        return links;
+    }
+
+    /**
+     * Get permitted actions for a requestor type based on template access_control.
+     * Maps X-requestor-type header to access_control roles.
+     */
+    private List<String> getPermittedActions(MasterTemplateDefinitionEntity template, String requestorType) {
+        if (template.getAccessControl() == null) {
+            // No restrictions - return default based on requestor type
+            return getDefaultActionsForRequestorType(requestorType);
+        }
+
+        try {
+            // Parse access_control JSON array
+            com.fasterxml.jackson.databind.JsonNode accessControlNode =
+                objectMapper.readTree(template.getAccessControl().asString());
+
+            // Map X-requestor-type to access_control role
+            String role = mapRequestorTypeToRole(requestorType);
+
+            // Find matching role in access_control array
+            if (accessControlNode.isArray()) {
+                for (com.fasterxml.jackson.databind.JsonNode entry : accessControlNode) {
+                    String entryRole = entry.has("role") ? entry.get("role").asText() : null;
+                    if (role.equalsIgnoreCase(entryRole)) {
+                        List<String> actions = new ArrayList<>();
+                        com.fasterxml.jackson.databind.JsonNode actionsNode = entry.get("actions");
+                        if (actionsNode != null && actionsNode.isArray()) {
+                            for (com.fasterxml.jackson.databind.JsonNode action : actionsNode) {
+                                actions.add(action.asText());
+                            }
+                        }
+                        return actions;
+                    }
+                }
+            }
+
+            // Role not found in access_control - return defaults
+            log.debug("Role '{}' not found in access_control, using defaults", role);
+            return getDefaultActionsForRequestorType(requestorType);
+
+        } catch (Exception e) {
+            log.warn("Failed to parse access_control for template {}: {}",
+                template.getTemplateType(), e.getMessage());
+            return getDefaultActionsForRequestorType(requestorType);
+        }
+    }
+
+    /**
+     * Map X-requestor-type header to access_control role
+     */
+    private String mapRequestorTypeToRole(String requestorType) {
+        if (requestorType == null) {
+            return "customer"; // Default to most restrictive
+        }
+
+        switch (requestorType.toUpperCase()) {
+            case "CUSTOMER":
+                return "customer";
+            case "AGENT":
+                return "agent";
+            case "SYSTEM":
+                return "system";
+            default:
+                return "customer";
+        }
+    }
+
+    /**
+     * Get default actions when no access_control defined
+     */
+    private List<String> getDefaultActionsForRequestorType(String requestorType) {
+        if (requestorType == null) {
+            return Arrays.asList("View", "Download");
+        }
+
+        switch (requestorType.toUpperCase()) {
+            case "CUSTOMER":
+                return Arrays.asList("View", "Download");
+            case "AGENT":
+                return Arrays.asList("View", "Download");
+            case "SYSTEM":
+                return Arrays.asList("View", "Update", "Delete", "Download");
+            default:
+                return Arrays.asList("View", "Download");
+        }
     }
 
     /**
