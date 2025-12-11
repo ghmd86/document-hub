@@ -1,0 +1,2229 @@
+openapi: 3.0.0
+info:
+  title: Document Hub - Template Management API
+  description: |
+    API for managing document templates in the Document Hub platform.
+
+    ## Overview
+    This API provides comprehensive template lifecycle management including:
+    - Template CRUD operations
+    - Version management
+    - Approval workflows
+    - Template preview and validation
+
+    ## Use Cases Covered
+    - UC-TM-001: Create New Template
+    - UC-TM-002: Edit Existing Template
+    - UC-TM-003: Clone Template
+    - UC-TM-004: Configure Template Variables
+    - UC-TM-005: Preview Template
+    - UC-TM-006: Archive Template
+    - UC-TM-007: Manage Template Versions
+    - UC-AW-001 to UC-AW-007: Approval Workflow
+
+    ## Template Lifecycle States
+    ```
+    DRAFT → IN_REVIEW → APPROVED → ACTIVE → DEPRECATED → ARCHIVED
+              ↓
+           REJECTED → DRAFT (revise)
+    ```
+  version: 1.0.0
+  contact:
+    name: Document Hub Team
+
+servers:
+  - url: https://api.company.com/document-hub/v1
+    description: Production
+  - url: https://api-staging.company.com/document-hub/v1
+    description: Staging
+
+tags:
+  - name: Templates
+    description: Template CRUD operations
+  - name: Template Versions
+    description: Template version management
+  - name: Template Preview
+    description: Template preview and validation
+  - name: Approval Workflow
+    description: Template approval workflow operations
+  - name: Template Variables
+    description: Template variable configuration
+
+paths:
+  # ============================================================
+  # TEMPLATE CRUD OPERATIONS
+  # ============================================================
+  /templates:
+    get:
+      tags:
+        - Templates
+      summary: List templates
+      description: |
+        Retrieve a paginated list of templates with optional filters.
+        Supports filtering by status, type, category, line of business, etc.
+      operationId: listTemplates
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - name: status
+          in: query
+          description: Filter by template status
+          schema:
+            $ref: '#/components/schemas/TemplateStatus'
+        - name: templateType
+          in: query
+          description: Filter by template type (e.g., Statement, PrivacyPolicy)
+          schema:
+            type: string
+        - name: communicationType
+          in: query
+          description: Filter by communication channel
+          schema:
+            $ref: '#/components/schemas/CommunicationType'
+        - name: lineOfBusiness
+          in: query
+          description: Filter by line of business
+          schema:
+            $ref: '#/components/schemas/LineOfBusiness'
+        - name: category
+          in: query
+          description: Filter by template category
+          schema:
+            type: string
+        - name: searchQuery
+          in: query
+          description: Search in template name and description
+          schema:
+            type: string
+        - name: createdBy
+          in: query
+          description: Filter by creator
+          schema:
+            type: string
+        - name: latestVersionOnly
+          in: query
+          description: Return only the latest version of each template
+          schema:
+            type: boolean
+            default: true
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Templates
+      summary: Create a new template
+      description: |
+        Create a new template definition. The template will be created in DRAFT status
+        with version 1.
+
+        **Use Case:** UC-TM-001
+      operationId: createTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Template with same name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}:
+    get:
+      tags:
+        - Templates
+      summary: Get template by ID
+      description: |
+        Retrieve a specific template by its ID. Returns the latest version
+        unless a specific version is requested.
+      operationId: getTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - name: version
+          in: query
+          description: Specific version to retrieve (default: latest)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Templates
+      summary: Update template
+      description: |
+        Update an existing template. Only templates in DRAFT status can be updated directly.
+
+        If the template is in APPROVED or ACTIVE status, a new version will be created
+        automatically in DRAFT status.
+
+        **Use Case:** UC-TM-002
+      operationId: updateTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template is locked (in review) and cannot be modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Templates
+      summary: Delete template (soft delete)
+      description: |
+        Soft delete a template by setting archive_indicator to true.
+        Only templates in DRAFT status can be deleted.
+        Active templates must be deprecated first.
+      operationId: deleteTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      responses:
+        '204':
+          description: Template deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template cannot be deleted (not in DRAFT status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/clone:
+    post:
+      tags:
+        - Templates
+      summary: Clone template
+      description: |
+        Create a copy of an existing template with a new ID.
+        The cloned template will be in DRAFT status with version 1.
+
+        **Use Case:** UC-TM-003
+      operationId: cloneTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloneTemplateRequest'
+      responses:
+        '201':
+          description: Template cloned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/archive:
+    post:
+      tags:
+        - Templates
+      summary: Archive template
+      description: |
+        Archive a template, making it unavailable for new document generation.
+        Existing documents remain accessible.
+
+        **Use Case:** UC-TM-006
+      operationId: archiveTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchiveTemplateRequest'
+      responses:
+        '200':
+          description: Template archived successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template has active dependencies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # VERSION MANAGEMENT
+  # ============================================================
+  /templates/{templateId}/versions:
+    get:
+      tags:
+        - Template Versions
+      summary: List template versions
+      description: |
+        Retrieve all versions of a template with their status and metadata.
+
+        **Use Case:** UC-TM-007
+      operationId: listTemplateVersions
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVersionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Template Versions
+      summary: Create new version
+      description: |
+        Create a new version of an existing template.
+        The new version will be in DRAFT status.
+      operationId: createTemplateVersion
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVersionRequest'
+      responses:
+        '201':
+          description: New version created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: A draft version already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/versions/{version}:
+    get:
+      tags:
+        - Template Versions
+      summary: Get specific version
+      description: Retrieve a specific version of a template.
+      operationId: getTemplateVersion
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - $ref: '#/components/parameters/TemplateVersion'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/versions/{version}/compare:
+    get:
+      tags:
+        - Template Versions
+      summary: Compare versions
+      description: |
+        Compare two versions of a template side by side.
+        Returns differences between the versions.
+      operationId: compareVersions
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - $ref: '#/components/parameters/TemplateVersion'
+        - name: compareWith
+          in: query
+          required: true
+          description: Version number to compare with
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionComparisonResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/versions/{version}/rollback:
+    post:
+      tags:
+        - Template Versions
+      summary: Rollback to version
+      description: |
+        Create a new draft version based on a previous version.
+        This does not delete or modify the current version.
+      operationId: rollbackToVersion
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - $ref: '#/components/parameters/TemplateVersion'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Reason for rollback
+      responses:
+        '201':
+          description: New version created from rollback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: A draft version already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # TEMPLATE PREVIEW & VALIDATION
+  # ============================================================
+  /templates/{templateId}/preview:
+    post:
+      tags:
+        - Template Preview
+      summary: Preview template
+      description: |
+        Generate a preview of the template with sample or provided data.
+        Returns the rendered output in the requested format.
+
+        **Use Case:** UC-TM-005
+      operationId: previewTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - name: version
+          in: query
+          description: Template version (default: latest)
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewTemplateRequest'
+      responses:
+        '200':
+          description: Preview generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewResponse'
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/validate:
+    post:
+      tags:
+        - Template Preview
+      summary: Validate template
+      description: |
+        Validate template structure, variables, and configuration.
+        Returns validation results with any errors or warnings.
+      operationId: validateTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - name: version
+          in: query
+          description: Template version (default: latest)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # TEMPLATE VARIABLES
+  # ============================================================
+  /templates/{templateId}/variables:
+    get:
+      tags:
+        - Template Variables
+      summary: Get template variables
+      description: |
+        Retrieve the list of variables/placeholders defined in the template.
+
+        **Use Case:** UC-TM-004
+      operationId: getTemplateVariables
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - name: version
+          in: query
+          description: Template version (default: latest)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVariablesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Template Variables
+      summary: Update template variables
+      description: Update the variable definitions for a template.
+      operationId: updateTemplateVariables
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVariablesRequest'
+      responses:
+        '200':
+          description: Variables updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVariablesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template is locked and cannot be modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # APPROVAL WORKFLOW
+  # ============================================================
+  /templates/{templateId}/submit:
+    post:
+      tags:
+        - Approval Workflow
+      summary: Submit template for review
+      description: |
+        Submit a draft template for approval workflow.
+        Template status changes to IN_REVIEW.
+
+        **Use Case:** UC-AW-001
+      operationId: submitForReview
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitForReviewRequest'
+      responses:
+        '200':
+          description: Template submitted for review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalWorkflowResponse'
+        '400':
+          description: Template validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template not in DRAFT status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/review:
+    post:
+      tags:
+        - Approval Workflow
+      summary: Review template
+      description: |
+        Submit review decision for a template (approve, request changes, reject).
+
+        **Use Case:** UC-AW-002
+      operationId: reviewTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDecisionRequest'
+      responses:
+        '200':
+          description: Review decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalWorkflowResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User not authorized to review this template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template not in reviewable status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/approve:
+    post:
+      tags:
+        - Approval Workflow
+      summary: Approve template
+      description: |
+        Grant final approval for a template. Template status changes to APPROVED.
+
+        **Use Case:** UC-AW-005
+      operationId: approveTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Template approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalWorkflowResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User not authorized to approve
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template not ready for approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/activate:
+    post:
+      tags:
+        - Approval Workflow
+      summary: Activate template
+      description: |
+        Activate an approved template for document generation.
+        Template status changes to ACTIVE.
+
+        **Use Case:** UC-AW-006
+      operationId: activateTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateTemplateRequest'
+      responses:
+        '200':
+          description: Template activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template not in APPROVED status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/deprecate:
+    post:
+      tags:
+        - Approval Workflow
+      summary: Deprecate template
+      description: |
+        Mark an active template as deprecated.
+        Template can no longer be used for new document generation.
+      operationId: deprecateTemplate
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeprecateTemplateRequest'
+      responses:
+        '200':
+          description: Template deprecated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Template not in ACTIVE status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/comments:
+    get:
+      tags:
+        - Approval Workflow
+      summary: Get review comments
+      description: |
+        Retrieve all comments/feedback for a template.
+
+        **Use Case:** UC-AW-003
+      operationId: getTemplateComments
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - name: version
+          in: query
+          description: Filter by template version
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter by comment status
+          schema:
+            type: string
+            enum: [OPEN, RESOLVED, ALL]
+            default: ALL
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentsListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Approval Workflow
+      summary: Add review comment
+      description: Add a comment or feedback item to a template.
+      operationId: addTemplateComment
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCommentRequest'
+      responses:
+        '201':
+          description: Comment added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/comments/{commentId}:
+    put:
+      tags:
+        - Approval Workflow
+      summary: Update comment
+      description: |
+        Update a comment (resolve, respond, etc.).
+
+        **Use Case:** UC-AW-004
+      operationId: updateComment
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCommentRequest'
+      responses:
+        '200':
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /templates/{templateId}/workflow-history:
+    get:
+      tags:
+        - Approval Workflow
+      summary: Get workflow history
+      description: |
+        Retrieve the complete approval workflow history for a template.
+
+        **Use Case:** UC-AW-007
+      operationId: getWorkflowHistory
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+        - $ref: '#/components/parameters/TemplateId'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowHistoryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # APPROVAL DASHBOARD
+  # ============================================================
+  /approval-dashboard:
+    get:
+      tags:
+        - Approval Workflow
+      summary: Get approval dashboard
+      description: |
+        Get approval pipeline summary and pending items for the current user.
+
+        **Use Case:** UC-AW-007
+      operationId: getApprovalDashboard
+      parameters:
+        - $ref: '#/components/parameters/XVersion'
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XRequestorId'
+        - $ref: '#/components/parameters/XRequestorType'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDashboardResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+# ============================================================
+# COMPONENTS
+# ============================================================
+components:
+  parameters:
+    XVersion:
+      name: X-version
+      in: header
+      required: true
+      description: API version
+      schema:
+        type: integer
+        default: 1
+
+    XCorrelationId:
+      name: X-correlation-id
+      in: header
+      required: true
+      description: Correlation ID for request tracing
+      schema:
+        type: string
+        maxLength: 36
+
+    XRequestorId:
+      name: X-requestor-id
+      in: header
+      required: true
+      description: ID of the requestor
+      schema:
+        type: string
+        format: uuid
+
+    XRequestorType:
+      name: X-requestor-type
+      in: header
+      required: true
+      description: Type of the requestor
+      schema:
+        type: string
+        enum: [CUSTOMER, AGENT, SYSTEM]
+
+    TemplateId:
+      name: templateId
+      in: path
+      required: true
+      description: Template unique identifier
+      schema:
+        type: string
+        format: uuid
+
+    TemplateVersion:
+      name: version
+      in: path
+      required: true
+      description: Template version number
+      schema:
+        type: integer
+
+    PageNumber:
+      name: pageNumber
+      in: query
+      description: Page number (1-based)
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    PageSize:
+      name: pageSize
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+    SortBy:
+      name: sortBy
+      in: query
+      description: Field to sort by
+      schema:
+        type: string
+        enum: [templateName, createdTimestamp, updatedTimestamp, status]
+        default: updatedTimestamp
+
+    SortOrder:
+      name: sortOrder
+      in: query
+      description: Sort direction
+      schema:
+        type: string
+        enum: [ASC, DESC]
+        default: DESC
+
+  schemas:
+    # ============================================================
+    # ENUMS
+    # ============================================================
+    TemplateStatus:
+      type: string
+      description: Template lifecycle status
+      enum:
+        - DRAFT
+        - IN_REVIEW
+        - APPROVED
+        - ACTIVE
+        - DEPRECATED
+        - ARCHIVED
+        - REJECTED
+
+    CommunicationType:
+      type: string
+      description: Communication channel type
+      enum:
+        - LETTER
+        - EMAIL
+        - SMS
+        - PUSH
+
+    LineOfBusiness:
+      type: string
+      description: Line of business
+      enum:
+        - CREDIT_CARD
+        - DIGITAL_BANK
+        - ENTERPRISE
+
+    WorkflowType:
+      type: string
+      description: Approval workflow type
+      enum:
+        - 2_EYES
+        - 4_EYES
+        - COMPLIANCE
+
+    ReviewDecision:
+      type: string
+      description: Review decision options
+      enum:
+        - APPROVE
+        - REQUEST_CHANGES
+        - REJECT
+
+    CommentPriority:
+      type: string
+      description: Comment/feedback priority
+      enum:
+        - CRITICAL
+        - MAJOR
+        - MINOR
+
+    VariableType:
+      type: string
+      description: Template variable type
+      enum:
+        - STRING
+        - NUMBER
+        - DATE
+        - BOOLEAN
+        - CURRENCY
+        - LIST
+        - OBJECT
+
+    VariableSource:
+      type: string
+      description: Variable data source
+      enum:
+        - CUSTOMER_API
+        - ACCOUNT_API
+        - PRODUCT_API
+        - STATIC_CONFIG
+        - CALCULATED
+        - USER_INPUT
+
+    # ============================================================
+    # REQUEST SCHEMAS
+    # ============================================================
+    CreateTemplateRequest:
+      type: object
+      required:
+        - templateName
+        - templateType
+        - communicationType
+        - lineOfBusiness
+      properties:
+        templateName:
+          type: string
+          description: Human-readable template name
+          maxLength: 255
+          example: "Monthly Statement - Credit Card"
+        templateDescription:
+          type: string
+          description: Template description
+          maxLength: 1000
+        templateType:
+          type: string
+          description: Document type (e.g., Statement, PrivacyPolicy, Notice)
+          example: "Statement"
+        communicationType:
+          $ref: '#/components/schemas/CommunicationType'
+        lineOfBusiness:
+          $ref: '#/components/schemas/LineOfBusiness'
+        category:
+          type: string
+          description: Template category
+          example: "Regulatory"
+        languageCode:
+          type: string
+          description: Language code (ISO 639-1)
+          default: "en"
+          example: "en"
+        owningDepartment:
+          type: string
+          description: Department responsible for template
+          example: "Compliance"
+        displayName:
+          type: string
+          description: Display name shown to customers
+          example: "Credit Card Statement"
+        notificationNeeded:
+          type: boolean
+          description: Whether notification should be sent on generation
+          default: false
+        regulatoryFlag:
+          type: boolean
+          description: Whether this is a regulatory document
+          default: false
+        messageCenterDocFlag:
+          type: boolean
+          description: Whether document appears in message center
+          default: true
+        sharedDocumentFlag:
+          type: boolean
+          description: Whether document is shared across accounts
+          default: false
+        sharingScope:
+          type: string
+          description: Sharing scope for shared documents
+          enum: [ALL, CUSTOM_RULES]
+        singleDocumentFlag:
+          type: boolean
+          description: Return only single document (latest) vs all matching
+          default: true
+        startDate:
+          type: integer
+          format: int64
+          description: Epoch timestamp when template becomes active
+        endDate:
+          type: integer
+          format: int64
+          description: Epoch timestamp when template expires
+        templateContent:
+          type: string
+          description: Template content (HTML, text, etc.)
+        templateVariables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+        requiredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequiredField'
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlEntry'
+        dataExtractionConfig:
+          $ref: '#/components/schemas/DataExtractionConfig'
+        eligibilityCriteria:
+          $ref: '#/components/schemas/EligibilityCriteria'
+
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        templateName:
+          type: string
+          maxLength: 255
+        templateDescription:
+          type: string
+          maxLength: 1000
+        displayName:
+          type: string
+        category:
+          type: string
+        owningDepartment:
+          type: string
+        notificationNeeded:
+          type: boolean
+        regulatoryFlag:
+          type: boolean
+        messageCenterDocFlag:
+          type: boolean
+        sharedDocumentFlag:
+          type: boolean
+        sharingScope:
+          type: string
+          enum: [ALL, CUSTOM_RULES]
+        singleDocumentFlag:
+          type: boolean
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        templateContent:
+          type: string
+        templateVariables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+        requiredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequiredField'
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlEntry'
+        dataExtractionConfig:
+          $ref: '#/components/schemas/DataExtractionConfig'
+        eligibilityCriteria:
+          $ref: '#/components/schemas/EligibilityCriteria'
+
+    CloneTemplateRequest:
+      type: object
+      required:
+        - newTemplateName
+      properties:
+        newTemplateName:
+          type: string
+          description: Name for the cloned template
+          maxLength: 255
+        newTemplateDescription:
+          type: string
+          description: Description for the cloned template
+
+    ArchiveTemplateRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Reason for archiving
+        replacementTemplateId:
+          type: string
+          format: uuid
+          description: ID of replacement template (if any)
+
+    CreateVersionRequest:
+      type: object
+      properties:
+        baseVersion:
+          type: integer
+          description: Version to base new version on (default: latest)
+        changeNotes:
+          type: string
+          description: Notes describing changes in new version
+
+    PreviewTemplateRequest:
+      type: object
+      required:
+        - outputFormat
+      properties:
+        outputFormat:
+          type: string
+          description: Desired output format
+          enum: [PDF, HTML, TEXT, JSON]
+          default: PDF
+        sampleDataSetId:
+          type: string
+          description: ID of predefined sample data set
+        customData:
+          type: object
+          description: Custom data for preview rendering
+          additionalProperties: true
+        watermark:
+          type: boolean
+          description: Add PREVIEW watermark
+          default: true
+
+    UpdateVariablesRequest:
+      type: object
+      required:
+        - variables
+      properties:
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+
+    SubmitForReviewRequest:
+      type: object
+      required:
+        - workflowType
+      properties:
+        workflowType:
+          $ref: '#/components/schemas/WorkflowType'
+        submissionNotes:
+          type: string
+          description: Notes for reviewers
+        assignedReviewers:
+          type: array
+          items:
+            type: string
+          description: Specific reviewers to assign (optional)
+
+    ReviewDecisionRequest:
+      type: object
+      required:
+        - decision
+      properties:
+        decision:
+          $ref: '#/components/schemas/ReviewDecision'
+        comments:
+          type: string
+          description: Review comments
+
+    ApprovalRequest:
+      type: object
+      properties:
+        approvalNotes:
+          type: string
+          description: Notes from approver
+
+    ActivateTemplateRequest:
+      type: object
+      properties:
+        activationDate:
+          type: integer
+          format: int64
+          description: Scheduled activation date (epoch). Null = immediate
+        deactivatePreviousVersion:
+          type: boolean
+          description: Whether to deactivate previous active version
+          default: true
+
+    DeprecateTemplateRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Reason for deprecation
+        effectiveDate:
+          type: integer
+          format: int64
+          description: When deprecation takes effect (epoch)
+        replacementTemplateId:
+          type: string
+          format: uuid
+          description: ID of replacement template
+
+    AddCommentRequest:
+      type: object
+      required:
+        - commentText
+      properties:
+        commentText:
+          type: string
+          description: Comment content
+        sectionReference:
+          type: string
+          description: Reference to specific section in template
+        priority:
+          $ref: '#/components/schemas/CommentPriority'
+        suggestedChange:
+          type: string
+          description: Suggested fix/change
+
+    UpdateCommentRequest:
+      type: object
+      properties:
+        responseText:
+          type: string
+          description: Response to comment
+        resolved:
+          type: boolean
+          description: Mark comment as resolved
+
+    # ============================================================
+    # RESPONSE SCHEMAS
+    # ============================================================
+    TemplateResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        templateName:
+          type: string
+        templateDescription:
+          type: string
+        templateType:
+          type: string
+        communicationType:
+          $ref: '#/components/schemas/CommunicationType'
+        lineOfBusiness:
+          $ref: '#/components/schemas/LineOfBusiness'
+        category:
+          type: string
+        languageCode:
+          type: string
+        owningDepartment:
+          type: string
+        displayName:
+          type: string
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        notificationNeeded:
+          type: boolean
+        regulatoryFlag:
+          type: boolean
+        messageCenterDocFlag:
+          type: boolean
+        sharedDocumentFlag:
+          type: boolean
+        sharingScope:
+          type: string
+        singleDocumentFlag:
+          type: boolean
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        workflowType:
+          $ref: '#/components/schemas/WorkflowType'
+        isLatestVersion:
+          type: boolean
+        templateVariables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+        requiredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequiredField'
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlEntry'
+        createdBy:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        updatedTimestamp:
+          type: string
+          format: date-time
+        _links:
+          $ref: '#/components/schemas/TemplateLinks'
+
+    TemplateListResponse:
+      type: object
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateSummary'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    TemplateSummary:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        templateName:
+          type: string
+        templateType:
+          type: string
+        communicationType:
+          $ref: '#/components/schemas/CommunicationType'
+        lineOfBusiness:
+          $ref: '#/components/schemas/LineOfBusiness'
+        category:
+          type: string
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        updatedTimestamp:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        _links:
+          $ref: '#/components/schemas/TemplateLinks'
+
+    TemplateVersionListResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        templateName:
+          type: string
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersionSummary'
+
+    VersionSummary:
+      type: object
+      properties:
+        version:
+          type: integer
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        isLatest:
+          type: boolean
+        createdBy:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        approvedBy:
+          type: string
+        approvedTimestamp:
+          type: string
+          format: date-time
+        changeNotes:
+          type: string
+        documentCount:
+          type: integer
+          description: Number of documents generated from this version
+
+    VersionComparisonResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version1:
+          type: integer
+        version2:
+          type: integer
+        differences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Difference'
+
+    Difference:
+      type: object
+      properties:
+        field:
+          type: string
+        changeType:
+          type: string
+          enum: [ADDED, REMOVED, MODIFIED]
+        oldValue:
+          type: string
+        newValue:
+          type: string
+
+    PreviewResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        outputFormat:
+          type: string
+        content:
+          type: string
+          description: Base64 encoded content (for PDF) or raw content
+        contentType:
+          type: string
+          example: "application/pdf"
+        warnings:
+          type: array
+          items:
+            type: string
+
+    ValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+
+    ValidationIssue:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        field:
+          type: string
+        severity:
+          type: string
+          enum: [ERROR, WARNING, INFO]
+
+    TemplateVariablesResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+
+    ApprovalWorkflowResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        workflowType:
+          $ref: '#/components/schemas/WorkflowType'
+        currentStep:
+          type: integer
+        totalSteps:
+          type: integer
+        submittedBy:
+          type: string
+        submittedTimestamp:
+          type: string
+          format: date-time
+        lastAction:
+          type: string
+        lastActionBy:
+          type: string
+        lastActionTimestamp:
+          type: string
+          format: date-time
+
+    CommentsListResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+        totalCount:
+          type: integer
+        openCount:
+          type: integer
+        resolvedCount:
+          type: integer
+
+    CommentResponse:
+      type: object
+      properties:
+        commentId:
+          type: string
+          format: uuid
+        templateVersion:
+          type: integer
+        commentText:
+          type: string
+        sectionReference:
+          type: string
+        priority:
+          $ref: '#/components/schemas/CommentPriority'
+        suggestedChange:
+          type: string
+        createdBy:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        resolved:
+          type: boolean
+        resolvedBy:
+          type: string
+        resolvedTimestamp:
+          type: string
+          format: date-time
+        responseText:
+          type: string
+
+    WorkflowHistoryResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowHistoryEntry'
+
+    WorkflowHistoryEntry:
+      type: object
+      properties:
+        version:
+          type: integer
+        action:
+          type: string
+          enum: [CREATED, SUBMITTED, REVIEWED, APPROVED, REJECTED, ACTIVATED, DEPRECATED, ARCHIVED]
+        actionBy:
+          type: string
+        actionTimestamp:
+          type: string
+          format: date-time
+        previousStatus:
+          $ref: '#/components/schemas/TemplateStatus'
+        newStatus:
+          $ref: '#/components/schemas/TemplateStatus'
+        comments:
+          type: string
+
+    ApprovalDashboardResponse:
+      type: object
+      properties:
+        summary:
+          $ref: '#/components/schemas/ApprovalSummary'
+        pendingMyReview:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingReviewItem'
+        mySubmissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubmissionItem'
+
+    ApprovalSummary:
+      type: object
+      properties:
+        draftCount:
+          type: integer
+        inReviewCount:
+          type: integer
+        approvedCount:
+          type: integer
+        activeCount:
+          type: integer
+        pendingMyReviewCount:
+          type: integer
+        awaitingFeedbackCount:
+          type: integer
+        overdueReviewCount:
+          type: integer
+
+    PendingReviewItem:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        templateName:
+          type: string
+        version:
+          type: integer
+        submittedBy:
+          type: string
+        submittedTimestamp:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        overdue:
+          type: boolean
+
+    SubmissionItem:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        templateName:
+          type: string
+        version:
+          type: integer
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        submittedTimestamp:
+          type: string
+          format: date-time
+        currentReviewer:
+          type: string
+
+    # ============================================================
+    # SUPPORTING SCHEMAS
+    # ============================================================
+    TemplateVariable:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          description: Variable name (e.g., customerName)
+          example: "customerName"
+        type:
+          $ref: '#/components/schemas/VariableType'
+        source:
+          $ref: '#/components/schemas/VariableSource'
+        required:
+          type: boolean
+          default: true
+        defaultValue:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+          description: Format pattern (e.g., date format, currency format)
+        validation:
+          type: string
+          description: Validation regex or rule
+
+    RequiredField:
+      type: object
+      required:
+        - field
+        - type
+      properties:
+        field:
+          type: string
+          description: Field name required for document generation
+        type:
+          type: string
+          enum: [string, number, date, uuid, boolean]
+        required:
+          type: boolean
+          default: true
+        description:
+          type: string
+
+    AccessControlEntry:
+      type: object
+      required:
+        - role
+        - actions
+      properties:
+        role:
+          type: string
+          description: Role name (customer, agent, system, admin)
+        actions:
+          type: array
+          items:
+            type: string
+            enum: [View, Download, Update, Delete]
+
+    DataExtractionConfig:
+      type: object
+      description: Configuration for extracting data from external APIs
+      properties:
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              stepId:
+                type: string
+              apiEndpoint:
+                type: string
+              method:
+                type: string
+              extractFields:
+                type: array
+                items:
+                  type: object
+        documentMatching:
+          type: object
+          properties:
+            matchBy:
+              type: string
+              enum: [reference_key, conditional]
+            referenceKeyField:
+              type: string
+            referenceKeyType:
+              type: string
+
+    EligibilityCriteria:
+      type: object
+      description: Rules for determining document eligibility
+      properties:
+        operator:
+          type: string
+          enum: [AND, OR]
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/EligibilityRule'
+
+    EligibilityRule:
+      type: object
+      properties:
+        field:
+          type: string
+        operator:
+          type: string
+          enum: [EQUALS, NOT_EQUALS, IN, NOT_IN, GREATER_THAN, LESS_THAN, CONTAINS, STARTS_WITH, ENDS_WITH]
+        value:
+          oneOf:
+            - type: string
+            - type: number
+            - type: array
+              items:
+                type: string
+
+    TemplateLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        edit:
+          $ref: '#/components/schemas/Link'
+        preview:
+          $ref: '#/components/schemas/Link'
+        versions:
+          $ref: '#/components/schemas/Link'
+        submit:
+          $ref: '#/components/schemas/Link'
+        approve:
+          $ref: '#/components/schemas/Link'
+        activate:
+          $ref: '#/components/schemas/Link'
+
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        method:
+          type: string
+        rel:
+          type: string
+
+    Pagination:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: string
+          format: date-time
+        correlationId:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad Request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: Unauthorized - Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Not Found - Resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
