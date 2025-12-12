@@ -1,40 +1,33 @@
 {
 	"info": {
 		"_postman_id": "doc-hub-poc-demo-2024",
-		"name": "Document Hub POC - Step-by-Step Demo",
-		"description": "Complete demonstration of Document Hub POC features including filter testing.\n\n## Required Headers\nAll document enquiry requests require:\n- `X-correlation-id`: Unique request ID\n- `X-requestor-id`: UUID of the requestor\n- `X-requestor-type`: CUSTOMER, AGENT, or SYSTEM\n- `X-version`: API version (1)\n\n## Test Accounts\n| Account | Credit Limit | Tier |\n|---------|--------------|------|\n| aaaa...0001 | $75,000 | PLATINUM |\n| aaaa...0002 | $35,000 | GOLD |\n| aaaa...0003 | $15,000 | STANDARD |\n\n## Available Filters\n- `lineOfBusiness`: CREDIT_CARD, DIGITAL_BANK, ENTERPRISE\n- `messageCenterDocFlag`: true (default), false (return both)\n- `communicationType`: LETTER (default), EMAIL, SMS, PUSH\n- `documentTypeCategoryGroup`: Filter by category and document types",
+		"name": "Document Hub POC - Filter Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:8080/api/v1",
-			"type": "string"
+			"value": "http://localhost:8080/api/v1"
 		},
 		{
 			"key": "customerId",
-			"value": "cccc0000-0000-0000-0000-000000000001",
-			"type": "string"
+			"value": "cccc0000-0000-0000-0000-000000000001"
 		},
 		{
 			"key": "accountId1",
-			"value": "aaaa0000-0000-0000-0000-000000000001",
-			"type": "string"
+			"value": "aaaa0000-0000-0000-0000-000000000001"
 		},
 		{
 			"key": "accountId2",
-			"value": "aaaa0000-0000-0000-0000-000000000002",
-			"type": "string"
+			"value": "aaaa0000-0000-0000-0000-000000000002"
 		},
 		{
 			"key": "accountId3",
-			"value": "aaaa0000-0000-0000-0000-000000000003",
-			"type": "string"
+			"value": "aaaa0000-0000-0000-0000-000000000003"
 		},
 		{
 			"key": "requestorId",
-			"value": "550e8400-e29b-41d4-a716-446655440002",
-			"type": "string"
+			"value": "550e8400-e29b-41d4-a716-446655440002"
 		}
 	],
 	"item": [
@@ -56,10 +49,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Basic document enquiry for Account 1.\n\nExpected: Returns documents for account 1 including statements, policies."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -77,10 +67,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Basic document enquiry for Account 2."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -98,10 +85,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\", \"{{accountId2}}\"]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Document enquiry for multiple accounts."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
@@ -124,10 +108,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by CREDIT_CARD line of business.\n\nExpected: Returns CREDIT_CARD and ENTERPRISE templates."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -145,10 +126,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"DIGITAL_BANK\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by DIGITAL_BANK line of business.\n\nExpected: Returns DIGITAL_BANK and ENTERPRISE templates only."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -166,10 +144,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"ENTERPRISE\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by ENTERPRISE line of business only.\n\nExpected: Returns only ENTERPRISE templates (Privacy Policy, Fee Schedule)."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
@@ -178,7 +153,7 @@
 			"name": "3 - Message Center Doc Flag",
 			"item": [
 				{
-					"name": "3.1 Message Center - True (Default)",
+					"name": "3.1 Message Center - True",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -192,10 +167,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"messageCenterDocFlag\": true\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Only message center documents.\n\nExpected: Returns only documents with message_center_doc_flag=true."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -213,10 +185,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"messageCenterDocFlag\": false\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Include ALL documents (message center + internal).\n\nExpected: Returns both message center and internal documents like audit reports, case notes."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
@@ -239,10 +208,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"LETTER\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by LETTER communication type (physical mail)."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -260,10 +226,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"EMAIL\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by EMAIL communication type.\n\nExpected: Returns E-Statements, Marketing emails."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -281,10 +244,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"SMS\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by SMS communication type.\n\nExpected: Returns Payment Reminder SMS documents."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -302,16 +262,13 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"PUSH\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by PUSH communication type.\n\nExpected: Returns Transaction Alerts, Security Alerts."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
 		},
 		{
-			"name": "5 - Document Type Category Filter",
+			"name": "5 - Document Type Filter",
 			"item": [
 				{
 					"name": "5.1 Filter - Statements Only",
@@ -328,14 +285,11 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by Statement document type.\n\nExpected: Returns only Statement documents."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
-					"name": "5.2 Filter - Privacy Policy Only",
+					"name": "5.2 Filter - Privacy Policy",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -349,10 +303,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"PrivacyPolicy\",\n            \"documentTypes\": [\"PrivacyPolicy\"]\n        }\n    ]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by PrivacyPolicy document type.\n\nExpected: Returns only Privacy Policy documents."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -370,10 +321,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\", \"EStatement\"]\n        },\n        {\n            \"category\": \"Policy\",\n            \"documentTypes\": [\"PrivacyPolicy\"]\n        }\n    ]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Filter by multiple document types.\n\nExpected: Returns Statement, EStatement, and PrivacyPolicy documents."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
@@ -396,10 +344,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Request as CUSTOMER.\n\nExpected: HATEOAS links limited (VIEW, DOWNLOAD only)."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -417,10 +362,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Request as AGENT.\n\nExpected: More HATEOAS links (may include UPDATE, DELETE)."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
@@ -438,10 +380,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Request as SYSTEM.\n\nExpected: Full HATEOAS links (all actions available)."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
@@ -450,7 +389,7 @@
 			"name": "7 - Pagination",
 			"item": [
 				{
-					"name": "7.1 Page 1, Size 5",
+					"name": "7.1 Page 1 Size 5",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -464,14 +403,11 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 5\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "First page with 5 items per page."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
-					"name": "7.2 Page 2, Size 5",
+					"name": "7.2 Page 2 Size 5",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -485,31 +421,7 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 1,\n    \"pageSize\": 5\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Second page with 5 items per page."
-					}
-				},
-				{
-					"name": "7.3 With Sorting",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-page-sort"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 10,\n    \"sortOrder\": [\n        {\n            \"orderBy\": \"creationDate\",\n            \"sortBy\": \"desc\"\n        }\n    ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Sorted by creation date descending."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
@@ -518,7 +430,7 @@
 			"name": "8 - Combined Filters",
 			"item": [
 				{
-					"name": "8.1 LOB + Communication Type",
+					"name": "8.1 LOB + Communication",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -532,41 +444,17 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"communicationType\": \"LETTER\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Combined: CREDIT_CARD LOB + LETTER communication."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				},
 				{
-					"name": "8.2 LOB + Doc Type + Msg Center False",
+					"name": "8.2 All Filters",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-2"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"messageCenterDocFlag\": false,\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Combined: CREDIT_CARD + All docs + Statements only."
-					}
-				},
-				{
-					"name": "8.3 All Filters Maximum",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-max"},
+							{"key": "X-correlation-id", "value": "test-combined-all"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "AGENT"}
 						],
@@ -574,59 +462,44 @@
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\", \"{{accountId2}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"messageCenterDocFlag\": false,\n    \"communicationType\": \"LETTER\",\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ],\n    \"pageNumber\": 0,\n    \"pageSize\": 20\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry"
-						},
-						"description": "Maximum complexity: All filters combined."
+						"url": "{{baseUrl}}/documents-enquiry"
 					}
 				}
 			]
 		},
 		{
-			"name": "9 - Mock API Verification",
+			"name": "9 - Mock APIs",
 			"item": [
 				{
-					"name": "9.1 Account Arrangements - Account 1",
+					"name": "9.1 Account Arrangements",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId1}}/arrangements"
-						},
-						"description": "Get arrangements for Account 1.\n\nExpected: pricingId = 'PR001'"
+						"url": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId1}}/arrangements"
 					}
 				},
 				{
-					"name": "9.2 Pricing Info - PR001",
+					"name": "9.2 Pricing Info",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/pricing/PR001"
-						},
-						"description": "Get pricing info for PR001.\n\nExpected: disclosureCode = 'D164'"
+						"url": "{{baseUrl}}/mock-api/pricing/PR001"
 					}
 				},
 				{
-					"name": "9.3 Credit Info - Account 1",
+					"name": "9.3 Credit Info",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId1}}/credit-info"
-						},
-						"description": "Get credit info for Account 1.\n\nExpected: creditLimit = 75000"
+						"url": "{{baseUrl}}/mock-api/accounts/{{accountId1}}/credit-info"
 					}
 				},
 				{
-					"name": "9.4 Customer Info",
+					"name": "9.4 Customer Profile",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/customers/{{customerId}}/profile"
-						},
-						"description": "Get customer profile.\n\nExpected: Customer segment and region info."
+						"url": "{{baseUrl}}/mock-api/customers/{{customerId}}/profile"
 					}
 				}
 			]
