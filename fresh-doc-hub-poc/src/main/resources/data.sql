@@ -2829,13 +2829,16 @@ INSERT INTO document_hub.master_template_definition (
 );
 
 -- Documents for DIGITAL_BANK templates
+-- NOTE: DIGITAL_BANK accounts are separate from CREDIT_CARD accounts (an account can only be one LOB)
+-- DIGITAL_BANK accounts: dddd0000-0000-0000-0000-000000000001, dddd0000-0000-0000-0000-000000000002
+-- DIGITAL_BANK customers: dddd0000-0000-0000-0000-000000000101, dddd0000-0000-0000-0000-000000000102
 INSERT INTO document_hub.storage_index (
     storage_index_id, master_template_id, template_version, template_type, shared_flag,
     account_key, customer_key, storage_vendor, storage_document_key, file_name,
     doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
 ) VALUES
     ('a1000000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000001', 1, 'SavingsStatement', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b1000000-0000-0000-0000-000000000001',
+     'dddd0000-0000-0000-0000-000000000001', 'dddd0000-0000-0000-0000-000000000101', 'ecms', 'b1000000-0000-0000-0000-000000000001',
      'savings_statement_jan_2024.pdf', 1706659200000, true,
      '{"statement_date": "2024-01-31", "balance": 25000.00, "interest_earned": 125.50}', 'system', NOW()),
 
@@ -2845,7 +2848,7 @@ INSERT INTO document_hub.storage_index (
      '{"kit_version": "2024.1", "includes": ["debit_card_info", "mobile_app_guide", "security_tips"]}', 'system', NOW()),
 
     ('a1000000-0000-0000-0000-000000000003', 'f1000000-0000-0000-0000-000000000003', 1, 'SecurityAlert', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b1000000-0000-0000-0000-000000000003',
+     'dddd0000-0000-0000-0000-000000000002', 'dddd0000-0000-0000-0000-000000000102', 'ecms', 'b1000000-0000-0000-0000-000000000003',
      'security_alert_login_new_device.pdf', 1733011200000, true,
      '{"alert_type": "NEW_DEVICE_LOGIN", "device": "iPhone 15", "location": "San Francisco, CA"}', 'system', NOW());
 

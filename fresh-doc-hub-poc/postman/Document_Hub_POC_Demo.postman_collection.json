@@ -1,3 +1,4 @@
+Updated: 2.2 LOB - DIGITAL_BANK
 {
 	"info": {
 		"_postman_id": "doc-hub-poc-demo-2024",
@@ -26,6 +27,18 @@
 			"value": "aaaa0000-0000-0000-0000-000000000003"
 		},
 		{
+			"key": "digitalBankAccountId1",
+			"value": "dddd0000-0000-0000-0000-000000000001"
+		},
+		{
+			"key": "digitalBankAccountId2",
+			"value": "dddd0000-0000-0000-0000-000000000002"
+		},
+		{
+			"key": "digitalBankCustomerId1",
+			"value": "dddd0000-0000-0000-0000-000000000101"
+		},
+		{
 			"key": "requestorId",
 			"value": "550e8400-e29b-41d4-a716-446655440002"
 		}
@@ -39,11 +52,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-basic-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-basic-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -57,11 +85,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-basic-002"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-basic-002"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -75,11 +118,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-basic-003"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-basic-003"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -98,11 +156,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-cc-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-lob-cc-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -116,15 +189,30 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-db-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-lob-db-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"DIGITAL_BANK\"\n}"
+							"raw": "{\n    \"customerId\": \"{{digitalBankCustomerId1}}\",\n    \"accountId\": [\"{{digitalBankAccountId1}}\"],\n    \"lineOfBusiness\": \"DIGITAL_BANK\"\n}"
 						},
 						"url": "{{baseUrl}}/documents-enquiry"
 					}
@@ -134,11 +222,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-ent-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-lob-ent-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -157,11 +260,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-msg-true-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-msg-true-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -175,11 +293,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-msg-false-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-msg-false-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "AGENT"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -198,11 +331,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-letter-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-comm-letter-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -216,11 +364,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-email-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-comm-email-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -234,11 +397,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-sms-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-comm-sms-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -252,11 +430,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-push-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-comm-push-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -275,11 +468,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-stmt-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-doctype-stmt-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -293,11 +501,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-privacy-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-doctype-privacy-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -311,11 +534,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-multi-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-doctype-multi-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -334,11 +572,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-requestor-cust-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-requestor-cust-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -352,11 +605,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-requestor-agent-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-requestor-agent-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "AGENT"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -370,11 +638,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-requestor-sys-001"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "SYSTEM"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-requestor-sys-001"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "SYSTEM"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -393,11 +676,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-page-1"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-page-1"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -411,11 +709,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-page-2"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-page-2"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -434,11 +747,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-1"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-combined-1"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "CUSTOMER"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -452,11 +780,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-all"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-version",
+								"value": "1"
+							},
+							{
+								"key": "X-correlation-id",
+								"value": "test-combined-all"
+							},
+							{
+								"key": "X-requestor-id",
+								"value": "{{requestorId}}"
+							},
+							{
+								"key": "X-requestor-type",
+								"value": "AGENT"
+							}
 						],
 						"body": {
 							"mode": "raw",
