@@ -274,33 +274,21 @@ public class DocumentEnquiryService {
 
         Long currentDate = Instant.now().toEpochMilli();
 
+        // Use database-level filtering when template types are specified
+        // This is more efficient than in-memory filtering
+        if (templateTypes != null && !templateTypes.isEmpty()) {
+            return templateRepository.findActiveTemplatesWithAllFilters(
+                            lineOfBusiness, templateTypes, messageCenterDocFlag,
+                            communicationType, currentDate)
+                    .collectList()
+                    .doOnNext(templates -> log.info("Found {} matching templates", templates.size()));
+        }
+
+        // No template type filter - use query without IN clause
         return templateRepository.findActiveTemplatesWithFilters(
                         lineOfBusiness, messageCenterDocFlag, communicationType, currentDate)
-                .filter(template -> matchesTemplateTypes(template, templateTypes))
                 .collectList()
                 .doOnNext(templates -> log.info("Found {} matching templates", templates.size()));
-    }
-
-    /**
-     * Checks if a template matches the requested template types.
-     *
-     * <p><b>What:</b> Filters templates by type when specific types are requested.</p>
-     *
-     * <p><b>Why:</b> The request may specify which document categories to return.
-     * If no types are specified, all templates are included.</p>
-     *
-     * @param template The template to check
-     * @param requestedTypes List of requested template types
-     * @return true if template matches or no types specified
-     */
-    private boolean matchesTemplateTypes(
-            MasterTemplateDefinitionEntity template,
-            List<String> requestedTypes) {
-
-        if (requestedTypes == null || requestedTypes.isEmpty()) {
-            return true;
-        }
-        return requestedTypes.contains(template.getTemplateType());
     }
 
     /**
