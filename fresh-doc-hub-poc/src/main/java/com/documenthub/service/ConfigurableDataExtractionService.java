@@ -2,547 +2,297 @@ package com.documenthub.service;
 
 import com.documenthub.model.DocumentListRequest;
 import com.documenthub.model.extraction.DataExtractionConfig;
-import com.documenthub.model.extraction.DataSourceConfig;
-import com.documenthub.model.extraction.EndpointConfig;
-import com.documenthub.model.extraction.FieldSourceConfig;
+import com.documenthub.service.extraction.ApiCallExecutor;
+import com.documenthub.service.extraction.ExtractionPlan;
+import com.documenthub.service.extraction.ExtractionPlanBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Configurable Data Extraction Service
- * Extracts data from APIs based on JSON configuration stored in database
- * Solves the problem: "Client sends accountId/customerId, but where do we get disclosureCode, customerLocation, etc.?"
+ * Configurable Data Extraction Service.
+ *
+ * <p><b>What:</b> Coordinates the extraction of data from external APIs based on
+ * JSON configuration stored in the database (master_template_definition.data_extraction_config).</p>
+ *
+ * <p><b>Why:</b> Different document templates require different contextual data
+ * (e.g., disclosureCode, customerLocation, accountStatus) that must be fetched from
+ * various internal APIs. Instead of hardcoding these API calls, this service reads
+ * a JSON configuration that defines which APIs to call and how to extract the needed fields.</p>
+ *
+ * <p><b>How:</b> The service follows these steps:
+ * <ol>
+ *   <li>Parse the JSON configuration from the database</li>
+ *   <li>Create an initial context with data from the request (accountId, customerId, etc.)</li>
+ *   <li>Build an execution plan using {@link ExtractionPlanBuilder}</li>
+ *   <li>Execute the plan using {@link ApiCallExecutor} (sequential or parallel)</li>
+ *   <li>Return a map of extracted field values</li>
+ * </ol>
+ * </p>
+ *
+ * @see ExtractionPlanBuilder
+ * @see ApiCallExecutor
+ * @see DataExtractionConfig
  */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ConfigurableDataExtractionService {
 
-    private final WebClient webClient;
     private final ObjectMapper objectMapper;
-
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
+    private final ExtractionPlanBuilder planBuilder;
+    private final ApiCallExecutor apiCallExecutor;
 
     /**
-     * Extract required fields based on data_extraction_config JSON
+     * Extracts required fields based on the data_extraction_config JSON.
+     *
+     * <p><b>What:</b> Main entry point that orchestrates the entire data extraction process.</p>
+     *
+     * <p><b>Why:</b> Templates need additional context data (beyond accountId/customerId)
+     * to properly filter and retrieve documents. This method fetches that data from
+     * configured API endpoints.</p>
+     *
+     * <p><b>How:</b>
+     * <ol>
+     *   <li>Validates the config JSON is present</li>
+     *   <li>Parses JSON into {@link DataExtractionConfig} object</li>
+     *   <li>Creates initial context from the request</li>
+     *   <li>Builds and executes the extraction plan</li>
+     * </ol>
+     * </p>
      *
      * @param dataExtractionConfigJson JSON from master_template_definition.data_extraction_config
-     * @param request Original request with accountId, customerId
-     * @return Map of extracted field values
+     * @param request Original request containing accountId, customerId, etc.
+     * @return Mono containing a map of extracted field names to their values
      */
     public Mono<Map<String, Object>> extractData(
-        Json dataExtractionConfigJson,
-        DocumentListRequest request
-    ) {
-        log.info("═══════════════════════════════════════════════════════════════");
-        log.info("STEP 1/6: Starting ConfigurableDataExtractionService.extractData");
-        log.info("═══════════════════════════════════════════════════════════════");
+            Json dataExtractionConfigJson,
+            DocumentListRequest request) {
+
+        log.info("Starting data extraction");
 
         if (dataExtractionConfigJson == null) {
-            log.warn("STEP 1/6: No data extraction config provided - returning empty map");
+            log.warn("No data extraction config provided");
             return Mono.just(Collections.emptyMap());
         }
 
         try {
-            log.info("STEP 2/6: Converting PostgreSQL Json to JsonNode");
-            // Convert PostgreSQL Json to JsonNode
-            JsonNode configNode = objectMapper.readTree(dataExtractionConfigJson.asString());
-            log.debug("STEP 2/6: Json conversion successful");
-
-            log.info("STEP 3/6: Parsing data extraction config to Java objects");
-            // Parse JSON config to Java objects
-            DataExtractionConfig config = objectMapper.treeToValue(
-                configNode,
-                DataExtractionConfig.class
-            );
-            log.info("STEP 3/6: Config parsed - Fields to extract: {}, Data sources: {}",
-                config.getFieldsToExtract() != null ? config.getFieldsToExtract().size() : 0,
-                config.getDataSources() != null ? config.getDataSources().size() : 0);
-
-            log.info("STEP 4/6: Creating initial context from request");
-            // Create initial context with input data
+            DataExtractionConfig config = parseConfig(dataExtractionConfigJson);
             Map<String, Object> context = createInitialContext(request);
-            log.info("STEP 4/6: Initial context created with {} fields: {}",
-                context.size(), context.keySet());
+            ExtractionPlan plan = planBuilder.buildPlan(config, context);
 
-            log.info("STEP 5/6: Building execution plan");
-            // Build execution plan
-            ExtractionPlan plan = buildExtractionPlan(config, context);
-
-            if (plan.getApiCalls().isEmpty()) {
-                log.warn("STEP 5/6: No API calls to execute - returning context as-is");
+            if (plan.isEmpty()) {
+                log.info("No API calls needed");
                 return Mono.just(context);
             }
 
-            log.info("STEP 5/6: Execution plan built - {} API call(s) scheduled", plan.getApiCalls().size());
-            for (int i = 0; i < plan.getApiCalls().size(); i++) {
-                ApiCall apiCall = plan.getApiCalls().get(i);
-                log.info("  → API Call {}/{}: {} (provides {} fields)",
-                    i + 1,
-                    plan.getApiCalls().size(),
-                    apiCall.getApiId(),
-                    apiCall.getDataSource().getProvidesFields().size());
-            }
-
-            log.info("STEP 6/6: Executing extraction plan");
-            // Execute API calls
-            return executeExtractionPlan(plan, config, context)
-                .doOnSuccess(result -> {
-                    log.info("═══════════════════════════════════════════════════════════════");
-                    log.info("STEP 6/6: ✓ Data extraction completed successfully");
-                    log.info("         Total fields extracted: {}", result.size());
-                    log.info("         Fields: {}", result.keySet());
-                    log.info("═══════════════════════════════════════════════════════════════");
-                })
-                .doOnError(error -> {
-                    log.error("═══════════════════════════════════════════════════════════════");
-                    log.error("STEP 6/6: ✗ Data extraction failed");
-                    log.error("         Error: {}", error.getMessage());
-                    log.error("═══════════════════════════════════════════════════════════════");
-                });
-
+            return executePlan(plan, config, context);
         } catch (Exception e) {
-            log.error("═══════════════════════════════════════════════════════════════");
-            log.error("STEP 2-3/6: ✗ Failed to parse data extraction config");
-            log.error("           Error: {}", e.getMessage());
-            log.error("═══════════════════════════════════════════════════════════════", e);
+            log.error("Failed to parse config: {}", e.getMessage());
             return Mono.error(e);
         }
     }
 
     /**
-     * Create initial context with input data from request
+     * Parses the PostgreSQL JSON column into a DataExtractionConfig object.
+     *
+     * <p><b>What:</b> Converts raw JSON into a strongly-typed configuration object.</p>
+     *
+     * <p><b>Why:</b> Working with typed objects provides compile-time safety and
+     * makes the code easier to understand and maintain.</p>
+     *
+     * <p><b>How:</b> Uses Jackson ObjectMapper to first convert the PostgreSQL Json
+     * type to a JsonNode, then deserializes it into DataExtractionConfig.</p>
+     *
+     * @param configJson The raw JSON from the database
+     * @return Parsed DataExtractionConfig object
+     * @throws Exception If JSON parsing fails
+     */
+    private DataExtractionConfig parseConfig(Json configJson) throws Exception {
+        JsonNode configNode = objectMapper.readTree(configJson.asString());
+        DataExtractionConfig config = objectMapper.treeToValue(
+                configNode, DataExtractionConfig.class);
+
+        log.info("Config parsed - fields: {}, sources: {}",
+                getFieldCount(config), getSourceCount(config));
+
+        return config;
+    }
+
+    /**
+     * Gets the count of fields to extract from the config.
+     *
+     * @param config The extraction configuration
+     * @return Number of fields to extract, or 0 if not defined
+     */
+    private int getFieldCount(DataExtractionConfig config) {
+        return config.getFieldsToExtract() != null
+                ? config.getFieldsToExtract().size() : 0;
+    }
+
+    /**
+     * Gets the count of data sources in the config.
+     *
+     * @param config The extraction configuration
+     * @return Number of data sources, or 0 if not defined
+     */
+    private int getSourceCount(DataExtractionConfig config) {
+        return config.getDataSources() != null
+                ? config.getDataSources().size() : 0;
+    }
+
+    /**
+     * Creates the initial context map from the incoming request.
+     *
+     * <p><b>What:</b> Builds a map containing all input values that can be used
+     * as placeholders in API calls.</p>
+     *
+     * <p><b>Why:</b> API endpoints often need request parameters like accountId
+     * or customerId in their URLs or request bodies. This context map provides
+     * those values for placeholder substitution.</p>
+     *
+     * <p><b>How:</b> Extracts relevant fields from the DocumentListRequest and
+     * adds system variables (correlationId, auth token).</p>
+     *
+     * @param request The incoming document list request
+     * @return Map of field names to values for use in API calls
      */
     private Map<String, Object> createInitialContext(DocumentListRequest request) {
         Map<String, Object> context = new HashMap<>();
 
-        if (request.getAccountId() != null && !request.getAccountId().isEmpty()) {
-            context.put("accountId", request.getAccountId().get(0));
-        }
-        if (request.getCustomerId() != null) {
-            context.put("customerId", request.getCustomerId().toString());
-        }
-        if (request.getReferenceKey() != null) {
-            context.put("referenceKey", request.getReferenceKey());
-        }
-        if (request.getReferenceKeyType() != null) {
-            context.put("referenceKeyType", request.getReferenceKeyType());
-        }
-
-        // Add system variables
-        context.put("correlationId", UUID.randomUUID().toString());
-        context.put("auth.token", "mock-token-12345"); // TODO: Get from security context
+        addAccountId(context, request);
+        addCustomerId(context, request);
+        addReferenceKey(context, request);
+        addSystemVariables(context);
 
         log.debug("Initial context: {}", context.keySet());
         return context;
     }
 
     /**
-     * Build execution plan: determine which APIs to call and in what order
+     * Adds the first account ID from the request to the context.
+     *
+     * <p><b>Why:</b> APIs typically need a single account ID, so we use the first one.</p>
+     *
+     * @param context The context map to populate
+     * @param request The incoming request
      */
-    private ExtractionPlan buildExtractionPlan(
-        DataExtractionConfig config,
-        Map<String, Object> availableContext
-    ) {
-        ExtractionPlan plan = new ExtractionPlan();
-        Set<String> fieldsToExtract = new HashSet<>(config.getFieldsToExtract());
-        Set<String> availableFields = new HashSet<>(availableContext.keySet());
-        Set<String> processedApis = new HashSet<>();
-
-        log.debug("Planning extraction for fields: {}", fieldsToExtract);
-        log.debug("Available fields: {}", availableFields);
-
-        // Iteratively add API calls until all fields are covered
-        int iterations = 0;
-        int maxIterations = 10;
-
-        while (!fieldsToExtract.isEmpty() && iterations < maxIterations) {
-            iterations++;
-            boolean progressMade = false;
-
-            for (String fieldName : new ArrayList<>(fieldsToExtract)) {
-                FieldSourceConfig fieldSource = config.getFieldSources().get(fieldName);
-
-                if (fieldSource == null) {
-                    log.warn("No source configuration for field: {}", fieldName);
-                    fieldsToExtract.remove(fieldName);
-                    continue;
-                }
-
-                // Check if we have all required inputs
-                if (hasRequiredInputs(fieldSource, availableFields)) {
-                    String apiId = fieldSource.getSourceApi();
-
-                    if (!processedApis.contains(apiId)) {
-                        DataSourceConfig dataSource = config.getDataSources().get(apiId);
-
-                        if (dataSource != null) {
-                            plan.addApiCall(apiId, dataSource, config.getFieldSources());
-                            processedApis.add(apiId);
-
-                            // Mark fields from this API as available
-                            availableFields.addAll(dataSource.getProvidesFields());
-
-                            log.debug("Added API '{}' to plan (provides: {})",
-                                apiId, dataSource.getProvidesFields());
-
-                            progressMade = true;
-                        }
-                    }
-
-                    fieldsToExtract.remove(fieldName);
-                    progressMade = true;
-                }
-            }
-
-            if (!progressMade) {
-                log.warn("Cannot make progress. Remaining fields: {}", fieldsToExtract);
-                break;
-            }
-        }
-
-        if (!fieldsToExtract.isEmpty()) {
-            log.warn("Could not plan extraction for fields: {}", fieldsToExtract);
-        }
-
-        return plan;
-    }
-
-    /**
-     * Check if all required inputs are available
-     */
-    private boolean hasRequiredInputs(FieldSourceConfig fieldSource, Set<String> availableFields) {
-        if (fieldSource.getRequiredInputs() == null || fieldSource.getRequiredInputs().isEmpty()) {
-            return true;
-        }
-
-        return fieldSource.getRequiredInputs().stream()
-            .allMatch(availableFields::contains);
-    }
-
-    /**
-     * Execute the extraction plan
-     */
-    private Mono<Map<String, Object>> executeExtractionPlan(
-        ExtractionPlan plan,
-        DataExtractionConfig config,
-        Map<String, Object> context
-    ) {
-        String executionMode = config.getExecutionStrategy() != null ?
-            config.getExecutionStrategy().getMode() : "sequential";
-
-        if ("parallel".equalsIgnoreCase(executionMode)) {
-            return executeParallel(plan, context);
-        } else {
-            return executeSequential(plan, context);
+    private void addAccountId(Map<String, Object> context, DocumentListRequest request) {
+        if (request.getAccountId() != null && !request.getAccountId().isEmpty()) {
+            context.put("accountId", request.getAccountId().get(0));
         }
     }
 
     /**
-     * Execute API calls sequentially
+     * Adds the customer ID from the request to the context.
+     *
+     * @param context The context map to populate
+     * @param request The incoming request
      */
-    private Mono<Map<String, Object>> executeSequential(
-        ExtractionPlan plan,
-        Map<String, Object> context
-    ) {
-        log.info("  → Execution mode: SEQUENTIAL");
-        final int[] callCount = {0};
-        final int totalCalls = plan.getApiCalls().size();
-
-        return Flux.fromIterable(plan.getApiCalls())
-            .concatMap(apiCall -> {
-                callCount[0]++;
-                log.info("  → Executing API call {}/{}: {}", callCount[0], totalCalls, apiCall.getApiId());
-                return callApi(apiCall, context)
-                    .doOnSuccess(extractedData -> {
-                        context.putAll(extractedData);
-                        log.info("    ✓ API {}/{} completed: {} - Extracted {} fields: {}",
-                            callCount[0], totalCalls, apiCall.getApiId(),
-                            extractedData.size(), extractedData.keySet());
-                    })
-                    .onErrorResume(e -> {
-                        log.error("    ✗ API {}/{} failed: {} - Error: {}",
-                            callCount[0], totalCalls, apiCall.getApiId(), e.getMessage());
-                        return Mono.just(Collections.emptyMap());
-                    });
-            })
-            .then(Mono.just(context));
-    }
-
-    /**
-     * Execute API calls in parallel
-     */
-    private Mono<Map<String, Object>> executeParallel(
-        ExtractionPlan plan,
-        Map<String, Object> context
-    ) {
-        log.info("  → Execution mode: PARALLEL");
-        final int totalCalls = plan.getApiCalls().size();
-
-        return Flux.fromIterable(plan.getApiCalls())
-            .flatMap(apiCall -> {
-                log.info("  → Initiating parallel API call: {}", apiCall.getApiId());
-                return callApi(apiCall, context)
-                    .doOnSuccess(extractedData -> {
-                        log.info("    ✓ Parallel API completed: {} - Extracted {} fields: {}",
-                            apiCall.getApiId(), extractedData.size(), extractedData.keySet());
-                    })
-                    .onErrorResume(e -> {
-                        log.error("    ✗ Parallel API failed: {} - Error: {}",
-                            apiCall.getApiId(), e.getMessage());
-                        return Mono.just(Collections.emptyMap());
-                    });
-            })
-            .reduce(context, (acc, extractedData) -> {
-                acc.putAll(extractedData);
-                return acc;
-            });
-    }
-
-    /**
-     * Call a single API and extract data
-     */
-    private Mono<Map<String, Object>> callApi(ApiCall apiCall, Map<String, Object> context) {
-        EndpointConfig endpoint = apiCall.getDataSource().getEndpoint();
-
-        log.debug("    → Preparing API call: {}", apiCall.getApiId());
-
-        // Resolve URL with placeholders
-        String url = resolvePlaceholders(endpoint.getUrl(), context);
-
-        if (url.contains("${")) {
-            log.warn("    ✗ Could not resolve all placeholders in URL: {}", url);
-            return Mono.just(Collections.emptyMap());
-        }
-
-        log.info("    → Calling {} {}", endpoint.getMethod(), url);
-
-        // Determine timeout
-        int timeout = endpoint.getTimeout() != null ? endpoint.getTimeout() : 5000;
-        log.debug("    → Timeout: {}ms", timeout);
-
-        // Build request
-        WebClient.RequestBodySpec request = webClient
-            .method(HttpMethod.valueOf(endpoint.getMethod()))
-            .uri(url);
-
-        // Add headers with placeholder resolution
-        if (endpoint.getHeaders() != null) {
-            endpoint.getHeaders().forEach((key, value) -> {
-                String resolvedValue = resolvePlaceholders(value, context);
-                request.header(key, resolvedValue);
-            });
-        }
-
-        // Add body for POST/PUT requests
-        WebClient.RequestHeadersSpec<?> requestSpec;
-        if (endpoint.getBody() != null &&
-            ("POST".equalsIgnoreCase(endpoint.getMethod()) || "PUT".equalsIgnoreCase(endpoint.getMethod()))) {
-            String resolvedBody = resolvePlaceholders(endpoint.getBody(), context);
-            log.debug("Request body: {}", resolvedBody);
-            requestSpec = request.bodyValue(resolvedBody);
-        } else {
-            requestSpec = request;
-        }
-
-        // Execute request
-        long startTime = System.currentTimeMillis();
-        return requestSpec
-            .retrieve()
-            .bodyToMono(String.class)
-            .timeout(Duration.ofMillis(timeout))
-            .map(responseBody -> {
-                log.debug("    → Received response from {}, extracting fields...", apiCall.getApiId());
-                return extractFields(responseBody, apiCall, context);
-            })
-            .doOnSuccess(extractedData -> {
-                long duration = System.currentTimeMillis() - startTime;
-                log.info("    → API response processed in {}ms - Extracted fields: {}",
-                    duration, extractedData.keySet());
-            })
-            .onErrorResume(e -> {
-                long duration = System.currentTimeMillis() - startTime;
-                log.error("    ✗ API call failed for {} after {}ms: {} - Using default values",
-                    apiCall.getApiId(), duration, e.getMessage());
-                Map<String, Object> defaults = useDefaultValues(apiCall);
-                log.debug("    → Applied {} default value(s)", defaults.size());
-                return Mono.just(defaults);
-            });
-    }
-
-    /**
-     * Extract fields from API response using JSONPath
-     */
-    private Map<String, Object> extractFields(
-        String responseBody,
-        ApiCall apiCall,
-        Map<String, Object> context
-    ) {
-        Map<String, Object> extracted = new HashMap<>();
-        int totalFields = apiCall.getDataSource().getProvidesFields().size();
-        int successCount = 0;
-        int defaultCount = 0;
-        int failedCount = 0;
-
-        log.debug("      → Extracting {} field(s) from response", totalFields);
-
-        for (String fieldName : apiCall.getDataSource().getProvidesFields()) {
-            FieldSourceConfig fieldSource = apiCall.getFieldSources().get(fieldName);
-
-            if (fieldSource == null || fieldSource.getExtractionPath() == null) {
-                log.debug("      ⊘ Skipping {} - No extraction config", fieldName);
-                continue;
-            }
-
-            try {
-                Object value = JsonPath.read(responseBody, fieldSource.getExtractionPath());
-
-                // Unwrap single-element arrays to extract the first value
-                // This handles cases where JSONPath filters return arrays like ["PRC-12345"]
-                if (value instanceof List) {
-                    List<?> list = (List<?>) value;
-                    if (list.size() == 1) {
-                        value = list.get(0);
-                        log.debug("      ⤷ Unwrapped single-element array to: {}", value);
-                    }
-                }
-
-                if (value != null) {
-                    extracted.put(fieldName, value);
-                    successCount++;
-                    log.debug("      ✓ Extracted {}: {} (path: {})",
-                        fieldName, value, fieldSource.getExtractionPath());
-                } else if (fieldSource.getDefaultValue() != null) {
-                    extracted.put(fieldName, fieldSource.getDefaultValue());
-                    defaultCount++;
-                    log.debug("      ◉ Using default for {}: {} (value was null)",
-                        fieldName, fieldSource.getDefaultValue());
-                }
-            } catch (Exception e) {
-                failedCount++;
-                log.warn("      ✗ Failed to extract {} using JSONPath '{}': {}",
-                    fieldName, fieldSource.getExtractionPath(), e.getMessage());
-
-                if (fieldSource.getDefaultValue() != null) {
-                    extracted.put(fieldName, fieldSource.getDefaultValue());
-                    defaultCount++;
-                    log.debug("      ◉ Applied default for {}: {}", fieldName, fieldSource.getDefaultValue());
-                }
-            }
-        }
-
-        log.info("      → Field extraction summary: {} extracted, {} defaults, {} failed",
-            successCount, defaultCount, failedCount);
-
-        return extracted;
-    }
-
-    /**
-     * Use default values when API call fails
-     */
-    private Map<String, Object> useDefaultValues(ApiCall apiCall) {
-        Map<String, Object> defaults = new HashMap<>();
-
-        for (String fieldName : apiCall.getDataSource().getProvidesFields()) {
-            FieldSourceConfig fieldSource = apiCall.getFieldSources().get(fieldName);
-
-            if (fieldSource != null && fieldSource.getDefaultValue() != null) {
-                defaults.put(fieldName, fieldSource.getDefaultValue());
-                log.debug("Using default value for {}: {}", fieldName, fieldSource.getDefaultValue());
-            }
-        }
-
-        return defaults;
-    }
-
-    /**
-     * Resolve placeholders in string
-     */
-    private String resolvePlaceholders(String template, Map<String, Object> context) {
-        if (template == null) {
-            return null;
-        }
-
-        Matcher matcher = PLACEHOLDER_PATTERN.matcher(template);
-        StringBuffer result = new StringBuffer();
-
-        while (matcher.find()) {
-            String placeholder = matcher.group(1);
-            Object value = context.get(placeholder);
-
-            if (value != null) {
-                matcher.appendReplacement(result, value.toString());
-            }
-        }
-
-        matcher.appendTail(result);
-        return result.toString();
-    }
-
-    /**
-     * Internal class representing an extraction plan
-     */
-    private static class ExtractionPlan {
-        private final List<ApiCall> apiCalls = new ArrayList<>();
-
-        public void addApiCall(
-            String apiId,
-            DataSourceConfig dataSource,
-            Map<String, FieldSourceConfig> fieldSources
-        ) {
-            apiCalls.add(new ApiCall(apiId, dataSource, fieldSources));
-        }
-
-        public List<ApiCall> getApiCalls() {
-            return apiCalls;
+    private void addCustomerId(Map<String, Object> context, DocumentListRequest request) {
+        if (request.getCustomerId() != null) {
+            context.put("customerId", request.getCustomerId().toString());
         }
     }
 
     /**
-     * Internal class representing a single API call
+     * Adds reference key and type from the request to the context.
+     *
+     * <p><b>Why:</b> Reference keys are used for conditional document matching
+     * and may be needed by external APIs.</p>
+     *
+     * @param context The context map to populate
+     * @param request The incoming request
      */
-    private static class ApiCall {
-        private final String apiId;
-        private final DataSourceConfig dataSource;
-        private final Map<String, FieldSourceConfig> fieldSources;
+    private void addReferenceKey(Map<String, Object> context, DocumentListRequest request) {
+        if (request.getReferenceKey() != null) {
+            context.put("referenceKey", request.getReferenceKey());
+        }
+        if (request.getReferenceKeyType() != null) {
+            context.put("referenceKeyType", request.getReferenceKeyType());
+        }
+    }
 
-        public ApiCall(String apiId, DataSourceConfig dataSource, Map<String, FieldSourceConfig> fieldSources) {
-            this.apiId = apiId;
-            this.dataSource = dataSource;
-            this.fieldSources = fieldSources;
+    /**
+     * Adds system-level variables to the context.
+     *
+     * <p><b>What:</b> Adds correlationId and auth token to the context.</p>
+     *
+     * <p><b>Why:</b> These are needed for API authentication and request tracing.</p>
+     *
+     * <p><b>How:</b> Generates a new UUID for correlation and uses a mock token
+     * (TODO: should be retrieved from security context in production).</p>
+     *
+     * @param context The context map to populate
+     */
+    private void addSystemVariables(Map<String, Object> context) {
+        context.put("correlationId", UUID.randomUUID().toString());
+        context.put("auth.token", "mock-token-12345");
+    }
+
+    /**
+     * Executes the extraction plan using the appropriate execution mode.
+     *
+     * <p><b>What:</b> Delegates plan execution to ApiCallExecutor.</p>
+     *
+     * <p><b>Why:</b> The config can specify parallel or sequential execution.
+     * Parallel is faster but sequential is needed when APIs depend on each other.</p>
+     *
+     * <p><b>How:</b> Checks the executionStrategy.mode in config and calls the
+     * appropriate executor method.</p>
+     *
+     * @param plan The execution plan containing API calls to make
+     * @param config The extraction configuration with execution strategy
+     * @param context The context map with available field values
+     * @return Mono containing the updated context with extracted fields
+     */
+    private Mono<Map<String, Object>> executePlan(
+            ExtractionPlan plan,
+            DataExtractionConfig config,
+            Map<String, Object> context) {
+
+        log.info("Executing {} API call(s)", plan.size());
+
+        String mode = getExecutionMode(config);
+
+        if ("parallel".equalsIgnoreCase(mode)) {
+            return apiCallExecutor.executeParallel(plan, context)
+                    .doOnSuccess(this::logSuccess);
         }
 
-        public String getApiId() {
-            return apiId;
-        }
+        return apiCallExecutor.executeSequential(plan, context)
+                .doOnSuccess(this::logSuccess);
+    }
 
-        public DataSourceConfig getDataSource() {
-            return dataSource;
+    /**
+     * Gets the execution mode from the config.
+     *
+     * @param config The extraction configuration
+     * @return "parallel" or "sequential" (default)
+     */
+    private String getExecutionMode(DataExtractionConfig config) {
+        if (config.getExecutionStrategy() == null) {
+            return "sequential";
         }
+        return config.getExecutionStrategy().getMode();
+    }
 
-        public Map<String, FieldSourceConfig> getFieldSources() {
-            return fieldSources;
-        }
+    /**
+     * Logs successful extraction completion.
+     *
+     * @param result The map of extracted fields
+     */
+    private void logSuccess(Map<String, Object> result) {
+        log.info("Extraction completed - {} fields: {}",
+                result.size(), result.keySet());
     }
 }
