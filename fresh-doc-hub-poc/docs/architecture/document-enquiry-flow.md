@@ -1,36 +1,108 @@
 # Document Enquiry Flow - Architecture Documentation
 
-This document provides detailed visual diagrams of the document-enquiry endpoint logic flow.
+This document provides detailed visual diagrams of the document-enquiry endpoint logic flow, reflecting the refactored service architecture.
 
 ## Table of Contents
-1. [High-Level Sequence Diagram](#1-high-level-sequence-diagram)
-2. [Data Extraction Chain Flow](#2-data-extraction-chain-flow)
-3. [Rule Evaluation Logic](#3-rule-evaluation-logic)
-4. [Document Matching Strategy](#4-document-matching-strategy)
-5. [Sharing Scope Decision Tree](#5-sharing-scope-decision-tree)
+1. [Architecture Overview](#1-architecture-overview)
+2. [High-Level Sequence Diagram](#2-high-level-sequence-diagram)
+3. [Data Extraction Flow](#3-data-extraction-flow)
+4. [Access Control & HATEOAS Links](#4-access-control--hateoas-links)
+5. [Document Matching Strategy](#5-document-matching-strategy)
 6. [Complete End-to-End Flow](#6-complete-end-to-end-flow)
+7. [Component Reference](#7-component-reference)
 
 ---
 
-## 1. High-Level Sequence Diagram
+## 1. Architecture Overview
 
-This diagram shows the main interaction flow between components when processing a document enquiry request.
+The document enquiry system has been refactored into focused, single-responsibility services:
 
-### Key Concept: Two-Step Filtering
+### Service Architecture
 
-Based on John's clarification, the API implements **two separate filters**:
+```mermaid
+flowchart TB
+    subgraph "Controller Layer"
+        Controller[DocumentEnquiryController]
+    end
 
-| Step | Filter | Purpose | Values |
-|------|--------|---------|--------|
-| **STEP 1** | `line_of_business` | Which business unit's templates to load | `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` |
-| **STEP 2** | `sharing_scope` | Who can access within those templates | `NULL`, `ALL`, `CUSTOM_RULES` |
+    subgraph "Orchestration Layer"
+        DocService[DocumentEnquiryService<br/><i>Coordinator</i>]
+    end
 
-- `ENTERPRISE` in line_of_business = template applies to ALL business units
-- `ALL` in sharing_scope = document is accessible to ALL users (no eligibility check)
+    subgraph "Domain Services"
+        MatchingSvc[DocumentMatchingService<br/><i>Query Logic</i>]
+        ResponseBuilder[DocumentResponseBuilder<br/><i>Response Construction</i>]
+        AccessControl[DocumentAccessControlService<br/><i>HATEOAS Links</i>]
+        ValiditySvc[DocumentValidityService<br/><i>Date Filtering</i>]
+    end
 
-**Note:** `ACCOUNT_TYPE` was removed from `sharing_scope` as it was redundant with `line_of_business` filtering.
+    subgraph "Data Extraction Services"
+        ExtractSvc[ConfigurableDataExtractionService<br/><i>Coordinator</i>]
+        PlanBuilder[ExtractionPlanBuilder<br/><i>Dependency Resolution</i>]
+        ApiExecutor[ApiCallExecutor<br/><i>HTTP Execution</i>]
+        FieldExtractor[FieldExtractor<br/><i>JSONPath Extraction</i>]
+    end
 
-**These are NOT interchangeable** - they are applied in sequence.
+    subgraph "Supporting Services"
+        AccountSvc[AccountMetadataService]
+        RuleSvc[RuleEvaluationService]
+    end
+
+    subgraph "Repositories"
+        TemplateRepo[(TemplateRepository)]
+        StorageRepo[(StorageIndexRepository)]
+    end
+
+    Controller --> DocService
+    DocService --> MatchingSvc
+    DocService --> ResponseBuilder
+    DocService --> ExtractSvc
+    DocService --> AccountSvc
+
+    MatchingSvc --> StorageRepo
+    MatchingSvc --> RuleSvc
+
+    ResponseBuilder --> AccessControl
+    ResponseBuilder --> ValiditySvc
+
+    ExtractSvc --> PlanBuilder
+    ExtractSvc --> ApiExecutor
+    ApiExecutor --> FieldExtractor
+
+    DocService --> TemplateRepo
+
+    style DocService fill:#e1f5fe
+    style ExtractSvc fill:#fff3e0
+    style AccessControl fill:#f3e5f5
+    style MatchingSvc fill:#e8f5e9
+```
+
+### Key Design Principles
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Single Responsibility** | Each service handles one concern |
+| **Separation of Concerns** | Orchestration separated from domain logic |
+| **Dependency Injection** | All services are Spring-managed beans |
+| **Reactive Streams** | Uses Project Reactor (Mono/Flux) throughout |
+
+---
+
+## 2. High-Level Sequence Diagram
+
+This diagram shows the main interaction flow between the refactored components.
+
+### Key Filters Applied
+
+| Step | Filter | Location | Purpose |
+|------|--------|----------|---------|
+| 1 | `accessible_flag` | Template query | Only accessible templates |
+| 2 | `line_of_business` | Template query | Business unit filtering |
+| 3 | `message_center_doc_flag` | Template query | Web display eligibility |
+| 4 | `communication_type` | Template query | Letter/Email/SMS/Push |
+| 5 | `start_date`/`end_date` | Template query | Template validity period |
+| 6 | `sharing_scope` | Per template | Access control logic |
+| 7 | `single_document_flag` | Per template | Return only latest document |
 
 ```mermaid
 sequenceDiagram
@@ -39,729 +111,415 @@ sequenceDiagram
     participant Controller as DocumentEnquiryController
     participant Service as DocumentEnquiryService
     participant AccountSvc as AccountMetadataService
-    participant ExtractSvc as DataExtractionService
-    participant RuleSvc as RuleEvaluationService
     participant TemplateRepo as TemplateRepository
-    participant StorageRepo as StorageIndexRepository
-    participant ExternalAPI as External APIs
+    participant ExtractSvc as ConfigurableDataExtractionService
+    participant MatchingSvc as DocumentMatchingService
+    participant ResponseBuilder as DocumentResponseBuilder
+    participant AccessCtrl as DocumentAccessControlService
 
     Client->>Controller: POST /documents-enquiry
-    Note over Client,Controller: Headers: X-version, X-correlation-id,<br/>X-requestor-id, X-requestor-type<br/>Body: customerId, accountId[],<br/>lineOfBusiness (optional)
+    Note over Client,Controller: Headers: X-requestor-type (CUSTOMER/BANKER/AGENT)<br/>Body: customerId, accountId[], lineOfBusiness,<br/>messageCenterDocFlag, communicationType
 
     Controller->>Controller: Validate request
-    Controller->>Service: getDocuments(request)
+    Controller->>Service: getDocuments(request, requestorType)
 
     rect rgb(255, 250, 230)
-        Note over Service,TemplateRepo: STEP 1: LINE OF BUSINESS FILTER
+        Note over Service,TemplateRepo: STEP 1: TEMPLATE FILTERING
 
         alt lineOfBusiness in request
             Service->>Service: Use request.lineOfBusiness
         else lineOfBusiness not provided
             Service->>AccountSvc: getAccountMetadata(firstAccountId)
             AccountSvc-->>Service: AccountMetadata
-            Service->>Service: Derive lineOfBusiness from accountType
+            Service->>Service: Derive LOB from accountType
         end
 
-        Service->>TemplateRepo: findActiveTemplatesByLineOfBusiness(lob, currentDate)
-        Note over TemplateRepo: WHERE line_of_business = :lob<br/>OR line_of_business = 'ENTERPRISE'
-        TemplateRepo-->>Service: List<Template> (filtered by LOB)
+        Service->>TemplateRepo: findActiveTemplatesWithFilters(lob, msgCenterFlag, commType, currentDate)
+        Note over TemplateRepo: WHERE line_of_business = :lob<br/>AND accessible_flag = true<br/>AND message_center_doc_flag = :flag<br/>AND (communication_type = :type OR :type IS NULL)<br/>AND start_date <= :now AND end_date >= :now
+        TemplateRepo-->>Service: List<Template>
     end
 
     rect rgb(230, 250, 255)
-        Note over Service,StorageRepo: STEP 2: SHARING SCOPE FILTER (per template)
+        Note over Service,MatchingSvc: STEP 2: PROCESS EACH TEMPLATE
 
         loop For each accountId
             Service->>AccountSvc: getAccountMetadata(accountId)
             AccountSvc-->>Service: AccountMetadata
 
-            loop For each Template (already filtered by LOB)
-                alt sharing_scope = NULL (Account-Specific)
-                    Service->>StorageRepo: findAccountSpecificDocuments(accountId, templateType)
-                    StorageRepo-->>Service: Account documents
+            loop For each Template
+                Service->>Service: Check canAccessTemplate(template, metadata)
+                Note over Service: Validate sharing_scope vs accountType
 
-                else sharing_scope = ALL
-                    Service->>StorageRepo: findSharedDocuments(templateType)
-                    StorageRepo-->>Service: Shared documents (no rules check)
-
-                else sharing_scope = CUSTOM_RULES
-                    alt has data_extraction_config
-                        Service->>ExtractSvc: extractFields(config, context)
-
-                        loop For each API in dependency order
-                            ExtractSvc->>ExternalAPI: HTTP GET/POST
-                            ExternalAPI-->>ExtractSvc: API Response
-                            ExtractSvc->>ExtractSvc: Extract fields via JSONPath
-                        end
-
-                        ExtractSvc-->>Service: extractedFields Map
-                        Service->>Service: Merge extractedFields into context
-                    end
-
-                    Service->>RuleSvc: evaluateEligibility(criteria, mergedContext)
-                    RuleSvc-->>Service: eligible: boolean
-
-                    alt eligible = true
-                        alt has documentMatching.referenceKey
-                            Service->>StorageRepo: findByReferenceKey(extractedKey, templateType)
-                        else
-                            Service->>StorageRepo: findSharedDocuments(templateType)
-                        end
-                        StorageRepo-->>Service: Matching documents
-                    end
+                alt has data_extraction_config
+                    Service->>ExtractSvc: extractData(configJson, request)
+                    ExtractSvc-->>Service: Map<String, Object> extractedFields
                 end
 
-                Service->>Service: filterByValidity(documents)
+                Service->>MatchingSvc: queryDocuments(template, accountId, extractedData, dateRange)
+                Note over MatchingSvc: Apply reference_key matching<br/>or conditional matching
+                MatchingSvc-->>Service: List<StorageIndexEntity>
+
+                alt single_document_flag = true
+                    Service->>Service: Keep only most recent document
+                end
             end
         end
     end
 
-    Service->>Service: Aggregate & deduplicate documents
-    Service->>Service: Apply pagination (pageNumber, pageSize)
-    Service->>Service: Build HATEOAS links
+    rect rgb(240, 255, 240)
+        Note over Service,AccessCtrl: STEP 3: BUILD RESPONSE
+
+        Service->>ResponseBuilder: convertToNodes(documents, template, requestorType)
+
+        ResponseBuilder->>AccessCtrl: getPermittedActions(template, requestorType)
+        Note over AccessCtrl: Check access_control JSON<br/>Return: [View, Update, Delete, Download]
+        AccessCtrl-->>ResponseBuilder: List<String> permittedActions
+
+        ResponseBuilder->>AccessCtrl: buildLinksForDocument(document, permittedActions)
+        Note over AccessCtrl: Generate HATEOAS links<br/>Only for permitted actions
+        AccessCtrl-->>ResponseBuilder: Links object
+
+        ResponseBuilder-->>Service: List<DocumentDetailsNode>
+
+        Service->>ResponseBuilder: buildResponse(docs, total, pageNum, pageSize, processingTime)
+        ResponseBuilder-->>Service: DocumentRetrievalResponse
+    end
 
     Service-->>Controller: DocumentRetrievalResponse
     Controller-->>Client: 200 OK + JSON Response
 ```
 
-### Two-Step Filtering Flowchart
-
-```mermaid
-flowchart TD
-    A[Request arrives] --> B{lineOfBusiness<br/>in request?}
-
-    B -->|Yes| C[Use request.lineOfBusiness]
-    B -->|No| D[Get AccountMetadata]
-    D --> E[Derive LOB from accountType]
-    E --> C
-
-    C --> F[STEP 1: Query Templates]
-    F --> G["findActiveTemplatesByLineOfBusiness()<br/>WHERE line_of_business = :lob<br/>OR line_of_business = 'ENTERPRISE'"]
-
-    G --> H[Templates filtered by LOB]
-    H --> I[STEP 2: For each Template]
-
-    I --> J{Check sharing_scope}
-
-    J -->|NULL| K[Account-specific docs]
-    J -->|ALL| L[Shared docs - no check]
-    J -->|CUSTOM_RULES| M[Full eligibility evaluation]
-
-    K --> O[Aggregate results]
-    L --> O
-    M --> O
-
-    O --> P[Return response]
-
-    style F fill:#fff3cd
-    style G fill:#fff3cd
-    style I fill:#cfe2ff
-    style J fill:#cfe2ff
-```
-
 ---
 
-## 2. Data Extraction Chain Flow
+## 3. Data Extraction Flow
 
-This diagram details how the system **loops through each shared document template** and uses the `ConfigurableDataExtractionService` to process multi-step API chains for extracting fields needed for eligibility evaluation and document matching.
+The data extraction system has been refactored into specialized components:
 
-### 2.1 Template Looping Overview
+### 3.1 Extraction Architecture
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Service as DocumentEnquiryService
-    participant TemplateRepo as TemplateRepository
-    participant ExtractSvc as DataExtractionService
-    participant RuleSvc as RuleEvaluationService
-    participant StorageRepo as StorageIndexRepository
-
-    Client->>Service: getDocuments(accountId, customerId)
-
-    Service->>TemplateRepo: findSharedTemplates(communicationType)
-    TemplateRepo-->>Service: List<Template> [T1, T2, T3]
-    Note over Service: Found 3 shared document templates:<br/>T1: Cardholder Agreement (CUSTOM_RULES)<br/>T2: Privacy Statement (ALL)<br/>T3: Credit Card Offer (CUSTOM_RULES)
-
-    rect rgb(255, 250, 240)
-        Note over Service: LOOP: For each Template
-
-        loop Template T1: Cardholder Agreement
-            Service->>Service: Get sharing_scope = CUSTOM_RULES
-            Service->>Service: Get data_extraction_config
-            Note over Service: Template T1 needs: disclosureCode<br/>via accountArrangements → pricing API chain
-
-            Service->>ExtractSvc: extractFields(T1.config, context)
-            Note over ExtractSvc: Execute API chain for T1...<br/>(see detailed flow below)
-            ExtractSvc-->>Service: {disclosureCode: "D164"}
-
-            Service->>RuleSvc: evaluate(T1.eligibility, context)
-            RuleSvc-->>Service: eligible = true
-
-            Service->>StorageRepo: findByReferenceKey("D164", T1.templateId)
-            StorageRepo-->>Service: [Cardholder_Agreement_D164.pdf]
-        end
-
-        loop Template T2: Privacy Statement
-            Service->>Service: Get sharing_scope = ALL
-            Note over Service: No extraction needed for ALL scope
-            Service->>StorageRepo: findSharedDocs(T2.templateId)
-            StorageRepo-->>Service: [Privacy_Statement_2024.pdf]
-        end
-
-        loop Template T3: Credit Card Offer
-            Service->>Service: Get sharing_scope = CUSTOM_RULES
-            Service->>Service: Get data_extraction_config
-            Note over Service: Template T3 needs: creditLimit<br/>via credit info API
-
-            Service->>ExtractSvc: extractFields(T3.config, context)
-            Note over ExtractSvc: Execute API chain for T3...
-            ExtractSvc-->>Service: {creditLimit: 35000}
-
-            Service->>RuleSvc: evaluate(T3.eligibility, context)
-            Note over RuleSvc: creditLimit >= 25000? YES
-            RuleSvc-->>Service: eligible = true
-
-            Note over Service: Apply conditional matching:<br/>35000 >= 50000? No (not Platinum)<br/>35000 >= 25000? Yes → GOLD
-            Service->>StorageRepo: findByReferenceKey("GOLD", T3.templateId)
-            StorageRepo-->>Service: [Gold_Card_Offer.pdf]
-        end
+flowchart LR
+    subgraph "ConfigurableDataExtractionService"
+        A[extractData] --> B[Parse JSON Config]
+        B --> C[Create Initial Context]
+        C --> D[Build Extraction Plan]
     end
 
-    Service->>Service: Aggregate results from all templates
-    Service-->>Client: [Cardholder_Agreement_D164.pdf,<br/>Privacy_Statement_2024.pdf,<br/>Gold_Card_Offer.pdf]
+    subgraph "ExtractionPlanBuilder"
+        D --> E[Analyze Dependencies]
+        E --> F[Determine API Order]
+        F --> G[Create ExtractionPlan]
+    end
+
+    subgraph "ApiCallExecutor"
+        G --> H{Execution Mode?}
+        H -->|Sequential| I[Execute in Order]
+        H -->|Parallel| J[Execute Concurrently]
+        I --> K[Resolve Placeholders]
+        J --> K
+        K --> L[Make HTTP Call]
+        L --> M[Handle Response]
+    end
+
+    subgraph "FieldExtractor"
+        M --> N[Execute JSONPath]
+        N --> O[Unwrap Single Arrays]
+        O --> P[Apply Defaults]
+        P --> Q[Return Extracted Fields]
+    end
+
+    style A fill:#fff3e0
+    style G fill:#e3f2fd
+    style L fill:#fce4ec
+    style Q fill:#e8f5e9
 ```
 
-### 2.2 Detailed API Chain Extraction (Per Template)
-
-This diagram shows the detailed extraction process that happens **for each template** during the loop above.
+### 3.2 Detailed Extraction Sequence
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant Service as DocumentEnquiryService
     participant ExtractSvc as ConfigurableDataExtractionService
-    participant Resolver as PlaceholderResolver
+    participant PlanBuilder as ExtractionPlanBuilder
+    participant Executor as ApiCallExecutor
+    participant Extractor as FieldExtractor
     participant WebClient as WebClient
-    participant API1 as API 1<br/>(accountArrangementsApi)
-    participant API2 as API 2<br/>(pricingApi)
-    participant JSONPath as JSONPath Parser
+    participant ExternalAPI as External API
 
-    Note over Service,JSONPath: Called once per template with CUSTOM_RULES scope
+    Service->>ExtractSvc: extractData(configJson, request)
 
-    Service->>ExtractSvc: extractFields(dataExtractionConfig, initialContext)
-    Note over Service,ExtractSvc: initialContext contains:<br/>accountId, customerId, correlationId
+    ExtractSvc->>ExtractSvc: parseConfig(configJson)
+    Note over ExtractSvc: Parse JSON to DataExtractionConfig<br/>fieldsToExtract: [pricingId, disclosureCode]
 
-    ExtractSvc->>ExtractSvc: Parse fieldsToExtract[]
-    Note over ExtractSvc: Fields needed: [pricingId, disclosureCode]
+    ExtractSvc->>ExtractSvc: createInitialContext(request)
+    Note over ExtractSvc: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123",<br/>  correlationId: UUID,<br/>  auth.token: "..."<br/>}
 
-    ExtractSvc->>ExtractSvc: Build dependency graph
-    Note over ExtractSvc: pricingId requires: accountId (available)<br/>disclosureCode requires: pricingId (not available)
-
-    ExtractSvc->>ExtractSvc: Determine execution order
-    Note over ExtractSvc: Step 1: accountArrangementsApi → pricingId<br/>Step 2: pricingApi → disclosureCode
+    ExtractSvc->>PlanBuilder: buildPlan(config, context)
 
     rect rgb(240, 248, 255)
-        Note over ExtractSvc,API1: STEP 1: Extract pricingId
-        ExtractSvc->>Resolver: resolveUrl(url, context)
-        Note over Resolver: URL: /accounts/${accountId}/arrangements<br/>→ /accounts/550e8400.../arrangements
-        Resolver-->>ExtractSvc: resolved URL
+        Note over PlanBuilder: DEPENDENCY RESOLUTION
 
-        ExtractSvc->>WebClient: GET /accounts/{accountId}/arrangements
-        WebClient->>API1: HTTP GET
-        API1-->>WebClient: JSON Response
-        WebClient-->>ExtractSvc: Response body
+        PlanBuilder->>PlanBuilder: Analyze field dependencies
+        Note over PlanBuilder: pricingId requires: accountId ✓ (available)<br/>disclosureCode requires: pricingId ✗ (not available)
 
-        ExtractSvc->>JSONPath: extract(response, path)
-        Note over JSONPath: Path: $.content[?(@.domain=="PRICING"<br/>&& @.status=="ACTIVE")].domainId
-        JSONPath-->>ExtractSvc: "PRC-12345"
+        PlanBuilder->>PlanBuilder: Build execution order
+        Note over PlanBuilder: Step 1: accountApi → pricingId<br/>Step 2: pricingApi → disclosureCode
 
-        ExtractSvc->>ExtractSvc: context.put("pricingId", "PRC-12345")
+        PlanBuilder-->>ExtractSvc: ExtractionPlan (2 API calls)
     end
+
+    ExtractSvc->>Executor: executeSequential(plan, context)
 
     rect rgb(255, 248, 240)
-        Note over ExtractSvc,API2: STEP 2: Extract disclosureCode
-        ExtractSvc->>Resolver: resolveUrl(url, context)
-        Note over Resolver: URL: /pricing-service/prices/${pricingId}<br/>→ /pricing-service/prices/PRC-12345
-        Resolver-->>ExtractSvc: resolved URL
+        Note over Executor,ExternalAPI: API CALL 1: Get pricingId
 
-        ExtractSvc->>WebClient: GET /pricing-service/prices/PRC-12345
-        WebClient->>API2: HTTP GET
-        API2-->>WebClient: JSON Response
-        WebClient-->>ExtractSvc: Response body
+        Executor->>Executor: resolvePlaceholders(url, context)
+        Note over Executor: /accounts/${accountId}/arrangements<br/>→ /accounts/ACC-001/arrangements
 
-        ExtractSvc->>JSONPath: extract(response, path)
-        Note over JSONPath: Path: $.cardholderAgreementsTncCode
-        JSONPath-->>ExtractSvc: "D164"
+        Executor->>WebClient: GET /accounts/ACC-001/arrangements
+        WebClient->>ExternalAPI: HTTP GET
+        ExternalAPI-->>WebClient: JSON Response
+        WebClient-->>Executor: Response body
 
-        ExtractSvc->>ExtractSvc: context.put("disclosureCode", "D164")
-    end
+        Executor->>Extractor: extractFields(responseBody, apiCall)
+        Extractor->>Extractor: JsonPath.read(body, "$.content[?(@.domain=='PRICING')].domainId")
+        Extractor->>Extractor: unwrapSingleElementArray([\"PRC-12345\"])
+        Extractor-->>Executor: {pricingId: "PRC-12345"}
 
-    ExtractSvc-->>Service: extractedFields = {pricingId: "PRC-12345", disclosureCode: "D164"}
-    Note over Service: Continue to rule evaluation for this template...
-```
-
-### 2.3 Looping Logic Pseudocode
-
-```java
-// DocumentEnquiryService.getDocuments()
-public Flux<Document> getDocuments(DocumentEnquiryRequest request) {
-
-    // 1. Load all active shared document templates
-    List<Template> sharedTemplates = templateRepository
-        .findActiveSharedTemplates(request.getCommunicationType());
-
-    List<Document> allDocuments = new ArrayList<>();
-
-    // 2. LOOP through each template
-    for (Template template : sharedTemplates) {
-
-        // Build initial context with request data
-        Map<String, Object> context = buildContext(request);
-
-        // 3. Check sharing scope and process accordingly
-        switch (template.getSharingScope()) {
-
-            case NULL:
-                // Account-specific: query directly by accountId
-                documents = storageRepo.findByAccountKey(request.getAccountId());
-                break;
-
-            case ALL:
-                // Shared with everyone: no eligibility check
-                documents = storageRepo.findSharedDocs(template.getId());
-                break;
-
-            case CUSTOM_RULES:
-                // 4. Extract external data if configured
-                if (template.hasDataExtractionConfig()) {
-                    Map<String, Object> extracted = dataExtractionService
-                        .extractFields(template.getDataExtractionConfig(), context);
-                    context.putAll(extracted);  // Merge extracted fields
-                }
-
-                // 5. Evaluate eligibility with merged context
-                if (ruleService.evaluate(template.getEligibility(), context)) {
-
-                    // 6. Match documents based on configuration
-                    if (template.hasDocumentMatching()) {
-                        String refKey = getMatchedReferenceKey(template, context);
-                        documents = storageRepo.findByReferenceKey(refKey, template.getId());
-                    } else {
-                        documents = storageRepo.findSharedDocs(template.getId());
-                    }
-                }
-                break;
-        }
-
-        // 7. Filter by validity dates
-        documents = filterByValidity(documents, LocalDate.now());
-
-        // 8. Add to aggregated results
-        allDocuments.addAll(documents);
-    }
-
-    // 9. Deduplicate, sort, and paginate
-    return buildResponse(allDocuments, request.getPagination());
-}
-```
-
-### 2.4 Example 2: Credit Tier Offer Selection
-
-This example shows a different scenario - selecting a credit card offer based on the customer's credit limit tier (Platinum/Gold/Standard).
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Service as DocumentEnquiryService
-    participant ExtractSvc as DataExtractionService
-    participant CreditAPI as Credit Info API
-    participant RuleSvc as RuleEvaluationService
-    participant StorageRepo as StorageIndexRepository
-
-    Note over Service: Processing Template: "Credit Card Offer"<br/>sharing_scope = CUSTOM_RULES
-
-    Service->>Service: Build initial context
-    Note over Service: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123"<br/>}
-
-    rect rgb(230, 255, 230)
-        Note over Service,CreditAPI: STEP 1: Extract creditLimit from Credit Info API
-
-        Service->>ExtractSvc: extractFields(config, context)
-
-        ExtractSvc->>ExtractSvc: Resolve URL template
-        Note over ExtractSvc: /credit-info/${accountId}<br/>→ /credit-info/ACC-001
-
-        ExtractSvc->>CreditAPI: GET /credit-info/ACC-001
-        CreditAPI-->>ExtractSvc: {"creditLimit": 35000, "creditScore": 720}
-
-        ExtractSvc->>ExtractSvc: Extract via JSONPath: $.creditLimit
-        ExtractSvc->>ExtractSvc: context.put("creditLimit", 35000)
-
-        ExtractSvc-->>Service: {creditLimit: 35000}
-    end
-
-    Service->>Service: Merge extracted fields into context
-    Note over Service: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123",<br/>  creditLimit: 35000<br/>}
-
-    rect rgb(255, 255, 230)
-        Note over Service,RuleSvc: STEP 2: Evaluate Eligibility
-
-        Service->>RuleSvc: evaluate(eligibility_criteria, context)
-        Note over RuleSvc: Rule: creditLimit >= 10000
-        RuleSvc->>RuleSvc: 35000 >= 10000? YES
-        RuleSvc-->>Service: eligible = true
-    end
-
-    rect rgb(230, 240, 255)
-        Note over Service,StorageRepo: STEP 3: Conditional Document Matching
-
-        Service->>Service: Apply conditional matching rules
-        Note over Service: Conditions (evaluated in order):<br/>1. creditLimit >= 50000 → PLATINUM<br/>2. creditLimit >= 25000 → GOLD<br/>3. creditLimit >= 10000 → STANDARD
-
-        Service->>Service: Evaluate condition 1
-        Note over Service: 35000 >= 50000? NO
-
-        Service->>Service: Evaluate condition 2
-        Note over Service: 35000 >= 25000? YES → Use "GOLD"
-
-        Service->>StorageRepo: findByReferenceKey("GOLD", "BALANCE_TIER", templateId)
-        StorageRepo-->>Service: [Gold_Card_Offer_2024.pdf]
-    end
-
-    Service->>Service: Filter by validity dates
-    Note over Service: start_date: 2024-01-01<br/>end_date: 2024-12-31<br/>Today: 2024-12-09 ✓ Valid
-
-    Service-->>Service: Return [Gold_Card_Offer_2024.pdf]
-```
-
-### 2.5 Example 3: Privacy Statement with Region-Based Rules
-
-This example shows eligibility based on customer region without external API calls (static rules).
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Service as DocumentEnquiryService
-    participant RuleSvc as RuleEvaluationService
-    participant StorageRepo as StorageIndexRepository
-
-    Note over Service: Processing Template: "Regional Privacy Statement"<br/>sharing_scope = CUSTOM_RULES<br/>No data_extraction_config (uses request data only)
-
-    Service->>Service: Build context from request
-    Note over Service: context = {<br/>  accountId: "ACC-001",<br/>  customerId: "CUST-123",<br/>  state: "CA",<br/>  accountType: "CREDIT_CARD"<br/>}
-
-    rect rgb(255, 240, 245)
-        Note over Service,RuleSvc: Evaluate Eligibility (No Extraction Needed)
-
-        Service->>RuleSvc: evaluate(eligibility_criteria, context)
-        Note over RuleSvc: Rule (OR):<br/>  - state IN ["CA", "NY", "TX"]<br/>  - accountType = "PREMIUM"
-
-        RuleSvc->>RuleSvc: Evaluate rule 1: state IN ["CA", "NY", "TX"]
-        Note over RuleSvc: "CA" IN ["CA", "NY", "TX"]? YES
-
-        RuleSvc-->>Service: eligible = true (short-circuit on first OR match)
+        Executor->>Executor: context.put("pricingId", "PRC-12345")
     end
 
     rect rgb(240, 255, 240)
-        Note over Service,StorageRepo: Query Documents (No Reference Key Matching)
+        Note over Executor,ExternalAPI: API CALL 2: Get disclosureCode
 
-        Service->>StorageRepo: findSharedDocs(templateId)
-        Note over StorageRepo: No documentMatching config,<br/>return all shared docs for template
+        Executor->>Executor: resolvePlaceholders(url, context)
+        Note over Executor: /pricing/${pricingId}<br/>→ /pricing/PRC-12345
 
-        StorageRepo-->>Service: [Privacy_Statement_CA_2024.pdf,<br/>Privacy_Statement_General_2024.pdf]
+        Executor->>WebClient: GET /pricing/PRC-12345
+        WebClient->>ExternalAPI: HTTP GET
+        ExternalAPI-->>WebClient: JSON Response
+        WebClient-->>Executor: Response body
+
+        Executor->>Extractor: extractFields(responseBody, apiCall)
+        Extractor->>Extractor: JsonPath.read(body, "$.cardholderAgreementsTncCode")
+        Extractor-->>Executor: {disclosureCode: "D164"}
+
+        Executor->>Executor: context.put("disclosureCode", "D164")
     end
 
-    Service->>Service: Filter by validity dates
-    Service-->>Service: Return documents
+    Executor-->>ExtractSvc: context with all extracted fields
+    ExtractSvc-->>Service: {pricingId: "PRC-12345", disclosureCode: "D164"}
 ```
 
-### 2.6 Key Points About the Loop
+### 3.3 Error Handling in Extraction
 
-| Aspect | Description |
-|--------|-------------|
-| **What triggers the loop** | A document inquiry request with one or more accountIds |
-| **What is looped over** | Each active shared document template |
-| **When extraction runs** | Only for templates with `sharing_scope = CUSTOM_RULES` AND `data_extraction_config` is present |
-| **Context accumulation** | Each template starts with initial request context; extracted fields are merged in |
-| **Document aggregation** | Results from all templates are collected, deduplicated, and returned together |
-| **Performance consideration** | API calls are made per-template; consider caching common API responses |
+```mermaid
+flowchart TD
+    A[API Call] --> B{Success?}
 
-### Data Extraction Configuration Example
+    B -->|Yes| C[Extract Fields via JSONPath]
+    B -->|No| D[handleApiError]
+
+    C --> E{Value Found?}
+    E -->|Yes| F[Add to Context]
+    E -->|No| G{Has Default?}
+
+    D --> G
+
+    G -->|Yes| H[Use Default Value]
+    G -->|No| I[Log Warning, Continue]
+
+    H --> F
+    I --> J[Next API Call]
+    F --> J
+
+    style B fill:#fff3e0
+    style D fill:#ffcdd2
+    style H fill:#c8e6c9
+```
+
+---
+
+## 4. Access Control & HATEOAS Links
+
+The access control system determines which actions are available based on the requestor type and template configuration.
+
+### 4.1 Access Control Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant ResponseBuilder as DocumentResponseBuilder
+    participant AccessCtrl as DocumentAccessControlService
+    participant Template as Template.access_control
+
+    ResponseBuilder->>AccessCtrl: getPermittedActions(template, "BANKER")
+
+    AccessCtrl->>AccessCtrl: Parse access_control JSON
+    Note over AccessCtrl: {<br/>  "CUSTOMER": ["View", "Download"],<br/>  "BANKER": ["View", "Update", "Download"],<br/>  "AGENT": ["View", "Update", "Delete", "Download"]<br/>}
+
+    AccessCtrl->>AccessCtrl: Look up actions for requestorType
+    AccessCtrl-->>ResponseBuilder: ["View", "Update", "Download"]
+
+    loop For each document
+        ResponseBuilder->>AccessCtrl: buildLinksForDocument(document, permittedActions)
+
+        AccessCtrl->>AccessCtrl: Generate links for permitted actions only
+
+        Note over AccessCtrl: View → GET /documents/{id}<br/>Update → PUT /documents/{id}<br/>Download → GET /documents/{id}/download<br/>(Delete excluded - not permitted for BANKER)
+
+        AccessCtrl-->>ResponseBuilder: Links {<br/>  view: {href: "/documents/123"},<br/>  update: {href: "/documents/123"},<br/>  download: {href: "/documents/123/download"}<br/>}
+    end
+```
+
+### 4.2 Access Control Matrix
+
+```mermaid
+flowchart TD
+    subgraph "Request Processing"
+        A[Incoming Request] --> B{X-requestor-type header}
+        B --> C[CUSTOMER]
+        B --> D[BANKER]
+        B --> E[AGENT]
+    end
+
+    subgraph "Permission Lookup"
+        C --> F[Load template.access_control]
+        D --> F
+        E --> F
+        F --> G{Lookup requestorType}
+    end
+
+    subgraph "Action Permissions"
+        G --> H[Get permitted actions array]
+        H --> I{For each action}
+        I -->|View| J[GET /documents/{id}]
+        I -->|Update| K[PUT /documents/{id}]
+        I -->|Delete| L[DELETE /documents/{id}]
+        I -->|Download| M[GET /documents/{id}/download]
+    end
+
+    subgraph "HATEOAS Link Generation"
+        J --> N[Add to _links]
+        K --> N
+        L --> N
+        M --> N
+        N --> O[Return in response]
+    end
+
+    style C fill:#e3f2fd
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+```
+
+### 4.3 Default Access Control
+
+If no `access_control` is configured on the template, defaults are applied:
+
+| Requestor Type | Default Permissions |
+|----------------|---------------------|
+| `CUSTOMER` | View, Download |
+| `BANKER` | View, Update, Download |
+| `AGENT` | View, Update, Delete, Download |
+
+### 4.4 Response Example with HATEOAS Links
 
 ```json
 {
-  "fieldsToExtract": ["pricingId", "disclosureCode"],
-  "fieldSources": {
-    "pricingId": {
-      "sourceApi": "accountArrangementsApi",
-      "extractionPath": "$.content[?(@.domain==\"PRICING\" && @.status==\"ACTIVE\")].domainId",
-      "requiredInputs": ["accountId"]
-    },
-    "disclosureCode": {
-      "sourceApi": "pricingApi",
-      "extractionPath": "$.cardholderAgreementsTncCode",
-      "requiredInputs": ["pricingId"]
-    }
-  },
-  "dataSources": {
-    "accountArrangementsApi": {
-      "endpoint": {
-        "url": "http://api/accounts/${accountId}/arrangements",
-        "method": "GET"
-      }
-    },
-    "pricingApi": {
-      "endpoint": {
-        "url": "http://api/pricing-service/prices/${pricingId}",
-        "method": "GET"
+  "documents": [
+    {
+      "documentId": "doc-123",
+      "documentType": "STATEMENT",
+      "documentName": "January 2024 Statement",
+      "lineOfBusiness": "CREDIT_CARD",
+      "_links": {
+        "view": {
+          "href": "/api/v1/documents/doc-123",
+          "method": "GET"
+        },
+        "download": {
+          "href": "/api/v1/documents/doc-123/download",
+          "method": "GET"
+        }
       }
     }
+  ],
+  "pagination": {
+    "pageNumber": 1,
+    "pageSize": 20,
+    "totalElements": 45,
+    "totalPages": 3
   }
 }
 ```
 
 ---
 
-## 3. Rule Evaluation Logic
+## 5. Document Matching Strategy
 
-This diagram shows how the `RuleEvaluationService` processes eligibility criteria with AND/OR operators.
+The `DocumentMatchingService` handles document query logic based on template configuration.
 
-```mermaid
-flowchart TD
-    subgraph Input
-        A[eligibility_criteria JSON] --> B{Parse operator}
-        C[context Map] --> D[Available fields]
-    end
-
-    B -->|AND| E[evaluateWithAND]
-    B -->|OR| F[evaluateWithOR]
-
-    subgraph "AND Evaluation"
-        E --> G[For each rule]
-        G --> H{Evaluate rule}
-        H -->|Pass| I{More rules?}
-        I -->|Yes| G
-        I -->|No| J[Return TRUE]
-        H -->|Fail| K[Return FALSE immediately]
-    end
-
-    subgraph "OR Evaluation"
-        F --> L[For each rule]
-        L --> M{Evaluate rule}
-        M -->|Pass| N[Return TRUE immediately]
-        M -->|Fail| O{More rules?}
-        O -->|Yes| L
-        O -->|No| P[Return FALSE]
-    end
-
-    subgraph "Single Rule Evaluation"
-        H --> Q[Get field value from context]
-        Q --> R{Field exists?}
-        R -->|No| S[Return FALSE]
-        R -->|Yes| T{Match operator}
-
-        T -->|EQUALS| U[value == ruleValue]
-        T -->|NOT_EQUALS| V[value != ruleValue]
-        T -->|IN| W[ruleValues.contains value]
-        T -->|NOT_IN| X[!ruleValues.contains value]
-        T -->|GREATER_THAN| Y[value > ruleValue]
-        T -->|LESS_THAN| Z[value < ruleValue]
-        T -->|CONTAINS| AA[value.contains ruleValue]
-        T -->|STARTS_WITH| AB[value.startsWith ruleValue]
-        T -->|ENDS_WITH| AC[value.endsWith ruleValue]
-    end
-
-    style J fill:#90EE90
-    style N fill:#90EE90
-    style K fill:#FFB6C1
-    style P fill:#FFB6C1
-```
-
-### Supported Operators
-
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `EQUALS` | Exact match | `accountType == "credit_card"` |
-| `NOT_EQUALS` | Not equal | `region != "RESTRICTED"` |
-| `IN` | Value in list | `state IN ["CA", "NY", "TX"]` |
-| `NOT_IN` | Value not in list | `segment NOT_IN ["BLOCKED"]` |
-| `GREATER_THAN` | Numeric greater | `creditScore > 700` |
-| `GREATER_THAN_OR_EQUAL` | Numeric >= | `income >= 50000` |
-| `LESS_THAN` | Numeric less | `age < 65` |
-| `LESS_THAN_OR_EQUAL` | Numeric <= | `balance <= 10000` |
-| `CONTAINS` | String contains | `email CONTAINS "@company"` |
-| `STARTS_WITH` | String prefix | `zipcode STARTS_WITH "94"` |
-| `ENDS_WITH` | String suffix | `phone ENDS_WITH "0000"` |
-
-### Example Eligibility Criteria
-
-```json
-{
-  "operator": "AND",
-  "rules": [
-    { "field": "customerSegment", "operator": "EQUALS", "value": "VIP" },
-    { "field": "region", "operator": "IN", "value": ["US_WEST", "US_EAST"] },
-    { "field": "creditScore", "operator": "GREATER_THAN_OR_EQUAL", "value": 750 }
-  ]
-}
-```
-
----
-
-## 4. Document Matching Strategy
-
-This diagram shows how documents are matched based on the `documentMatching` configuration in `data_extraction_config`.
+### 5.1 Matching Decision Flow
 
 ```mermaid
 flowchart TD
-    A[Template with CUSTOM_RULES] --> B{Has documentMatching config?}
+    A[DocumentMatchingService.queryDocuments] --> B{Has reference_key in request?}
 
-    B -->|No| C[Query all shared docs for template]
+    B -->|Yes| C[Reference Key Query Mode]
+    B -->|No| D{Has conditional matching config?}
 
-    B -->|Yes| D{matchBy type?}
+    D -->|Yes| E[Conditional Matching Mode]
+    D -->|No| F[Standard Query Mode]
 
-    D -->|reference_key| E[Reference Key Matching]
-    D -->|conditional| F[Conditional Matching]
-
-    subgraph "Reference Key Matching"
-        E --> E1[Get referenceKeyField from config]
-        E1 --> E2[Look up value in extractedFields]
-        E2 --> E3[Query: reference_key = extractedValue<br/>AND reference_key_type = configuredType]
-        E3 --> E4[Return matching documents]
+    subgraph "Reference Key Query"
+        C --> C1[Get referenceKey from request/extractedData]
+        C1 --> C2[Get referenceKeyType from template]
+        C2 --> C3[Query: WHERE reference_key = ? AND reference_key_type = ?]
     end
 
     subgraph "Conditional Matching"
-        F --> F1[Get conditions array]
-        F1 --> F2[For each condition in order]
-        F2 --> F3{Evaluate condition<br/>against extractedFields}
-        F3 -->|Match| F4[Use condition's referenceKey]
-        F3 -->|No Match| F5{More conditions?}
-        F5 -->|Yes| F2
-        F5 -->|No| F6[No document matched]
-        F4 --> F7[Query by matched referenceKey]
+        E --> E1[Evaluate conditions in order]
+        E1 --> E2{Condition matches?}
+        E2 -->|Yes| E3[Use condition's referenceKey]
+        E2 -->|No| E4{More conditions?}
+        E4 -->|Yes| E1
+        E4 -->|No| E5[No match - return empty]
+        E3 --> C3
     end
 
-    C --> G[Filter by validity dates]
-    E4 --> G
-    F7 --> G
-    G --> H[Return to caller]
+    subgraph "Standard Query"
+        F --> F1[Query by template_type and account_key]
+        F1 --> F2[Apply date filters]
+    end
 
-    style E4 fill:#90EE90
-    style F7 fill:#90EE90
-    style F6 fill:#FFB6C1
+    C3 --> G[Apply accessible_flag filter]
+    F2 --> G
+
+    G --> H[Apply postedFromDate/postedToDate filter]
+    H --> I[Return documents]
+
+    style C fill:#e3f2fd
+    style E fill:#fff3e0
+    style F fill:#e8f5e9
 ```
 
-### Reference Key Matching Example
+### 5.2 Query Filters Applied
 
-```json
-{
-  "documentMatching": {
-    "matchBy": "reference_key",
-    "referenceKeyField": "disclosureCode",
-    "referenceKeyType": "DISCLOSURE_CODE"
-  }
-}
-```
-
-**Flow:**
-1. Extract `disclosureCode` = "D164" from APIs
-2. Query: `SELECT * FROM storage_index WHERE reference_key = 'D164' AND reference_key_type = 'DISCLOSURE_CODE'`
-3. Returns: `Credit_Card_Terms_D164_v1.pdf`
-
-### Conditional Matching Example
-
-```json
-{
-  "documentMatching": {
-    "matchBy": "conditional",
-    "referenceKeyType": "BALANCE_TIER",
-    "conditions": [
-      { "field": "accountBalance", "operator": ">=", "value": 50000, "referenceKey": "PLATINUM" },
-      { "field": "accountBalance", "operator": ">=", "value": 25000, "referenceKey": "GOLD" },
-      { "field": "accountBalance", "operator": ">=", "value": 10000, "referenceKey": "SILVER" },
-      { "field": "accountBalance", "operator": ">=", "value": 0, "referenceKey": "STANDARD" }
-    ]
-  }
-}
-```
-
-**Flow:**
-1. Extract `accountBalance` = 35000 from API
-2. Evaluate conditions in order:
-   - 35000 >= 50000? No
-   - 35000 >= 25000? **Yes** → Use "GOLD"
-3. Query: `SELECT * FROM storage_index WHERE reference_key = 'GOLD' AND reference_key_type = 'BALANCE_TIER'`
-
----
-
-## 5. Sharing Scope Decision Tree
-
-This diagram provides a complete decision tree for how documents are retrieved based on template configuration.
-
-```mermaid
-flowchart TD
-    A[Process Template] --> B{shared_document_flag?}
-
-    B -->|false| C[ACCOUNT-SPECIFIC]
-    C --> C1[Query by account_key = requestedAccountId]
-    C1 --> C2[Only owner can access]
-
-    B -->|true| D{sharing_scope value?}
-
-    D -->|NULL or empty| E[Treat as ACCOUNT-SPECIFIC]
-    E --> C1
-
-    D -->|ALL| F[SHARED WITH EVERYONE]
-    F --> F1[No eligibility check needed]
-    F1 --> F2[Query all shared docs for template]
-
-    D -->|CUSTOM_RULES| H[CUSTOM RULES]
-    H --> H1{Has data_extraction_config?}
-
-    H1 -->|Yes| I[DYNAMIC EXTRACTION]
-    I --> I1[Call external APIs]
-    I1 --> I2[Extract fields via JSONPath]
-    I2 --> I3[Merge into evaluation context]
-    I3 --> J
-
-    H1 -->|No| J[STATIC RULES]
-    J --> J1[Get eligibility_criteria]
-    J1 --> J2{Evaluate rules against context}
-    J2 -->|Pass| K{Has documentMatching?}
-    J2 -->|Fail| L[Skip - not eligible]
-
-    K -->|Yes| M[Query by reference_key]
-    K -->|No| N[Query all shared docs]
-
-    C2 --> O[Filter by validity dates]
-    F2 --> O
-    M --> O
-    N --> O
-
-    O --> P[Add to results]
-
-    style C2 fill:#E6E6FA
-    style F2 fill:#98FB98
-    style M fill:#FFD700
-    style N fill:#FFD700
-    style L fill:#FFB6C1
-```
-
-### Sharing Scope Summary
-
-| Scope | Description | Eligibility Check | Document Query |
-|-------|-------------|-------------------|----------------|
-| `NULL` | Account-specific | None | By `account_key` |
-| `ALL` | Everyone | None | All shared docs |
-| `CUSTOM_RULES` | Complex criteria | Full rule evaluation | By reference_key or all shared |
-
-**Note:** `ACCOUNT_TYPE` was removed as it was redundant with `line_of_business` filtering (STEP 1).
+| Filter | Location | Description |
+|--------|----------|-------------|
+| `template_type` | Storage query | Match document to template |
+| `account_key` | Storage query | Filter by account |
+| `accessible_flag` | Storage query | Only accessible documents |
+| `reference_key` | Storage query | Match specific document version |
+| `postedFromDate` | Storage query | Document creation date >= |
+| `postedToDate` | Storage query | Document creation date <= |
 
 ---
 
 ## 6. Complete End-to-End Flow
 
-This comprehensive diagram shows the entire document enquiry process from request to response.
+This comprehensive diagram shows the entire document enquiry process with all filters and validations.
 
 ```mermaid
 flowchart TB
@@ -771,87 +529,111 @@ flowchart TB
         C -->|Missing| D[400 Bad Request]
         C -->|Valid| E{Validate Body}
         E -->|Invalid| D
-        E -->|Valid| F[Call DocumentEnquiryService]
+        E -->|Valid| F[Extract requestorType from header]
+        F --> G[Call DocumentEnquiryService]
     end
 
-    subgraph "2. TEMPLATE LOADING"
-        F --> G[Load active templates]
-        G --> H[TemplateRepository.findActiveTemplates]
-        H --> I[Filter by accessible_flag = true]
+    subgraph "2. TEMPLATE FILTERING"
+        G --> H{LOB in request?}
+        H -->|No| I[Get AccountMetadata]
+        I --> J[Derive LOB]
+        H -->|Yes| K[Use request LOB]
+        J --> K
+
+        K --> L[TemplateRepository.findActiveTemplatesWithFilters]
+        L --> L1[Filter: accessible_flag = true]
+        L1 --> L2[Filter: line_of_business match]
+        L2 --> L3[Filter: message_center_doc_flag match]
+        L3 --> L4[Filter: communication_type match]
+        L4 --> L5[Filter: template validity period]
+        L5 --> M[Filtered Templates]
     end
 
-    subgraph "3. ACCOUNT PROCESSING"
-        I --> J[For each accountId in request]
-        J --> K[Build AccountMetadata]
-        K --> L[For each Template]
+    subgraph "3. TEMPLATE PROCESSING"
+        M --> N[For each Account]
+        N --> O[Get AccountMetadata]
+        O --> P[For each Template]
+
+        P --> Q{Check sharing_scope<br/>vs accountType}
+        Q -->|Mismatch| R[Skip Template]
+        Q -->|Match| S{Has data_extraction_config?}
+
+        S -->|Yes| T[ConfigurableDataExtractionService]
+        T --> T1[ExtractionPlanBuilder.buildPlan]
+        T1 --> T2[ApiCallExecutor.execute]
+        T2 --> T3[FieldExtractor.extractFields]
+        T3 --> U[Extracted Fields]
+
+        S -->|No| U
+        U --> V[DocumentMatchingService.queryDocuments]
+        V --> W[Apply reference_key matching]
+        W --> X[Apply date range filters]
+        X --> Y{single_document_flag?}
+        Y -->|Yes| Z[Keep only latest document]
+        Y -->|No| AA[Keep all documents]
     end
 
-    subgraph "4. ELIGIBILITY & EXTRACTION"
-        L --> M{Check sharing_scope}
+    subgraph "4. RESPONSE BUILDING"
+        Z --> AB[Documents collected]
+        AA --> AB
+        R --> AB
 
-        M -->|NULL/Account-Specific| N1[Direct query by account]
-
-        M -->|ALL| N2[No check - get shared docs]
-
-        M -->|CUSTOM_RULES| N4{Has extraction config?}
-        N4 -->|Yes| N4a[DataExtractionService]
-        N4a --> N4b[Call External APIs]
-        N4b --> N4c[Extract via JSONPath]
-        N4c --> N4d[Merge context]
-        N4 -->|No| N4d
-        N4d --> N4e[RuleEvaluationService]
-        N4e --> N4f{Eligible?}
-        N4f -->|Yes| N4g{Has documentMatching?}
-        N4f -->|No| SKIP2[Skip template]
-        N4g -->|Yes| N4h[Query by reference_key]
-        N4g -->|No| N4i[Get shared docs]
+        AB --> AC[DocumentResponseBuilder.convertToNodes]
+        AC --> AD[DocumentAccessControlService.getPermittedActions]
+        AD --> AE[Generate HATEOAS links per action]
+        AE --> AF[Add lineOfBusiness from template]
+        AF --> AG[Apply pagination]
+        AG --> AH[Build final response]
     end
 
-    subgraph "5. DOCUMENT FILTERING"
-        N1 --> O[Collected Documents]
-        N2 --> O
-        N4h --> O
-        N4i --> O
+    AH --> AI[200 OK Response]
 
-        O --> P[Filter by validity dates]
-        P --> Q{start_date <= today?}
-        Q -->|No| R[Exclude - future doc]
-        Q -->|Yes| S{end_date >= today?}
-        S -->|No| T[Exclude - expired]
-        S -->|Yes| U[Include in results]
-    end
-
-    subgraph "6. RESPONSE BUILDING"
-        U --> V[Aggregate all documents]
-        V --> W[Deduplicate]
-        W --> X[Apply sorting]
-        X --> Y[Apply pagination]
-        Y --> Z[Build HATEOAS links]
-        Z --> AA[DocumentRetrievalResponse]
-    end
-
-    AA --> AB[200 OK Response]
-
-    style D fill:#FFB6C1
-    style SKIP1 fill:#FFB6C1
-    style SKIP2 fill:#FFB6C1
-    style R fill:#FFB6C1
-    style T fill:#FFB6C1
-    style AB fill:#90EE90
+    style D fill:#ffcdd2
+    style R fill:#ffcdd2
+    style AI fill:#c8e6c9
+    style T fill:#fff3e0
+    style AD fill:#e1bee7
 ```
 
 ---
 
-## Key Components Reference
+## 7. Component Reference
+
+### Core Services
 
 | Component | File | Responsibility |
 |-----------|------|----------------|
-| `DocumentEnquiryController` | `controller/DocumentEnquiryController.java` | HTTP handling, validation |
-| `DocumentEnquiryService` | `service/DocumentEnquiryService.java` | Main orchestration logic |
-| `ConfigurableDataExtractionService` | `service/ConfigurableDataExtractionService.java` | External API calls, JSONPath extraction |
+| `DocumentEnquiryController` | `controller/DocumentEnquiryController.java` | HTTP handling, request validation |
+| `DocumentEnquiryService` | `service/DocumentEnquiryService.java` | **Orchestrator** - coordinates all services |
+| `DocumentMatchingService` | `service/DocumentMatchingService.java` | Document query logic, reference key matching |
+| `DocumentResponseBuilder` | `service/DocumentResponseBuilder.java` | Response construction, pagination |
+| `DocumentAccessControlService` | `service/DocumentAccessControlService.java` | HATEOAS link generation, permission checking |
+| `DocumentValidityService` | `service/DocumentValidityService.java` | Date validation, validity filtering |
+
+### Data Extraction Services
+
+| Component | File | Responsibility |
+|-----------|------|----------------|
+| `ConfigurableDataExtractionService` | `service/ConfigurableDataExtractionService.java` | **Coordinator** - orchestrates extraction |
+| `ExtractionPlanBuilder` | `service/extraction/ExtractionPlanBuilder.java` | Dependency resolution, execution ordering |
+| `ApiCallExecutor` | `service/extraction/ApiCallExecutor.java` | HTTP call execution (sequential/parallel) |
+| `FieldExtractor` | `service/extraction/FieldExtractor.java` | JSONPath extraction, default value handling |
+| `ExtractionPlan` | `service/extraction/ExtractionPlan.java` | Data class - ordered API calls |
+| `ApiCall` | `service/extraction/ApiCall.java` | Data class - single API call config |
+
+### Supporting Services
+
+| Component | File | Responsibility |
+|-----------|------|----------------|
+| `AccountMetadataService` | `service/AccountMetadataService.java` | Account metadata lookup |
 | `RuleEvaluationService` | `service/RuleEvaluationService.java` | Eligibility criteria evaluation |
-| `MasterTemplateDefinitionRepository` | `repository/MasterTemplateDefinitionRepository.java` | Template data access |
-| `StorageIndexRepository` | `repository/StorageIndexRepository.java` | Document data access |
+
+### Repositories
+
+| Component | File | Responsibility |
+|-----------|------|----------------|
+| `MasterTemplateRepository` | `repository/MasterTemplateRepository.java` | Template queries with filters |
+| `StorageIndexRepository` | `repository/StorageIndexRepository.java` | Document queries |
 
 ---
 
@@ -859,4 +641,4 @@ flowchart TB
 
 - [Template Onboarding Guide](../Template_Onboarding_Guide.md) - How to configure templates
 - [Interactive Template Builder](../Interactive_Template_Builder_Concept.md) - UI for template creation
-- [Current Status](../CURRENT_STATUS.md) - Project status and roadmap
+- [Implementation Status](../IMPLEMENTATION_STATUS.md) - Current implementation status
