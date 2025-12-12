@@ -66,11 +66,11 @@ public class StorageIndexEntity {
     @Column("doc_metadata")
     private Json docMetadata;
 
-    @Column("valid_from")
-    private Long validFrom;
+    @Column("start_date")
+    private Long startDate;
 
-    @Column("valid_until")
-    private Long validUntil;
+    @Column("end_date")
+    private Long endDate;
 
     @Column("shared_flag")
     private Boolean sharedFlag;
