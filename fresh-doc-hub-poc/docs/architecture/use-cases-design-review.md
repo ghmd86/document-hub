@@ -25,7 +25,7 @@ The Document Hub service supports **10 primary use cases**:
 | 4 | Custom Rules (Static) | `CUSTOM_RULES` | Multi-criteria eligibility (VIP + Region) |
 | 5 | Custom Rules (Dynamic) | `CUSTOM_RULES` + extraction | Extract data from APIs, then evaluate |
 | 6 | Reference Key Matching | `CUSTOM_RULES` | Match by extracted codes |
-| 7 | Validity Period Enforcement | All | Filter by valid_from/valid_until |
+| 7 | Validity Period Enforcement | All | Filter by start_date/end_date |
 | 8 | Multi-Account Retrieval | All | Query across multiple accounts |
 | 9 | Pagination | All | Page through large result sets |
 | 10 | Multi-Requestor Support | All | CUSTOMER, AGENT, SYSTEM access |
@@ -265,16 +265,16 @@ Request → Extract disclosureCode from external APIs
 ```sql
 -- Document metadata
 doc_metadata = '{
-  "valid_from": "2024-01-01",
-  "valid_until": "2024-12-31"
+  "start_date": "2024-01-01",
+  "end_date": "2024-12-31"
 }'
 ```
 
 **Flow:**
 ```
 After retrieving documents → Check doc_metadata
-        → If valid_from > today, exclude (future document)
-        → If valid_until < today, exclude (expired)
+        → If start_date > today, exclude (future document)
+        → If end_date < today, exclude (expired)
         → Return only currently valid documents
 ```
 
@@ -598,7 +598,7 @@ idx_template_type            -- (template_type)
    - Would improve query efficiency
 
 5. **Standardize validity date fields**
-   - Current: `valid_from`, `validFrom`, `effective_date`
+   - Current: `start_date`, `end_date` (standardized)
    - Should enforce single convention
 
 6. **Add language filter**

@@ -429,7 +429,7 @@ sequenceDiagram
     end
 
     Service->>Service: Filter by validity dates
-    Note over Service: valid_from: 2024-01-01<br/>valid_until: 2024-12-31<br/>Today: 2024-12-09 ✓ Valid
+    Note over Service: start_date: 2024-01-01<br/>end_date: 2024-12-31<br/>Today: 2024-12-09 ✓ Valid
 
     Service-->>Service: Return [Gold_Card_Offer_2024.pdf]
 ```
@@ -814,9 +814,9 @@ flowchart TB
         N4i --> O
 
         O --> P[Filter by validity dates]
-        P --> Q{valid_from <= today?}
+        P --> Q{start_date <= today?}
         Q -->|No| R[Exclude - future doc]
-        Q -->|Yes| S{valid_until >= today?}
+        Q -->|Yes| S{end_date >= today?}
         S -->|No| T[Exclude - expired]
         S -->|Yes| U[Include in results]
     end

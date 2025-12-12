@@ -10,6 +10,7 @@ This document summarizes feedback from demo sessions and tracks action items.
 |---------|------|--------------|
 | Day 1 | Early December 2024 | Taher, John Drum, Prachi, Satheesh, Murali, Jatish |
 | Day 2 | Early December 2024 | Taher, John Drum, Jagadeesh, Pankaj, Satheesh, Murali |
+| Day 3 | December 2024 (Last day before holidays) | Taher, John Drum, Prachi, Jagadeesh, Pankaj, Veda, Cyrus, Satheesh |
 
 ---
 
@@ -95,6 +96,200 @@ This refers to documenting:
 - John returns: January 3rd
 - Plan: Final review before holiday break
 - Priority: Unblock developers to continue API work
+
+---
+
+## Day 3 Feedback
+
+### Topics Discussed
+
+#### 1. PDF Box / Cover Page Generation (Prachi)
+
+**Context:** Prachi demonstrated creating cover pages using PDF Box library.
+
+**John's Guidance:**
+- Create a template PER SDK being used (PDF Box may need its own template)
+- Design it so template can be swapped out if we change products
+- Make it a **utility service** with an API endpoint that can be changed
+- Goal: Make cover page look as close to legacy system as possible
+- **Critical elements to match:**
+  - Logo must look the same
+  - Address position must be EXACT (shows through envelope window)
+  - Other elements can shift slightly
+
+**Approval Process:**
+1. Design with swappable templates
+2. Print and verify fits in envelope (check with back office)
+3. Submit to **Compliance** for approval (anything customer-facing needs compliance sign-off)
+4. Work with **Alison's team** for compliance approval
+
+**John's quote:** "Don't be afraid to create a custom template for the product that you're using."
+
+#### 2. Kafka Topic / Letter Print Integration (Prachi)
+
+- Kafka topic name: `communication_delivery_letter_print` (suggested by Kushan)
+- John: "I don't care what the topic names are"
+- Payload includes: document_hub_id, customer_id, description, reprint indicator, service code
+- **PDF file transfer:** Drop PDF into directory, then make API call to update database
+- No need to stream PDF - just do file copy since we already have it
+
+#### 3. Posted Date Filter Clarification (Taher)
+
+**Question:** Which column to use for `postedFromDate`/`postedToDate` - `doc_creation_date` or `created_timestamp`?
+
+**John's Answer:**
+- Use **document creation date** (not created_timestamp)
+- `doc_creation_date` = when document was created (e.g., statement cycle date)
+- `created_timestamp` = when record was inserted into our system
+- These could be different for externally created documents (e.g., statements from Pfizer)
+- For internally created documents, they should be the same
+
+**John's quote:** "Statements are based on cycles, so... you want to use that document creation date."
+
+#### 4. Message Center Doc Flag - API Parameter (Taher)
+
+**John's Clarifications:**
+
+| Parameter | Purpose | Default Value |
+|-----------|---------|---------------|
+| `message_center_doc_flag` | Filter for message center documents | **Default: true** |
+| `line_of_business` | Filter by business unit | **Default: CREDIT_CARD** (99% of usage) |
+| `communication_type` | Filter by communication channel | **Default: LETTER** |
+
+**Key Points:**
+- "It needs to be a parameter in the API request, yes"
+- "Otherwise you'll get every template that exists out there"
+- "Work with Kushan and follow the standards that we have"
+- If `message_center_doc_flag = false`, return BOTH message center and non-message center docs
+- If not passed, default to `true` ("they're probably gonna be the ones that use this 90% of the time")
+
+#### 5. Deleted Flag Behavior (Taher)
+
+**Question:** Should agents/internal systems be able to query deleted records?
+
+**John's Answer:** **No**
+- "If we want them to fetch that, we'll go flip that deleted flag off"
+- Deleted flag is for audit purposes - record stays but doesn't get returned
+- No API parameter to include deleted records
+
+#### 6. Duplicate Document Handling / Date Ranges (Taher)
+
+**Problem:** When querying shared documents, could return multiple documents with overlapping dates.
+
+**John's Clarifications:**
+- Shared documents have active time frames (start_date, end_date)
+- **Must ensure only ONE current document is returned** for a given time
+- Problem occurs when:
+  - Query date range includes future documents
+  - Date ranges overlap (data entry error)
+- Historical queries (e.g., all privacy statements ever) CAN return multiples
+- Current queries MUST return only one
+
+**John's quote:** "You can't have two current ones at the same time."
+
+**Solution:**
+- Query must be written carefully - "depends on how your query is written"
+- On upload: Check that new documents don't overlap existing ones
+- "That's what the fix for the legacy system basically was - they had to put checks in"
+
+#### 7. Workflow Field for Templates (Taher)
+
+**Context:** John asked if workflow field was added to master template.
+
+**Purpose:** Determines WCM (Work Case Management) workflow to use
+- **2 eyes** = One person approval (one person has two eyes)
+- **4 eyes** = Two person approval (two people = four eyes)
+- Different templates may have different approval requirements
+
+**John's quote:** "Different templates could have one could maybe just two eyes, another one may be 4 eyes."
+
+#### 8. X-Version Header (Jagadeesh)
+
+**Clarification:**
+- X-version is the **API version** (header parameter)
+- Standard per EA (Enterprise Architecture) recommendation
+- All APIs should have this header
+- Credit Card Accounts team uses it
+- Jagadeesh to check with Usharani (EA) for exact purpose
+
+**John's quote:** "That's typically where the version number is kept according to our API standard."
+
+#### 9. Storage Index Date Fields - Column vs JSON (Taher)
+
+**Question:** Should start_date/end_date be separate columns or in doc_metadata JSON?
+
+**John's Answer:** Whatever is **most efficient for query speed**
+- Template dates ≠ Document instance dates
+- One template can have 5 documents with different start/end dates
+- Goal: Optimize for retrieval speed
+- If JSON query is slower than column query, use columns
+
+**John's quote:** "This is all designed to be optimized for speed."
+
+#### 10. Next Priorities (John)
+
+**Immediate Priorities:**
+1. **Make it work** - Get it operational
+2. Create basic templates for statements (without editor)
+3. Add basic shared documents
+
+**Why Urgent:**
+- Legacy systems want to start uploading statements to test environment
+- Need to integrate with Sentista/Smartcom
+- Jobs that upload statements to legacy should also upload to new test system
+
+**Upcoming:**
+- Deep dive with Saurabh on Monday (January 15th)
+- Saurabh will be in office, call at 1:00 PM
+
+### Day 3 Action Items
+
+| # | Action | Owner | Status | Notes |
+|---|--------|-------|--------|-------|
+| 1 | Add `message_center_doc_flag` as API parameter | Team | ⚠️ Pending | Default: true |
+| 2 | Add `communication_type` as API parameter | Team | ⚠️ Pending | Default: LETTER |
+| 3 | Verify `line_of_business` defaults to CREDIT_CARD | Team | ⚠️ Pending | Already implemented, verify default |
+| 4 | Add `workflow` field to master template | Taher | ⚠️ Pending | For WCM 2-eyes/4-eyes |
+| 5 | Use `doc_creation_date` for posted date filter | Team | ⚠️ Pending | Not created_timestamp |
+| 6 | Add date overlap validation on upload | Team | ⚠️ Pending | Prevent overlapping date ranges |
+| 7 | Verify X-version header purpose with EA | Jagadeesh | ⚠️ Pending | Check with Usharani |
+| 8 | Design swappable PDF templates | Prachi | ⚠️ Pending | Per John's guidance |
+| 9 | Get compliance approval for cover page | Prachi | ⚠️ Pending | Work with Alison's team |
+| 10 | Create basic statement template | Team | ⚠️ Pending | For test environment |
+
+### Day 3 Key Quotes from John
+
+> "You should create a template per SDK that you're using."
+
+> "Don't be afraid to create a custom template for the product that you're using."
+
+> "Anything that interacts with the customer has to have compliance approval."
+
+> "The goal is to make it look as close to the legacy one as possible."
+
+> "The address has to be perfect because it shows through the window in the envelope."
+
+> "I would say that you want to use that document creation date."
+
+> "It needs to be a parameter in the API request, yes... Otherwise you'll get every template that exists out there."
+
+> "If you set it to false, it would return both... by default I would say it's true."
+
+> "You need that flag, you need to have the line of business and you need to have the communication type."
+
+> "I don't care. You guys figure that out. Work with Kushan and follow the standards that we have."
+
+> "If we want them to fetch that, we'll go flip that deleted flag off."
+
+> "We have to make absolutely sure we only return one."
+
+> "You can't have two current ones at the same time."
+
+> "2 eyes means one person... 4 eyes means basically you need two people to approve it."
+
+> "The goal is to give you the most efficient retrieval time as possible."
+
+> "They're already wanting to start uploading statements into test using this."
 
 ---
 
@@ -296,7 +491,7 @@ John clarified the relationship between `line_of_business` and `sharing_scope`:
 | Question | Context | Action Required |
 |----------|---------|-----------------|
 | "What if it returns more than one document?" | Date range filtering | Handle multiple valid documents |
-| "I didn't see a date range. I only seen one date" | Effective date fields | Implement `valid_from` and `valid_until` range |
+| "I didn't see a date range. I only seen one date" | Effective date fields | Implement `start_date` and `end_date` range |
 | "What do you do when you get more than one returned?" | Future documents | Return only currently effective document |
 
 **John's scenario:** "They have another privacy statement that's just got. They want it to go into production two months from now, so they add it to the document. That effective date is later than the effective date for the one they're currently using. But they don't want to use it yet."
@@ -350,7 +545,7 @@ Based on John's feedback, here are all the filters that should be applied in the
 │ 9.  accountId          - Filter by account(s)                               │
 │ 10. customerId         - Filter by customer                                 │
 │ 11. reference_key      - Match by disclosure code, etc.                    │
-│ 12. valid_from/valid_until - Document validity dates                       │
+│ 12. start_date/end_date - Document validity dates                          │
 │ 13. postedFromDate/postedToDate - Document creation date range             │
 │ 14. documentTypeCategoryGroup - Filter by template_type + category         │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -361,7 +556,7 @@ Based on John's feedback, here are all the filters that should be applied in the
 | # | Filter | Location | Values/Type | Status | John's Feedback |
 |---|--------|----------|-------------|--------|-----------------|
 | 1 | `line_of_business` | Template | `CREDIT_CARD`, `DIGITAL_BANK`, `ENTERPRISE` | ✅ Implemented | "Line of business is enterprise, credit card, digital banking" |
-| 2 | `template_type` | Template | `Letter`, `Email`, `SMS`, `Push` | ⚠️ Needs filter | "Add filter so you don't get mixture of different types" |
+| 2 | `template_type` | Template | `Letter`, `Email`, `SMS`, `Push` | ✅ Implemented | Filter via documentTypeCategoryGroup (documentTypes = template_type) |
 | 3 | `message_center_doc_flag` | Template | Boolean | ❌ Not implemented | "Make sure document is assigned to message center" |
 | 4 | `active_flag` | Template | Boolean | ✅ Implemented | - |
 | 5 | `accessible_flag` | Template | Boolean | ⚠️ Partial | Should be filtered in query |
@@ -371,9 +566,9 @@ Based on John's feedback, here are all the filters that should be applied in the
 | 9 | `accountId` | Request | UUID[] | ✅ Implemented | - |
 | 10 | `customerId` | Request | UUID | ⚠️ Partial | In request, not fully used |
 | 11 | `reference_key` | Request/Extracted | String | ✅ Implemented | Used for document matching |
-| 12 | `valid_from`/`valid_until` | Document metadata | Date | ✅ Implemented | "Check effective date range" |
+| 12 | `start_date`/`end_date` | Document metadata | Date | ✅ Implemented | "Check effective date range" |
 | 13 | `postedFromDate`/`postedToDate` | Request | Epoch | ❌ Not implemented | Filter by doc creation date |
-| 14 | `documentTypeCategoryGroup` | Request | Array | ❌ Not implemented | Filter by type + category |
+| 14 | `documentTypeCategoryGroup` | Request | Array | ✅ Implemented | Filter by template_type (documentTypes = template_type) |
 
 ### Special Flags
 

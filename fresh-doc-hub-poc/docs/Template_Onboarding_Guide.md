@@ -61,8 +61,8 @@ Sample documents to be indexed (optional - for testing or bulk import).
 | customer_key | Conditional | Customer UUID (if customer-specific) | `cccc0000-0000-0000-0000-000000000001` |
 | reference_key | No | Reference identifier | `D164` |
 | reference_key_type | No | Type of reference | `Disclosure_Code` |
-| valid_from | No | Start date (YYYY-MM-DD) | `2024-01-01` |
-| valid_until | No | End date (YYYY-MM-DD) | `2027-01-01` |
+| start_date | No | Start date (YYYY-MM-DD) | `2024-01-01` |
+| end_date | No | End date (YYYY-MM-DD) | `2027-01-01` |
 | extracted_* | No | Extracted field values (one column per field) | See below |
 
 **Note:** For extracted fields, add columns named `extracted_<field_name>` matching the fields defined in DataExtractionConfig.
