@@ -57,6 +57,8 @@ CREATE TABLE IF NOT EXISTS document_hub.storage_index
     doc_creation_date bigint,
     accessible_flag boolean NOT NULL DEFAULT true,
     doc_metadata jsonb,
+    valid_from bigint,
+    valid_until bigint,
     created_by varchar NOT NULL,
     created_timestamp timestamp NOT NULL DEFAULT now(),
     updated_by varchar,

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn compile:*)",
+      "Bash(dir:*)",
+      "Bash(mvn test:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nRefactor access control and add configurable eligibility criteria\n\n- Separate role-based access control from eligibility evaluation\n- AccessControl now handles role-action permissions (View, Update, Delete, Download)\n- Eligibility criteria moved to template_config column\n- Add TemplateConfig model with eligibility_criteria support\n- Add RoleAccess model for role-action mapping\n- Update RuleEvaluationService to read from TemplateConfig\n- Add fallback to resolve extracted fields from request context\n- Add comprehensive unit tests (23 tests, 10 scenarios)\n- Document data_extraction_config and eligibility_criteria integration\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(powershell -Command:*)",
+      "Bash(curl:*)",
+      "Bash(cmd //c restart-app.bat)",
+      "Bash(cmd //c \"C:\\Users\\ghmd8\\Documents\\AI\\fresh-doc-hub-poc\\test-scripts\\restart-app.bat\")",
+      "Bash(python -m json.tool:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(PGPASSWORD=\"1qaz#EDC\" /c/Program\\ Files/PostgreSQL/18/bin/psql.exe:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix API response issues and add test scripts\n\n- Add lineOfBusiness mapping from template to response\n- Add accessible_flag filter to all repository queries\n- Fix Postman pagination fields (pageNumber/pageSize)\n- Update data.sql with PostgreSQL compatibility fixes\n- Remove old Postman collection from root\n- Add test scripts for API and database verification\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(find:*)",
+      "Bash(git pull:*)",
+      "Bash(cat:*)",
+      "Bash(mvn generate-sources:*)",
+      "Bash(mvn pmd:check:*)",
+      "Bash(mvn pmd:pmd:*)",
+      "Bash(bash:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -2705,3 +2705,645 @@ INSERT INTO document_hub.storage_index (
 --   Template 25: Credit Score 750+ offers - Doc 57
 --
 -- TOTAL: 25 templates, 57 documents
+
+-- ====================================================================
+-- ADDITIONAL FILTER TEST DATA
+-- ====================================================================
+-- Added: December 2024
+-- Purpose: Support comprehensive Postman collection filter testing
+-- ====================================================================
+
+-- ====================================================================
+-- DIGITAL_BANK LINE OF BUSINESS TEMPLATES (Templates 26-28)
+-- ====================================================================
+
+-- Template 26: Digital Bank Savings Statement
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f1000000-0000-0000-0000-000000000001',
+    1,
+    'Digital Bank Savings Statement',
+    'Monthly savings account statement for digital banking customers',
+    'Statement',
+    'DIGITAL_BANK',
+    'SavingsStatement',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    true,
+    'LETTER',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 27: Digital Bank Welcome Kit
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f1000000-0000-0000-0000-000000000002',
+    1,
+    'Digital Bank Welcome Kit',
+    'Welcome package for new digital banking customers',
+    'Onboarding',
+    'DIGITAL_BANK',
+    'WelcomeKit',
+    'EN_US',
+    true,
+    true,
+    'ALL',
+    true,
+    'EMAIL',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 28: Digital Bank Security Alert
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f1000000-0000-0000-0000-000000000003',
+    1,
+    'Digital Bank Security Alert',
+    'Security alert notification for digital banking',
+    'Alert',
+    'DIGITAL_BANK',
+    'SecurityAlert',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    true,
+    'PUSH',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Documents for DIGITAL_BANK templates
+INSERT INTO document_hub.storage_index (
+    storage_index_id, master_template_id, template_version, template_type, shared_flag,
+    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
+) VALUES
+    ('a1000000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000001', 1, 'SavingsStatement', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b1000000-0000-0000-0000-000000000001',
+     'savings_statement_jan_2024.pdf', 1706659200000, true,
+     '{"statement_date": "2024-01-31", "balance": 25000.00, "interest_earned": 125.50}', 'system', NOW()),
+
+    ('a1000000-0000-0000-0000-000000000002', 'f1000000-0000-0000-0000-000000000002', 1, 'WelcomeKit', true,
+     NULL, NULL, 'ecms', 'b1000000-0000-0000-0000-000000000002',
+     'digital_bank_welcome_kit.pdf', 1704067200000, true,
+     '{"kit_version": "2024.1", "includes": ["debit_card_info", "mobile_app_guide", "security_tips"]}', 'system', NOW()),
+
+    ('a1000000-0000-0000-0000-000000000003', 'f1000000-0000-0000-0000-000000000003', 1, 'SecurityAlert', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b1000000-0000-0000-0000-000000000003',
+     'security_alert_login_new_device.pdf', 1733011200000, true,
+     '{"alert_type": "NEW_DEVICE_LOGIN", "device": "iPhone 15", "location": "San Francisco, CA"}', 'system', NOW());
+
+-- ====================================================================
+-- MESSAGE CENTER DOC FLAG VARIATIONS (Templates 29-31)
+-- ====================================================================
+
+-- Template 29: Internal Audit Report (NOT for message center)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f2000000-0000-0000-0000-000000000001',
+    1,
+    'Internal Audit Report',
+    'Internal document - not visible in customer message center',
+    'Internal',
+    'CREDIT_CARD',
+    'InternalAuditReport',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    false,
+    'LETTER',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 30: Collection Notice (Internal only)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f2000000-0000-0000-0000-000000000002',
+    1,
+    'Collection Notice - Internal',
+    'Collection action documentation - agent view only',
+    'Collections',
+    'CREDIT_CARD',
+    'CollectionNotice',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    false,
+    'LETTER',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 31: Risk Assessment Report (Internal only)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f2000000-0000-0000-0000-000000000003',
+    1,
+    'Risk Assessment Report',
+    'Credit risk assessment - internal use only',
+    'Risk',
+    'ENTERPRISE',
+    'RiskAssessment',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    false,
+    'LETTER',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Documents for internal (message_center_doc_flag=false) templates
+INSERT INTO document_hub.storage_index (
+    storage_index_id, master_template_id, template_version, template_type, shared_flag,
+    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
+) VALUES
+    ('a2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 1, 'InternalAuditReport', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b2000000-0000-0000-0000-000000000001',
+     'internal_audit_q4_2024.pdf', 1733011200000, true,
+     '{"audit_period": "Q4 2024", "auditor": "Internal Compliance", "status": "COMPLETED"}', 'system', NOW()),
+
+    ('a2000000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000002', 1, 'CollectionNotice', false,
+     'aaaa0000-0000-0000-0000-000000000002', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b2000000-0000-0000-0000-000000000002',
+     'collection_notice_acct2_dec2024.pdf', 1733011200000, true,
+     '{"days_past_due": 45, "amount_due": 1250.00, "action": "CALL_REQUIRED"}', 'system', NOW()),
+
+    ('a2000000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000003', 1, 'RiskAssessment', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b2000000-0000-0000-0000-000000000003',
+     'risk_assessment_dec2024.pdf', 1733011200000, true,
+     '{"risk_score": 720, "risk_level": "LOW", "assessment_date": "2024-12-01"}', 'system', NOW());
+
+-- ====================================================================
+-- COMMUNICATION TYPE VARIATIONS (Templates 32-35)
+-- ====================================================================
+
+-- Template 32: E-Statement (EMAIL)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f3000000-0000-0000-0000-000000000001',
+    1,
+    'Credit Card E-Statement',
+    'Electronic statement delivered via email',
+    'Statement',
+    'CREDIT_CARD',
+    'EStatement',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    true,
+    'EMAIL',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 33: Payment Reminder SMS
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f3000000-0000-0000-0000-000000000002',
+    1,
+    'Payment Reminder SMS',
+    'Payment due reminder sent via SMS',
+    'Reminder',
+    'CREDIT_CARD',
+    'PaymentReminderSMS',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    true,
+    'SMS',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 34: Transaction Alert Push
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f3000000-0000-0000-0000-000000000003',
+    1,
+    'Transaction Alert Push',
+    'Real-time transaction alert via push notification',
+    'Alert',
+    'CREDIT_CARD',
+    'TransactionAlertPush',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    true,
+    'PUSH',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 35: Marketing Email Campaign
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f3000000-0000-0000-0000-000000000004',
+    1,
+    'Holiday Rewards Campaign Email',
+    'Holiday season rewards promotion email',
+    'Marketing',
+    'ENTERPRISE',
+    'MarketingEmail',
+    'EN_US',
+    true,
+    true,
+    'ALL',
+    true,
+    'EMAIL',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Documents for communication type variations
+INSERT INTO document_hub.storage_index (
+    storage_index_id, master_template_id, template_version, template_type, shared_flag,
+    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
+) VALUES
+    ('a3000000-0000-0000-0000-000000000001', 'f3000000-0000-0000-0000-000000000001', 1, 'EStatement', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b3000000-0000-0000-0000-000000000001',
+     'estatement_dec_2024.html', 1733011200000, true,
+     '{"statement_date": "2024-12-01", "balance": 2500.00, "delivery": "EMAIL"}', 'system', NOW()),
+
+    ('a3000000-0000-0000-0000-000000000002', 'f3000000-0000-0000-0000-000000000002', 1, 'PaymentReminderSMS', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b3000000-0000-0000-0000-000000000002',
+     'payment_reminder_sms_dec2024.txt', 1733011200000, true,
+     '{"due_date": "2024-12-15", "min_payment": 75.00, "sms_sent": true}', 'system', NOW()),
+
+    ('a3000000-0000-0000-0000-000000000003', 'f3000000-0000-0000-0000-000000000003', 1, 'TransactionAlertPush', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b3000000-0000-0000-0000-000000000003',
+     'transaction_alert_dec2024.json', 1733097600000, true,
+     '{"transaction_amount": 150.00, "merchant": "Amazon", "alert_type": "PURCHASE"}', 'system', NOW()),
+
+    ('a3000000-0000-0000-0000-000000000004', 'f3000000-0000-0000-0000-000000000004', 1, 'MarketingEmail', true,
+     NULL, NULL, 'ecms', 'b3000000-0000-0000-0000-000000000004',
+     'holiday_rewards_campaign_2024.html', 1733011200000, true,
+     '{"campaign": "HOLIDAY_2024", "offer": "5X_REWARDS", "valid_until": "2024-12-31"}', 'system', NOW());
+
+-- ====================================================================
+-- ACCESS CONTROL JSON FOR HATEOAS TESTING (Templates 36-38)
+-- ====================================================================
+
+-- Template 36: Customer-Only Document (View + Download only)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    access_control,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f4000000-0000-0000-0000-000000000001',
+    1,
+    'Customer Agreement - View Only',
+    'Agreement document - customers can only view and download',
+    'Agreement',
+    'CREDIT_CARD',
+    'CustomerAgreement',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    true,
+    'LETTER',
+    '{"roles": {"CUSTOMER": {"actions": ["VIEW", "DOWNLOAD"]}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 37: Agent-Managed Document (Agents can delete)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    access_control,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f4000000-0000-0000-0000-000000000002',
+    1,
+    'Case Notes - Agent Managed',
+    'Case notes that agents can manage (including delete)',
+    'CaseManagement',
+    'CREDIT_CARD',
+    'CaseNotes',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    false,
+    'LETTER',
+    '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Template 38: System-Only Document (No customer access)
+INSERT INTO document_hub.master_template_definition (
+    master_template_id,
+    template_version,
+    template_name,
+    template_description,
+    template_category,
+    line_of_business,
+    template_type,
+    language_code,
+    active_flag,
+    shared_document_flag,
+    sharing_scope,
+    message_center_doc_flag,
+    communication_type,
+    access_control,
+    start_date,
+    created_by,
+    created_timestamp
+) VALUES (
+    'f4000000-0000-0000-0000-000000000003',
+    1,
+    'System Integration Log',
+    'System integration document - no customer or agent access',
+    'System',
+    'ENTERPRISE',
+    'SystemLog',
+    'EN_US',
+    true,
+    false,
+    NULL,
+    false,
+    'LETTER',
+    '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
+    1704067200000,
+    'system',
+    NOW()
+);
+
+-- Documents for access control testing
+INSERT INTO document_hub.storage_index (
+    storage_index_id, master_template_id, template_version, template_type, shared_flag,
+    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
+) VALUES
+    ('a4000000-0000-0000-0000-000000000001', 'f4000000-0000-0000-0000-000000000001', 1, 'CustomerAgreement', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b4000000-0000-0000-0000-000000000001',
+     'customer_agreement_2024.pdf', 1704067200000, true,
+     '{"agreement_type": "CARDHOLDER", "version": "2024.1", "signed_date": "2024-01-15"}', 'system', NOW()),
+
+    ('a4000000-0000-0000-0000-000000000002', 'f4000000-0000-0000-0000-000000000002', 1, 'CaseNotes', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b4000000-0000-0000-0000-000000000002',
+     'case_notes_dispute_12345.pdf', 1733011200000, true,
+     '{"case_id": "DISP-12345", "type": "BILLING_DISPUTE", "status": "OPEN", "agent_id": "AGT001"}', 'system', NOW()),
+
+    ('a4000000-0000-0000-0000-000000000003', 'f4000000-0000-0000-0000-000000000003', 1, 'SystemLog', false,
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b4000000-0000-0000-0000-000000000003',
+     'system_integration_log_dec2024.log', 1733011200000, true,
+     '{"integration": "PAYMENT_PROCESSOR", "status": "SUCCESS", "records_processed": 1500}', 'system', NOW());
+
+-- ====================================================================
+-- UPDATE EXISTING TEMPLATES WITH EXPLICIT message_center_doc_flag = true
+-- ====================================================================
+-- Ensure existing templates that should be in message center have the flag set
+
+UPDATE document_hub.master_template_definition
+SET message_center_doc_flag = true
+WHERE master_template_id IN (
+    '11111111-1111-1111-1111-111111111111',  -- Privacy Policy
+    '22222222-2222-2222-2222-222222222222',  -- Credit Card Statement
+    '33333333-3333-3333-3333-333333333333',  -- Balance Transfer Offer
+    '66666666-6666-6666-6666-666666666666',  -- Credit Card Terms
+    '77777777-7777-7777-7777-777777777777',  -- Conditional Agreement Platinum
+    '88888888-8888-8888-8888-888888888888',  -- Conditional Agreement Gold
+    '99999999-9999-9999-9999-999999999999'   -- Conditional Agreement Standard
+);
+
+-- ====================================================================
+-- SUMMARY OF FILTER TEST DATA
+-- ====================================================================
+--
+-- LINE OF BUSINESS:
+--   CREDIT_CARD: Templates 2, 3, 6-9, 21-24, 25, 29-30, 32-34, 36-37
+--   ENTERPRISE:  Templates 1, 4, 5, 10-14, 18-20, 31, 35, 38
+--   DIGITAL_BANK: Templates 26, 27, 28 (NEW)
+--
+-- MESSAGE_CENTER_DOC_FLAG:
+--   true (visible): Templates 1-14, 18-28, 32-35, 36
+--   false (internal): Templates 29, 30, 31, 37, 38 (NEW)
+--
+-- COMMUNICATION_TYPE:
+--   LETTER: Templates 1-25, 29-31, 36-38 (default)
+--   EMAIL: Templates 27, 32, 35 (NEW)
+--   SMS: Template 33 (NEW)
+--   PUSH: Templates 28, 34 (NEW)
+--
+-- ACCESS_CONTROL (HATEOAS):
+--   CUSTOMER: VIEW, DOWNLOAD - Template 36
+--   AGENT: VIEW, DOWNLOAD, UPDATE, DELETE - Template 37
+--   SYSTEM: Full access - Template 38
+--
+-- TOTAL: 38 templates, 69 documents
