@@ -614,13 +614,18 @@ public class DocumentEnquiryService {
     /**
      * Extracts template types from the document category groups in the request.
      *
-     * <p><b>What:</b> Converts category groups to a list of template type strings.</p>
+     * <p><b>What:</b> Converts the API's documentTypeCategoryGroup into a flat list of
+     * template types for filtering. Each category group contains a documentTypes array
+     * which maps to the template_type column in the database.</p>
      *
-     * <p><b>Why:</b> The request uses category groups, but we need template
-     * types for filtering. This extracts the category string from each group.</p>
+     * <p><b>Why:</b> The API request groups document types by category for user convenience,
+     * but the database query needs a flat list of template_type values.</p>
+     *
+     * <p><b>How:</b> Flattens all documentTypes arrays from all category groups into
+     * a single list, filtering out nulls and empty values.</p>
      *
      * @param request The document list request
-     * @return List of template type strings (may be empty)
+     * @return List of template type strings (may be empty if no filter specified)
      */
     private List<String> extractTemplateTypes(DocumentListRequest request) {
         if (request.getDocumentTypeCategoryGroup() == null) {
@@ -628,8 +633,11 @@ public class DocumentEnquiryService {
         }
 
         return request.getDocumentTypeCategoryGroup().stream()
-                .map(DocumentCategoryGroup::getCategory)
+                .filter(group -> group.getDocumentTypes() != null)
+                .flatMap(group -> group.getDocumentTypes().stream())
                 .filter(Objects::nonNull)
+                .filter(type -> !type.isEmpty())
+                .distinct()
                 .collect(Collectors.toList());
     }
 }
