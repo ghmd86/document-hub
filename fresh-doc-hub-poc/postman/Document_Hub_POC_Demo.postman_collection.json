@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "doc-hub-poc-demo-2024",
 		"name": "Document Hub POC - Step-by-Step Demo",
-		"description": "Complete demonstration of Document Hub POC features including:\n\n1. **Mock API Verification** - Test the underlying mock APIs\n2. **Disclosure Code Matching** - Reference key based document matching\n3. **Conditional Matching** - Tiered document selection based on credit limit\n4. **Error Handling** - Graceful failure scenarios\n5. **Template Edge Cases** - Inactive, expired, and future templates\n6. **Document State Edge Cases** - Inaccessible, null metadata\n7. **OR Logic Eligibility** - Multi-region matching\n8. **Nested Rules** - Complex AND/OR combinations\n9. **API Spec Document Types** - Payment, Delinquency, Fraud letters\n10. **Pagination Testing** - Large document sets\n11. **Credit Score Eligibility** - Dynamic data extraction\n12. **Filter Testing** - Line of Business, Message Center, Communication Type\n\n## Required Headers\nAll document enquiry requests require:\n- `X-correlation-id`: Unique request ID\n- `X-requestor-id`: UUID of the requestor\n- `X-requestor-type`: CUSTOMER, AGENT, or SYSTEM\n- `X-version`: API version (1)\n\n## Test Accounts\n| Account | Credit Limit | Tier | Disclosure Code |\n|---------|--------------|------|----------------|\n| aaaa...0001 | $75,000 | PLATINUM | D164 |\n| aaaa...0002 | $35,000 | GOLD | D166 |\n| aaaa...0003 | $15,000 | STANDARD | D165 |\n\n## Test Templates\n- Templates 1-14: Active templates with various scenarios\n- Template 15: INACTIVE (active_flag=false)\n- Template 16: EXPIRED (end_date in past)\n- Template 17: FUTURE (start_date in future)\n- Templates 18-19: OR logic and nested rules\n- Templates 21-24: API spec document types\n- Template 25: Credit score eligibility\n\n## Available Filters\n- `lineOfBusiness`: CREDIT_CARD, DIGITAL_BANK, ENTERPRISE\n- `messageCenterDocFlag`: true (default), false (return both)\n- `communicationType`: LETTER (default), EMAIL, SMS, PUSH\n- `documentTypeCategoryGroup`: Filter by category and document types\n- `postedFromDate`/`postedToDate`: Date range filter (epoch)\n- `referenceKey`/`referenceKeyType`: Direct reference key filtering",
+		"description": "Complete demonstration of Document Hub POC features including filter testing.\n\n## Required Headers\nAll document enquiry requests require:\n- `X-correlation-id`: Unique request ID\n- `X-requestor-id`: UUID of the requestor\n- `X-requestor-type`: CUSTOMER, AGENT, or SYSTEM\n- `X-version`: API version (1)\n\n## Test Accounts\n| Account | Credit Limit | Tier |\n|---------|--------------|------|\n| aaaa...0001 | $75,000 | PLATINUM |\n| aaaa...0002 | $35,000 | GOLD |\n| aaaa...0003 | $15,000 | STANDARD |\n\n## Available Filters\n- `lineOfBusiness`: CREDIT_CARD, DIGITAL_BANK, ENTERPRISE\n- `messageCenterDocFlag`: true (default), false (return both)\n- `communicationType`: LETTER (default), EMAIL, SMS, PUSH\n- `documentTypeCategoryGroup`: Filter by category and document types",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -35,130 +35,88 @@
 			"key": "requestorId",
 			"value": "550e8400-e29b-41d4-a716-446655440002",
 			"type": "string"
-		},
-		{
-			"key": "customerId2",
-			"value": "cccc0000-0000-0000-0000-000000000002",
-			"type": "string",
-			"description": "Standard segment, US_CENTRAL region"
-		},
-		{
-			"key": "customerId3",
-			"value": "cccc0000-0000-0000-0000-000000000003",
-			"type": "string",
-			"description": "Premium segment, US_EAST region"
 		}
 	],
 	"item": [
 		{
-			"name": "Step 1 - Mock API Verification",
-			"description": "Verify that mock APIs are working correctly before testing document enquiry",
+			"name": "1 - Basic Document Enquiry",
 			"item": [
 				{
-					"name": "1.1 Get Account Arrangements (Account 1 - VIP)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId1}}/arrangements",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "creditcard", "accounts", "{{accountId1}}", "arrangements"]
-						},
-						"description": "Returns pricingId for Account 1 (VIP).\n\nExpected: pricingId = 'PR001'"
-					}
-				},
-				{
-					"name": "1.2 Get Account Arrangements (Account 2)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId2}}/arrangements",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "creditcard", "accounts", "{{accountId2}}", "arrangements"]
-						},
-						"description": "Returns pricingId for Account 2.\n\nExpected: pricingId = 'PR002'"
-					}
-				},
-				{
-					"name": "1.3 Get Pricing Info (PR001 - VIP)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/pricing/PR001",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "pricing", "PR001"]
-						},
-						"description": "Returns disclosure code for pricing ID PR001.\n\nExpected: disclosureCode = 'D164'"
-					}
-				},
-				{
-					"name": "1.4 Get Pricing Info (PR002)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/pricing/PR002",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "pricing", "PR002"]
-						},
-						"description": "Returns disclosure code for pricing ID PR002.\n\nExpected: disclosureCode = 'D166'"
-					}
-				},
-				{
-					"name": "1.5 Get Credit Info (Account 1 - $75k)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId1}}/credit-info",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "accounts", "{{accountId1}}", "credit-info"]
-						},
-						"description": "Returns credit limit for Account 1.\n\nExpected: creditLimit = 75000 (PLATINUM tier)"
-					}
-				},
-				{
-					"name": "1.6 Get Credit Info (Account 2 - $35k)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId2}}/credit-info",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "accounts", "{{accountId2}}", "credit-info"]
-						},
-						"description": "Returns credit limit for Account 2.\n\nExpected: creditLimit = 35000 (GOLD tier)"
-					}
-				},
-				{
-					"name": "1.7 Get Credit Info (Account 3 - $15k)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId3}}/credit-info",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "accounts", "{{accountId3}}", "credit-info"]
-						},
-						"description": "Returns credit limit for Account 3.\n\nExpected: creditLimit = 15000 (STANDARD tier)"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 2 - Line of Business Filter",
-			"description": "Tests the lineOfBusiness filter which controls which templates are loaded:\n\n- **CREDIT_CARD**: Returns credit card specific templates + ENTERPRISE\n- **DIGITAL_BANK**: Returns digital banking templates + ENTERPRISE\n- **ENTERPRISE**: Returns only enterprise-wide templates\n\nENTERPRISE templates (like Privacy Policy) are ALWAYS included regardless of LOB filter.",
-			"item": [
-				{
-					"name": "2.1 LOB Filter - CREDIT_CARD (Default)",
+					"name": "1.1 Basic Request - Account 1",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-credit-card-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-basic-001"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry"
+						},
+						"description": "Basic document enquiry for Account 1.\n\nExpected: Returns documents for account 1 including statements, policies."
+					}
+				},
+				{
+					"name": "1.2 Basic Request - Account 2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-basic-002"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry"
+						},
+						"description": "Basic document enquiry for Account 2."
+					}
+				},
+				{
+					"name": "1.3 Multiple Accounts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-basic-003"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "CUSTOMER"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\", \"{{accountId2}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry"
+						},
+						"description": "Document enquiry for multiple accounts."
+					}
+				}
+			]
+		},
+		{
+			"name": "2 - Line of Business Filter",
+			"item": [
+				{
+					"name": "2.1 LOB - CREDIT_CARD",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-lob-cc-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -167,21 +125,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Line of Business Filter: CREDIT_CARD**\n\nReturns documents for templates with:\n- line_of_business = 'CREDIT_CARD'\n- line_of_business = 'ENTERPRISE' (always included)\n\n**Expected:**\n- Credit card statements, terms, agreements\n- Privacy policies (ENTERPRISE scope)\n- Fee schedules (ENTERPRISE scope)\n\n**Verification:** Check that returned documents include credit card specific documents."
+						"description": "Filter by CREDIT_CARD line of business.\n\nExpected: Returns CREDIT_CARD and ENTERPRISE templates."
 					}
 				},
 				{
-					"name": "2.2 LOB Filter - DIGITAL_BANK",
+					"name": "2.2 LOB - DIGITAL_BANK",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-digital-bank-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-lob-db-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -190,21 +146,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"DIGITAL_BANK\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Line of Business Filter: DIGITAL_BANK**\n\nReturns documents for templates with:\n- line_of_business = 'DIGITAL_BANK'\n- line_of_business = 'ENTERPRISE' (always included)\n\n**Expected:**\n- Digital banking specific documents\n- Privacy policies (ENTERPRISE scope)\n- Fee schedules (ENTERPRISE scope)\n\n**Verification:** Should NOT include CREDIT_CARD specific documents like credit card statements."
+						"description": "Filter by DIGITAL_BANK line of business.\n\nExpected: Returns DIGITAL_BANK and ENTERPRISE templates only."
 					}
 				},
 				{
-					"name": "2.3 LOB Filter - ENTERPRISE Only",
+					"name": "2.3 LOB - ENTERPRISE",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-enterprise-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-lob-ent-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -213,50 +167,24 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"ENTERPRISE\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Line of Business Filter: ENTERPRISE**\n\nReturns documents for templates with:\n- line_of_business = 'ENTERPRISE' only\n\n**Expected:**\n- Privacy policies\n- Fee schedules\n- Other enterprise-wide documents\n\n**Verification:** Should NOT include credit card or digital banking specific documents."
-					}
-				},
-				{
-					"name": "2.4 LOB Filter - No Filter (Derived)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-lob-derived-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Line of Business Filter: Not Provided (Derived)**\n\nWhen lineOfBusiness is not provided, it is derived from the account type.\n\n**Expected Behavior:**\n- System derives LOB from account metadata\n- Default is CREDIT_CARD (99% of usage per John's requirement)\n- ENTERPRISE templates always included\n\n**Verification:** Should behave same as CREDIT_CARD filter."
+						"description": "Filter by ENTERPRISE line of business only.\n\nExpected: Returns only ENTERPRISE templates (Privacy Policy, Fee Schedule)."
 					}
 				}
 			]
 		},
 		{
-			"name": "Step 3 - Message Center Doc Flag",
-			"description": "Tests the messageCenterDocFlag filter:\n\n- **true (default)**: Return only documents displayable in message center\n- **false**: Return BOTH message center AND non-message center documents\n\nThis filter controls visibility in the customer-facing message center.",
+			"name": "3 - Message Center Doc Flag",
 			"item": [
 				{
-					"name": "3.1 Message Center Flag - True (Default)",
+					"name": "3.1 Message Center - True (Default)",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-msg-center-true-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-msg-true-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -265,73 +193,45 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"messageCenterDocFlag\": true\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Message Center Doc Flag: true**\n\nReturns only documents that are displayable in the message center.\n\n**Expected:**\n- Documents with message_center_doc_flag = true on their template\n- Customer-facing documents (statements, notices, policies)\n\n**Use Case:** 90% of calls come from message center (per John's requirement)"
+						"description": "Only message center documents.\n\nExpected: Returns only documents with message_center_doc_flag=true."
 					}
 				},
 				{
-					"name": "3.2 Message Center Flag - False (Include All)",
+					"name": "3.2 Message Center - False (All Docs)",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-msg-center-false-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-msg-false-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{"key": "X-requestor-type", "value": "AGENT"}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"messageCenterDocFlag\": false\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Message Center Doc Flag: false**\n\nReturns BOTH message center and non-message center documents.\n\n**Expected:**\n- All documents returned (message center + internal)\n- May include internal documents not visible in customer portal\n\n**Use Case:** Agent/banker views, internal document management"
-					}
-				},
-				{
-					"name": "3.3 Message Center Flag - Not Provided (Default True)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-msg-center-default-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Message Center Doc Flag: Not Provided (Defaults to true)**\n\nWhen not provided, defaults to true per API spec.\n\n**Expected:** Same behavior as messageCenterDocFlag=true\n\n**Verification:** Response should be identical to 3.1"
+						"description": "Include ALL documents (message center + internal).\n\nExpected: Returns both message center and internal documents like audit reports, case notes."
 					}
 				}
 			]
 		},
 		{
-			"name": "Step 4 - Communication Type Filter",
-			"description": "Tests the communicationType filter which controls document delivery channel:\n\n- **LETTER**: Physical mail delivery (default)\n- **EMAIL**: Electronic mail delivery\n- **SMS**: Text message delivery\n- **PUSH**: Push notification delivery",
+			"name": "4 - Communication Type Filter",
 			"item": [
 				{
-					"name": "4.1 Communication Type - LETTER (Default)",
+					"name": "4.1 Communication - LETTER",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-letter-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-comm-letter-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -340,21 +240,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"LETTER\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Communication Type Filter: LETTER**\n\nReturns documents intended for physical mail delivery.\n\n**Expected:**\n- Documents with communication_type = 'LETTER'\n- Printed statements, mailed notices\n\n**Vendor:** Typically Smartcom for letter delivery"
+						"description": "Filter by LETTER communication type (physical mail)."
 					}
 				},
 				{
-					"name": "4.2 Communication Type - EMAIL",
+					"name": "4.2 Communication - EMAIL",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-email-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-comm-email-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -363,21 +261,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"EMAIL\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Communication Type Filter: EMAIL**\n\nReturns documents intended for email delivery.\n\n**Expected:**\n- Documents with communication_type = 'EMAIL'\n- Email statements, electronic notices\n\n**Vendor:** Typically Salesforce for email delivery"
+						"description": "Filter by EMAIL communication type.\n\nExpected: Returns E-Statements, Marketing emails."
 					}
 				},
 				{
-					"name": "4.3 Communication Type - SMS",
+					"name": "4.3 Communication - SMS",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-sms-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-comm-sms-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -386,21 +282,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"SMS\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Communication Type Filter: SMS**\n\nReturns documents intended for SMS text message delivery.\n\n**Expected:**\n- Documents with communication_type = 'SMS'\n- Short-form notifications, alerts\n\n**Note:** SMS documents typically have shorter content than letters/emails."
+						"description": "Filter by SMS communication type.\n\nExpected: Returns Payment Reminder SMS documents."
 					}
 				},
 				{
-					"name": "4.4 Communication Type - PUSH",
+					"name": "4.4 Communication - PUSH",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-comm-push-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-comm-push-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -409,102 +303,24 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"PUSH\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Communication Type Filter: PUSH**\n\nReturns documents intended for push notification delivery.\n\n**Expected:**\n- Documents with communication_type = 'PUSH'\n- Mobile app notifications, alerts\n\n**Note:** Push notifications typically have very short content."
+						"description": "Filter by PUSH communication type.\n\nExpected: Returns Transaction Alerts, Security Alerts."
 					}
 				}
 			]
 		},
 		{
-			"name": "Step 5 - Requestor Type Filter",
-			"description": "Tests different X-requestor-type header values which control access and HATEOAS links:\n\n- **CUSTOMER**: Customer self-service (limited actions)\n- **AGENT**: Call center agent (more actions)\n- **SYSTEM**: System integration (full access)",
+			"name": "5 - Document Type Category Filter",
 			"item": [
 				{
-					"name": "5.1 Requestor Type - CUSTOMER",
+					"name": "5.1 Filter - Statements Only",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-requestor-customer-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Requestor Type: CUSTOMER**\n\nCustomer self-service request.\n\n**Expected HATEOAS Links:**\n- download: Present (customers can download)\n- delete: May be absent (customers typically can't delete)\n\n**Access Control:**\n- Template access_control JSON checked for CUSTOMER role\n- Actions filtered based on role permissions"
-					}
-				},
-				{
-					"name": "5.2 Requestor Type - AGENT",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-requestor-agent-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Requestor Type: AGENT**\n\nCall center agent or banker request.\n\n**Expected HATEOAS Links:**\n- download: Present (agents can download)\n- delete: May be present (agents may have delete access)\n\n**Access Control:**\n- Template access_control JSON checked for AGENT role\n- Typically has more permissions than CUSTOMER"
-					}
-				},
-				{
-					"name": "5.3 Requestor Type - SYSTEM",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-requestor-system-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "SYSTEM"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Requestor Type: SYSTEM**\n\nSystem-to-system integration request.\n\n**Expected HATEOAS Links:**\n- download: Present\n- delete: Present (system has full access)\n\n**Access Control:**\n- Template access_control JSON checked for SYSTEM role\n- Typically has full permissions"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 6 - Document Type Category Filter",
-			"description": "Tests the documentTypeCategoryGroup filter which filters by document category and types.\n\nFormat:\n```json\n{\n  \"documentTypeCategoryGroup\": [\n    {\n      \"category\": \"Statement\",\n      \"documentTypes\": [\"Statement\", \"SavingsStatement\"]\n    }\n  ]\n}\n```",
-			"item": [
-				{
-					"name": "6.1 Filter - Statements Only",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-statements-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-doctype-stmt-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -513,390 +329,66 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Document Type Filter: Statements Only**\n\nReturns only Statement type documents.\n\n**Expected:**\n- Monthly credit card statements\n- Statement documents only\n\n**SQL Generated:** WHERE template_type IN ('Statement')"
+						"description": "Filter by Statement document type.\n\nExpected: Returns only Statement documents."
 					}
 				},
 				{
-					"name": "6.2 Filter - Payment Letters",
+					"name": "5.2 Filter - Privacy Policy Only",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-payment-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-doctype-privacy-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"PaymentConfirmationNotice\",\n            \"documentTypes\": [\"PaymentLetter\"]\n        }\n    ]\n}"
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"PrivacyPolicy\",\n            \"documentTypes\": [\"PrivacyPolicy\"]\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Document Type Filter: Payment Letters**\n\nReturns only PaymentLetter type documents.\n\n**Expected:**\n- Payment confirmation notices\n- Payment receipt documents"
+						"description": "Filter by PrivacyPolicy document type.\n\nExpected: Returns only Privacy Policy documents."
 					}
 				},
 				{
-					"name": "6.3 Filter - Privacy and Disclosure",
+					"name": "5.3 Filter - Multiple Types",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-privacy-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-doctype-multi-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"PrivacyPolicy\",\n            \"documentTypes\": [\"PrivacyNotice\"]\n        },\n        {\n            \"category\": \"ElectronicDisclosure\",\n            \"documentTypes\": [\"EsignInformation\"]\n        }\n    ]\n}"
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\", \"EStatement\"]\n        },\n        {\n            \"category\": \"Policy\",\n            \"documentTypes\": [\"PrivacyPolicy\"]\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Document Type Filter: Privacy & Disclosure**\n\nReturns privacy notices and electronic disclosure documents.\n\n**Expected:**\n- Privacy policy documents\n- E-sign information documents\n- Electronic disclosure documents"
-					}
-				},
-				{
-					"name": "6.4 Filter - Multiple Types Combined",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-multiple-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\", \"SavingsStatement\"]\n        },\n        {\n            \"category\": \"PaymentConfirmationNotice\",\n            \"documentTypes\": [\"PaymentLetter\", \"ReturnedPaymentLetter\"]\n        }\n    ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Document Type Filter: Multiple Types Combined**\n\nReturns multiple document types from different categories.\n\n**Expected:**\n- Statements (regular + savings)\n- Payment letters (confirmation + returned)\n\n**SQL Generated:** WHERE template_type IN ('Statement', 'SavingsStatement', 'PaymentLetter', 'ReturnedPaymentLetter')"
-					}
-				},
-				{
-					"name": "6.5 Filter - Delinquency and Fraud",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-doctype-delinquency-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"],\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Notices\",\n            \"documentTypes\": [\"DelinquencyNotice\", \"FraudLetter\", \"AdverseActionNotice\"]\n        }\n    ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Document Type Filter: Delinquency & Fraud**\n\nReturns sensitive account notices (typically agent-only).\n\n**Expected:**\n- Delinquency notices\n- Fraud investigation letters\n- Adverse action notices"
+						"description": "Filter by multiple document types.\n\nExpected: Returns Statement, EStatement, and PrivacyPolicy documents."
 					}
 				}
 			]
 		},
 		{
-			"name": "Step 7 - Reference Key Filter",
-			"description": "Tests the referenceKey and referenceKeyType filters for direct document lookup.\n\nThis bypasses eligibility checks and directly matches documents by reference key.",
+			"name": "6 - Requestor Type",
 			"item": [
 				{
-					"name": "7.1 Reference Key - Disclosure Code D164",
+					"name": "6.1 Requestor - CUSTOMER",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-refkey-d164-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"referenceKey\": \"D164\",\n    \"referenceKeyType\": \"Disclosure_Code\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Reference Key Filter: D164**\n\nDirectly retrieves documents with reference_key = 'D164'.\n\n**Expected:**\n- Credit_Card_Terms_D164_v1.pdf\n- Documents matching disclosure code D164"
-					}
-				},
-				{
-					"name": "7.2 Reference Key - Disclosure Code D166",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-refkey-d166-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"],\n    \"referenceKey\": \"D166\",\n    \"referenceKeyType\": \"Disclosure_Code\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Reference Key Filter: D166**\n\nDirectly retrieves documents with reference_key = 'D166'.\n\n**Expected:**\n- Premium_Credit_Card_Terms_D166_v1.pdf\n- Documents matching disclosure code D166"
-					}
-				},
-				{
-					"name": "7.3 Reference Key - Tier PLATINUM",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-refkey-tier-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"referenceKey\": \"TIER-PLATINUM\",\n    \"referenceKeyType\": \"Membership_Tier\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Reference Key Filter: TIER-PLATINUM**\n\nDirectly retrieves documents for PLATINUM tier.\n\n**Expected:**\n- Platinum_Card_Agreement.pdf\n- Documents with reference_key = 'TIER-PLATINUM'"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 8 - Date Range Filter",
-			"description": "Tests the postedFromDate and postedToDate filters.\n\nDates are in epoch seconds format (Unix timestamp).\nFilters on doc_creation_date in storage_index table.",
-			"item": [
-				{
-					"name": "8.1 Date Range - Last 30 Days",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-date-30days-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"postedFromDate\": 1731456000,\n    \"postedToDate\": 1734134400\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Date Range Filter: Last 30 Days**\n\nFilters documents posted between Nov 13, 2024 and Dec 13, 2024.\n\n- postedFromDate: 1731456000 (Nov 13, 2024)\n- postedToDate: 1734134400 (Dec 13, 2024)\n\n**Expected:**\n- Documents with doc_creation_date within range\n- Recent statements, notices posted in this period"
-					}
-				},
-				{
-					"name": "8.2 Date Range - 2024 Q4",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-date-q4-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"postedFromDate\": 1727740800,\n    \"postedToDate\": 1735689600\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Date Range Filter: 2024 Q4**\n\nFilters documents posted in Q4 2024 (Oct 1 - Dec 31).\n\n- postedFromDate: 1727740800 (Oct 1, 2024)\n- postedToDate: 1735689600 (Dec 31, 2024)\n\n**Expected:**\n- Q4 statements\n- Holiday season notices\n- Year-end documents"
-					}
-				},
-				{
-					"name": "8.3 Date Range - Full Year 2025",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-date-2025-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"postedFromDate\": 1735689600,\n    \"postedToDate\": 1767225600\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Date Range Filter: Full Year 2025**\n\nFilters documents posted in 2025.\n\n- postedFromDate: 1735689600 (Jan 1, 2025)\n- postedToDate: 1767225600 (Dec 31, 2025)\n\n**Expected:**\n- All 2025 documents\n- 2025 statements, notices"
-					}
-				},
-				{
-					"name": "8.4 Date Range - Only From Date",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-date-from-only-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"postedFromDate\": 1735689600\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Date Range Filter: Only From Date**\n\nFilters documents posted after Jan 1, 2025.\n\n- postedFromDate: 1735689600 (Jan 1, 2025)\n- postedToDate: Not provided (no upper limit)\n\n**Expected:**\n- All documents from 2025 onwards"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 9 - Combined Filters",
-			"description": "Tests combining multiple filters together for complex queries.",
-			"item": [
-				{
-					"name": "9.1 Combined - LOB + Message Center + Communication",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-1-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"messageCenterDocFlag\": true,\n    \"communicationType\": \"LETTER\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Combined Filters:**\n- lineOfBusiness: CREDIT_CARD\n- messageCenterDocFlag: true\n- communicationType: LETTER\n\n**Expected:**\n- Credit card documents\n- Message center eligible\n- Physical letter format\n\nThis is the typical customer message center query."
-					}
-				},
-				{
-					"name": "9.2 Combined - LOB + Doc Type + Date Range",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-2-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ],\n    \"postedFromDate\": 1704067200,\n    \"postedToDate\": 1735689600\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Combined Filters:**\n- lineOfBusiness: CREDIT_CARD\n- documentTypes: Statement\n- Date range: Full year 2024\n\n**Expected:**\n- Only credit card statements\n- Posted during 2024"
-					}
-				},
-				{
-					"name": "9.3 Combined - All Filters Maximum",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-combined-max-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\", \"{{accountId2}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"messageCenterDocFlag\": false,\n    \"communicationType\": \"LETTER\",\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        },\n        {\n            \"category\": \"PaymentConfirmationNotice\",\n            \"documentTypes\": [\"PaymentLetter\"]\n        }\n    ],\n    \"postedFromDate\": 1704067200,\n    \"postedToDate\": 1767225600,\n    \"pageNumber\": 0,\n    \"pageSize\": 20,\n    \"sortOrder\": [\n        {\n            \"orderBy\": \"creationDate\",\n            \"sortBy\": \"desc\"\n        }\n    ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Combined Filters - Maximum Complexity:**\n- Multiple accounts\n- lineOfBusiness: CREDIT_CARD\n- messageCenterDocFlag: false (all documents)\n- communicationType: LETTER\n- Multiple document types\n- Date range: 2024-2025\n- Pagination: page 0, size 20\n- Sorting: by creation date descending\n- Requestor: AGENT\n\n**Expected:**\n- Comprehensive filtered results\n- Sorted and paginated"
-					}
-				},
-				{
-					"name": "9.4 Agent View - Internal + Delinquency",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-agent-internal-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "AGENT"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"],\n    \"messageCenterDocFlag\": false,\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Notices\",\n            \"documentTypes\": [\"DelinquencyNotice\", \"AdverseActionNotice\"]\n        }\n    ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Agent View - Internal Documents:**\n- messageCenterDocFlag: false (include internal)\n- Document types: Delinquency, Adverse Action\n- Requestor: AGENT\n\n**Expected:**\n- Internal account notices\n- Documents not visible in customer message center\n- Delinquency and adverse action notices"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 10 - Pagination Testing",
-			"description": "Tests pagination with a large set of monthly statement documents.\n\nAccount 1 has 14 statement documents (Jan 2024 - Dec 2024 + original 2):\n- Documents 2, 46-56: Monthly statements",
-			"item": [
-				{
-					"name": "10.1 Full Document List (No Pagination)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-pagination-full-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-requestor-cust-001"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -905,21 +397,66 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Full Document List Test**\n\nReturns all documents for Account 1 without pagination.\n\n**Expected:** Response should contain:\n- Multiple statement documents (statement_jan_2024.pdf through statement_dec_2024.pdf)\n- Total document count should be substantial (14+ statements plus shared docs)\n\n**Verification:** Count documentList array size."
+						"description": "Request as CUSTOMER.\n\nExpected: HATEOAS links limited (VIEW, DOWNLOAD only)."
 					}
 				},
 				{
-					"name": "10.2 Paginated Request - Page 1 (Size 5)",
+					"name": "6.2 Requestor - AGENT",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-pagination-page1-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-requestor-agent-001"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "AGENT"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry"
+						},
+						"description": "Request as AGENT.\n\nExpected: More HATEOAS links (may include UPDATE, DELETE)."
+					}
+				},
+				{
+					"name": "6.3 Requestor - SYSTEM",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-requestor-sys-001"},
+							{"key": "X-requestor-id", "value": "{{requestorId}}"},
+							{"key": "X-requestor-type", "value": "SYSTEM"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents-enquiry"
+						},
+						"description": "Request as SYSTEM.\n\nExpected: Full HATEOAS links (all actions available)."
+					}
+				}
+			]
+		},
+		{
+			"name": "7 - Pagination",
+			"item": [
+				{
+					"name": "7.1 Page 1, Size 5",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "X-version", "value": "1"},
+							{"key": "X-correlation-id", "value": "test-page-1"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -928,21 +465,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 5\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Pagination Test - Page 1**\n\n- Page: 0 (first page)\n- Size: 5 documents per page\n\n**Expected:** Response should contain exactly 5 documents (or less if total < 5)."
+						"description": "First page with 5 items per page."
 					}
 				},
 				{
-					"name": "10.3 Paginated Request - Page 2 (Size 5)",
+					"name": "7.2 Page 2, Size 5",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-pagination-page2-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-page-2"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -951,44 +486,19 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 1,\n    \"pageSize\": 5\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Pagination Test - Page 2**\n\n- Page: 1 (second page)\n- Size: 5 documents per page\n\n**Expected:** Response should contain next 5 documents, different from page 1."
+						"description": "Second page with 5 items per page."
 					}
 				},
 				{
-					"name": "10.4 Paginated Request - Large Page Size",
+					"name": "7.3 With Sorting",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-pagination-large-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 100\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Pagination Test - Large Page Size**\n\n- Page: 0\n- Size: 100 (may be capped by maxPageSize config)\n\n**Expected:** Response should return all available documents up to configured maximum."
-					}
-				},
-				{
-					"name": "10.5 Paginated with Sorting",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-pagination-sorted-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-page-sort"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
@@ -997,575 +507,126 @@
 							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"pageNumber\": 0,\n    \"pageSize\": 10,\n    \"sortOrder\": [\n        {\n            \"orderBy\": \"creationDate\",\n            \"sortBy\": \"desc\"\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Pagination with Sorting**\n\n- Page: 0\n- Size: 10\n- Sort: By creation date, descending (newest first)\n\n**Expected:** Documents sorted from newest to oldest."
+						"description": "Sorted by creation date descending."
 					}
 				}
 			]
 		},
 		{
-			"name": "Step 11 - Error Scenarios",
-			"description": "Demonstrates error handling and edge cases",
+			"name": "8 - Combined Filters",
 			"item": [
 				{
-					"name": "11.1 Missing Required Header",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Missing X-correlation-id, X-requestor-id, X-requestor-type headers**\n\n**Expected:** 400 Bad Request\n\nDemonstrates that all required headers must be present."
-					}
-				},
-				{
-					"name": "11.2 Invalid Account ID",
+					"name": "8.1 LOB + Communication Type",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-invalid-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-combined-1"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
 							{"key": "X-requestor-type", "value": "CUSTOMER"}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"invalid-account-id-12345\"]\n}"
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"communicationType\": \"LETTER\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Invalid account ID that doesn't exist in mock data**\n\n**Expected Behavior:**\n- CUSTOM_RULES templates will fail to fetch data from mock APIs\n- Templates are SKIPPED (not returned)\n- Only shared documents (ALL scope) are returned\n\nThis demonstrates the graceful error handling - no fallthrough to return all documents."
+						"description": "Combined: CREDIT_CARD LOB + LETTER communication."
 					}
 				},
 				{
-					"name": "11.3 Empty Account List",
+					"name": "8.2 LOB + Doc Type + Msg Center False",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-empty-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-combined-2"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{"key": "X-requestor-type", "value": "AGENT"}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": []\n}"
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"messageCenterDocFlag\": false,\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Empty account list**\n\n**Expected:** Returns only shared documents that don't require account context."
+						"description": "Combined: CREDIT_CARD + All docs + Statements only."
 					}
 				},
 				{
-					"name": "11.4 Invalid Line of Business",
+					"name": "8.3 All Filters Maximum",
 					"request": {
 						"method": "POST",
 						"header": [
 							{"key": "Content-Type", "value": "application/json"},
 							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-invalid-lob-{{$timestamp}}"},
+							{"key": "X-correlation-id", "value": "test-combined-max"},
 							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
+							{"key": "X-requestor-type", "value": "AGENT"}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"lineOfBusiness\": \"INVALID_LOB\"\n}"
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\", \"{{accountId2}}\"],\n    \"lineOfBusiness\": \"CREDIT_CARD\",\n    \"messageCenterDocFlag\": false,\n    \"communicationType\": \"LETTER\",\n    \"documentTypeCategoryGroup\": [\n        {\n            \"category\": \"Statement\",\n            \"documentTypes\": [\"Statement\"]\n        }\n    ],\n    \"pageNumber\": 0,\n    \"pageSize\": 20\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/documents-enquiry"
 						},
-						"description": "**Invalid Line of Business Value**\n\n**Expected:** 400 Bad Request or validation error\n\nValid values: CREDIT_CARD, DIGITAL_BANK, ENTERPRISE"
-					}
-				},
-				{
-					"name": "11.5 Invalid Communication Type",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-invalid-comm-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"],\n    \"communicationType\": \"FAX\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Invalid Communication Type Value**\n\n**Expected:** 400 Bad Request or validation error\n\nValid values: LETTER, EMAIL, SMS, PUSH"
+						"description": "Maximum complexity: All filters combined."
 					}
 				}
 			]
 		},
 		{
-			"name": "Step 12 - Disclosure Code Matching",
-			"description": "Demonstrates reference key matching using disclosure codes extracted from API chain:\n\n1. Call arrangements API -> get pricingId\n2. Call pricing API with pricingId -> get disclosureCode\n3. Match document by disclosureCode as reference_key",
+			"name": "9 - Mock API Verification",
 			"item": [
 				{
-					"name": "12.1 Document Enquiry - Account 1 (VIP, D164)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-d164-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**API Chain Flow:**\n1. arrangements API -> pricingId: 'PR001'\n2. pricing API -> disclosureCode: 'D164'\n3. Match by reference_key: 'D164'\n\n**Expected Document:** Credit_Card_Terms_D164_v1.pdf\n\n**Also Returns:**\n- Platinum_Card_Agreement.pdf (conditional match)\n- Shared regulatory documents"
-					}
-				},
-				{
-					"name": "12.2 Document Enquiry - Account 2 (D166)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-d166-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**API Chain Flow:**\n1. arrangements API -> pricingId: 'PR002'\n2. pricing API -> disclosureCode: 'D166'\n3. Match by reference_key: 'D166'\n\n**Expected Document:** Premium_Credit_Card_Terms_D166_v1.pdf\n\n**Also Returns:**\n- Gold_Card_Agreement.pdf (conditional match)\n- Shared regulatory documents"
-					}
-				},
-				{
-					"name": "12.3 Document Enquiry - Account 3 (D165)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-d165-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId3}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**API Chain Flow:**\n1. arrangements API -> pricingId: 'PR003'\n2. pricing API -> disclosureCode: 'D165'\n3. Match by reference_key: 'D165'\n\n**Expected Document:** Credit_Card_Terms_D165_v1.pdf\n\n**Also Returns:**\n- Standard_Card_Agreement.pdf (conditional match)\n- Shared regulatory documents"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 13 - Credit Limit Tiers",
-			"description": "Demonstrates conditional document matching based on credit limit:\n\n| Credit Limit | Condition | Tier | Document |\n|--------------|-----------|------|----------|\n| >= $50,000 | creditLimit >= 50000 | PLATINUM | Platinum_Card_Agreement.pdf |\n| >= $25,000 | creditLimit >= 25000 | GOLD | Gold_Card_Agreement.pdf |\n| < $25,000 | creditLimit < 25000 | STANDARD | Standard_Card_Agreement.pdf |",
-			"item": [
-				{
-					"name": "13.1 PLATINUM Tier - Account 1 ($75,000)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-platinum-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Condition Evaluation:**\n- creditLimit = 75,000\n- Check: 75,000 >= 50,000 -> TIER-PLATINUM\n\n**Expected:** Platinum_Card_Agreement.pdf"
-					}
-				},
-				{
-					"name": "13.2 GOLD Tier - Account 2 ($35,000)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-gold-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId2}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Condition Evaluation:**\n- creditLimit = 35,000\n- Check: 35,000 >= 50,000 FAIL\n- Check: 35,000 >= 25,000 -> TIER-GOLD\n\n**Expected:** Gold_Card_Agreement.pdf"
-					}
-				},
-				{
-					"name": "13.3 STANDARD Tier - Account 3 ($15,000)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "demo-standard-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId3}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Condition Evaluation:**\n- creditLimit = 15,000\n- Check: 15,000 >= 50,000 FAIL\n- Check: 15,000 >= 25,000 FAIL\n- Check: 15,000 < 25,000 -> TIER-STANDARD\n\n**Expected:** Standard_Card_Agreement.pdf"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 14 - Template Edge Cases",
-			"description": "Tests template-level validity checking:\n\n- **Template 15**: Inactive (active_flag = false)\n- **Template 16**: Expired (end_date in past)\n- **Template 17**: Future (start_date in future)",
-			"item": [
-				{
-					"name": "14.1 Verify Inactive Template Not Returned",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-inactive-template-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Template 15 Test: Inactive Template**\n\n- Template has active_flag = false\n- Document 32: inactive_promo_should_not_appear.pdf\n\n**Expected:** Response should NOT contain 'InactivePromo' template type."
-					}
-				},
-				{
-					"name": "14.2 Verify Expired Template Not Returned",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-expired-template-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Template 16 Test: Expired Template**\n\n- Template end_date = Sep 30, 2024 (in the past)\n- Document 33: summer_2024_expired_template.pdf\n\n**Expected:** Response should NOT contain 'ExpiredTemplate' template type."
-					}
-				},
-				{
-					"name": "14.3 Verify Future Template Not Returned",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-future-template-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Template 17 Test: Future Template**\n\n- Template start_date = Jan 1, 2026 (in the future)\n- Document 34: future_2026_template.pdf\n\n**Expected:** Response should NOT contain 'FutureTemplate' template type."
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 15 - OR Logic Eligibility",
-			"description": "Tests OR operator in eligibility criteria:\n\n- **Template 18**: Multi-Region Coastal Offer\n- Eligible if region = US_EAST OR region = US_WEST",
-			"item": [
-				{
-					"name": "15.1 OR Logic - US_WEST Region (VIP Customer)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-or-west-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**OR Logic Test - US_WEST Region**\n\n- Customer 1 is in US_WEST region\n- Template 18 eligibility: region = US_EAST OR region = US_WEST\n\n**Expected:** Should return coastal_regions_offer.pdf"
-					}
-				},
-				{
-					"name": "15.2 OR Logic - Central Region (Should NOT Match)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-or-central-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId2}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**OR Logic Test - US_CENTRAL Region**\n\n- Customer 2 is in US_CENTRAL region\n- Template 18 eligibility: region = US_EAST OR region = US_WEST\n- Customer 2 does NOT match either condition\n\n**Expected:** Should NOT return coastal_regions_offer.pdf"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 16 - Nested Rules (AND with OR)",
-			"description": "Tests complex nested eligibility rules:\n\n- **Template 19**: Premium Coastal Credit Card Offer\n- Eligibility: accountType = credit_card AND (segment = VIP OR segment = PREMIUM) AND (region = US_EAST OR region = US_WEST)",
-			"item": [
-				{
-					"name": "16.1 Nested Rules - VIP + US_WEST (Should Match)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-nested-vip-west-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Nested Rules Test - VIP + US_WEST**\n\n- Customer 1: VIP segment, US_WEST region, credit_card account\n- Rule evaluation:\n  1. accountType = credit_card PASS\n  2. (VIP OR PREMIUM) = VIP PASS\n  3. (US_EAST OR US_WEST) = US_WEST PASS\n\n**Expected:** Should return premium_coastal_exclusive.pdf"
-					}
-				},
-				{
-					"name": "16.2 Nested Rules - Standard + US_CENTRAL (Should NOT Match)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-nested-standard-central-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId2}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Nested Rules Test - Standard + US_CENTRAL**\n\n- Customer 2: Standard segment, US_CENTRAL region\n- Rule evaluation:\n  1. accountType = credit_card PASS\n  2. (VIP OR PREMIUM) = Standard FAIL\n  3. (US_EAST OR US_WEST) = US_CENTRAL FAIL\n\n**Expected:** Should NOT return premium_coastal_exclusive.pdf"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 17 - Credit Score Eligibility",
-			"description": "Tests dynamic data extraction for credit score based eligibility:\n\n- **Template 25**: Elite Credit Score Offers\n- Eligibility: creditScore >= 750",
-			"item": [
-				{
-					"name": "17.1 High Credit Score Customer (750+)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-credit-score-high-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Credit Score Test - High Score (750+)**\n\n- Customer 1: Expected credit score >= 750 (mock API returns 780)\n- Template 25 eligibility: creditScore >= 750\n\n**Expected:** Should return elite_credit_platinum_rewards.pdf"
-					}
-				},
-				{
-					"name": "17.2 Mock Credit Bureau API",
+					"name": "9.1 Account Arrangements - Account 1",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/mock-api/credit-bureau/{{customerId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["mock-api", "credit-bureau", "{{customerId}}"]
+							"raw": "{{baseUrl}}/mock-api/creditcard/accounts/{{accountId1}}/arrangements"
 						},
-						"description": "**Credit Bureau Mock API Test**\n\nDirectly call the credit bureau mock API to verify credit score data.\n\n**Expected Response:**\n```json\n{\n  \"customerId\": \"cccc0000-0000-0000-0000-000000000001\",\n  \"creditScore\": 780,\n  \"lastUpdated\": \"2025-...\"\n}\n```"
-					}
-				}
-			]
-		},
-		{
-			"name": "Step 18 - Regional Offers",
-			"description": "Tests region-based document eligibility:\n\n- **Template 14**: East Coast Regional Offers (US_EAST only)\n- **Template 20**: Central Region Exclusive (US_CENTRAL only)",
-			"item": [
-				{
-					"name": "18.1 US_WEST Customer - Should NOT See US_EAST Offer",
-					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-region-west-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
-						},
-						"description": "**Regional Test - US_WEST Customer**\n\n- Customer 1: VIP segment, US_WEST region\n- Template 14 eligibility: region = US_EAST\n\n**Expected:** Should NOT return east_coast_winter_special.pdf"
+						"description": "Get arrangements for Account 1.\n\nExpected: pricingId = 'PR001'"
 					}
 				},
 				{
-					"name": "18.2 US_EAST Customer - Should See US_EAST Offer",
+					"name": "9.2 Pricing Info - PR001",
 					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-region-east-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId3}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
+						"method": "GET",
+						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/mock-api/pricing/PR001"
 						},
-						"description": "**Regional Test - US_EAST Customer**\n\n- Customer 3: Premium segment, US_EAST region\n- Template 14 eligibility: region = US_EAST\n\n**Expected:** Should return east_coast_winter_special.pdf"
+						"description": "Get pricing info for PR001.\n\nExpected: disclosureCode = 'D164'"
 					}
 				},
 				{
-					"name": "18.3 US_CENTRAL Customer - Should See US_CENTRAL Offer",
+					"name": "9.3 Credit Info - Account 1",
 					"request": {
-						"method": "POST",
-						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "X-version", "value": "1"},
-							{"key": "X-correlation-id", "value": "test-region-central-{{$timestamp}}"},
-							{"key": "X-requestor-id", "value": "{{requestorId}}"},
-							{"key": "X-requestor-type", "value": "CUSTOMER"}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"customerId\": \"{{customerId2}}\",\n    \"accountId\": [\"{{accountId1}}\"]\n}"
-						},
+						"method": "GET",
+						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/documents-enquiry",
-							"host": ["{{baseUrl}}"],
-							"path": ["documents-enquiry"]
+							"raw": "{{baseUrl}}/mock-api/accounts/{{accountId1}}/credit-info"
 						},
-						"description": "**Regional Test - US_CENTRAL Customer**\n\n- Customer 2: Standard segment, US_CENTRAL region\n- Template 20 eligibility: region = US_CENTRAL\n\n**Expected:** Should return central_region_exclusive.pdf"
+						"description": "Get credit info for Account 1.\n\nExpected: creditLimit = 75000"
+					}
+				},
+				{
+					"name": "9.4 Customer Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mock-api/customers/{{customerId}}/profile"
+						},
+						"description": "Get customer profile.\n\nExpected: Customer segment and region info."
 					}
 				}
 			]
