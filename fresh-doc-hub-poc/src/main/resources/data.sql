@@ -2748,7 +2748,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'LETTER',
+    'letter',
     1704067200000,
     'system',
     NOW()
@@ -2785,7 +2785,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'ALL',
     true,
-    'EMAIL',
+    'email',
     1704067200000,
     'system',
     NOW()
@@ -2822,7 +2822,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'PUSH',
+    'push',
     1704067200000,
     'system',
     NOW()
@@ -2887,7 +2887,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'LETTER',
+    'letter',
     1704067200000,
     'system',
     NOW()
@@ -2924,7 +2924,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'LETTER',
+    'letter',
     1704067200000,
     'system',
     NOW()
@@ -2961,7 +2961,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'LETTER',
+    'letter',
     1704067200000,
     'system',
     NOW()
@@ -3023,7 +3023,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'EMAIL',
+    'email',
     1704067200000,
     'system',
     NOW()
@@ -3060,7 +3060,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'SMS',
+    'sms',
     1704067200000,
     'system',
     NOW()
@@ -3097,7 +3097,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'PUSH',
+    'push',
     1704067200000,
     'system',
     NOW()
@@ -3134,7 +3134,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'ALL',
     true,
-    'EMAIL',
+    'email',
     1704067200000,
     'system',
     NOW()
@@ -3202,7 +3202,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'LETTER',
+    'letter',
     '{"roles": {"CUSTOMER": {"actions": ["VIEW", "DOWNLOAD"]}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
     1704067200000,
     'system',
@@ -3241,7 +3241,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'LETTER',
+    'letter',
     '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
     1704067200000,
     'system',
@@ -3280,7 +3280,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'LETTER',
+    'letter',
     '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
     1704067200000,
     'system',

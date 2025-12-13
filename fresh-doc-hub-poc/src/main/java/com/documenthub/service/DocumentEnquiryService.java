@@ -211,7 +211,7 @@ public class DocumentEnquiryService {
      */
     private String getCommunicationType(DocumentListRequest request) {
         return request.getCommunicationType() != null
-                ? request.getCommunicationType().getValue()
+                ? request.getCommunicationType().getValue().toLowerCase()
                 : null;
     }
 
