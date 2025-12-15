@@ -635,7 +635,7 @@ INSERT INTO document_hub.storage_index (
     created_by,
     created_timestamp
 ) VALUES (
-    'a0000000-0000-0000-0000-000000000010',
+    'a0000000-0000-0000-0000-000000000058',
     '66666666-6666-6666-6666-666666666666',
     1,
     'CardholderAgreement',
@@ -643,7 +643,7 @@ INSERT INTO document_hub.storage_index (
     'DISCLOSURE_CODE',
     true,
     'ecms',
-    'b0000000-0000-0000-0000-000000000010',
+    'b0000000-0000-0000-0000-000000000058',
     'Credit_Card_Terms_D167_v1_EXPIRED.pdf',
     1672531200000,
     true,
@@ -670,7 +670,7 @@ INSERT INTO document_hub.storage_index (
     created_by,
     created_timestamp
 ) VALUES (
-    'a0000000-0000-0000-0000-000000000011',
+    'a0000000-0000-0000-0000-000000000059',
     '66666666-6666-6666-6666-666666666666',
     1,
     'CardholderAgreement',
@@ -678,7 +678,7 @@ INSERT INTO document_hub.storage_index (
     'DISCLOSURE_CODE',
     true,
     'ecms',
-    'b0000000-0000-0000-0000-000000000011',
+    'b0000000-0000-0000-0000-000000000059',
     'Credit_Card_Terms_D168_v1_FUTURE.pdf',
     1734220800000,
     true,
