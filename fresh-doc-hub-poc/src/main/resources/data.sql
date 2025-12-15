@@ -30,7 +30,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '11111111-1111-1111-1111-111111111111',
     1,
@@ -46,7 +47,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Template 2: Credit Card Statement (Account-Specific)
@@ -66,7 +68,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '22222222-2222-2222-2222-222222222222',
     1,
@@ -82,7 +85,8 @@ INSERT INTO document_hub.master_template_definition (
     false,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Template 3: Balance Transfer Offer (Shared by Account Type - Credit Card)
@@ -101,7 +105,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '33333333-3333-3333-3333-333333333333',
     1,
@@ -117,7 +122,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Template 4: VIP Customer Offer (Shared with Custom Rules - VIP + US_WEST)
@@ -137,7 +143,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '44444444-4444-4444-4444-444444444444',
     1,
@@ -154,7 +161,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Template 5: Regulatory Disclosure (Shared with Custom Rules - Reference Key Match)
@@ -174,7 +182,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '55555555-5555-5555-5555-555555555555',
     1,
@@ -191,7 +200,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- ====================================================================
@@ -428,7 +438,8 @@ INSERT INTO document_hub.master_template_definition (
     start_date,
     created_by,
     created_timestamp,
-    data_extraction_config
+    data_extraction_config,
+	communication_type
 ) VALUES (
     '66666666-6666-6666-6666-666666666666',
     1,
@@ -522,7 +533,8 @@ INSERT INTO document_hub.master_template_definition (
         "referenceKeyField": "disclosureCode",
         "referenceKeyType": "DISCLOSURE_CODE"
       }
-    }'
+    }',
+	'LETTER'
 );
 
 -- ====================================================================
@@ -822,7 +834,8 @@ INSERT INTO document_hub.master_template_definition (
     start_date,
     created_by,
     created_timestamp,
-    data_extraction_config
+    data_extraction_config,
+	communication_type
 ) VALUES (
     '77777777-7777-7777-7777-777777777777',
     1,
@@ -896,7 +909,8 @@ INSERT INTO document_hub.master_template_definition (
         "continueOnError": false,
         "timeout": 10000
       }
-    }'
+    }',
+	'LETTER'
 );
 
 -- ====================================================================
@@ -960,7 +974,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '88888888-8888-8888-8888-888888888888',
     1,
@@ -976,7 +991,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 11: EXPIRED - Black Friday 2024 Offer (expired Nov 30, 2024)
@@ -1153,7 +1169,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     '99999999-9999-9999-9999-999999999999',
     1,
@@ -1170,7 +1187,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 16: EXPIRED - Q1 2024 Rate Change (expired Mar 31, 2024)
@@ -1284,7 +1302,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     1,
@@ -1300,7 +1319,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 19: Tax Document 2023 - PERPETUAL (no expiry, only valid_from)
@@ -1400,7 +1420,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     1,
@@ -1417,7 +1438,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 21: High-Yield Savings Promo - ACTIVE
@@ -1501,7 +1523,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     1,
@@ -1517,7 +1540,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 23: Fee Schedule v1 - EXPIRED (superseded)
@@ -1678,7 +1702,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'dddddddd-dddd-dddd-dddd-dddddddddddd',
     1,
@@ -1694,7 +1719,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 27: Welcome Kit 2024 - EXPIRED
@@ -1778,7 +1804,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
     1,
@@ -1795,7 +1822,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 29: East Coast Winter Special - ACTIVE
@@ -1916,7 +1944,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000001',
     1,
@@ -1932,7 +1961,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 32: Document under INACTIVE template
@@ -1983,7 +2013,8 @@ INSERT INTO document_hub.master_template_definition (
     start_date,
     end_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000002',
     1,
@@ -2000,7 +2031,8 @@ INSERT INTO document_hub.master_template_definition (
     1717200000000,
     1727740800000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 33: Document under EXPIRED template
@@ -2050,7 +2082,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000003',
     1,
@@ -2066,7 +2099,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1767225600000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 34: Document under FUTURE template
@@ -2249,7 +2283,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000004',
     1,
@@ -2274,7 +2309,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 39: Coastal Offer Document
@@ -2325,7 +2361,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000005',
     1,
@@ -2363,7 +2400,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 40: Premium Coastal Offer
@@ -2424,7 +2462,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000006',
     1,
@@ -2441,7 +2480,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 41: Central Region Offer
@@ -2495,7 +2535,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000007',
     1,
@@ -2511,7 +2552,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 42: Payment Confirmation Letter
@@ -2569,7 +2611,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000008',
     1,
@@ -2585,7 +2628,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 43: Delinquency Notice
@@ -2643,7 +2687,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000009',
     1,
@@ -2659,7 +2704,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 44: Fraud Alert Letter
@@ -2717,7 +2763,8 @@ INSERT INTO document_hub.master_template_definition (
     single_document_flag,
     start_date,
     created_by,
-    created_timestamp
+    created_timestamp,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000010',
     1,
@@ -2733,7 +2780,8 @@ INSERT INTO document_hub.master_template_definition (
     true,
     1704067200000,
     'system',
-    NOW()
+    NOW(),
+	'LETTER'
 );
 
 -- Document 45: Adverse Action Notice
@@ -2835,7 +2883,8 @@ INSERT INTO document_hub.master_template_definition (
     start_date,
     created_by,
     created_timestamp,
-    data_extraction_config
+    data_extraction_config,
+	communication_type
 ) VALUES (
     'f0000000-0000-0000-0000-000000000011',
     1,
@@ -2879,7 +2928,8 @@ INSERT INTO document_hub.master_template_definition (
           "providesFields": ["creditScore"]
         }
       }
-    }'
+    }',
+	'LETTER'
 );
 
 -- Document 57: Elite Credit Offer
