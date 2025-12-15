@@ -102,7 +102,9 @@ This diagram shows the main interaction flow between the refactored components.
 | 4 | `communication_type` | Template query | Letter/Email/SMS/Push |
 | 5 | `start_date`/`end_date` | Template query | Template validity period |
 | 6 | `sharing_scope` | Per template | Access control logic |
-| 7 | `single_document_flag` | Per template | Return only latest document |
+| 7 | `start_date`/`end_date` | Document query | Document validity (DB columns) |
+| 8 | `valid_from`/`valid_until` | DocumentValidityService | Document validity (JSON metadata) |
+| 9 | `single_document_flag` | Per template | Return only latest document |
 
 ```mermaid
 sequenceDiagram
@@ -156,8 +158,8 @@ sequenceDiagram
                 end
 
                 Service->>MatchingSvc: queryDocuments(template, accountId, extractedData, dateRange)
-                Note over MatchingSvc: Apply reference_key matching<br/>or conditional matching
-                MatchingSvc-->>Service: List<StorageIndexEntity>
+                Note over MatchingSvc: Apply reference_key matching<br/>or conditional matching<br/>Then filter by doc_metadata validity
+                MatchingSvc-->>Service: List<StorageIndexEntity> (validity filtered)
 
                 alt single_document_flag = true
                     Service->>Service: Keep only most recent document
@@ -490,21 +492,48 @@ flowchart TD
 
     subgraph "Standard Query"
         F --> F1[Query by template_type and account_key]
-        F1 --> F2[Apply date filters]
+        F1 --> F2[Apply DB date filters]
     end
 
     C3 --> G[Apply accessible_flag filter]
     F2 --> G
 
     G --> H[Apply postedFromDate/postedToDate filter]
-    H --> I[Return documents]
+    H --> I[Apply start_date/end_date filter]
+
+    subgraph "Post-Query Validity Filter"
+        I --> J[DocumentValidityService.filterByValidity]
+        J --> K{Check doc_metadata JSON}
+        K --> L[Parse valid_from/valid_until fields]
+        L --> M{Document currently valid?}
+        M -->|Yes| N[Include in results]
+        M -->|No - Expired| O[Filter out document]
+        M -->|No - Future| O
+    end
+
+    N --> P[Return filtered documents]
+    O --> P
 
     style C fill:#e3f2fd
     style E fill:#fff3e0
     style F fill:#e8f5e9
+    style J fill:#fff9c4
 ```
 
-### 5.2 Query Filters Applied
+### 5.2 Two-Level Date Filtering
+
+The system applies date filtering at two levels:
+
+| Level | Location | Fields | Purpose |
+|-------|----------|--------|---------|
+| **Database Query** | `StorageIndexRepository` | `start_date`, `end_date` columns | Efficient filtering at DB level |
+| **Post-Query Filter** | `DocumentValidityService` | `valid_from`, `valid_until` in `doc_metadata` JSON | Fine-grained validity from metadata |
+
+**Important**: Documents can be filtered out at either level. A document must pass BOTH filters to be returned:
+1. DB columns `start_date`/`end_date` must be NULL or within range
+2. JSON metadata `valid_from`/`valid_until` must be NULL or within range
+
+### 5.3 Query Filters Applied
 
 | Filter | Location | Description |
 |--------|----------|-------------|
@@ -567,8 +596,13 @@ flowchart TB
         S -->|No| U
         U --> V[DocumentMatchingService.queryDocuments]
         V --> W[Apply reference_key matching]
-        W --> X[Apply date range filters]
-        X --> Y{single_document_flag?}
+        W --> X[Apply DB date filters: start_date/end_date]
+        X --> X1[DocumentValidityService.filterByValidity]
+        X1 --> X2{Check doc_metadata<br/>valid_from/valid_until}
+        X2 -->|Valid| X3[Include document]
+        X2 -->|Expired/Future| X4[Filter out document]
+        X3 --> Y{single_document_flag?}
+        X4 --> Y
         Y -->|Yes| Z[Keep only latest document]
         Y -->|No| AA[Keep all documents]
     end
@@ -590,8 +624,11 @@ flowchart TB
 
     style D fill:#ffcdd2
     style R fill:#ffcdd2
+    style X4 fill:#ffcdd2
     style AI fill:#c8e6c9
+    style X3 fill:#c8e6c9
     style T fill:#fff3e0
+    style X1 fill:#fff9c4
     style AD fill:#e1bee7
 ```
 
