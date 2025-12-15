@@ -154,8 +154,8 @@ public class DocumentResponseBuilder {
             StorageIndexEntity entity,
             MasterTemplateDefinitionEntity template) {
 
-        node.setDocumentId(entity.getStorageDocumentKey() != null
-                ? entity.getStorageDocumentKey().toString() : null);
+        node.setDocumentId(entity.getStorageIndexId() != null
+                ? entity.getStorageIndexId().toString() : null);
         node.setDisplayName(entity.getFileName());
         node.setDescription(template.getTemplateDescription());
         node.setDocumentType(template.getTemplateType());

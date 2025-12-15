@@ -211,7 +211,7 @@ public class DocumentEnquiryService {
      */
     private String getCommunicationType(DocumentListRequest request) {
         return request.getCommunicationType() != null
-                ? request.getCommunicationType().getValue().toLowerCase()
+                ? request.getCommunicationType().getValue()
                 : null;
     }
 
@@ -438,6 +438,10 @@ public class DocumentEnquiryService {
 
         String sharingScope = template.getSharingScope();
         if (sharingScope == null || "ALL".equalsIgnoreCase(sharingScope)) {
+            return true;
+        }
+        // CUSTOM_RULES means access is determined by eligibility criteria, not account type
+        if ("CUSTOM_RULES".equalsIgnoreCase(sharingScope)) {
             return true;
         }
         return accountMetadata != null
