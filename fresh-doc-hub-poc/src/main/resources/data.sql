@@ -616,6 +616,77 @@ INSERT INTO document_hub.storage_index (
     NOW()
 );
 
+
+-- Document 10: Terms & Conditions for disclosure code D167 (EXPIRED - was valid in 2023)
+INSERT INTO document_hub.storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000010',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CardholderAgreement',
+    'D167',
+    'DISCLOSURE_CODE',
+    true,
+    'ecms',
+    'b0000000-0000-0000-0000-000000000010',
+    'Credit_Card_Terms_D167_v1_EXPIRED.pdf',
+    1672531200000,
+    true,
+    '{"disclosureCode": "D167", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "valid_from": "2023-01-01", "valid_until": "2023-12-31", "status": "EXPIRED"}',
+    'system',
+    NOW()
+);
+
+-- Document 11: Terms & Conditions for disclosure code D168 (FUTURE - effective from 2026)
+INSERT INTO document_hub.storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000011',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CardholderAgreement',
+    'D168',
+    'DISCLOSURE_CODE',
+    true,
+    'ecms',
+    'b0000000-0000-0000-0000-000000000011',
+    'Credit_Card_Terms_D168_v1_FUTURE.pdf',
+    1734220800000,
+    true,
+    '{"disclosureCode": "D168", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "valid_from": "2026-01-01", "valid_until": "2026-12-31", "status": "FUTURE"}',
+    'system',
+    NOW()
+);
+
 -- ====================================================================
 -- Template 7: ZIPCODE-BASED PROMOTIONAL OFFER
 -- ====================================================================
