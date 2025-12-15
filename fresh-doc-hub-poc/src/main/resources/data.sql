@@ -618,6 +618,7 @@ INSERT INTO document_hub.storage_index (
 
 
 -- Document 10: Terms & Conditions for disclosure code D167 (EXPIRED - was valid in 2023)
+-- start_date: 2023-01-01 (1672531200000), end_date: 2023-12-31 (1703980800000)
 INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
@@ -631,6 +632,8 @@ INSERT INTO document_hub.storage_index (
     file_name,
     doc_creation_date,
     accessible_flag,
+    start_date,
+    end_date,
     doc_metadata,
     created_by,
     created_timestamp
@@ -647,12 +650,15 @@ INSERT INTO document_hub.storage_index (
     'Credit_Card_Terms_D167_v1_EXPIRED.pdf',
     1672531200000,
     true,
-    '{"disclosureCode": "D167", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "valid_from": "2023-01-01", "valid_until": "2023-12-31", "status": "EXPIRED"}',
+    1672531200000,
+    1703980800000,
+    '{"disclosureCode": "D167", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "status": "EXPIRED"}',
     'system',
     NOW()
 );
 
 -- Document 11: Terms & Conditions for disclosure code D168 (FUTURE - effective from 2026)
+-- start_date: 2026-01-01 (1767225600000), end_date: 2026-12-31 (1798761600000)
 INSERT INTO document_hub.storage_index (
     storage_index_id,
     master_template_id,
@@ -666,6 +672,8 @@ INSERT INTO document_hub.storage_index (
     file_name,
     doc_creation_date,
     accessible_flag,
+    start_date,
+    end_date,
     doc_metadata,
     created_by,
     created_timestamp
@@ -682,7 +690,9 @@ INSERT INTO document_hub.storage_index (
     'Credit_Card_Terms_D168_v1_FUTURE.pdf',
     1734220800000,
     true,
-    '{"disclosureCode": "D168", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "valid_from": "2026-01-01", "valid_until": "2026-12-31", "status": "FUTURE"}',
+    1767225600000,
+    1798761600000,
+    '{"disclosureCode": "D168", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "status": "FUTURE"}',
     'system',
     NOW()
 );
@@ -2819,7 +2829,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'letter',
+    'LETTER',
     1704067200000,
     'system',
     NOW()
@@ -2856,7 +2866,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'ALL',
     true,
-    'email',
+    'EMAIL',
     1704067200000,
     'system',
     NOW()
@@ -2893,7 +2903,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'push',
+    'PUSH',
     1704067200000,
     'system',
     NOW()
@@ -2958,7 +2968,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'letter',
+    'LETTER',
     1704067200000,
     'system',
     NOW()
@@ -2995,7 +3005,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'letter',
+    'LETTER',
     1704067200000,
     'system',
     NOW()
@@ -3032,7 +3042,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'letter',
+    'LETTER',
     1704067200000,
     'system',
     NOW()
@@ -3094,7 +3104,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'email',
+    'EMAIL',
     1704067200000,
     'system',
     NOW()
@@ -3131,7 +3141,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'sms',
+    'SMS',
     1704067200000,
     'system',
     NOW()
@@ -3168,7 +3178,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'push',
+    'PUSH',
     1704067200000,
     'system',
     NOW()
@@ -3205,7 +3215,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'ALL',
     true,
-    'email',
+    'EMAIL',
     1704067200000,
     'system',
     NOW()
@@ -3273,7 +3283,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     true,
-    'letter',
+    'LETTER',
     '{"roles": {"CUSTOMER": {"actions": ["VIEW", "DOWNLOAD"]}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
     1704067200000,
     'system',
@@ -3312,7 +3322,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'letter',
+    'LETTER',
     '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
     1704067200000,
     'system',
@@ -3351,7 +3361,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     NULL,
     false,
-    'letter',
+    'LETTER',
     '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
     1704067200000,
     'system',
