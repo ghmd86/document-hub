@@ -183,7 +183,7 @@ public class DocumentMatchingService {
         return storageRepository.findByReferenceKeyAndTemplateWithDateRange(
                 referenceKey, referenceKeyType,
                 template.getTemplateType(), template.getTemplateVersion(),
-                postedFromDate, postedToDate)
+                postedFromDate, postedToDate, System.currentTimeMillis())
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.info("Found {} valid documents", docs.size()));
@@ -217,7 +217,7 @@ public class DocumentMatchingService {
 
         return storageRepository.findSharedDocumentsWithDateRange(
                 template.getTemplateType(), template.getTemplateVersion(),
-                postedFromDate, postedToDate)
+                postedFromDate, postedToDate, System.currentTimeMillis())
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.debug("Found {} shared documents", docs.size()));
@@ -231,7 +231,7 @@ public class DocumentMatchingService {
 
         return storageRepository.findAccountSpecificDocumentsWithDateRange(
                 accountId, template.getTemplateType(), template.getTemplateVersion(),
-                postedFromDate, postedToDate)
+                postedFromDate, postedToDate, System.currentTimeMillis())
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.debug("Found {} account documents", docs.size()));

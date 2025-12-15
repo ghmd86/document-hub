@@ -11,6 +11,9 @@ import java.util.UUID;
 
 /**
  * Repository for Storage Index (Documents)
+ *
+ * All queries filter by document validity period (start_date/end_date) to ensure
+ * only currently valid documents are returned.
  */
 @Repository
 public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEntity, UUID> {
@@ -23,11 +26,14 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "AND shared_flag = false " +
            "AND accessible_flag = true " +
            "AND template_type = :templateType " +
-           "AND template_version = :templateVersion")
+           "AND template_version = :templateVersion " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findAccountSpecificDocuments(
         @Param("accountKey") UUID accountKey,
         @Param("templateType") String templateType,
-        @Param("templateVersion") Integer templateVersion
+        @Param("templateVersion") Integer templateVersion,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -37,10 +43,13 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "WHERE shared_flag = true " +
            "AND accessible_flag = true " +
            "AND template_type = :templateType " +
-           "AND template_version = :templateVersion")
+           "AND template_version = :templateVersion " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findSharedDocuments(
         @Param("templateType") String templateType,
-        @Param("templateVersion") Integer templateVersion
+        @Param("templateVersion") Integer templateVersion,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -50,11 +59,14 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "WHERE customer_key = :customerKey " +
            "AND accessible_flag = true " +
            "AND template_type = :templateType " +
-           "AND template_version = :templateVersion")
+           "AND template_version = :templateVersion " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findByCustomerKey(
         @Param("customerKey") UUID customerKey,
         @Param("templateType") String templateType,
-        @Param("templateVersion") Integer templateVersion
+        @Param("templateVersion") Integer templateVersion,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -63,10 +75,13 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
     @Query("SELECT * FROM document_hub.storage_index " +
            "WHERE reference_key = :referenceKey " +
            "AND reference_key_type = :referenceKeyType " +
-           "AND accessible_flag = true")
+           "AND accessible_flag = true " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findByReferenceKey(
         @Param("referenceKey") String referenceKey,
-        @Param("referenceKeyType") String referenceKeyType
+        @Param("referenceKeyType") String referenceKeyType,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -77,12 +92,15 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "AND reference_key_type = :referenceKeyType " +
            "AND accessible_flag = true " +
            "AND template_type = :templateType " +
-           "AND template_version = :templateVersion")
+           "AND template_version = :templateVersion " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findByReferenceKeyAndTemplate(
         @Param("referenceKey") String referenceKey,
         @Param("referenceKeyType") String referenceKeyType,
         @Param("templateType") String templateType,
-        @Param("templateVersion") Integer templateVersion
+        @Param("templateVersion") Integer templateVersion,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -96,13 +114,16 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion " +
            "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
-           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate)")
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate) " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findAccountSpecificDocumentsWithDateRange(
         @Param("accountKey") UUID accountKey,
         @Param("templateType") String templateType,
         @Param("templateVersion") Integer templateVersion,
         @Param("postedFromDate") Long postedFromDate,
-        @Param("postedToDate") Long postedToDate
+        @Param("postedToDate") Long postedToDate,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -115,12 +136,15 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion " +
            "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
-           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate)")
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate) " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findSharedDocumentsWithDateRange(
         @Param("templateType") String templateType,
         @Param("templateVersion") Integer templateVersion,
         @Param("postedFromDate") Long postedFromDate,
-        @Param("postedToDate") Long postedToDate
+        @Param("postedToDate") Long postedToDate,
+        @Param("currentDate") Long currentDate
     );
 
     /**
@@ -133,13 +157,16 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
            "AND template_type = :templateType " +
            "AND template_version = :templateVersion " +
            "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
-           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate)")
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate) " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
     Flux<StorageIndexEntity> findByReferenceKeyAndTemplateWithDateRange(
         @Param("referenceKey") String referenceKey,
         @Param("referenceKeyType") String referenceKeyType,
         @Param("templateType") String templateType,
         @Param("templateVersion") Integer templateVersion,
         @Param("postedFromDate") Long postedFromDate,
-        @Param("postedToDate") Long postedToDate
+        @Param("postedToDate") Long postedToDate,
+        @Param("currentDate") Long currentDate
     );
 }
