@@ -27,6 +27,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -42,6 +43,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -61,6 +63,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -71,11 +74,12 @@ INSERT INTO document_hub.master_template_definition (
     'Monthly credit card statement',
     'Statement',
     'CREDIT_CARD',
-    'Statement',
+    'monthly_statement',
     'EN_US',
     true,
     false,
     NULL,
+    false,
     1704067200000,
     'system',
     NOW()
@@ -94,7 +98,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
-    template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -110,7 +114,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
-    NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -130,6 +134,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -146,6 +151,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'CUSTOM_RULES',
     '{"eligibility_criteria": {"operator": "AND", "rules": [{"field": "customerSegment", "operator": "EQUALS", "value": "VIP"}, {"field": "region", "operator": "EQUALS", "value": "US_WEST"}]}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -165,6 +171,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -181,6 +188,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'CUSTOM_RULES',
     '{"eligibility_criteria": {"operator": "AND", "rules": [{"field": "$metadata.disclosure_code", "operator": "EQUALS", "value": "D164"}]}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -230,6 +238,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -242,10 +252,12 @@ INSERT INTO document_hub.storage_index (
     'a0000000-0000-0000-0000-000000000002',
     '22222222-2222-2222-2222-222222222222',
     1,
-    'Statement',
+    'monthly_statement',
     false,
     'aaaa0000-0000-0000-0000-000000000001',
     'cccc0000-0000-0000-0000-000000000001',
+    'ssss0000-0000-0000-0000-000000000002',
+    'STATEMENT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000002',
     'statement_jan_2024.pdf',
@@ -265,6 +277,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -277,10 +291,12 @@ INSERT INTO document_hub.storage_index (
     'a0000000-0000-0000-0000-000000000003',
     '22222222-2222-2222-2222-222222222222',
     1,
-    'Statement',
+    'monthly_statement',
     false,
     'aaaa0000-0000-0000-0000-000000000002',
     'cccc0000-0000-0000-0000-000000000001',
+    'ssss0000-0000-0000-0000-000000000003',
+    'STATEMENT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000003',
     'statement_jan_2024_acct2.pdf',
@@ -408,6 +424,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp,
@@ -425,6 +442,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'CUSTOM_RULES',
     '{"eligibility_criteria": {"operator": "AND", "rules": []}}',
+    true,
     1609459200000,
     'system',
     NOW(),
@@ -546,6 +564,88 @@ INSERT INTO document_hub.storage_index (
     NOW()
 );
 
+-- Document 7a: Terms & Conditions for disclosure code D164 - EXPIRED VERSION (v0.9)
+-- Same disclosure code as Document 7, but this was the previous version valid in 2023
+-- start_date: 2023-01-01 (1672531200000), end_date: 2023-12-31 (1703980800000)
+INSERT INTO document_hub.storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    start_date,
+    end_date,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000060',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CardholderAgreement',
+    'D164',
+    'DISCLOSURE_CODE',
+    true,
+    'ecms',
+    'b0000000-0000-0000-0000-000000000060',
+    'Credit_Card_Terms_D164_v0.9_EXPIRED.pdf',
+    1672531200000,
+    true,
+    1672531200000,
+    1703980800000,
+    '{"disclosureCode": "D164", "version": "0.9", "documentType": "CARDHOLDER_AGREEMENT", "status": "EXPIRED", "supersededBy": "v1.0"}',
+    'system',
+    NOW()
+);
+
+-- Document 7b: Terms & Conditions for disclosure code D164 - FUTURE VERSION (v2.0)
+-- Same disclosure code as Document 7, but this will be the next version effective from 2027
+-- start_date: 2027-01-01 (1798761600000), end_date: 2027-12-31 (1830297600000)
+INSERT INTO document_hub.storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    reference_key,
+    reference_key_type,
+    shared_flag,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    start_date,
+    end_date,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000061',
+    '66666666-6666-6666-6666-666666666666',
+    1,
+    'CardholderAgreement',
+    'D164',
+    'DISCLOSURE_CODE',
+    true,
+    'ecms',
+    'b0000000-0000-0000-0000-000000000061',
+    'Credit_Card_Terms_D164_v2.0_FUTURE.pdf',
+    1734220800000,
+    true,
+    1798761600000,
+    1830297600000,
+    '{"disclosureCode": "D164", "version": "2.0", "documentType": "CARDHOLDER_AGREEMENT", "status": "FUTURE", "supersedes": "v1.0", "changes": ["Updated APR disclosures", "New late fee structure"]}',
+    'system',
+    NOW()
+);
+
 -- Document 8: Terms & Conditions for disclosure code D165
 INSERT INTO document_hub.storage_index (
     storage_index_id,
@@ -611,7 +711,7 @@ INSERT INTO document_hub.storage_index (
     'Premium_Credit_Card_Terms_D166_v1.pdf',
     1704067200000,
     true,
-    '{"disclosureCode": "D166", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "cardTier": "PREMIUM", "valid_from": "2024-01-01", "valid_until": "2024-06-30"}',
+    '{"disclosureCode": "D166", "version": "1.0", "documentType": "CARDHOLDER_AGREEMENT", "cardTier": "PREMIUM", "valid_from": "2024-01-01", "valid_until": "2026-12-31"}',
     'system',
     NOW()
 );
@@ -718,6 +818,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     access_control,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp,
@@ -755,6 +856,7 @@ INSERT INTO document_hub.master_template_definition (
         "cooldown_period_days": 30
       }
     }',
+    true,
     1704067200000,
     'system',
     NOW(),
@@ -855,6 +957,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -870,6 +973,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1046,6 +1150,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1062,6 +1167,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'ALL',
     NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1175,6 +1281,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1190,6 +1297,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     false,
     NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1204,6 +1312,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -1220,6 +1330,8 @@ INSERT INTO document_hub.storage_index (
     false,
     'aaaa0000-0000-0000-0000-000000000001',
     'cccc0000-0000-0000-0000-000000000001',
+    'aaaa0000-0000-0000-0000-000000000001',
+    'ACCOUNT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000019',
     '1099_INT_2023.pdf',
@@ -1239,6 +1351,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -1255,6 +1369,8 @@ INSERT INTO document_hub.storage_index (
     false,
     'aaaa0000-0000-0000-0000-000000000001',
     'cccc0000-0000-0000-0000-000000000001',
+    'aaaa0000-0000-0000-0000-000000000001',
+    'ACCOUNT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000020',
     '1099_INT_2024.pdf',
@@ -1281,6 +1397,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1297,6 +1414,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'ACCOUNT_TYPE',
     '{"eligibility_criteria": {"operator": "AND", "rules": [{"field": "accountType", "operator": "EQUALS", "value": "savings"}]}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1380,6 +1498,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1395,6 +1514,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1555,6 +1675,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1570,6 +1691,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1653,6 +1775,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1669,6 +1792,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'CUSTOM_RULES',
     '{"eligibility_criteria": {"operator": "AND", "rules": [{"field": "region", "operator": "EQUALS", "value": "US_EAST"}]}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1789,6 +1913,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1804,6 +1929,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     true,
     'ALL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -1853,6 +1979,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     end_date,
     created_by,
@@ -1869,6 +1996,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
+    true,
     1717200000000,
     1727740800000,
     'system',
@@ -1919,6 +2047,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -1934,6 +2063,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     true,
     'ALL',
+    true,
     1767225600000,
     'system',
     NOW()
@@ -2116,6 +2246,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2140,6 +2271,7 @@ INSERT INTO document_hub.master_template_definition (
         ]
       }
     }',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2190,6 +2322,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2227,6 +2360,7 @@ INSERT INTO document_hub.master_template_definition (
         ]
       }
     }',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2287,6 +2421,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2303,6 +2438,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'CUSTOM_RULES',
     '{"eligibility_criteria": {"operator": "AND", "rules": [{"field": "region", "operator": "EQUALS", "value": "US_CENTRAL"}]}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2356,6 +2492,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2371,6 +2508,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     false,
     NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2385,6 +2523,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -2401,6 +2541,8 @@ INSERT INTO document_hub.storage_index (
     false,
     'aaaa0000-0000-0000-0000-000000000001',
     'cccc0000-0000-0000-0000-000000000001',
+    'aaaa0000-0000-0000-0000-000000000001',
+    'ACCOUNT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000042',
     'payment_confirmation_dec_2025.pdf',
@@ -2424,6 +2566,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2439,6 +2582,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     false,
     NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2453,6 +2597,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -2469,6 +2615,8 @@ INSERT INTO document_hub.storage_index (
     false,
     'aaaa0000-0000-0000-0000-000000000002',
     'cccc0000-0000-0000-0000-000000000001',
+    'aaaa0000-0000-0000-0000-000000000002',
+    'ACCOUNT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000043',
     'delinquency_notice_30day.pdf',
@@ -2492,6 +2640,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2507,6 +2656,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     false,
     NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2521,6 +2671,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -2537,6 +2689,8 @@ INSERT INTO document_hub.storage_index (
     false,
     'aaaa0000-0000-0000-0000-000000000001',
     'cccc0000-0000-0000-0000-000000000001',
+    'aaaa0000-0000-0000-0000-000000000001',
+    'ACCOUNT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000044',
     'fraud_investigation_resolved.pdf',
@@ -2560,6 +2714,7 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2575,6 +2730,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     false,
     NULL,
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2589,6 +2745,8 @@ INSERT INTO document_hub.storage_index (
     shared_flag,
     account_key,
     customer_key,
+    reference_key,
+    reference_key_type,
     storage_vendor,
     storage_document_key,
     file_name,
@@ -2605,6 +2763,8 @@ INSERT INTO document_hub.storage_index (
     false,
     'aaaa0000-0000-0000-0000-000000000003',
     'cccc0000-0000-0000-0000-000000000001',
+    'aaaa0000-0000-0000-0000-000000000003',
+    'ACCOUNT_ID',
     'ecms',
     'b0000000-0000-0000-0000-000000000045',
     'adverse_action_cli_denied.pdf',
@@ -2620,38 +2780,38 @@ INSERT INTO document_hub.storage_index (
 -- ====================================================================
 
 -- Add more statement documents for pagination testing
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000046', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000046', 'statement_feb_2024.pdf', 1709251200000, true, '{"statement_date": "2024-02-29", "balance": 1456.78, "valid_from": "2024-02-29", "valid_until": "2027-02-28"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000046', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000046', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000046', 'statement_feb_2024.pdf', 1709251200000, true, '{"statement_date": "2024-02-29", "balance": 1456.78, "valid_from": "2024-02-29", "valid_until": "2027-02-28"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000047', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000047', 'statement_mar_2024.pdf', 1711929600000, true, '{"statement_date": "2024-03-31", "balance": 1678.90, "valid_from": "2024-03-31", "valid_until": "2027-03-31"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000047', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000047', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000047', 'statement_mar_2024.pdf', 1711929600000, true, '{"statement_date": "2024-03-31", "balance": 1678.90, "valid_from": "2024-03-31", "valid_until": "2027-03-31"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000048', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000048', 'statement_apr_2024.pdf', 1714521600000, true, '{"statement_date": "2024-04-30", "balance": 2012.34, "valid_from": "2024-04-30", "valid_until": "2027-04-30"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000048', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000048', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000048', 'statement_apr_2024.pdf', 1714521600000, true, '{"statement_date": "2024-04-30", "balance": 2012.34, "valid_from": "2024-04-30", "valid_until": "2027-04-30"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000049', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000049', 'statement_may_2024.pdf', 1717200000000, true, '{"statement_date": "2024-05-31", "balance": 1890.12, "valid_from": "2024-05-31", "valid_until": "2027-05-31"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000049', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000049', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000049', 'statement_may_2024.pdf', 1717200000000, true, '{"statement_date": "2024-05-31", "balance": 1890.12, "valid_from": "2024-05-31", "valid_until": "2027-05-31"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000050', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000050', 'statement_jun_2024.pdf', 1719792000000, true, '{"statement_date": "2024-06-30", "balance": 2234.56, "valid_from": "2024-06-30", "valid_until": "2027-06-30"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000050', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000050', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000050', 'statement_jun_2024.pdf', 1719792000000, true, '{"statement_date": "2024-06-30", "balance": 2234.56, "valid_from": "2024-06-30", "valid_until": "2027-06-30"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000051', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000051', 'statement_jul_2024.pdf', 1722470400000, true, '{"statement_date": "2024-07-31", "balance": 1567.89, "valid_from": "2024-07-31", "valid_until": "2027-07-31"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000051', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000051', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000051', 'statement_jul_2024.pdf', 1722470400000, true, '{"statement_date": "2024-07-31", "balance": 1567.89, "valid_from": "2024-07-31", "valid_until": "2027-07-31"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000052', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000052', 'statement_aug_2024.pdf', 1725148800000, true, '{"statement_date": "2024-08-31", "balance": 1789.01, "valid_from": "2024-08-31", "valid_until": "2027-08-31"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000052', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000052', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000052', 'statement_aug_2024.pdf', 1725148800000, true, '{"statement_date": "2024-08-31", "balance": 1789.01, "valid_from": "2024-08-31", "valid_until": "2027-08-31"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000053', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000053', 'statement_sep_2024.pdf', 1727740800000, true, '{"statement_date": "2024-09-30", "balance": 2345.67, "valid_from": "2024-09-30", "valid_until": "2027-09-30"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000053', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000053', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000053', 'statement_sep_2024.pdf', 1727740800000, true, '{"statement_date": "2024-09-30", "balance": 2345.67, "valid_from": "2024-09-30", "valid_until": "2027-09-30"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000054', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000054', 'statement_oct_2024.pdf', 1730419200000, true, '{"statement_date": "2024-10-31", "balance": 1987.65, "valid_from": "2024-10-31", "valid_until": "2027-10-31"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000054', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000054', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000054', 'statement_oct_2024.pdf', 1730419200000, true, '{"statement_date": "2024-10-31", "balance": 1987.65, "valid_from": "2024-10-31", "valid_until": "2027-10-31"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000055', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000055', 'statement_nov_2024.pdf', 1733011200000, true, '{"statement_date": "2024-11-30", "balance": 2678.90, "valid_from": "2024-11-30", "valid_until": "2027-11-30"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000055', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000055', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000055', 'statement_nov_2024.pdf', 1733011200000, true, '{"statement_date": "2024-11-30", "balance": 2678.90, "valid_from": "2024-11-30", "valid_until": "2027-11-30"}', 'system', NOW());
 
-INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
-VALUES ('a0000000-0000-0000-0000-000000000056', '22222222-2222-2222-2222-222222222222', 1, 'Statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b0000000-0000-0000-0000-000000000056', 'statement_dec_2024.pdf', 1735689600000, true, '{"statement_date": "2024-12-31", "balance": 3012.34, "valid_from": "2024-12-31", "valid_until": "2027-12-31"}', 'system', NOW());
+INSERT INTO document_hub.storage_index (storage_index_id, master_template_id, template_version, template_type, shared_flag, account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name, doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp)
+VALUES ('a0000000-0000-0000-0000-000000000056', '22222222-2222-2222-2222-222222222222', 1, 'monthly_statement', false, 'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss0000-0000-0000-0000-000000000056', 'STATEMENT_ID', 'ecms', 'b0000000-0000-0000-0000-000000000056', 'statement_dec_2024.pdf', 1735689600000, true, '{"statement_date": "2024-12-31", "balance": 3012.34, "valid_from": "2024-12-31", "valid_until": "2027-12-31"}', 'system', NOW());
 
 -- ====================================================================
 -- CREDIT SCORE BASED ELIGIBILITY
@@ -2671,6 +2831,7 @@ INSERT INTO document_hub.master_template_definition (
     shared_document_flag,
     sharing_scope,
     template_config,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp,
@@ -2695,6 +2856,7 @@ INSERT INTO document_hub.master_template_definition (
         ]
       }
     }',
+    true,
     1704067200000,
     'system',
     NOW(),
@@ -2813,6 +2975,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2830,6 +2993,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     true,
     'LETTER',
+    false,
     1704067200000,
     'system',
     NOW()
@@ -2850,6 +3014,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2867,6 +3032,7 @@ INSERT INTO document_hub.master_template_definition (
     'ALL',
     true,
     'EMAIL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2887,6 +3053,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2904,6 +3071,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     true,
     'PUSH',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2915,21 +3083,21 @@ INSERT INTO document_hub.master_template_definition (
 -- DIGITAL_BANK customers: dddd0000-0000-0000-0000-000000000101, dddd0000-0000-0000-0000-000000000102
 INSERT INTO document_hub.storage_index (
     storage_index_id, master_template_id, template_version, template_type, shared_flag,
-    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name,
     doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
 ) VALUES
     ('a1000000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000001', 1, 'SavingsStatement', false,
-     'dddd0000-0000-0000-0000-000000000001', 'dddd0000-0000-0000-0000-000000000101', 'ecms', 'b1000000-0000-0000-0000-000000000001',
+     'dddd0000-0000-0000-0000-000000000001', 'dddd0000-0000-0000-0000-000000000101', 'ssss1000-0000-0000-0000-000000000001', 'STATEMENT_ID', 'ecms', 'b1000000-0000-0000-0000-000000000001',
      'savings_statement_jan_2024.pdf', 1706659200000, true,
      '{"statement_date": "2024-01-31", "balance": 25000.00, "interest_earned": 125.50}', 'system', NOW()),
 
     ('a1000000-0000-0000-0000-000000000002', 'f1000000-0000-0000-0000-000000000002', 1, 'WelcomeKit', true,
-     NULL, NULL, 'ecms', 'b1000000-0000-0000-0000-000000000002',
+     NULL, NULL, NULL, NULL, 'ecms', 'b1000000-0000-0000-0000-000000000002',
      'digital_bank_welcome_kit.pdf', 1704067200000, true,
      '{"kit_version": "2024.1", "includes": ["debit_card_info", "mobile_app_guide", "security_tips"]}', 'system', NOW()),
 
     ('a1000000-0000-0000-0000-000000000003', 'f1000000-0000-0000-0000-000000000003', 1, 'SecurityAlert', false,
-     'dddd0000-0000-0000-0000-000000000002', 'dddd0000-0000-0000-0000-000000000102', 'ecms', 'b1000000-0000-0000-0000-000000000003',
+     'dddd0000-0000-0000-0000-000000000002', 'dddd0000-0000-0000-0000-000000000102', 'dddd0000-0000-0000-0000-000000000002', 'ACCOUNT_ID', 'ecms', 'b1000000-0000-0000-0000-000000000003',
      'security_alert_login_new_device.pdf', 1733011200000, true,
      '{"alert_type": "NEW_DEVICE_LOGIN", "device": "iPhone 15", "location": "San Francisco, CA"}', 'system', NOW());
 
@@ -2952,6 +3120,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -2969,6 +3138,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     false,
     'LETTER',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -2989,6 +3159,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3006,6 +3177,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     false,
     'LETTER',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3026,6 +3198,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3043,6 +3216,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     false,
     'LETTER',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3051,21 +3225,21 @@ INSERT INTO document_hub.master_template_definition (
 -- Documents for internal (message_center_doc_flag=false) templates
 INSERT INTO document_hub.storage_index (
     storage_index_id, master_template_id, template_version, template_type, shared_flag,
-    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name,
     doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
 ) VALUES
     ('a2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 1, 'InternalAuditReport', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b2000000-0000-0000-0000-000000000001',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b2000000-0000-0000-0000-000000000001',
      'internal_audit_q4_2024.pdf', 1733011200000, true,
      '{"audit_period": "Q4 2024", "auditor": "Internal Compliance", "status": "COMPLETED"}', 'system', NOW()),
 
     ('a2000000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000002', 1, 'CollectionNotice', false,
-     'aaaa0000-0000-0000-0000-000000000002', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b2000000-0000-0000-0000-000000000002',
+     'aaaa0000-0000-0000-0000-000000000002', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000002', 'ACCOUNT_ID', 'ecms', 'b2000000-0000-0000-0000-000000000002',
      'collection_notice_acct2_dec2024.pdf', 1733011200000, true,
      '{"days_past_due": 45, "amount_due": 1250.00, "action": "CALL_REQUIRED"}', 'system', NOW()),
 
     ('a2000000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000003', 1, 'RiskAssessment', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b2000000-0000-0000-0000-000000000003',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b2000000-0000-0000-0000-000000000003',
      'risk_assessment_dec2024.pdf', 1733011200000, true,
      '{"risk_score": 720, "risk_level": "LOW", "assessment_date": "2024-12-01"}', 'system', NOW());
 
@@ -3088,6 +3262,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3105,6 +3280,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     true,
     'EMAIL',
+    false,
     1704067200000,
     'system',
     NOW()
@@ -3125,6 +3301,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3142,6 +3319,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     true,
     'SMS',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3162,6 +3340,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3179,6 +3358,7 @@ INSERT INTO document_hub.master_template_definition (
     NULL,
     true,
     'PUSH',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3199,6 +3379,7 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     message_center_doc_flag,
     communication_type,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3216,6 +3397,7 @@ INSERT INTO document_hub.master_template_definition (
     'ALL',
     true,
     'EMAIL',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3224,26 +3406,26 @@ INSERT INTO document_hub.master_template_definition (
 -- Documents for communication type variations
 INSERT INTO document_hub.storage_index (
     storage_index_id, master_template_id, template_version, template_type, shared_flag,
-    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name,
     doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
 ) VALUES
     ('a3000000-0000-0000-0000-000000000001', 'f3000000-0000-0000-0000-000000000001', 1, 'EStatement', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b3000000-0000-0000-0000-000000000001',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ssss3000-0000-0000-0000-000000000001', 'STATEMENT_ID', 'ecms', 'b3000000-0000-0000-0000-000000000001',
      'estatement_dec_2024.html', 1733011200000, true,
      '{"statement_date": "2024-12-01", "balance": 2500.00, "delivery": "EMAIL"}', 'system', NOW()),
 
     ('a3000000-0000-0000-0000-000000000002', 'f3000000-0000-0000-0000-000000000002', 1, 'PaymentReminderSMS', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b3000000-0000-0000-0000-000000000002',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b3000000-0000-0000-0000-000000000002',
      'payment_reminder_sms_dec2024.txt', 1733011200000, true,
      '{"due_date": "2024-12-15", "min_payment": 75.00, "sms_sent": true}', 'system', NOW()),
 
     ('a3000000-0000-0000-0000-000000000003', 'f3000000-0000-0000-0000-000000000003', 1, 'TransactionAlertPush', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b3000000-0000-0000-0000-000000000003',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b3000000-0000-0000-0000-000000000003',
      'transaction_alert_dec2024.json', 1733097600000, true,
      '{"transaction_amount": 150.00, "merchant": "Amazon", "alert_type": "PURCHASE"}', 'system', NOW()),
 
     ('a3000000-0000-0000-0000-000000000004', 'f3000000-0000-0000-0000-000000000004', 1, 'MarketingEmail', true,
-     NULL, NULL, 'ecms', 'b3000000-0000-0000-0000-000000000004',
+     NULL, NULL, NULL, NULL, 'ecms', 'b3000000-0000-0000-0000-000000000004',
      'holiday_rewards_campaign_2024.html', 1733011200000, true,
      '{"campaign": "HOLIDAY_2024", "offer": "5X_REWARDS", "valid_until": "2024-12-31"}', 'system', NOW());
 
@@ -3267,6 +3449,7 @@ INSERT INTO document_hub.master_template_definition (
     message_center_doc_flag,
     communication_type,
     access_control,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3285,6 +3468,7 @@ INSERT INTO document_hub.master_template_definition (
     true,
     'LETTER',
     '{"roles": {"CUSTOMER": {"actions": ["VIEW", "DOWNLOAD"]}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3306,6 +3490,7 @@ INSERT INTO document_hub.master_template_definition (
     message_center_doc_flag,
     communication_type,
     access_control,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3324,6 +3509,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     'LETTER',
     '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3345,6 +3531,7 @@ INSERT INTO document_hub.master_template_definition (
     message_center_doc_flag,
     communication_type,
     access_control,
+    single_document_flag,
     start_date,
     created_by,
     created_timestamp
@@ -3363,6 +3550,7 @@ INSERT INTO document_hub.master_template_definition (
     false,
     'LETTER',
     '{"roles": {"CUSTOMER": {"actions": []}, "AGENT": {"actions": ["VIEW"]}, "SYSTEM": {"actions": ["VIEW", "DOWNLOAD", "UPDATE", "DELETE"]}}}',
+    true,
     1704067200000,
     'system',
     NOW()
@@ -3371,21 +3559,21 @@ INSERT INTO document_hub.master_template_definition (
 -- Documents for access control testing
 INSERT INTO document_hub.storage_index (
     storage_index_id, master_template_id, template_version, template_type, shared_flag,
-    account_key, customer_key, storage_vendor, storage_document_key, file_name,
+    account_key, customer_key, reference_key, reference_key_type, storage_vendor, storage_document_key, file_name,
     doc_creation_date, accessible_flag, doc_metadata, created_by, created_timestamp
 ) VALUES
     ('a4000000-0000-0000-0000-000000000001', 'f4000000-0000-0000-0000-000000000001', 1, 'CustomerAgreement', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b4000000-0000-0000-0000-000000000001',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b4000000-0000-0000-0000-000000000001',
      'customer_agreement_2024.pdf', 1704067200000, true,
      '{"agreement_type": "CARDHOLDER", "version": "2024.1", "signed_date": "2024-01-15"}', 'system', NOW()),
 
     ('a4000000-0000-0000-0000-000000000002', 'f4000000-0000-0000-0000-000000000002', 1, 'CaseNotes', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b4000000-0000-0000-0000-000000000002',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b4000000-0000-0000-0000-000000000002',
      'case_notes_dispute_12345.pdf', 1733011200000, true,
      '{"case_id": "DISP-12345", "type": "BILLING_DISPUTE", "status": "OPEN", "agent_id": "AGT001"}', 'system', NOW()),
 
     ('a4000000-0000-0000-0000-000000000003', 'f4000000-0000-0000-0000-000000000003', 1, 'SystemLog', false,
-     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'ecms', 'b4000000-0000-0000-0000-000000000003',
+     'aaaa0000-0000-0000-0000-000000000001', 'cccc0000-0000-0000-0000-000000000001', 'aaaa0000-0000-0000-0000-000000000001', 'ACCOUNT_ID', 'ecms', 'b4000000-0000-0000-0000-000000000003',
      'system_integration_log_dec2024.log', 1733011200000, true,
      '{"integration": "PAYMENT_PROCESSOR", "status": "SUCCESS", "records_processed": 1500}', 'system', NOW());
 
