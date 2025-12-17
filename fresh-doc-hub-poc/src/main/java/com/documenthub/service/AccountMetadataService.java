@@ -3,6 +3,7 @@ package com.documenthub.service;
 import com.documenthub.model.AccountMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -57,6 +58,27 @@ public class AccountMetadataService {
         }
 
         return Mono.just(metadata);
+    }
+
+    /**
+     * Get all accounts for a given customer ID.
+     *
+     * This is used when accountId is not provided in the request,
+     * allowing retrieval of documents for all accounts belonging to the customer.
+     *
+     * @param customerId The customer ID to look up accounts for
+     * @return Flux of AccountMetadata for all accounts belonging to the customer
+     */
+    public Flux<AccountMetadata> getAccountsByCustomerId(UUID customerId) {
+        log.debug("Fetching all accounts for customerId: {}", customerId);
+
+        if (customerId == null) {
+            return Flux.empty();
+        }
+
+        return Flux.fromIterable(mockAccountData.values())
+            .filter(metadata -> customerId.equals(metadata.getCustomerId()))
+            .doOnComplete(() -> log.debug("Completed fetching accounts for customerId: {}", customerId));
     }
 
     /**

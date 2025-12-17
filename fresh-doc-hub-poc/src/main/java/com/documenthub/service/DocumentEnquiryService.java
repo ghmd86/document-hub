@@ -103,12 +103,33 @@ public class DocumentEnquiryService {
         long startTime = System.currentTimeMillis();
 
         List<String> accountIds = getAccountIds(request);
-        if (accountIds.isEmpty()) {
-            log.warn("No account IDs provided");
-            return Mono.just(responseBuilder.buildEmptyResponse());
+
+        // If accountIds are provided, use them directly
+        if (!accountIds.isEmpty()) {
+            return processRequest(request, requestorType, accountIds, startTime);
         }
 
-        return processRequest(request, requestorType, accountIds, startTime);
+        // If no accountIds but customerId is provided, fetch accounts for that customer
+        if (request.getCustomerId() != null) {
+            log.info("No accountId provided, fetching all accounts for customerId: {}",
+                    request.getCustomerId());
+            return accountMetadataService.getAccountsByCustomerId(request.getCustomerId())
+                    .map(metadata -> metadata.getAccountId().toString())
+                    .collectList()
+                    .flatMap(fetchedAccountIds -> {
+                        if (fetchedAccountIds.isEmpty()) {
+                            log.warn("No accounts found for customerId: {}", request.getCustomerId());
+                            return Mono.just(responseBuilder.buildEmptyResponse());
+                        }
+                        log.info("Found {} accounts for customerId: {}",
+                                fetchedAccountIds.size(), request.getCustomerId());
+                        return processRequest(request, requestorType, fetchedAccountIds, startTime);
+                    });
+        }
+
+        // Neither accountId nor customerId provided
+        log.warn("No account IDs or customer ID provided");
+        return Mono.just(responseBuilder.buildEmptyResponse());
     }
 
     /**
