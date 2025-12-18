@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="schema_core_v12.xsd">
+    <template>
+        <resourceId>19238383</resourceId>
+        <templateId>CI013</templateId> <!-- CI013 Vantage Decline Letter -->
+        <letterReferenceNumber>123123123</letterReferenceNumber>
+        <displayName>CI013</displayName>
+        <date>2025-12-30</date>
+    </template>
+    <recipient>
+        <name>Jane Smith</name>
+        <recipientAddress>
+            <addressLine1>456 Oak Avenue</addressLine1>
+            <addressLine2>APT 333</addressLine2>
+            <city>Somewhere</city>
+            <state>CA</state>
+            <zipcode>90210</zipcode>
+        </recipientAddress>
+    </recipient>
+    <entity>
+        <last4digit>2344</last4digit>
+        <caseNumber>123812</caseNumber>
+        <creditScore>777</creditScore>
+        <scoreDate>2014-10-12</scoreDate>
+    </entity>
+    <fields>
+        <field name="advrsActReasonList" type="object">
+            <field name="advrsActReason1">Reason A for Adverse Action</field>
+            <field name="advrsActReason2">Reason B for Adverse Action</field>
+            <field name="advrsActReason3">Reason C for Adverse Action</field>
+            <field name="advrsActReason4">Reason D for Adverse Action</field>
+        </field>
+    </fields>
+</data>

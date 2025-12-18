@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="schema_core_v12.xsd">
+    <template>
+        <resourceId>123123412</resourceId>
+        <templateId>RF002</templateId>  <!-- RF002 Investigation CM Responsible Letter -->
+        <letterReferenceNumber>A12313212</letterReferenceNumber>
+        <employeeId>320045065</employeeId>
+        <displayName>RF002</displayName>        
+        <date>2010-12-30</date>
+        
+    </template>
+    <recipient>
+        <name>Jane Smith</name>
+        <recipientAddress>
+            <addressLine1>456 Oak Avenue</addressLine1>
+            <addressLine2>Suite 1222</addressLine2>
+            <city>Somewhere</city>
+            <state>CA</state>
+            <zipcode>90210</zipcode>
+        </recipientAddress>
+    </recipient>
+    <entity>
+        <last4digit>4332</last4digit>
+        <caseNumber>123812</caseNumber>
+        <primaryAccount>
+            <debtValidationStatus>Valid</debtValidationStatus> <!-- Status -->
+            <totalBalance>88.33</totalBalance> <!-- Total Balance -->
+            <paymentTransaction>payment(s) and transaction(s)</paymentTransaction>
+        </primaryAccount>
+        <showBullets>
+            <showBullet>
+                <bullet>transactionAuthorized</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>merchantRecordChipEnabledCCPresent</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>participatedReleasePII</bullet>
+                <associatedDates>
+                    <date>2019-07-22</date>
+                </associatedDates>
+            </showBullet>
+            <showBullet>
+                <bullet>unableToContact</bullet>
+                <associatedDates>
+                    <date>2019-08-22</date>
+                </associatedDates>
+            </showBullet>
+            <showBullet>
+                <bullet>notAdmitToParticipateInFraudActivity</bullet>
+                <associatedDates>
+                    <date>2019-08-22</date>
+                </associatedDates>
+            </showBullet>
+            <showBullet>
+                <bullet>accessDifferentDevice</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>oneTimePasswordSent</bullet>
+                <associatedDates>
+                    <date>2020-10-12</date>
+                </associatedDates>
+                <notifiedBy>telephone</notifiedBy>
+            </showBullet>
+            <showBullet>
+                <bullet>noFraudIdentified</bullet>
+                <associatedDates>
+                    <date>2021-09-22</date>
+                </associatedDates>
+                <notifiedBy>email and telephone</notifiedBy>
+            </showBullet>
+            <showBullet>
+                <bullet>receivedMultipleCalls</bullet>
+                <associatedDates>
+                    <date>2020-08-01</date>
+                    <date>2020-09-30</date>
+                </associatedDates>
+                <notes>918231231, 192883733</notes>
+            </showBullet>
+            <showBullet>
+                <bullet>otherTransactionsNotClaimedAsFraud</bullet>
+                <associatedDates>
+                    <date>2019-10-12</date>
+                    <date>2020-12-13</date>
+                </associatedDates>
+            </showBullet>
+            <showBullet>
+                <bullet>determinedPaymentsAuthorized</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>thirdPartyPayment</bullet>
+                <associatedDates>
+                    <date>2020-10-12</date>
+                </associatedDates>
+                <associatedAmounts>
+                    <amount>12039</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>unauthorizedPayment</bullet>
+                <associatedDates>
+                    <date>2020-10-12</date>
+                </associatedDates>
+                <associatedAmounts>
+                    <amount>1988788</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>fundsReturned</bullet>
+                <associatedAmounts>
+                    <amount>99982</amount>
+                </associatedAmounts>
+            </showBullet>
+        </showBullets>
+    </entity>
+</data>

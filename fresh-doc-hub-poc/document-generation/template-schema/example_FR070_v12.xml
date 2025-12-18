@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="schema_core_v12.xsd">
+    <template>
+        <resourceId>1231231</resourceId>
+        <templateId>RF070</templateId> <!-- FR070 Debt Elimination Closure with Sold Bullet-->
+        <letterReferenceNumber>A12312313</letterReferenceNumber>
+        <employeeId>123123</employeeId>
+        <displayName>RF070</displayName>
+        <date>2010-12-30</date>
+    </template>
+    <recipient>
+        <name>Jane Smith</name>
+        <recipientAddress>
+            <addressLine1>456 Oak Avenue</addressLine1>
+            <addressLine2>Suite 1222</addressLine2>
+            <city>Somewhere</city>
+            <state>CA</state>
+            <zipcode>90210</zipcode>
+        </recipientAddress>
+    </recipient>
+    <entity>
+        <last4digit>4332</last4digit>
+        <communicationReceivedDate>2020-12-12</communicationReceivedDate> <!-- Date Communication
+        Received -->
+        <primaryAccount>
+            <chargeOffDate>2019-10-12</chargeOffDate>  <!-- Date Account Charged Off -->
+            <chargeOffBalance>9899</chargeOffBalance>  <!-- Charge off Balance-->
+            <chargeOffReason>unauthorized payment activity</chargeOffReason> <!-- misuse | non-payment for more than 180 days | unauthorized payment activity  -->
+            <dateAccountClosed>2019-10-12</dateAccountClosed>
+            <closureReason>non-payment</closureReason>
+        </primaryAccount>
+        <showBullets>
+            <showBullet>
+                <bullet>responsibleForBalance</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>chargedOffAndSold</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>closedChargedOffSchedToBeSold</bullet>
+            </showBullet>
+            <showBullet>
+                <bullet>chargeOffSchedToBeSold</bullet>
+            </showBullet>
+        </showBullets>
+        <cmaOptions>CMA enclosed</cmaOptions>
+    </entity>
+
+    <agency>
+        <agencyName>Agency Name INC.</agencyName>
+        <agencyAddress>
+            <addressLine1>99 Agency Lane</addressLine1>
+            <addressLine2>Suite 2129</addressLine2>
+            <city>City</city>
+            <state>State</state>
+            <zipcode>124433</zipcode>
+        </agencyAddress>
+        <phoneNumber>123903333</phoneNumber>
+    </agency>
+</data>

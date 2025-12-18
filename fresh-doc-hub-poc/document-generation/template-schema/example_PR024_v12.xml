@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="schema_core_v12.xsd">
+    <template>
+        <resourceId>10393983</resourceId>
+        <templateId>PR024</templateId>  <!-- PR024 Late Payment + Statement Validation - Goodwill
+        Declined-->
+        <letterReferenceNumber>A1023912</letterReferenceNumber>
+        <employeeId>320045065</employeeId>
+        <displayName>PR024</displayName>
+        <date>2010-12-30</date>
+    </template>
+    <recipient>
+        <name>Jane Smith</name>
+        <recipientAddress>
+            <addressLine1>456 Oak Avenue</addressLine1>
+            <addressLine2>Suite 1222</addressLine2>
+            <city>Somewhere</city>
+            <state>CA</state>
+            <zipcode>90210</zipcode>
+        </recipientAddress>
+    </recipient>
+    <entity>
+        <last4digit>2333</last4digit> <!-- Last 4 Digits Acct -->
+        <caseNumber>123454</caseNumber> <!-- Case Number -->
+        <agencyOrExec>OCC</agencyOrExec> <!-- Agency or Exec: BBB | CFBP/OCC | CFPB | Exec | OCC |
+        OGA-->
+        <onOrDated>on</onOrDated> <!-- on | dated -->
+        <communicationReceivedDate>2019-12-19</communicationReceivedDate> <!-- Communication Date -->
+        <otherGovtAgency>Agency Name</otherGovtAgency> <!-- If the agencyOrExec is OGA -->
+        <primaryAccount>
+            <minimumDueDate>2020-10-12</minimumDueDate> <!-- Min Due Date -->
+            <minimumDueAmount>123.12</minimumDueAmount> <!-- Minimum Payment Due -->
+            <!-- Esign Enroll Date -->
+            <esignEnrollDate>2012-10-15</esignEnrollDate>
+            <!-- Esign Email -->
+            <esignEmailAddress>test@email.com</esignEmailAddress>
+        </primaryAccount>
+        <statements>
+            <fromStatementDate>2020-10-12</fromStatementDate> <!-- Statement Date -->
+            <statementDelivery>
+                <esignStmntsStmntsSuspended>Esign</esignStmntsStmntsSuspended> <!-- Statement
+                Delivery -->
+                <returnedStatementClosureDate>2025-10-10</returnedStatementClosureDate> <!-- Returned
+                Stmnt Closure Date -->
+                <returnedMailReason>Wrong address</returnedMailReason> <!-- Returned Mail Reason -->
+            </statementDelivery>
+            <statementClosure>
+                <closureDate>2019-09-13</closureDate> <!-- Stmnt Closure Date1 -->
+                <andOrThrough>and</andOrThrough>
+                <closureDate>2020-10-13</closureDate> <!-- Stmnt Closure Date2 -->
+            </statementClosure>
+            <statementClosure>
+                <closureDate>2020-10-18</closureDate> <!-- Stmnt Closure Date3 -->
+                <andOrThrough>through</andOrThrough>
+                <closureDate>2022-12-19</closureDate> <!-- Stmnt Closure Date4 -->
+            </statementClosure>
+            <statementClosure>
+                <closureDate>2023-12-12</closureDate> <!-- Stmnt Closure Date5 -->
+                <andOrThrough>and</andOrThrough>
+                <closureDate>2024-10-13</closureDate>  <!-- Stmnt Closure Date6 -->
+            </statementClosure>
+            <statementEnclosed>true</statementEnclosed>
+        </statements>
+        <showBullets>
+            <showBullet>
+                <bullet>annualFeeCredit</bullet>  <!-- Annual Fee Credit -->
+                <associatedAmounts>
+                    <amount>1088.22</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>auFeeCredit</bullet> <!-- AU Fee Credit (Authorized User Fee)-->
+                <associatedAmounts>
+                    <amount>20.11</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>cashAdvCredit</bullet> <!--  Cash Adv Fee Credit -->
+                <associatedAmounts>
+                    <amount>988.09</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>cLICredit</bullet> <!-- CLI Fee Credit (Credit Limit Increase) -->
+                <associatedAmounts>
+                    <amount>3</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>cpCredit</bullet> <!-- CP Fee Credit (Credit Protection) -->
+                <associatedAmounts>
+                    <amount>78</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>expCredit</bullet> <!-- Express Fee Credit -->
+                <associatedAmounts>
+                    <amount>66.6</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>fcCredit</bullet> <!-- Interest Charge Credit -->
+                <associatedAmounts>
+                    <amount>22.1</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>lateFeeCredit</bullet> <!-- Late Fee Credit -->
+                <associatedAmounts>
+                    <amount>22</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>premCardCredit</bullet> <!-- Premium Fee Credit -->
+                <associatedAmounts>
+                    <amount>234</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>repCardCredit</bullet> <!-- Replacement Fee Credit -->
+                <associatedAmounts>
+                    <amount>78.11</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>rtnPmntCredit</bullet> <!-- Return Pmnt Fee Credit -->
+                <associatedAmounts>
+                    <amount>123.1</amount>
+                </associatedAmounts>
+            </showBullet>
+            <showBullet>
+                <bullet>otherFeeCredit1</bullet> <!-- Other Fee Credit1 -->
+                <associatedAmounts>
+                    <amount>32.11</amount>
+                </associatedAmounts>
+                <notes>some credit</notes> <!-- Other Fee Name1 -->
+            </showBullet>
+            <showBullet>
+                <bullet>otherFeeCredit2</bullet> <!-- Other Fee Credit2 -->
+                <associatedAmounts>
+                    <amount>32</amount>
+                </associatedAmounts>
+                <notes>Other type of credit</notes> <!-- Other Fee Name2 -->
+            </showBullet>
+            <showBullet>
+                <bullet>totalCredit</bullet> <!-- Total Credit -->
+                <associatedAmounts>
+                    <amount>1291999</amount>
+                </associatedAmounts>
+            </showBullet>
+        </showBullets>
+        <addressVerified>true</addressVerified> <!-- Address Verified -->
+        <dateAddressVerified>2023-10-10</dateAddressVerified> <!-- Date Address Verified -->
+    </entity>
+    <courtesyWe>As a courtesy, we</courtesyWe>
+    <miniMiranda>true</miniMiranda>
+    <addBBBCaseNumber>true</addBBBCaseNumber>
+    <caseNumberBBB>123123</caseNumberBBB>
+    <deptContactName>Customer Service</deptContactName>
+</data>

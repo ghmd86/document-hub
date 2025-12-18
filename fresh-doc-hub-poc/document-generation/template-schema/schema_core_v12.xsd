@@ -1,0 +1,625 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- Definition for Address type -->
+    <xs:complexType name="addressType">
+        <xs:sequence>
+            <xs:element name="addressLine1" type="xs:string" />
+            <xs:element name="addressLine2" type="xs:string" minOccurs="0" />
+            <xs:element name="city" type="xs:string" />
+            <xs:element name="state" type="xs:string" />
+            <xs:element name="zipcode" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Common recipient information-->
+    <xs:complexType name="recipientType">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="recipientAddress" type="addressType" />
+            <xs:element name="email" type="xs:string" minOccurs="0" />
+            <xs:element name="additionalAddresses" type="additionalAddressesType" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="entityType">
+        <xs:sequence>
+            <!-- Last 4 digits of account/creditCard-->
+            <xs:element name="last4digit" type="xs:integer" minOccurs="0" />
+            <xs:element name="customerId" minOccurs="0" />
+            <xs:element name="applicationId" minOccurs="0" />
+            <xs:element name="caseNumber" minOccurs="0"></xs:element>
+            <xs:element name="creditScore" type="xs:integer" minOccurs="0" />
+            <xs:element name="scoreDate" type="xs:date" minOccurs="0" />
+            <xs:element name="requestedNameChange" minOccurs="0" />
+            <xs:element name="agencyOrExec" type="agencyExecType" minOccurs="0" />
+            <xs:element name="onOrDated" type="onDatedType" minOccurs="0" />
+            <!-- Date Communication Received -->
+            <xs:element name="communicationReceivedDate" type="xs:date" minOccurs="0" />
+            <xs:element name="otherGovtAgency" type="xs:string" minOccurs="0" /> <!-- OGA Name -->
+            <!-- Account information -->
+            <xs:element name="primaryAccount" type="accountDetailsType" minOccurs="0" maxOccurs="1" />
+            <!-- Credit Card information -->
+            <xs:element name="primaryCreditCard" type="creditCardDetailsType" minOccurs="0"
+                maxOccurs="1" />
+            <xs:element name="applicant" type="contactType" minOccurs="0" />
+            <xs:element name="statements" type="statementsType" minOccurs="0" />
+            <!-- Attorney Information -->
+            <xs:element name="attorney" type="attorneyType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="showBullets" type="showBulletsType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="cmaOptions" type="cmaOptionsType" minOccurs="0" />
+            <!-- Address Verified -->
+            <xs:element name="addressVerified" type="xs:boolean" minOccurs="0" maxOccurs="1" />
+            <!-- Date Address Verified -->
+            <xs:element name="dateAddressVerified" type="xs:date" minOccurs="0" maxOccurs="1" />
+            <xs:element name="payments" type="paymentsType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="paymentsType">
+        <xs:sequence>
+            <xs:element name="paymentAmount" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="paymentDate" type="xs:date" minOccurs="0" />
+            <xs:element name="paymentReturned" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="paymentReturnedDate" type="xs:date" minOccurs="0" />
+        </xs:sequence>        
+    </xs:complexType>
+
+    <xs:complexType name="statementsType">
+        <xs:sequence>
+            <xs:element name="fromStatementDate" minOccurs="0" />
+            <xs:element name="statementDelivery" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="esignStmntsStmntsSuspended" minOccurs="0" maxOccurs="1">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="Esign" />
+                                    <xs:enumeration value="Statements" />
+                                    <xs:enumeration value="Statements Suspended" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element name="returnedStatementClosureDate" type="xs:date" minOccurs="0"
+                            maxOccurs="1" />
+                        <xs:element name="returnedMailReason" type="xs:string" minOccurs="0"
+                            maxOccurs="1" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="statementClosure" minOccurs="0" maxOccurs="4">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="closureDate" type="xs:date" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="andOrThrough" type="andThroughType" minOccurs="0"
+                            maxOccurs="1" />
+                        <xs:element name="closureDate" type="xs:date" minOccurs="0" maxOccurs="1" />
+
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="statementEnclosed" type="xs:boolean" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="andThroughType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="and" />
+            <xs:enumeration value="through" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- 11. Drop down Label: Agency or Exec -->
+    <xs:simpleType name="agencyExecType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BBB" />
+            <xs:enumeration value="CFPB" />
+            <xs:enumeration value="OCC" />
+            <xs:enumeration value="OGA" />
+            <xs:enumeration value="CFBP/OCC" />
+            <xs:enumeration value="Exec" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="onDatedType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="on" />
+            <xs:enumeration value="dated" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="cmaOptionsType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CMA enclosed" />
+            <xs:enumeration value="CMA separate cover"></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="showBulletsType">
+        <xs:sequence>
+            <xs:element name="showBullet" type="showBulletType" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:sequence>
+
+    </xs:complexType>
+    <xs:simpleType name="bulletType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="transactionAuthorized" />
+            <xs:enumeration value="merchantRecordChipEnabledCCPresent" />
+            <xs:enumeration value="participatedReleasePII" />
+            <xs:enumeration value="unableToContact" />
+            <xs:enumeration value="notAdmitToParticipateInFraudActivity" />
+            <xs:enumeration value="accessDifferentDevice" />
+            <xs:enumeration value="oneTimePasswordSent" />
+            <xs:enumeration value="noFraudIdentified" />
+            <xs:enumeration value="receivedMultipleCalls" />
+            <xs:enumeration value="otherTransactionsNotClaimedAsFraud" />
+            <xs:enumeration value="determinedPaymentsAuthorized" />
+            <xs:enumeration value="thirdPartyPayment" />
+            <xs:enumeration value="unauthorizedPayment" />
+            <xs:enumeration value="fundsReturned" />
+            <xs:enumeration value="responsibleForBalance" />
+            <xs:enumeration value="chargedOffAndSold" />
+            <xs:enumeration value="closedChargedOffSchedToBeSold" />
+            <xs:enumeration value="chargeOffSchedToBeSold" />
+            <xs:enumeration value="annualFeeCredit" />
+            <xs:enumeration value="auFeeCredit" />
+            <xs:enumeration value="cashAdvCredit" />
+            <xs:enumeration value="cLICredit" />
+            <xs:enumeration value="cpCredit" />
+            <xs:enumeration value="expCredit" />
+            <xs:enumeration value="fcCredit" />
+            <xs:enumeration value="expCredit" />
+            <xs:enumeration value="lateFeeCredit" />
+            <xs:enumeration value="premCardCredit" />
+            <xs:enumeration value="repCardCredit" />
+            <xs:enumeration value="rtnPmntCredit" />
+            <xs:enumeration value="balTranFeeCredit" />
+            <xs:enumeration value="chargeBackCredit" />
+            <xs:enumeration value="otherFeeCredit1" />
+            <xs:enumeration value="otherFeeCredit2" />
+            <xs:enumeration value="totalCredit" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="dateListType">
+        <xs:sequence>
+            <xs:element name="date" type="xs:date" minOccurs="0" maxOccurs="3" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="amountListType">
+        <xs:sequence>
+            <xs:element name="amount" type="xs:decimal" minOccurs="0" maxOccurs="5" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="showBulletType">
+        <xs:sequence>
+            <xs:element name="bullet" type="bulletType" minOccurs="0" />
+            <xs:element name="associatedDates" type="dateListType" minOccurs="0" />
+            <xs:element name="associatedAmounts" type="amountListType" minOccurs="0" />
+            <xs:element name="primaryEmailMobile" type="primaryEmailMobileType" minOccurs="0" />
+            <xs:element name="notifiedBy" type="emailPhoneBothType" minOccurs="0" />
+            <xs:element name="notes" type="xs:string" minOccurs="0" maxOccurs="3" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="deptContactNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Customer Service" />
+            <xs:enumeration value="Fraud" />
+            <xs:enumeration value="Presidential" />
+            <xs:enumeration value="Digital Banking" />
+            <xs:enumeration value="SCRA" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="contactType">
+        <xs:sequence>
+            <!-- Full Name -->
+            <xs:element name="name" type="xs:string" minOccurs="0" />
+            <!-- First Name -->
+            <xs:element name="firstName" type="xs:string" minOccurs="0" />
+            <!-- Middle Name -->
+            <xs:element name="middleName" type="xs:string" minOccurs="0" />
+            <!-- Last Name -->
+            <xs:element name="lastName" type="xs:string" minOccurs="0" />
+            <!-- Date of Birth-->
+            <xs:element name="dateOfBirth" type="xs:date" minOccurs="0" />
+            <!-- Last 4 SSN -->
+            <xs:element name="sSNLast4" type="xs:string" minOccurs="0" />
+            <!-- Primary email -->
+            <xs:element name="primaryEmail" type="xs:string" minOccurs="0" />
+            <!-- Primary phone -->
+            <xs:element name="primaryPhone" type="xs:string" minOccurs="0" />
+            <!-- Clarifies the type of phone number (e.g., "Cell," "Home," "Work"). -->
+            <xs:element name="primaryPhoneType" type="xs:string" minOccurs="0" />
+            <!-- For an additional email address on file -->
+            <xs:element name="secondaryEmail" type="xs:string" minOccurs="0" />
+            <!-- For an additional phone number on file. -->
+            <xs:element name="secondaryPhone" type="xs:string" minOccurs="0" />
+            <!-- Clarifies the type of phone number (e.g., "Cell," "Home," "Work"). -->
+            <xs:element name="secondaryPhoneType" type="xs:string" minOccurs="0" />
+            <!-- Address on file -->
+            <xs:element name="address" type="addressType" minOccurs="0" />
+            <!-- The most recent address on file, which can be different from the mailing address. -->
+            <xs:element name="lastKnownAddress" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="attorneyType">
+        <xs:sequence>
+            <!-- Name of the firm -->
+            <xs:element name="firmName" type="xs:string" minOccurs="0" />
+            <!-- Bar id of the firm -->
+            <xs:element name="barId" type="xs:string" minOccurs="0" />
+            <!-- Case number -->
+            <xs:element name="caseNumber" type="xs:string" minOccurs="0" />
+            <!-- Representative/Attorney Name -->
+            <xs:element name="repName" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="agencyBMAType">
+        <xs:sequence>
+            <xs:element name="agencyName" type="xs:string" minOccurs="0" />
+            <xs:element name="agencyAddress" type="addressType" minOccurs="0" />
+            <xs:element name="phoneNumber" type="xs:string" minOccurs="0" />
+            <xs:element name="faxNumber" type="xs:string" minOccurs="0" />
+            <xs:element name="email" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="chargeOffReasonType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="non-payment for more than 180 days" />
+            <xs:enumeration value="unauthorized payment activity" />
+            <xs:enumeration value="misuse" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="closureReasonType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="non-payment" />
+            <xs:enumeration value="unauthorized payment activity" />
+            <xs:enumeration value="misuse" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="primaryEmailMobileType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="primary email" />
+            <xs:enumeration value="mobile phone" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="recentActivityType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="checking acct - multiple payments" />
+            <xs:enumeration value="savings acct - multiple payments" />
+            <xs:enumeration value="checking acct - payment" />
+            <xs:enumeration value="savings acct - payments" />
+            <xs:enumeration value="other payments" />
+            <xs:enumeration value="purchase" />
+            <xs:enumeration value="no activity" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="fulfillmentType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="automated phone system" />
+            <xs:enumeration value="website" />
+            <xs:enumeration value="written application process" />
+            <xs:enumeration value="mobile app" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- Definition for account Details-->
+    <xs:complexType name="accountDetailsType">
+        <xs:sequence>
+            <!-- Account ID -->
+            <xs:element name="accountId" minOccurs="0" />
+            <!-- The type of bank or financial account (e.g., Checking, Savings, Loan) -->
+            <xs:element name="accountType" type="xs:string" minOccurs="0" />
+            <!-- The unique identifier for the bank or financial account. -->
+            <xs:element name="accountNumber" type="xs:string" minOccurs="0" />
+            <!-- A user-defined nickname for the account (e.g., "Vacation Fund") -->
+            <xs:element name="accountAlias" type="xs:string" minOccurs="0" />
+            <!-- The name of the reservation Number -->
+            <xs:element name="reservationNumber" type="xs:string" minOccurs="0" />
+            <!-- The name of the Solicitation Name -->
+            <xs:element name="solicitationName" type="xs:string" minOccurs="0" />
+            <!-- The name of the Solicitation Date -->
+            <xs:element name="solicitationDate" type="xs:date" minOccurs="0" />
+            <!-- Fulfillment type-->
+            <xs:element name="fulfillment" type="fulfillmentType" minOccurs="0" />
+            <!-- Account holder information -->
+            <xs:element name="accountHolderDetails" type="contactType" minOccurs="0" />
+            <!-- Recent Account Activity -->
+            <xs:element name="recentActivity" type="recentActivityType" minOccurs="0" />
+            <!-- Recent Activity Amount -->
+            <xs:element name="recentActivityAmount" type="xs:decimal" minOccurs="0" />
+            <!-- Date of recent activity -->
+            <xs:element name="recentActivityDate" type="xs:date" minOccurs="0" />
+            <!-- Account open date -->
+            <xs:element name="accountOpenDate" type="xs:date" minOccurs="0" />
+            <!-- Initial Credit Limit -->
+            <xs:element name="initialCreditLimit" type="xs:decimal" minOccurs="0" />
+            <!-- The credit card number with most digits obscured for security purposes (e.g.,
+            ****-****-****-1234).-->
+            <xs:element name="maskedCardNumber" type="xs:string" minOccurs="0" />
+            <!-- Account status -->
+            <xs:element name="accountStatus" type="xs:string" minOccurs="0" />
+            <!-- Debt Validation Status Pending|Valid|Invalid-->
+            <xs:element name="debtValidationStatus" type="xs:string" minOccurs="0" />
+            <!-- The balance of the account at the beginning of the billing cycle or statement
+            period. -->
+            <xs:element name="startBalance" type="xs:decimal" minOccurs="0" />
+            <!-- The balance of the account at the end of the billing cycle or statement period. -->
+            <xs:element name="endBalance" type="xs:decimal" minOccurs="0" />
+            <!-- The real-time, up-to-date balance of the account. -->
+            <xs:element name="currentBalance" type="xs:decimal" minOccurs="0" />
+            <!-- The calculated average daily balance for the current billing cycle. -->
+            <xs:element name="averageBalance" type="xs:decimal" minOccurs="0" />
+            <!-- The date when the account was first opened. -->
+            <xs:element name="accountOpeningDate" type="xs:date" minOccurs="0" />
+            <!-- he bank's routing number, used for electronic funds transfers. -->
+            <xs:element name="routingNumber" type="xs:string" minOccurs="0" />
+            <!-- Last 4 Digits Checking Account Number -->
+            <xs:element name="last4chkAccount" type="xs:string" minOccurs="0" />
+            <!-- Last 4 Digits Savings Account Number -->
+            <xs:element name="last4savAccount" type="xs:string" minOccurs="0" />
+            <!-- Any remaining balance from a previous billing cycle that was not paid by the due
+            date. -->
+            <xs:element name="overdueAmount" type="xs:decimal" minOccurs="0" />
+            <!-- Charge off date-->
+            <xs:element name="chargeOffDate" type="xs:date" minOccurs="0" />
+            <!-- Charge off Balance-->
+            <xs:element name="chargeOffBalance" type="xs:decimal" minOccurs="0" />
+            <!-- Charge off Reason -->
+            <xs:element name="chargeOffReason" type="chargeOffReasonType" minOccurs="0" />
+            <!-- The total outstanding principal amount on the account. Note: Type should be
+            `xs:decimal` for better data integrity. -->
+            <xs:element name="principalBalance" type="xs:decimal" minOccurs="0" />
+            <!-- The total amount owed, potentially including principal, interest, and fees. -->
+            <xs:element name="totalBalance" type="xs:decimal" minOccurs="0" />
+            <!-- cycleDate: It marks the end of the billing period when the statement is generated -->
+            <xs:element name="cycleDate" type="xs:date" minOccurs="0" />
+            <!-- The date of the most recent payment received. -->
+            <xs:element name="lastPaymentDate" type="xs:date" minOccurs="0" />
+            <!-- Due date on which the payment is due -->
+            <xs:element name="paymentDueDate" type="xs:date" minOccurs="0" />
+            <!-- The amount of the most recent payment received. -->
+            <xs:element name="lastPaymentAmount" type="xs:decimal" minOccurs="0" />
+            <!-- Minimum due date -->
+            <xs:element name="minimumDueDate" type="xs:date" minOccurs="0" />
+            <!-- The minimum payment required for the current billing cycle. -->
+            <xs:element name="minimumDueAmount" type="xs:decimal" minOccurs="0" />
+            <!-- Duration from the account active/open -->
+            <xs:element name="timeOnBook" type="xs:string" minOccurs="0" />
+            <!--  Date Account Closed -->
+            <xs:element name="dateAccountClosed" type="xs:date" minOccurs="0" />
+            <!--  Account Closure reason -->
+            <xs:element name="closureReason" type="closureReasonType" minOccurs="0" />
+            <!-- The amount of any late fee applied. -->
+            <xs:element name="lateFee" type="xs:decimal" minOccurs="0" />
+            <!-- Esign Enroll Date-->
+            <xs:element name="esignEnrollDate" type="xs:date" minOccurs="0" />
+            <!-- 25. XML input Label: Esign Email-->
+            <xs:element name="esignEmailAddress" type="xs:string" minOccurs="0" />
+            <!-- The current, potentially updated, credit limit. -->
+            <xs:element name="currentCreditLimit" type="xs:decimal" minOccurs="0" />
+            <!-- The amount of credit still available on the account.  -->
+            <xs:element name="availableCredit" type="xs:decimal" minOccurs="0" />
+            <!-- 35: Manual input Label: Stmts Sent Separately-->
+            <xs:element name="stmtsSentSeparately" type="xs:boolean" minOccurs="0" />
+            <!-- Send Card Agreement -->
+            <xs:element name="cardAgreement" type="xs:boolean" minOccurs="0" />
+            <!-- Total fee Credit -->
+            <xs:element name="totalCredit" type="xs:decimal" minOccurs="0" />
+            <!-- Enclosed or Will Be Sent -->
+            <xs:element name="enclosedSeparateCover" type="enclosedSeparateCoverType" minOccurs="0" />
+            <!--  Not Reporting & GW/CO Options -->
+            <xs:element name="gwCoOptions" type="gWCOOptionsType" minOccurs="0" />
+            <xs:element name="gwDelinquencyDates" type="gwDelinquencyDatesTypes" minOccurs="0" />
+            <xs:element name="statementDates" type="dateListType" minOccurs="0"/>  
+            <xs:element name="yearMonths" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="yearMonth" type="xs:gYearMonth" minOccurs="0"
+                            maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="paymentTransaction" type="paymentTransactionType" minOccurs="0" />
+            <!-- A container for any additional, variable account information not covered by the
+            standard fields. -->
+            <xs:element name="otherDetails" type="fieldType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="gwDelinquencyDatesTypes">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Date" />
+            <xs:enumeration value="Date1 and Date2" />
+            <xs:enumeration value="Date1 to Date2" />
+            <xs:enumeration value="Multiple Dates" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="emailPhoneBothType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="email" />
+            <xs:enumeration value="telephone" />
+            <xs:enumeration value="email and telephone" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="enclosedSeparateCoverType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="enclosed" />
+            <xs:enumeration value="separate cover" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="paymentTransactionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="payment(s)" />
+            <xs:enumeration value="transaction(s)" />
+            <xs:enumeration value="payment(s) and transaction(s)" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="gWCOOptionsType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Not reporting" />
+            <xs:enumeration value="CO GW tradeline" />
+            <xs:enumeration value="CO not reporting" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- Definition for Month type-->
+    <xs:simpleType name="monthType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1" />
+            <xs:maxInclusive value="12" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- Definition for billing Frequency type-->
+    <xs:simpleType name="billingFrequencyType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Monthly" />
+            <xs:enumeration value="Quarterly" />
+            <xs:enumeration value="Annually" />
+            <xs:enumeration value="Variable" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- Holds credit card type details-->
+    <xs:complexType name="creditCardDetailsType">
+        <xs:sequence>
+            <!-- A unique, system-generated identifier for the credit card account. -->
+            <xs:element name="creditCardId" type="xs:string" minOccurs="0" />
+            <!-- The type of card (e.g., Visa, Mastercard, Amex) -->
+            <xs:element name="cardType" type="xs:string" minOccurs="0" />
+            <!-- Program -->
+            <xs:element name="program" type="xs:string" minOccurs="0" />
+            <!-- Card Holder details -->
+            <xs:element name="cardHolderDetails" type="contactType" minOccurs="0" />
+            <!-- The Annual Percentage Rate (interest rate) applied to the credit card account. -->
+            <xs:element name="APR" type="xs:decimal" minOccurs="0" />
+            <!-- Billing Frequency: Indicates how often the customer is billed (e.g., Monthly,
+            Quarterly, Annual, Variable).-->
+            <xs:element name="billingFrequency" type="billingFrequencyType" minOccurs="0" />
+            <!-- cycleDate: It marks the end of the billing period when the statement is generated -->
+            <xs:element name="cycleDate" type="xs:date" minOccurs="0" />
+            <!-- The expiration month of the credit card. -->
+            <xs:element name="expiryMonth" type="monthType" minOccurs="0" />
+            <!-- The four-digit expiration year of the credit card. -->
+            <xs:element name="expiryYear" type="xs:integer" minOccurs="0" />
+            <!-- Initial Credit Limit -->
+            <xs:element name="initialCreditLimit" type="xs:decimal" minOccurs="0" />
+            <!-- Annual fee on the card -->
+            <xs:element name="annualFee" type="xs:decimal" minOccurs="0" />
+
+            <!-- Total fee Credit -->
+            <xs:element name="totalCredit" type="xs:decimal" minOccurs="0" />
+            <!-- The address associated with the account for billing purposes. -->
+            <xs:element name="billingAddress" type="addressType" minOccurs="0" />
+            <!-- The date the most recent payment was posted to the account. -->
+            <xs:element name="lastPaymentDate" type="xs:date" minOccurs="0" />
+            <!-- A container for any additional, variable account information not covered by the
+            standard fields. -->
+            <xs:element name="otherDetails" type="fieldType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Definition for named address types-->
+    <xs:complexType name="additionalAddressesType">
+        <xs:sequence>
+            <xs:element name="address" type="namedAddressType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Definition for Address type with name attribute-->
+    <xs:complexType name="namedAddressType">
+        <xs:complexContent>
+            <xs:extension base="addressType">
+                <xs:attribute name="name" type="xs:string" use="required" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Definition for table type-->
+    <xs:complexType name="tableType">
+        <xs:sequence>
+            <xs:element name="table" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="row" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="cell"
+                                        maxOccurs="unbounded">
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="id" type="xs:ID"
+                                                        use="required" />
+                                                    <xs:attribute name="name" type="xs:string" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="id" type="xs:string" use="required" />
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Flexible Fields -->
+    <xs:complexType name="fieldType" mixed="true">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="field" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="address" type="namedAddressType" minOccurs="0" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:ID" use="required" />
+        <xs:attribute name="type" type="xs:string" use="optional" />
+    </xs:complexType>
+    <!-- Definition for holding multiple fields-->
+    <xs:complexType name="fieldsType">
+        <xs:sequence>
+            <xs:element name="field" type="fieldType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="templateType">
+        <xs:sequence>
+            <!-- Smart Comm Identifier -->
+            <xs:element name="resourceId" type="xs:string" />
+            <!-- Template identifier -->
+            <xs:element name="templateId" type="xs:string" />
+            <!-- Template identifier -->
+            <xs:element name="letterReferenceNumber" type="xs:string" />
+            <!-- Employee Id if generated by Agent/Back office -->
+            <xs:element name="employeeId" type="xs:string" minOccurs="0"/>
+            <!-- Name of the template which is going to displayed in the letter -->
+            <xs:element name="displayName" type="xs:string" minOccurs="0" />
+            <!-- Date of document generation -->
+            <xs:element name="date" type="xs:date" minOccurs="0" />
+            <!-- Language in which the document needs to be generated -->
+            <xs:element name="language" type="xs:string" minOccurs="0" default="EN" />
+            <!-- Channel : Email, Document Generation -->
+            <xs:element name="channel" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="courtesyWeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="As a courtesy, we" />
+            <xs:enumeration value="We" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- Root -->
+    <xs:element name="data">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="template" type="templateType" />
+                <xs:element name="recipient" type="recipientType" />
+                <xs:element name="entity" type="entityType" minOccurs="0" />
+                <xs:element name="agency" type="agencyBMAType" minOccurs="0" />
+                <xs:element name="fields" type="fieldsType" minOccurs="0" />
+                <xs:element name="tables" minOccurs="0" maxOccurs="1" type="tableType" />
+                <xs:element name="courtesyWe" type="courtesyWeType" minOccurs="0" />
+                <xs:element name="miniMiranda" type="xs:boolean" minOccurs="0" />
+                <xs:element name="addBBBCaseNumber" type="xs:boolean" minOccurs="0" />
+                <xs:element name="caseNumberBBB" type="xs:string" minOccurs="0" />
+                <xs:element name="deptContactName" type="deptContactNameType" minOccurs="0" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
