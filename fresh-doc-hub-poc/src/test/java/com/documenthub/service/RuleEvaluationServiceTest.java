@@ -802,6 +802,661 @@ public class RuleEvaluationServiceTest {
     }
 
     // ========================================================================
+    // SCENARIO 11: Direct EligibilityCriteria Evaluation
+    // Use Case: Evaluate criteria directly without TemplateConfig wrapper
+    // ========================================================================
+    @Nested
+    @DisplayName("Scenario 11: Direct EligibilityCriteria Evaluation")
+    class DirectEligibilityCriteriaTests {
+
+        @Test
+        @DisplayName("Should evaluate eligibility criteria directly with AND logic")
+        void shouldEvaluateDirectly_withAndLogic() {
+            // Given
+            EligibilityCriteria criteria = EligibilityCriteria.builder()
+                .operator("AND")
+                .rules(Arrays.asList(
+                    Rule.builder().field("state").operator("EQUALS").value("CA").build()
+                ))
+                .build();
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                criteria, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should evaluate eligibility criteria directly with OR logic")
+        void shouldEvaluateDirectly_withOrLogic() {
+            // Given
+            EligibilityCriteria criteria = EligibilityCriteria.builder()
+                .operator("OR")
+                .rules(Arrays.asList(
+                    Rule.builder().field("state").operator("EQUALS").value("NY").build(),
+                    Rule.builder().field("state").operator("EQUALS").value("CA").build()
+                ))
+                .build();
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                criteria, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should allow access when criteria is null")
+        void shouldAllowAccess_whenCriteriaNull() {
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                (EligibilityCriteria) null,
+                createDefaultAccountMetadata(),
+                new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should allow access when criteria rules are null")
+        void shouldAllowAccess_whenCriteriaRulesNull() {
+            // Given
+            EligibilityCriteria criteria = EligibilityCriteria.builder()
+                .operator("AND")
+                .rules(null)
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                criteria, createDefaultAccountMetadata(), new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should default to AND operator when operator is null")
+        void shouldDefaultToAnd_whenOperatorNull() {
+            // Given
+            EligibilityCriteria criteria = EligibilityCriteria.builder()
+                .operator(null)  // No operator specified
+                .rules(Arrays.asList(
+                    Rule.builder().field("state").operator("EQUALS").value("CA").build(),
+                    Rule.builder().field("region").operator("EQUALS").value("US_WEST").build()
+                ))
+                .build();
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .region("US_WEST")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                criteria, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result, "Should use AND logic by default");
+        }
+    }
+
+    // ========================================================================
+    // SCENARIO 12: Special Field Prefixes ($metadata., $request.)
+    // Use Case: Access metadata and request context fields
+    // ========================================================================
+    @Nested
+    @DisplayName("Scenario 12: Special Field Prefixes")
+    class SpecialFieldPrefixTests {
+
+        @Test
+        @DisplayName("Should extract field from $metadata prefix")
+        void shouldExtractField_fromMetadataPrefix() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("$metadata.disclosure_code")
+                    .operator("EQUALS")
+                    .value("DISC-001")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("disclosure_code", "DISC-001");
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should extract field from $request prefix")
+        void shouldExtractField_fromRequestPrefix() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("$request.referenceKey")
+                    .operator("EQUALS")
+                    .value("REF-123")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("referenceKey", "REF-123");
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should return false when $metadata field not in context")
+        void shouldReturnFalse_whenMetadataFieldMissing() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("$metadata.missing_field")
+                    .operator("EQUALS")
+                    .value("value")
+                    .build()
+            );
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, createDefaultAccountMetadata(), new HashMap<>()
+            );
+
+            // Then
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("Should handle null requestContext for metadata prefix")
+        void shouldHandleNullContext_forMetadataPrefix() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("$metadata.some_field")
+                    .operator("EQUALS")
+                    .value("value")
+                    .build()
+            );
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, createDefaultAccountMetadata(), null
+            );
+
+            // Then
+            assertFalse(result);
+        }
+    }
+
+    // ========================================================================
+    // SCENARIO 13: Account Metadata Field Access
+    // Use Case: Access accountId and customerId fields
+    // ========================================================================
+    @Nested
+    @DisplayName("Scenario 13: Account Metadata Field Access")
+    class AccountMetadataFieldAccessTests {
+
+        @Test
+        @DisplayName("Should match on accountId field")
+        void shouldMatch_onAccountIdField() {
+            // Given
+            UUID accountId = UUID.fromString("aaaa0000-0000-0000-0000-000000000001");
+
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("accountId")
+                    .operator("EQUALS")
+                    .value(accountId.toString())
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(accountId)
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should match on customerId field")
+        void shouldMatch_onCustomerIdField() {
+            // Given
+            UUID customerId = UUID.fromString("cccc0000-0000-0000-0000-000000000001");
+
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("customerId")
+                    .operator("EQUALS")
+                    .value(customerId.toString())
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .customerId(customerId)
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should return false when accountId is null")
+        void shouldReturnFalse_whenAccountIdNull() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("accountId")
+                    .operator("EQUALS")
+                    .value("some-id")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(null)
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("Should return false when customerId is null")
+        void shouldReturnFalse_whenCustomerIdNull() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("customerId")
+                    .operator("EQUALS")
+                    .value("some-id")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .customerId(null)
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("Should match on lineOfBusiness field")
+        void shouldMatch_onLineOfBusinessField() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("lineOfBusiness")
+                    .operator("EQUALS")
+                    .value("CREDIT_CARD")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .lineOfBusiness("CREDIT_CARD")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result);
+        }
+    }
+
+    // ========================================================================
+    // SCENARIO 14: Additional Operators
+    // Use Case: Test remaining operators for full coverage
+    // ========================================================================
+    @Nested
+    @DisplayName("Scenario 14: Additional Operators")
+    class AdditionalOperatorsTests {
+
+        @Test
+        @DisplayName("Should evaluate NOT_EQUALS operator")
+        void shouldEvaluate_notEqualsOperator() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("state")
+                    .operator("NOT_EQUALS")
+                    .value("NY")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result, "CA is not equal to NY");
+        }
+
+        @Test
+        @DisplayName("Should evaluate GREATER_THAN operator")
+        void shouldEvaluate_greaterThanOperator() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("balance")
+                    .operator("GREATER_THAN")
+                    .value(1000)
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("balance", 1500);
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertTrue(result, "1500 > 1000");
+        }
+
+        @Test
+        @DisplayName("Should evaluate LESS_THAN_OR_EQUAL operator")
+        void shouldEvaluate_lessThanOrEqualOperator() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("age")
+                    .operator("LESS_THAN_OR_EQUAL")
+                    .value(65)
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("age", 65);
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertTrue(result, "65 <= 65");
+        }
+
+        @Test
+        @DisplayName("Should evaluate ENDS_WITH operator")
+        void shouldEvaluate_endsWithOperator() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("email")
+                    .operator("ENDS_WITH")
+                    .value("@company.com")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("email", "user@company.com");
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("Should default to EQUALS when operator is null")
+        void shouldDefaultToEquals_whenOperatorNull() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("state")
+                    .operator(null)  // No operator
+                    .value("CA")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result, "Should use EQUALS by default");
+        }
+
+        @Test
+        @DisplayName("Should return false for unknown operator")
+        void shouldReturnFalse_forUnknownOperator() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("state")
+                    .operator("UNKNOWN_OP")
+                    .value("CA")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertFalse(result, "Unknown operator should return false");
+        }
+
+        @Test
+        @DisplayName("Should handle NOT_IN with non-list value")
+        void shouldHandle_notInWithNonListValue() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("state")
+                    .operator("NOT_IN")
+                    .value("CA")  // Not a list
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertTrue(result, "NOT_IN with non-list should return true");
+        }
+
+        @Test
+        @DisplayName("Should handle IN with non-list value")
+        void shouldHandle_inWithNonListValue() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("state")
+                    .operator("IN")
+                    .value("CA")  // Not a list
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = AccountMetadata.builder()
+                .accountId(UUID.randomUUID())
+                .state("CA")
+                .build();
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, new HashMap<>()
+            );
+
+            // Then
+            assertFalse(result, "IN with non-list should return false");
+        }
+    }
+
+    // ========================================================================
+    // SCENARIO 15: Numeric Comparison Edge Cases
+    // Use Case: Test numeric comparison error handling
+    // ========================================================================
+    @Nested
+    @DisplayName("Scenario 15: Numeric Comparison Edge Cases")
+    class NumericComparisonEdgeCasesTests {
+
+        @Test
+        @DisplayName("Should handle non-numeric values in numeric comparison")
+        void shouldHandle_nonNumericValues() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("score")
+                    .operator("GREATER_THAN")
+                    .value(100)
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("score", "not-a-number");
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertFalse(result, "Non-numeric comparison should return false (compareNumeric returns 0)");
+        }
+
+        @Test
+        @DisplayName("Should handle string numbers in numeric comparison")
+        void shouldHandle_stringNumbers() {
+            // Given
+            TemplateConfig templateConfig = createTemplateConfigWithRules(
+                "AND",
+                Rule.builder()
+                    .field("score")
+                    .operator("GREATER_THAN")
+                    .value("100")
+                    .build()
+            );
+
+            AccountMetadata accountMetadata = createDefaultAccountMetadata();
+            Map<String, Object> requestContext = new HashMap<>();
+            requestContext.put("score", "150");
+
+            // When
+            boolean result = ruleEvaluationService.evaluateEligibility(
+                templateConfig, accountMetadata, requestContext
+            );
+
+            // Then
+            assertTrue(result, "String '150' > String '100' should work");
+        }
+    }
+
+    // ========================================================================
     // Helper Methods
     // ========================================================================
 
