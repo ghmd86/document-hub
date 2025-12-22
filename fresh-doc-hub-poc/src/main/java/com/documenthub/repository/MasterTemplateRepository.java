@@ -5,6 +5,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,18 @@ public interface MasterTemplateRepository extends R2dbcRepository<MasterTemplate
      * Find templates by type
      */
     Flux<MasterTemplateDefinitionEntity> findByTemplateType(String templateType);
+
+    /**
+     * Find template by type and version
+     */
+    @Query("SELECT * FROM document_hub.master_template_definition " +
+           "WHERE template_type = :templateType " +
+           "AND template_version = :templateVersion " +
+           "AND active_flag = true")
+    Mono<MasterTemplateDefinitionEntity> findByTemplateTypeAndVersion(
+        String templateType,
+        Integer templateVersion
+    );
 
     /**
      * Find shared templates
