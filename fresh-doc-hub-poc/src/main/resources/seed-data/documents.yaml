@@ -124,7 +124,7 @@ documents:
     documentType: CARDHOLDER_AGREEMENT
     valid_from: '2024-01-01'
     valid_until: '2026-12-31'
-- id: a0000000-0000-0000-0000-000000000060
+- id: a0000000-0000-0000-0000-000000000064
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
   template_version: 1
@@ -1056,7 +1056,7 @@ documents:
     valid_until: '2025-12-31'
 
 # Document 58: Terms & Conditions for disclosure code D167 (EXPIRED - was valid in 2023)
-- id: a0000000-0000-0000-0000-000000000058
+- id: a0000000-0000-0000-0000-000000000062
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
   template_version: 1
@@ -1077,7 +1077,7 @@ documents:
     status: EXPIRED
 
 # Document 59: Terms & Conditions for disclosure code D168 (FUTURE - effective from 2026)
-- id: a0000000-0000-0000-0000-000000000059
+- id: a0000000-0000-0000-0000-000000000063
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
   template_version: 1
@@ -1120,7 +1120,7 @@ documents:
     supersededBy: v1.0
 
 # Document 61: Terms & Conditions for disclosure code D164 - FUTURE VERSION (v2.0)
-- id: a0000000-0000-0000-0000-000000000061
+- id: a0000000-0000-0000-0000-000000000066
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
   template_version: 1
