@@ -1,0 +1,2000 @@
+openapi: 3.0.1
+info:
+  title: Enterprise Content Management API
+  description: Enterprise service to Manage Documents for all C1B applications
+  version: 1.24.0
+servers:
+  - url: "https://devapi.vda.dv01.c1busw2.aws/private/enterprise/ecms"
+    description: DEV servers
+paths:
+  /documents:
+    get:
+      description: Returns documents matching the search criteria
+      tags:
+        - Manage Document
+      parameters:
+        - in: query
+          name: folderId
+          required: false
+          description: Unique identifier of a folder
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: attributes
+          required: false
+          description: Comma delimted list of key-value pair of attributes to filter the result set
+          schema:
+            type: string
+            pattern: ^\w+:.+(,^\w+:.+)?$
+            example: customerId:2a59a9e2-df0c-4162-b3f6-fadb39a78213,pricingCode:PC123
+        - in: query
+          name: searchText
+          required: false
+          description: Search text to match filename and description of the document
+          schema:
+            type: string
+            example: logo
+        - in: query
+          name: activeStartDate
+          description: Start Date on which the document becomes active
+          schema:
+            $ref: '#/components/schemas/Date'
+          required: false
+        - in: query
+          name: activeEndDate
+          description: End Date on which the document becomes inactive
+          schema:
+            $ref: '#/components/schemas/Date'
+          required: false
+        - in: query
+          name: includeSearchableItemsOnly
+          description: Indicates if search results should include unsearchable documents
+          schema:
+            type: boolean
+            default: true
+          required: false
+        - in: query
+          name: includeArchivedDocuments
+          description: Indicates if search results should include deleted/archived documents
+          schema:
+            type: boolean
+            default: false
+          required: false
+        - in: query
+          name: scope
+          description: Context within which the document is accessible. By default Public documents will be returned
+          schema:
+            type: array
+            items:
+              type: string
+              enum: null
+              $ref: '#/components/schemas/DocumentScope'
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: |
+        Creates new document with content. 
+        <br /><small> Version 1 of a document will be published. Use this endpoint to upload <u>smaller documents </ul> </small>
+      tags:
+        - Upload documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentCreationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/summary:
+    get:
+      description: Returns documents matching the search criteria without attributes in response
+      tags:
+        - Manage Document
+      parameters:
+        - in: query
+          name: folderId
+          required: false
+          description: Unique identifier of a folder
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: attributes
+          required: false
+          description: Comma delimted list of key-value pair of attributes to filter the result set
+          schema:
+            type: string
+            pattern: ^\w+:.+(,^\w+:.+)?$
+            example: customerId:2a59a9e2-df0c-4162-b3f6-fadb39a78213,pricingCode:PC123
+        - in: query
+          name: searchText
+          required: false
+          description: Search text to match filename and description of the document
+          schema:
+            type: string
+            example: logo
+        - in: query
+          name: activeStartDate
+          description: Start Date on which the document becomes active
+          schema:
+            $ref: '#/components/schemas/Date'
+          required: false
+        - in: query
+          name: activeEndDate
+          description: End Date on which the document becomes inactive
+          schema:
+            $ref: '#/components/schemas/Date'
+          required: false
+        - in: query
+          name: includeSearchableItemsOnly
+          description: Indicates if search results should include unsearchable documents
+          schema:
+            type: boolean
+            default: true
+          required: false
+        - in: query
+          name: includeArchivedDocuments
+          description: Indicates if search results should include deleted/archived documents
+          schema:
+            type: boolean
+            default: false
+          required: false
+        - in: query
+          name: scope
+          description: Context within which the document is accessible. By default Public documents will be returned
+          schema:
+            type: array
+            items:
+              type: string
+              enum: null
+              $ref: '#/components/schemas/DocumentScope'
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentSummary'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/metadata:
+    post:
+      description: |
+        Create a document record with no content.
+        <br /> <small> A draft version of the document is created. Use this endpoint to upload documents in chunks </small>
+      tags:
+        - Upload Documents in Chunk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentMetadata'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}:
+    patch:
+      description: Endpoint to update metadata of a document which results in creation of a new version when supported
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentMetadataUpdateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: Delete a document. Only applications that manage static content are allowed to delete a document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      responses:
+        '204':
+          description: Document deleted sucessfully
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Endpoint to upload documents in chunks. This endpoint supports uploading large files including documents, images, and videos in multiple chunks.
+      tags:
+        - Upload Documents in Chunk
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+        - in: query
+          name: ChunkSequence
+          required: true
+          description: Sequence number of the document chunk that is been uploaded
+          schema:
+            type: number
+            minimum: 1
+            maximum: 10000
+            exclusiveMinimum: false
+            exclusiveMaximum: false
+            example: 1
+            default: 1
+        - in: query
+          name: IsUploadComplete
+          required: false
+          description: Indicate if upload of document chunk is complete. Setting the flag to true will <u><b> publish </b> </u> the document. Set value to true when uploading the last chunk.
+          schema:
+            type: boolean
+            example: false
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: OK
+        '308':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}/URL:
+    get:
+      description: Endpoint that generated s3 signed url with expiration
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    $ref: '#/components/schemas/URL'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}/metadata:
+    get:
+      description: Endpoint that returns the latest version of the document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}/versions:
+    get:
+      description: Endpoint that returns the latest version of the document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentVersionInfo'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}/folderAssociation:
+    put:
+      description: update folder association of a document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                sourceFolderId:
+                  $ref: '#/components/schemas/UUID'
+                destinationFolderId:
+                  $ref: '#/components/schemas/UUID'
+      responses:
+        '201':
+          description: OK
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}/attributes:
+    get:
+      description: Returns collections of attributes associated with the document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttributeWithId'
+                example:
+                  - id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+                    name: Customer Number
+                    value: '1234555'
+                  - id: be787cc8-beaf-46da-a88a-6ef38ab5239e
+                    name: Driver License
+                    value: TX99999
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Adds new attributes to the document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attribute'
+              example:
+                - name: Customer Number
+                  value: '1234555'
+                - name: Driver License
+                  value: TX99999
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttributeWithId'
+                example:
+                  - id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+                    name: Customer Number
+                    value: '1234555'
+                  - id: be787cc8-beaf-46da-a88a-6ef38ab5239e
+                    name: Driver License
+                    value: TX99999
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{documentId}/attributes/{attributeId}:
+    delete:
+      description: Endpoint to delete an attribute
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document with which the tag is associated
+        - in: path
+          name: attributeId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the attribute
+      responses:
+        '204':
+          description: Document Tag deleted sucessfully
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{id}/tags:
+    get:
+      description: Returns collections of tags associated with the document
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TagWithId'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Add additional tags
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TagWithId'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{documentId}/tags/{tagId}:
+    delete:
+      description: Deletes a tag
+      tags:
+        - Manage Document
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the document with which the tag is associated
+        - in: path
+          name: tagId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+          description: Unique identifer of the tags
+      responses:
+        '204':
+          description: Document Tag deleted sucessfully
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /folders:
+    get:
+      description: Returns folders matching the search criteria
+      tags:
+        - Manage Folders
+      parameters:
+        - in: query
+          name: depth
+          description: Depth of nested folders that needs to be fetched. Default value is 1 and returns folders at depth 1
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - in: query
+          name: folderId
+          description: The parent folder whose child folders needs to be returned.
+          required: false
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Folder'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Endpoint to update metadata of a folder
+      tags:
+        - Manage Folders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderMetadata'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /config/attributeKeys:
+    get:
+      description: Returns collection of attribute keys that are configured for a given application
+      tags:
+        - Configurations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttributeKey'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /config/refreshCache:
+    post:
+      description: Endpoint to refresh content cache. Only Refresh by documentId is supported at this time
+      tags:
+        - Configurations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CacheRefreshRequest'
+      responses:
+        '201':
+          description: OK
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /config/applications/{applicationId}/documents:
+    delete:
+      summary: ECMS to delete the documents from S3 and database.
+      parameters:
+        - in: path
+          name: applicationId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Delete Documents Successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDeleteStatusDto'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+  /videos/{assetId}/streaming-info:
+    post:
+      tags:
+      - Manage Document
+      summary: Set the video streaming status for a document
+      description: "This end point is called by the Video Processor appln, to update\
+        \ streaming status and related manifests for a video document."
+      parameters:
+      - name: assetId
+        in: path
+        description: Unique identifier of the document
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StreamingStatusUpdateRequest"
+            examples:
+              completed:
+                summary: "Completed status, it is provided from video processor to\
+                  \ ECMS."
+                value:
+                  streamProcessingStatus: COMPLETED
+                  manifestUri: https://digitalassets.creditone.com/assetId/index.m3u8
+                  chapters:
+                    manifest: https://digitalassets.creditone.com/assetId/chapters.vtt
+                  dateTimeStamp: 1726425600000
+        required: true
+      responses:
+        "204":
+          description: Accepted. Status update recorded.
+        "400":
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+      - Manage Document
+      summary: Get video streaming status for a document
+      description: Returns the latest streaming status and related manifests for the
+        document.
+      parameters:
+      - name: assetId
+        in: path
+        description: Unique identifier of the document
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamingStatusResponse"
+        "400":
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Attribute:
+      description: Attributes associated with a document
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 30
+        value:
+          type: string
+          minLength: 2
+          maxLength: 50
+      example:
+        name: customer_number
+        value: '1234555'
+    AttributeKey:
+      description: Attributes associated with a document
+      type: object
+      required:
+        - name
+        - attributeType
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 30
+        attributeType:
+          $ref: '#/components/schemas/AttributeType'
+        description:
+          type: string
+          maxLength: 250
+      example:
+        name: cc_application_Id
+        attributeType: Enterprise
+        description: Key used for Credit Card Application Id
+    AttributeType:
+      type: string
+      enum:
+        - Enterprise
+        - Application
+      default: Enterprise
+    AttributeWithId:
+      description: Attributes associated with a document
+      type: object
+      nullable: true
+      required:
+        - id
+        - name
+        - value
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        name:
+          type: string
+          minLength: 2
+          maxLength: 30
+        value:
+          type: string
+          minLength: 2
+          maxLength: 50
+      example:
+        id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+        name: customer_number
+        value: '1234555'
+    AuditInfo:
+      type: object
+      properties:
+        userId:
+          description: Identifier of the user who created/updated the object
+          $ref: '#/components/schemas/UUID'
+        idpProvider:
+          $ref: '#/components/schemas/IdpProvider'
+        dateTime:
+          description: Datetime when the object was created/updated
+          $ref: '#/components/schemas/DateTime'
+          example: '2023-05-17T22:38:59.101507Z'
+    AuditInfoAll:
+      type: object
+      nullable: true
+      properties:
+        createdBy:
+          description: Identifier of the user who created/updated the object
+          $ref: '#/components/schemas/UUID'
+        createdByUserIdpProvider:
+          $ref: '#/components/schemas/IdpProvider'
+        createdDateTime:
+          description: Datetime when the object was created/updated
+          $ref: '#/components/schemas/DateTime'
+          example: '2023-05-17T22:38:59.101507Z'
+        lastUpdatedBy:
+          description: Identifier of the user who created/updated the object
+          $ref: '#/components/schemas/UUID'
+        lastUpdatedByUserIdpProvider:
+          $ref: '#/components/schemas/IdpProvider'
+        lastUpdatedDateTime:
+          description: Datetime when the object was created/updated
+          $ref: '#/components/schemas/DateTime'
+          example: '2023-05-17T22:38:59.101507Z'
+    AuditInfoFolder:
+      type: object
+      properties:
+        createdBy:
+          description: Identifier of the user who created/updated the object
+          $ref: '#/components/schemas/UUID'
+        createdByUserIdpProvider:
+          $ref: '#/components/schemas/IdpProvider'
+        createdDateTime:
+          description: Datetime when the object was created/updated
+          $ref: '#/components/schemas/DateTime'
+          example: '2023-05-17T22:38:59.101507Z'
+        lastUpdatedBy:
+          description: Identifier of the user who created/updated the object
+          $ref: '#/components/schemas/UUID'
+        lastUpdatedByUserIdpProvider:
+          $ref: '#/components/schemas/IdpProvider'
+        lastUpdatedDateTime:
+          description: Datetime when the object was created/updated
+          $ref: '#/components/schemas/DateTime'
+          example: '2023-05-17T22:38:59.101507Z'
+        modifiedDateTime:
+          description: Datetime when the object was created/updated
+          type: string
+          format: date-time
+          example: '2023-05-17T22:38:59.101507Z'
+    CacheRefreshRequest:
+      description: Request Object to clear content cache (Akamai)
+      type: object
+      required:
+        - applicationId
+      properties:
+        applicationId:
+          description: Identifier of the applicationId whose content needs to be refreshed.
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        folderId:
+          description: Identifier of the folder whose content needs to be refreshed.
+          $ref: '#/components/schemas/UUID'
+        documentId:
+          description: Identifier of the document that needs to be refreshed.
+          $ref: '#/components/schemas/UUID'
+    Date:
+      description: Date in the format of YYYYMMDD
+      type: string
+      format: date
+      example: '1980-12-31'
+    DateTime:
+      description: UTC Date timestamp
+      type: string
+      format: date-time
+      example: '2017-07-21T17:32:28Z'
+    Document:
+      description: Document Object
+      required:
+        - id
+        - name
+        - fileName
+        - fileSize
+        - folderId
+        - link
+        - path
+      properties:
+        id:
+          description: Unique Identifier of the document
+          $ref: '#/components/schemas/UUID'
+        name:
+          description: Display name of the document
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        fileName:
+          description: Name of the document
+          type: string
+          pattern: ^(.*\w)\.(\w.*)$
+          example: Logo.png
+          maxLength: 150
+        fileSize:
+          $ref: '#/components/schemas/FileSize'
+        folderId:
+          description: Unique identifier of the folder under which the files are organized
+          $ref: '#/components/schemas/UUID'
+        attributes:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/AttributeWithId'
+          example:
+            - id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+              name: Customer Number
+              value: '1234555'
+            - id: be787cc8-beaf-46da-a88a-6ef38ab5239e
+              name: Driver License
+              value: TX99999
+            - id: be787cc8-beaf-46da-a88a-6ef38ab5239e
+              name: Driver License
+              value: TX99999
+        tags:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/TagWithId'
+          example:
+            - id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+              value: PlatinumX5
+            - id: bbb787c8-beaf-46da-a88a-6ef38ab5239e
+              value: Marketing2023
+        path:
+          description: Relative path in which the document exists.
+          $ref: '#/components/schemas/path'
+        link:
+          description: url from which the content can be retrieved. This can be a CDN for apps that are supported by CDN or an endpoint that generates s3 signed url
+          example:
+            - PDF/Image: https://www.creditonebank.com/content/dam/.../logo.pdf
+          $ref: '#/components/schemas/URL'
+        activeStartDate:
+          description: Start Date on which the document becomes active
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        activeEndDate:
+          description: End Date on which the document becomes inactive
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        isSearchable:
+          description: Describes whether the document can be searched or not
+          type: boolean
+          nullable: true
+          example: true
+        isArchived:
+          description: Describes whether the document is archived or not
+          type: boolean
+          nullable: true
+          example: false
+        scope:
+          description: Context within which the document is accessibleno
+          $ref: '#/components/schemas/DocumentScope'
+        auditInfo:
+          $ref: '#/components/schemas/AuditInfoAll'
+        chapters:
+          type: array
+          description: List of video chapters. start and end values in milliseconds.
+          items:
+            $ref: '#/components/schemas/chapters'
+          example:
+            - title: Chapter 1
+              start: 0
+              end: 10800000
+            - title: Chapter 2
+              start: 10860000
+              end: 14400000
+    DocumentSummary:
+      description: Document Object
+      required:
+        - id
+        - name
+        - fileName
+        - fileSize
+        - folderId
+        - link
+        - path
+      properties:
+        id:
+          description: Unique Identifier of the document
+          $ref: '#/components/schemas/UUID'
+        name:
+          description: Display name of the document
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        fileName:
+          description: Name of the document
+          type: string
+          pattern: ^(.*\w)\.(\w.*)$
+          example: Logo.png
+          maxLength: 150
+        fileSize:
+          $ref: '#/components/schemas/FileSize'
+        folderId:
+          description: Unique identifier of the folder under which the files are organized
+          $ref: '#/components/schemas/UUID'
+        path:
+          description: Relative path in which the document exists.
+          $ref: '#/components/schemas/path'
+        link:
+          description: url from which the content can be retrieved. This can be a CDN for apps that are supported by CDN or an endpoint that generates s3 signed url
+          example:
+            - PDF/Image: https://www.creditonebank.com/content/dam/.../logo.pdf
+          $ref: '#/components/schemas/URL'
+        activeStartDate:
+          description: Start Date on which the document becomes active
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        activeEndDate:
+          description: End Date on which the document becomes inactive
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        isSearchable:
+          description: Describes whether the document can be searched or not
+          type: boolean
+          nullable: true
+          example: true
+        isArchived:
+          description: Describes whether the document is archived or not
+          type: boolean
+          nullable: true
+          example: false
+        scope:
+          description: Context within which the document is accessibleno
+          $ref: '#/components/schemas/DocumentScope'
+        auditInfo:
+          $ref: '#/components/schemas/AuditInfoAll'
+        chapters:
+          type: array
+          description: List of video chapters. start and end values in milliseconds.
+          items:
+            $ref: '#/components/schemas/chapters'
+          example:
+            - title: Chapter 1
+              start: 0
+              end: 10800000
+            - title: Chapter 2
+              start: 10860000
+              end: 14400000    
+    DocumentCreationRequest:
+      description: Document object with metadata
+      type: object
+      required:
+        - name
+        - fileName
+        - content
+      properties:
+        name:
+          description: Display name of the document
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        fileName:
+          description: Name of the document
+          type: string
+          pattern: ^(.*\w)\.(\w.*)$
+          example: Logo.png
+          maxLength: 150
+        folderId:
+          description: Unique identifier of the folder under which the files are organized
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        activeStartDate:
+          description: Start Date on which the document becomes active
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        activeEndDate:
+          description: End Date on which the document becomes inactive
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        isSearchable:
+          description: Describes whether the document can be searched or not
+          type: boolean
+          nullable: true
+          example: true
+        scope:
+          description: Context within which the document is accessibleno
+          $ref: '#/components/schemas/DocumentScope'
+        auditInfo:
+          description: User Audit information
+          allOf:
+            - $ref: '#/components/schemas/AuditInfo'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+          example:
+            - name: customer_number
+              value: '1234555'
+            - name: driver_license
+              value: TX99999
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          example:
+            - PlatinumX5
+            - Marketing
+        content:
+          type: string
+          format: binary
+    DocumentDeleteStatusDto:
+      description: Response Object to delete a document from S3 bucket
+      properties:
+        message:
+          description: Delete Documents Successful
+          type: string
+          example: Delete Documents Successful
+    DocumentMetadata:
+      description: Object representing document metadata
+      required:
+        - name
+        - fileName
+      properties:
+        name:
+          description: Display name of the document
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        fileName:
+          description: Name of the document
+          type: string
+          pattern: ^(.*\w)\.(\w.*)$
+          example: Logo.png
+          maxLength: 150
+        activeStartDate:
+          description: Start Date on which the document becomes active
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        activeEndDate:
+          description: End Date on which the document becomes inactive
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        isSearchable:
+          description: Describes whether the document can be searched or not
+          type: boolean
+          nullable: true
+          example: true
+        scope:
+          description: Context within which the document is accessibleno
+          $ref: '#/components/schemas/DocumentScope'
+        auditInfo:
+          description: User Audit information
+          $ref: '#/components/schemas/AuditInfo'
+          nullable: true
+        folderId:
+          description: Unique identifier of the folder under which the files are organized
+          $ref: '#/components/schemas/UUID'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+          example:
+            - name: customer_number
+              value: '1234555'
+            - name: driver_license
+              value: TX99999
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          example:
+            - PlatinumX5
+            - Marketing
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/chapters'
+          example:
+            - title: Chapter 1
+              start: 0
+              end: 10800000
+            - title: Chapter 2
+              start: 10860000
+              end: 14400000 
+    DocumentMetadataUpdateRequest:
+      description: Document object to update
+      type: object
+      properties:
+        name:
+          description: Display name of the document
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        fileName:
+          description: Name of the document
+          type: string
+          pattern: ^(.*\w)\.(\w.*)$
+          example: Logo.png
+          maxLength: 150
+        folderId:
+          description: Unique identifier of the folder under which the files are organized
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        activeStartDate:
+          description: Start Date on which the document becomes active
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        activeEndDate:
+          description: Start Date on which the document becomes active
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        isSearchable:
+          description: Describes whether the document can be searched or not
+          type: boolean
+          nullable: true
+          example: true
+        scope:
+          description: Context within which the document is accessibleno
+          $ref: '#/components/schemas/DocumentScope'
+        auditInfo:
+          description: User Audit information
+          allOf:
+            - $ref: '#/components/schemas/AuditInfo'
+        content:
+          description: document content that needs to be replaced
+          type: string
+          format: binary
+    DocumentScope:
+      description: Context within which the document is accessible
+      type: string
+      enum:
+        - Public
+        - Agents
+        - Customers
+      nullable: true
+    DocumentVersionInfo:
+      description: document version Info
+      type: object
+      required:
+        - id
+        - version
+        - name
+        - fileName
+        - fileSize
+        - link
+      properties:
+        id:
+          description: Unique Identifier of the document
+          $ref: '#/components/schemas/UUID'
+        version:
+          description: version number of the document
+          type: number
+          example: 1
+        name:
+          description: Display name of the document
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        fileName:
+          description: Name of the document
+          type: string
+          pattern: ^(.*\w)\.(\w.*)$
+          example: Logo.png
+          maxLength: 150
+        fileSize:
+          $ref: '#/components/schemas/FileSize'
+        link:
+          description: s3 signed url for the versioned document
+          $ref: '#/components/schemas/URL'
+        auditInfo:
+          $ref: '#/components/schemas/AuditInfoAll'
+    Error:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: string
+          maxLength: 250
+          example: Error Processing your request
+        code:
+          type: string
+          example: Person.FirstName
+        transactionId:
+          description: client identifier with which the transaction is associated with
+          $ref: '#/components/schemas/UUID'
+          example: 9845dk-39fdk3fj3-4483483478
+        correlationId:
+          description: client Identifier with which the request is associated with for troubleshooting purpose
+          $ref: '#/components/schemas/UUID'
+          example: 6545dk-39fdk3fj3-4483483478
+    FileSize:
+      description: Size of the file
+      type: object
+      properties:
+        value:
+          type: integer
+        unit:
+          type: string
+          enum:
+            - KB
+            - MB
+            - GB
+      example:
+        value: 120
+        unit: KB
+    Folder:
+      description: Folder Object
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          description: Unique Identifier of the folder
+          $ref: '#/components/schemas/UUID'
+        name:
+          description: Name of the folder
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        parentFolderId:
+          description: Unique identifier of the parent folder
+          $ref: '#/components/schemas/UUID'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagWithId'
+          example:
+            - id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+              value: PlatinumX5
+            - id: bbb787cc8-beaf-46da-a88a-6ef38ab5239e
+              value: Marketing2023
+        path:
+          description: Relative path in which the document exists.
+          $ref: '#/components/schemas/path'
+        auditInfo:
+          $ref: '#/components/schemas/NullableAuditInfo'
+    FolderMetadata:
+      description: Object representing folder metadata
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          description: Name of the folder
+          type: string
+          pattern: ^(.*\w.*)$
+          example: Logo
+          maxLength: 150
+        parentFolderId:
+          description: Unique identifier of the parent folder
+          $ref: '#/components/schemas/UUID'
+        auditInfo:
+          description: Update Audit information containg user identifier and the datetime the folder is been updated
+          $ref: '#/components/schemas/AuditInfo'
+    StreamingStatusUpdateRequest:
+      oneOf:
+      - $ref: "#/components/schemas/StreamingStatusUpdateRequestCompleted"
+      - $ref: "#/components/schemas/StreamingStatusUpdateRequestNonCompleted"
+      discriminator:
+        propertyName: streamProcessingStatus
+        mapping:
+          COMPLETED: "#/components/schemas/StreamingStatusUpdateRequestCompleted"
+          ACCEPTED: "#/components/schemas/StreamingStatusUpdateRequestNonCompleted"
+          PROCESSING: "#/components/schemas/StreamingStatusUpdateRequestNonCompleted"
+          ERROR: "#/components/schemas/StreamingStatusUpdateRequestNonCompleted"
+    StreamingStatusUpdateRequestCompleted:
+      type: object
+      properties:
+        streamProcessingStatus:
+           type: string
+           enum:
+            - COMPLETED
+        manifestUri:
+           type: string
+           format: uri
+           description: HLS master playlist (.m3u8)
+        chapters:
+           $ref: "#/components/schemas/StreamingChaptersManifests"
+        dateTimeStamp:
+           type: integer
+           format: int64
+        reason:
+           type: string
+           description: Optional error message.
+      required: [streamProcessingStatus, dateTimeStamp, manifestUri, chapters]
+    StreamingStatusUpdateRequestNonCompleted:
+      required:
+      - dateTimeStamp
+      - streamProcessingStatus
+      type: object
+      properties:
+        streamProcessingStatus:
+          type: string
+          enum:
+          - ACCEPTED
+          - PROCESSING
+          - ERROR
+        manifestUri:
+          type: string
+          description: Optional HLS master playlist (.m3u8)
+          format: uri
+        chapters:
+          $ref: "#/components/schemas/StreamingChaptersManifests"
+        dateTimeStamp:
+          type: integer
+          format: int64
+        reason:
+          type: string
+          description: Error message when status is ERROR.   
+    StreamingProcessingStatus:
+      type: string
+      description: Processing status of video streaming
+      enum:
+      - ACCEPTED
+      - PROCESSING
+      - COMPLETED
+      - ERROR
+    StreamingChaptersManifests:
+      type: object
+      properties:
+        manifest:
+          type: string
+          description: WebVTT chapters file (.vtt)
+          format: uri
+      description: Optional - chapter manifests for the player
+    StreamingStatusResponse:
+      type: object
+      properties:
+        streamProcessingStatus:
+          $ref: "#/components/schemas/StreamingProcessingStatus"
+        manifestUri:
+          type: string
+          format: uri
+        chapters:
+          $ref: "#/components/schemas/StreamingChaptersManifests"
+        dateTimeStamp:
+          type: integer
+          format: int
+        assetId:
+          $ref: "#/components/schemas/UUID"
+        reason:
+          maxLength: 500
+          type: string
+          description: Error message associated with the latest status.
+          example: Video Processing Completed successfully
+      description: Latest recorded streaming status for the video  
+    IdpProvider:
+      description: Identity provider with which user is authenticated
+      type: string
+      enum:
+        - Okta
+        - Keyclock
+        - gMSA
+      example: Okta
+    NullableAuditInfo:
+      allOf:
+        - $ref: '#/components/schemas/AuditInfoFolder'
+      nullable: true
+    Tag:
+      type: string
+      example: PlatinumX5
+    TagWithId:
+      description: Tags associated with the folder
+      type: object
+      nullable: true
+      required:
+        - id
+        - value
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        value:
+          $ref: '#/components/schemas/Tag'
+      example:
+        id: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+        value: PlatinumX5
+    URL:
+      type: string
+      format: uri
+      description: CDN URL or signed URL (image/pdf) or an HLS stream (.m3u8).
+      example: http://video-bucket.s3.localhost.localstack.cloud:4566/samplevideo/index.m3u8
+    UUID:
+      type: string
+      format: uuid
+      example: ae787cc8-beaf-46da-a88a-6ef38ab5239e
+    chapters:
+      description: Chapters associated with a video document
+      type: object
+      required:
+        - title
+        - start
+        - end
+      properties:
+        title:
+          type: string
+          minLength: 2
+          maxLength: 30
+        start:
+          type: integer
+          example: 0
+        end:
+          type: integer
+          example: 1800000
+      example:
+        title: Intro
+        start: 0
+        end: 1800000
+    path:
+      type: string
+      example: /images/platinum-x5-Padded.png
+      maxLength: 2000
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: apiKey
+      description: All requests must include the `apiKey` header
+security:
+  - apiKey: []
