@@ -2,6 +2,7 @@ package com.documenthub.service;
 
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
+import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
@@ -51,12 +52,12 @@ public class DocumentUploadService {
 
         // First validate the template exists
         return validateTemplate(request.getTemplateType(), request.getTemplateVersion())
-            .flatMap(templateId ->
+            .flatMap(template ->
                 // Upload to ECMS
                 ecmsClient.uploadDocument(filePart, request)
                     .flatMap(ecmsResponse ->
                         // Create storage index entry
-                        createStorageIndexEntry(request, ecmsResponse, templateId, userId)
+                        createStorageIndexEntry(request, ecmsResponse, template, userId)
                             .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
                     )
             )
@@ -80,10 +81,10 @@ public class DocumentUploadService {
             request.getTemplateType(), request.getFileName(), fileContent.length, userId);
 
         return validateTemplate(request.getTemplateType(), request.getTemplateVersion())
-            .flatMap(templateId ->
+            .flatMap(template ->
                 ecmsClient.uploadDocument(fileContent, request)
                     .flatMap(ecmsResponse ->
-                        createStorageIndexEntry(request, ecmsResponse, templateId, userId)
+                        createStorageIndexEntry(request, ecmsResponse, template, userId)
                             .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
                     )
             )
@@ -95,11 +96,10 @@ public class DocumentUploadService {
     /**
      * Validate that the template exists and is active
      */
-    private Mono<UUID> validateTemplate(String templateType, Integer templateVersion) {
+    private Mono<MasterTemplateDefinitionEntity> validateTemplate(String templateType, Integer templateVersion) {
         return masterTemplateRepository.findByTemplateTypeAndVersion(templateType, templateVersion)
             .switchIfEmpty(Mono.error(new IllegalArgumentException(
-                "Template not found: type=" + templateType + ", version=" + templateVersion)))
-            .map(template -> template.getMasterTemplateId());
+                "Template not found: type=" + templateType + ", version=" + templateVersion)));
     }
 
     /**
@@ -107,15 +107,20 @@ public class DocumentUploadService {
      */
     private Mono<StorageIndexEntity> createStorageIndexEntry(DocumentUploadRequest request,
                                                               EcmsDocumentResponse ecmsResponse,
-                                                              UUID masterTemplateId,
+                                                              MasterTemplateDefinitionEntity template,
                                                               String userId) {
         UUID storageIndexId = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
         long currentTimeMs = System.currentTimeMillis();
 
+        // Determine sharedFlag: inherit from template's sharedDocumentFlag
+        // Request can override to true, but cannot override template's true to false
+        boolean sharedFlag = Boolean.TRUE.equals(template.getSharedDocumentFlag())
+            || Boolean.TRUE.equals(request.getSharedFlag());
+
         StorageIndexEntity entity = StorageIndexEntity.builder()
             .storageIndexId(storageIndexId)
-            .masterTemplateId(masterTemplateId)
+            .masterTemplateId(template.getMasterTemplateId())
             .templateVersion(request.getTemplateVersion())
             .templateType(request.getTemplateType())
             .storageVendor(STORAGE_VENDOR_ECMS)
@@ -127,7 +132,7 @@ public class DocumentUploadService {
             .customerKey(request.getCustomerId())
             .docCreationDate(currentTimeMs)
             .accessibleFlag(true)
-            .sharedFlag(request.getSharedFlag() != null ? request.getSharedFlag() : false)
+            .sharedFlag(sharedFlag)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .createdBy(userId)
@@ -147,8 +152,8 @@ public class DocumentUploadService {
             }
         }
 
-        log.debug("Creating storage index entry: id={}, ecmsDocId={}, templateType={}",
-            storageIndexId, ecmsResponse.getId(), request.getTemplateType());
+        log.debug("Creating storage index entry: id={}, ecmsDocId={}, templateType={}, sharedFlag={}",
+            storageIndexId, ecmsResponse.getId(), request.getTemplateType(), sharedFlag);
 
         return storageIndexRepository.save(entity);
     }
