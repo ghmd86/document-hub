@@ -48,6 +48,9 @@ public class DocumentUploadServiceTest {
     private TemplateCacheService templateCacheService;
 
     @Mock
+    private DocumentAccessControlService accessControlService;
+
+    @Mock
     private FilePart filePart;
 
     private ObjectMapper objectMapper;
@@ -59,6 +62,8 @@ public class DocumentUploadServiceTest {
     private static final UUID ACCOUNT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
     private static final UUID CUSTOMER_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
     private static final String USER_ID = "test-user";
+    private static final String REQUESTOR_TYPE_SYSTEM = "SYSTEM";
+    private static final String REQUESTOR_TYPE_CUSTOMER = "CUSTOMER";
     private static final String TEMPLATE_TYPE = "WELCOME_LETTER";
     private static final Integer TEMPLATE_VERSION = 1;
     private static final String FILE_NAME = "test-document.pdf";
@@ -70,8 +75,11 @@ public class DocumentUploadServiceTest {
             ecmsClient,
             storageIndexRepository,
             templateCacheService,
+            accessControlService,
             objectMapper
         );
+        // Default: allow upload for SYSTEM
+        when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE_SYSTEM))).thenReturn(true);
     }
 
     private MasterTemplateDefinitionEntity createTemplate(boolean sharedDocumentFlag) {
@@ -120,7 +128,7 @@ public class DocumentUploadServiceTest {
                 .thenReturn(Mono.empty());
 
             // When/Then
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectErrorMatches(e -> e instanceof IllegalArgumentException &&
                     e.getMessage().contains("Template not found"))
                 .verify();
@@ -145,10 +153,62 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextMatches(response ->
                     response.getStatus().equals("SUCCESS") &&
                     response.getEcmsDocumentId().equals(ECMS_DOC_ID))
+                .verifyComplete();
+        }
+    }
+
+    // ========================================================================
+    // Upload Permission Tests
+    // ========================================================================
+    @Nested
+    @DisplayName("Upload Permission")
+    class UploadPermissionTests {
+
+        @Test
+        @DisplayName("Should deny upload when requestor lacks permission")
+        void shouldDenyUploadWhenNoPermission() {
+            // Given
+            MasterTemplateDefinitionEntity template = createTemplate(false);
+            DocumentUploadRequest request = createUploadRequest(null);
+
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+                .thenReturn(Mono.just(template));
+            when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE_CUSTOMER)))
+                .thenReturn(false);
+
+            // When/Then
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_CUSTOMER))
+                .expectErrorMatches(e -> e instanceof SecurityException &&
+                    e.getMessage().contains("Upload not permitted"))
+                .verify();
+
+            // Verify ECMS was never called
+            verify(ecmsClient, never()).uploadDocument(any(byte[].class), any());
+        }
+
+        @Test
+        @DisplayName("Should allow upload when requestor has permission")
+        void shouldAllowUploadWhenHasPermission() {
+            // Given
+            MasterTemplateDefinitionEntity template = createTemplate(false);
+            DocumentUploadRequest request = createUploadRequest(null);
+            EcmsDocumentResponse ecmsResponse = createEcmsResponse();
+
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+                .thenReturn(Mono.just(template));
+            when(accessControlService.canUpload(any(), eq("AGENT"))).thenReturn(true);
+            when(ecmsClient.uploadDocument(any(byte[].class), any()))
+                .thenReturn(Mono.just(ecmsResponse));
+            when(storageIndexRepository.save(any()))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+
+            // When/Then
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, "AGENT"))
+                .expectNextMatches(response -> response.getStatus().equals("SUCCESS"))
                 .verifyComplete();
         }
     }
@@ -176,7 +236,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -203,7 +263,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -230,7 +290,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -257,7 +317,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -290,7 +350,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -337,7 +397,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -389,7 +449,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -420,7 +480,7 @@ public class DocumentUploadServiceTest {
                 .thenReturn(Mono.error(new EcmsClientException(500, "ECMS server error")));
 
             // When/Then
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectError(EcmsClientException.class)
                 .verify();
 
@@ -445,7 +505,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
-            StepVerifier.create(uploadService.uploadDocument(fileContent, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(fileContent, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .expectNextCount(1)
                 .verifyComplete();
 
@@ -487,7 +547,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .assertNext(response -> {
                     assertEquals("SUCCESS", response.getStatus());
                     assertEquals("Document uploaded successfully", response.getMessage());
@@ -524,7 +584,7 @@ public class DocumentUploadServiceTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then
-            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID))
+            StepVerifier.create(uploadService.uploadDocument(new byte[]{1, 2, 3}, request, USER_ID, REQUESTOR_TYPE_SYSTEM))
                 .assertNext(response -> {
                     assertEquals("SUCCESS", response.getStatus());
                     assertNull(response.getFileSize());

@@ -90,6 +90,49 @@ public class MasterTemplateDefinitionEntity {
     @Column("data_extraction_config")
     private Json dataExtractionConfig;
 
+    /**
+     * Configuration for document matching/querying logic.
+     * Defines how to match documents based on extracted data.
+     *
+     * Example:
+     * {
+     *   "matchBy": "reference_key",
+     *   "referenceKeyField": "disclosureCode",
+     *   "referenceKeyType": "DISCLOSURE_CODE"
+     * }
+     *
+     * Or for conditional matching:
+     * {
+     *   "matchBy": "conditional",
+     *   "referenceKeyType": "CREDIT_TIER",
+     *   "conditions": [
+     *     {"field": "creditScore", "operator": ">=", "value": 700, "referenceKey": "TIER_1"}
+     *   ]
+     * }
+     */
+    @Column("document_matching_config")
+    private Json documentMatchingConfig;
+
+    /**
+     * Eligibility criteria for document access.
+     * Defines rules that determine if a user/account can access documents of this template.
+     *
+     * Example:
+     * {
+     *   "operator": "AND",
+     *   "rules": [
+     *     {"field": "customerSegment", "operator": "EQUALS", "value": "VIP"},
+     *     {"field": "region", "operator": "IN", "value": ["US_WEST", "US_EAST"]}
+     *   ]
+     * }
+     *
+     * Supported operators: AND, OR
+     * Supported rule operators: EQUALS, NOT_EQUALS, IN, NOT_IN, GREATER_THAN, LESS_THAN,
+     *                          GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, CONTAINS, STARTS_WITH, ENDS_WITH
+     */
+    @Column("eligibility_criteria")
+    private Json eligibilityCriteria;
+
     @Column("access_control")
     private Json accessControl;
 

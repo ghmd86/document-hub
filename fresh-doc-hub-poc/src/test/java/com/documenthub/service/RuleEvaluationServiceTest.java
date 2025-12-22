@@ -4,13 +4,12 @@ import com.documenthub.model.AccountMetadata;
 import com.documenthub.model.EligibilityCriteria;
 import com.documenthub.model.Rule;
 import com.documenthub.model.TemplateConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,10 +26,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RuleEvaluationServiceTest {
 
     private RuleEvaluationService ruleEvaluationService;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        ruleEvaluationService = new RuleEvaluationService();
+        objectMapper = new ObjectMapper();
+        ruleEvaluationService = new RuleEvaluationService(objectMapper);
     }
 
     // ========================================================================

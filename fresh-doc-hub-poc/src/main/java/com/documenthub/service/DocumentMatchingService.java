@@ -63,7 +63,7 @@ public class DocumentMatchingService {
             MasterTemplateDefinitionEntity template,
             Map<String, Object> extractedData) {
 
-        return template.getDataExtractionConfig() != null && extractedData != null;
+        return template.getDocumentMatchingConfig() != null && extractedData != null;
     }
 
     private Mono<List<StorageIndexEntity>> queryByDocumentMatching(
@@ -73,15 +73,14 @@ public class DocumentMatchingService {
             Long postedToDate) {
 
         try {
-            JsonNode configNode = objectMapper.readTree(
-                    template.getDataExtractionConfig().asString());
+            JsonNode matchingNode = objectMapper.readTree(
+                    template.getDocumentMatchingConfig().asString());
 
-            if (!configNode.has("documentMatching")) {
-                log.info("  No documentMatching config found");
+            if (!matchingNode.has("matchBy")) {
+                log.info("  No matchBy field in document_matching_config");
                 return queryBySharedFlag(template, null, postedFromDate, postedToDate);
             }
 
-            JsonNode matchingNode = configNode.get("documentMatching");
             String matchBy = matchingNode.get("matchBy").asText();
 
             return executeMatching(
@@ -89,7 +88,7 @@ public class DocumentMatchingService {
                     postedFromDate, postedToDate);
 
         } catch (Exception e) {
-            log.error("Failed to parse documentMatching: {}", e.getMessage());
+            log.error("Failed to parse document_matching_config: {}", e.getMessage());
             return Mono.just(Collections.emptyList());
         }
     }

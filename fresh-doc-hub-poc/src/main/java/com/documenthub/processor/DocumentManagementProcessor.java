@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -46,7 +46,7 @@ public class DocumentManagementProcessor {
      * Upload a document according to the API spec
      */
     public Mono<InlineResponse200> uploadDocument(
-            FilePart content,
+            MultipartFile content,
             String documentType,
             String createdBy,
             String metadataJson,
@@ -60,19 +60,37 @@ public class DocumentManagementProcessor {
             Long activeStartDate,
             Long activeEndDate,
             UUID threadId,
-            UUID correlationId) {
+            UUID correlationId,
+            String requestorType) {
 
-        log.info("Processing document upload: documentType={}, fileName={}, createdBy={}",
-            documentType, fileName, createdBy);
+        log.info("Processing document upload: documentType={}, fileName={}, createdBy={}, requestorType={}",
+            documentType, fileName, createdBy, requestorType);
 
         // Find the template by document type
         return findTemplateByDocumentType(documentType)
             .flatMap(template -> {
+                // Check upload permission
+                if (!accessControlService.canUpload(template, requestorType)) {
+                    log.warn("Upload permission denied: documentType={}, requestorType={}",
+                        documentType, requestorType);
+                    return Mono.error(new SecurityException(
+                        "Upload not permitted for requestor type: " + requestorType));
+                }
+
                 // Parse metadata
                 List<MetadataNode> metadata = parseMetadata(metadataJson);
 
+                // Get file bytes from MultipartFile
+                byte[] fileBytes;
+                try {
+                    fileBytes = content.getBytes();
+                } catch (java.io.IOException e) {
+                    log.error("Failed to read file content: {}", e.getMessage());
+                    return Mono.error(new IllegalArgumentException("Failed to read file content: " + e.getMessage()));
+                }
+
                 // Upload to ECMS
-                return ecmsClient.uploadDocument(content, buildUploadRequest(
+                return ecmsClient.uploadDocument(fileBytes, buildUploadRequest(
                         documentType, fileName, accountKey, customerKey,
                         referenceKey, referenceKeyType, metadata))
                     .flatMap(ecmsResponse -> {

@@ -1,0 +1,812 @@
+# =============================================================================
+# MASTER TEMPLATE DEFINITIONS
+# =============================================================================
+# Auto-generated from data.sql - Review and clean up as needed
+# =============================================================================
+
+defaults:
+  template_version: 1
+  active_flag: true
+  language_code: EN_US
+  created_by: system
+  communication_type: LETTER
+templates:
+- id: 11111111-1111-1111-1111-111111111111
+  template_type: PrivacyPolicy
+  template_version: 1
+  template_name: Privacy Policy 2024
+  template_description: 2024 Privacy Policy - Shared with all customers
+  template_category: Privacy
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: 22222222-2222-2222-2222-222222222222
+  template_type: monthly_statement
+  template_version: 1
+  template_name: Credit Card Statement
+  template_description: Monthly credit card statement
+  template_category: Statement
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: false
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: 33333333-3333-3333-3333-333333333333
+  template_type: BalanceTransferLetter
+  template_version: 1
+  template_name: Balance Transfer Offer
+  template_description: Special balance transfer offer for credit card customers
+  template_category: Promotional
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: 44444444-4444-4444-4444-444444444444
+  template_type: CustomerLetter
+  template_version: 1
+  template_name: VIP Exclusive Offer
+  template_description: Exclusive offer for VIP customers in US West region
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: customerSegment
+      operator: EQUALS
+      value: VIP
+    - field: region
+      operator: EQUALS
+      value: US_WEST
+- id: 55555555-5555-5555-5555-555555555555
+  template_type: ElectronicDisclosure
+  template_version: 1
+  template_name: Regulatory Disclosure D164
+  template_description: Regulatory disclosure document
+  template_category: Disclosure
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: $metadata.disclosure_code
+      operator: EQUALS
+      value: D164
+- id: 66666666-6666-6666-6666-666666666666
+  template_type: CardholderAgreement
+  template_version: 1
+  template_name: Credit Card Terms and Conditions
+  template_description: Terms and conditions document matched by disclosure code
+  template_category: Regulatory
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1609459200000
+  eligibility_criteria:
+    operator: AND
+    rules: []
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: disclosureCode
+    referenceKeyType: DISCLOSURE_CODE
+  data_extraction_config:
+    fieldsToExtract:
+    - pricingId
+    - disclosureCode
+    fieldSources:
+      pricingId:
+        description: Pricing ID from account arrangements (active PRICING domain)
+        sourceApi: accountArrangementsApi
+        extractionPath: $.content[?(@.domain == "PRICING" && @.status == "ACTIVE")].domainId
+        requiredInputs:
+        - accountId
+        fieldType: string
+        defaultValue: null
+      disclosureCode:
+        description: Disclosure code from pricing service (cardholder agreements TnC code)
+        sourceApi: pricingApi
+        extractionPath: $.cardholderAgreementsTncCode
+        requiredInputs:
+        - pricingId
+        fieldType: string
+        defaultValue: null
+    dataSources:
+      accountArrangementsApi:
+        description: 'Step 1: Get account arrangements to extract pricingId'
+        endpoint:
+          url: http://localhost:8080/api/v1/mock-api/creditcard/accounts/${accountId}/arrangements
+          method: GET
+          timeout: 5000
+          headers:
+            Authorization: Bearer ${auth.token}
+            X-Request-ID: ${correlationId}
+        cache:
+          enabled: true
+          ttlSeconds: 1800
+          keyPattern: arrangements:${accountId}
+        retry:
+          maxAttempts: 3
+          delayMs: 100
+        providesFields:
+        - pricingId
+      pricingApi:
+        description: 'Step 2: Get pricing data to extract disclosure code'
+        endpoint:
+          url: http://localhost:8080/api/v1/mock-api/pricing-service/prices/${pricingId}
+          method: GET
+          timeout: 5000
+          headers:
+            Authorization: Bearer ${auth.token}
+            X-Request-ID: ${correlationId}
+        cache:
+          enabled: true
+          ttlSeconds: 3600
+          keyPattern: pricing:${pricingId}
+        retry:
+          maxAttempts: 2
+          delayMs: 100
+        providesFields:
+        - disclosureCode
+    executionStrategy:
+      mode: auto
+      continueOnError: false
+      timeout: 15000
+- id: 77777777-7777-7777-7777-777777777777
+  template_type: PromoOffer
+  template_version: 1
+  template_name: Bay Area Exclusive Credit Card Offer
+  template_description: Special promotional offer for customers in San Francisco Bay Area zipcodes
+  template_category: Promotional
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  template_config:
+    reprint_policy:
+      cooldown_period_days: 30
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: zipcode
+      operator: IN
+      value:
+      - '94102'
+      - '94103'
+      - '94104'
+      - '94105'
+      - '94107'
+      - '94108'
+      - '94109'
+      - '94110'
+      - '94111'
+      - '94112'
+      - '94114'
+      - '94115'
+      - '94116'
+      - '94117'
+      - '94118'
+      - '94121'
+      - '94122'
+      - '94123'
+      - '94124'
+      - '94127'
+      - '94129'
+      - '94130'
+      - '94131'
+      - '94132'
+      - '94133'
+      - '94134'
+    - field: accountType
+      operator: EQUALS
+      value: credit_card
+  data_extraction_config:
+    fieldsToExtract:
+    - zipcode
+    fieldSources:
+      zipcode:
+        description: Customer zipcode from address
+        sourceApi: customerApi
+        extractionPath: $.customer.address.zipCode
+        requiredInputs:
+        - customerId
+        fieldType: string
+        defaultValue: null
+    dataSources:
+      customerApi:
+        description: Fetch customer address to get zipcode
+        endpoint:
+          url: http://localhost:8080/api/v1/mock-api/customers/${customerId}
+          method: GET
+          timeout: 5000
+          headers:
+            X-Request-ID: ${correlationId}
+        cache:
+          enabled: true
+          ttlSeconds: 3600
+          keyPattern: customer:${customerId}
+        providesFields:
+        - zipcode
+    executionStrategy:
+      mode: sequential
+      continueOnError: false
+      timeout: 10000
+- id: 88888888-8888-8888-8888-888888888888
+  template_type: SeasonalOffer
+  template_version: 1
+  template_name: Seasonal Promotional Offers
+  template_description: Holiday and seasonal promotional documents
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: 99999999-9999-9999-9999-999999999999
+  template_type: RateChangeNotice
+  template_version: 1
+  template_name: Interest Rate Change Notice
+  template_description: Notices about APR and interest rate changes
+  template_category: Regulatory
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+  template_type: TaxDocument
+  template_version: 1
+  template_name: Annual Tax Documents
+  template_description: Year-end tax statements and 1099 forms
+  template_category: Tax
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+  template_type: SavingsOffer
+  template_version: 1
+  template_name: Savings Account Offers
+  template_description: Promotional offers for savings account holders
+  template_category: Promotional
+  line_of_business: digital_banking
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ACCOUNT_TYPE
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: accountType
+      operator: EQUALS
+      value: savings
+- id: cccccccc-cccc-cccc-cccc-cccccccccccc
+  template_type: FeeSchedule
+  template_version: 1
+  template_name: Fee Schedule
+  template_description: Account fee schedule with version history
+  template_category: Regulatory
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: dddddddd-dddd-dddd-dddd-dddddddddddd
+  template_type: WelcomeKit
+  template_version: 1
+  template_name: New Account Welcome Kit
+  template_description: Welcome documents for new account holders
+  template_category: Onboarding
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
+  template_type: RegionalOffer
+  template_version: 1
+  template_name: East Coast Regional Offers
+  template_description: Special offers for US East region customers
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: region
+      operator: EQUALS
+      value: US_EAST
+- id: f0000000-0000-0000-0000-000000000001
+  template_type: InactivePromo
+  template_version: 1
+  template_name: Inactive Promotional Offer
+  template_description: This template is inactive and should never appear
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: false
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f0000000-0000-0000-0000-000000000002
+  template_type: ExpiredTemplate
+  template_version: 1
+  template_name: Expired Template - Summer 2024 Campaign
+  template_description: Template expired on Sep 30, 2024
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1717200000000
+- id: f0000000-0000-0000-0000-000000000003
+  template_type: FutureTemplate
+  template_version: 1
+  template_name: Future Template - 2026 Campaign
+  template_description: Template starts on Jan 1, 2026
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1767225600000
+- id: f0000000-0000-0000-0000-000000000004
+  template_type: CoastalOffer
+  template_version: 1
+  template_name: Multi-Region Coastal Offer
+  template_description: Offer for customers in US_EAST OR US_WEST regions
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: OR
+    rules:
+    - field: region
+      operator: EQUALS
+      value: US_EAST
+    - field: region
+      operator: EQUALS
+      value: US_WEST
+- id: f0000000-0000-0000-0000-000000000005
+  template_type: PremiumCoastalOffer
+  template_version: 1
+  template_name: Premium Coastal Credit Card Offer
+  template_description: VIP/Premium customers in coastal regions only
+  template_category: Promotional
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: accountType
+      operator: EQUALS
+      value: credit_card
+    - operator: OR
+      rules:
+      - field: customerSegment
+        operator: EQUALS
+        value: VIP
+      - field: customerSegment
+        operator: EQUALS
+        value: PREMIUM
+    - operator: OR
+      rules:
+      - field: region
+        operator: EQUALS
+        value: US_EAST
+      - field: region
+        operator: EQUALS
+        value: US_WEST
+- id: f0000000-0000-0000-0000-000000000006
+  template_type: CentralOffer
+  template_version: 1
+  template_name: Central Region Exclusive
+  template_description: Offer for US_CENTRAL region only
+  template_category: Promotional
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: region
+      operator: EQUALS
+      value: US_CENTRAL
+- id: f0000000-0000-0000-0000-000000000007
+  template_type: PaymentLetter
+  template_version: 1
+  template_name: Payment Confirmation Letters
+  template_description: Payment confirmation notices
+  template_category: PaymentConfirmationNotice
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f0000000-0000-0000-0000-000000000008
+  template_type: DelinquencyNotice
+  template_version: 1
+  template_name: Delinquency Notices
+  template_description: Account delinquency notifications
+  template_category: DelinquencyNotice
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f0000000-0000-0000-0000-000000000009
+  template_type: FraudLetter
+  template_version: 1
+  template_name: Fraud Alert Letters
+  template_description: Fraud investigation and resolution letters
+  template_category: FraudLetter
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f0000000-0000-0000-0000-000000000010
+  template_type: AdverseActionNotice
+  template_version: 1
+  template_name: Adverse Action Notices
+  template_description: Credit decision adverse action notifications
+  template_category: AdverseAction
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f0000000-0000-0000-0000-000000000011
+  template_type: EliteCreditOffer
+  template_version: 1
+  template_name: Elite Credit Score Offers
+  template_description: Premium offers for customers with credit score 750+
+  template_category: Promotional
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: CUSTOM_RULES
+  single_document_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  eligibility_criteria:
+    operator: AND
+    rules:
+    - field: creditScore
+      operator: GREATER_THAN_OR_EQUAL
+      value: 750
+  data_extraction_config:
+    fieldsToExtract:
+    - creditScore
+    fieldSources:
+      creditScore:
+        sourceApi: creditBureauApi
+        extractionPath: $.creditScore
+        requiredInputs:
+        - customerId
+    dataSources:
+      creditBureauApi:
+        endpoint:
+          url: http://localhost:8080/api/v1/mock-api/credit-bureau/${customerId}
+          method: GET
+          timeout: 5000
+        providesFields:
+        - creditScore
+- id: f1000000-0000-0000-0000-000000000001
+  template_type: SavingsStatement
+  template_version: 1
+  template_name: Digital Bank Savings Statement
+  template_description: Monthly savings account statement for digital banking customers
+  template_category: Statement
+  line_of_business: DIGITAL_BANK
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: false
+  message_center_doc_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f1000000-0000-0000-0000-000000000002
+  template_type: WelcomeKit
+  template_version: 1
+  template_name: Digital Bank Welcome Kit
+  template_description: Welcome package for new digital banking customers
+  template_category: Onboarding
+  line_of_business: DIGITAL_BANK
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: EMAIL
+  start_date: 1704067200000
+- id: f1000000-0000-0000-0000-000000000003
+  template_type: SecurityAlert
+  template_version: 1
+  template_name: Digital Bank Security Alert
+  template_description: Security alert notification for digital banking
+  template_category: Alert
+  line_of_business: DIGITAL_BANK
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: PUSH
+  start_date: 1704067200000
+- id: f2000000-0000-0000-0000-000000000001
+  template_type: InternalAuditReport
+  template_version: 1
+  template_name: Internal Audit Report
+  template_description: Internal document - not visible in customer message center
+  template_category: Internal
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: false
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f2000000-0000-0000-0000-000000000002
+  template_type: CollectionNotice
+  template_version: 1
+  template_name: Collection Notice - Internal
+  template_description: Collection action documentation - agent view only
+  template_category: Collections
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: false
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f2000000-0000-0000-0000-000000000003
+  template_type: RiskAssessment
+  template_version: 1
+  template_name: Risk Assessment Report
+  template_description: Credit risk assessment - internal use only
+  template_category: Risk
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: false
+  communication_type: LETTER
+  start_date: 1704067200000
+- id: f3000000-0000-0000-0000-000000000001
+  template_type: EStatement
+  template_version: 1
+  template_name: Credit Card E-Statement
+  template_description: Electronic statement delivered via email
+  template_category: Statement
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: false
+  message_center_doc_flag: true
+  communication_type: EMAIL
+  start_date: 1704067200000
+- id: f3000000-0000-0000-0000-000000000002
+  template_type: PaymentReminderSMS
+  template_version: 1
+  template_name: Payment Reminder SMS
+  template_description: Payment due reminder sent via SMS
+  template_category: Reminder
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: SMS
+  start_date: 1704067200000
+- id: f3000000-0000-0000-0000-000000000003
+  template_type: TransactionAlertPush
+  template_version: 1
+  template_name: Transaction Alert Push
+  template_description: Real-time transaction alert via push notification
+  template_category: Alert
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: PUSH
+  start_date: 1704067200000
+- id: f3000000-0000-0000-0000-000000000004
+  template_type: MarketingEmail
+  template_version: 1
+  template_name: Holiday Rewards Campaign Email
+  template_description: Holiday season rewards promotion email
+  template_category: Marketing
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: true
+  sharing_scope: ALL
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: EMAIL
+  start_date: 1704067200000
+- id: f4000000-0000-0000-0000-000000000001
+  template_type: CustomerAgreement
+  template_version: 1
+  template_name: Customer Agreement - View Only
+  template_description: Agreement document - customers can only view and download
+  template_category: Agreement
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  access_control:
+    roles:
+      CUSTOMER:
+        actions:
+        - VIEW
+        - DOWNLOAD
+      AGENT:
+        actions:
+        - VIEW
+        - DOWNLOAD
+        - UPDATE
+      SYSTEM:
+        actions:
+        - VIEW
+        - DOWNLOAD
+        - UPDATE
+        - DELETE
+- id: f4000000-0000-0000-0000-000000000002
+  template_type: CaseNotes
+  template_version: 1
+  template_name: Case Notes - Agent Managed
+  template_description: Case notes that agents can manage (including delete)
+  template_category: CaseManagement
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: false
+  communication_type: LETTER
+  start_date: 1704067200000
+  access_control:
+    roles:
+      CUSTOMER:
+        actions: []
+      AGENT:
+        actions:
+        - VIEW
+        - DOWNLOAD
+        - UPDATE
+        - DELETE
+      SYSTEM:
+        actions:
+        - VIEW
+        - DOWNLOAD
+        - UPDATE
+        - DELETE
+- id: f4000000-0000-0000-0000-000000000003
+  template_type: SystemLog
+  template_version: 1
+  template_name: System Integration Log
+  template_description: System integration document - no customer or agent access
+  template_category: System
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: false
+  communication_type: LETTER
+  start_date: 1704067200000
+  access_control:
+    roles:
+      CUSTOMER:
+        actions: []
+      AGENT:
+        actions:
+        - VIEW
+      SYSTEM:
+        actions:
+        - VIEW
+        - DOWNLOAD
+        - UPDATE
+        - DELETE

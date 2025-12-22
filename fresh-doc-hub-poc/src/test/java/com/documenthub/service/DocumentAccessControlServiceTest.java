@@ -62,11 +62,12 @@ public class DocumentAccessControlServiceTest {
             assertTrue(actions.contains("Update"));
             assertTrue(actions.contains("Delete"));
             assertTrue(actions.contains("Download"));
+            assertTrue(actions.contains("Upload"));
         }
 
         @Test
-        @DisplayName("Should return View/Download for AGENT requestor")
-        void shouldReturnViewDownload_forAgentRequestor() {
+        @DisplayName("Should return View/Download/Upload for AGENT requestor")
+        void shouldReturnViewDownloadUpload_forAgentRequestor() {
             // Given
             MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
             template.setAccessControl(null);
@@ -75,7 +76,7 @@ public class DocumentAccessControlServiceTest {
             List<String> actions = accessControlService.getPermittedActions(template, "AGENT");
 
             // Then
-            assertEquals(Arrays.asList("View", "Download"), actions);
+            assertEquals(Arrays.asList("View", "Download", "Upload"), actions);
         }
 
         @Test
@@ -140,6 +141,7 @@ public class DocumentAccessControlServiceTest {
             assertTrue(actions.contains("Update"));
             assertTrue(actions.contains("Delete"));
             assertTrue(actions.contains("Download"));
+            assertTrue(actions.contains("Upload"));
         }
 
         @Test
@@ -283,6 +285,83 @@ public class DocumentAccessControlServiceTest {
             // Then
             assertTrue(links.getDownload().getResponseTypes().contains("application/pdf"));
             assertTrue(links.getDownload().getResponseTypes().contains("application/octet-stream"));
+        }
+    }
+
+    @Nested
+    @DisplayName("canUpload Tests")
+    class CanUploadTests {
+
+        @Test
+        @DisplayName("Should allow upload for SYSTEM requestor by default")
+        void shouldAllowUpload_forSystemRequestor() {
+            // Given
+            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            template.setAccessControl(null);
+
+            // When
+            boolean canUpload = accessControlService.canUpload(template, "SYSTEM");
+
+            // Then
+            assertTrue(canUpload);
+        }
+
+        @Test
+        @DisplayName("Should allow upload for AGENT requestor by default")
+        void shouldAllowUpload_forAgentRequestor() {
+            // Given
+            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            template.setAccessControl(null);
+
+            // When
+            boolean canUpload = accessControlService.canUpload(template, "AGENT");
+
+            // Then
+            assertTrue(canUpload);
+        }
+
+        @Test
+        @DisplayName("Should deny upload for CUSTOMER requestor by default")
+        void shouldDenyUpload_forCustomerRequestor() {
+            // Given
+            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            template.setAccessControl(null);
+
+            // When
+            boolean canUpload = accessControlService.canUpload(template, "CUSTOMER");
+
+            // Then
+            assertFalse(canUpload);
+        }
+
+        @Test
+        @DisplayName("Should allow upload when access_control grants Upload action")
+        void shouldAllowUpload_whenAccessControlGrantsUpload() {
+            // Given
+            String accessControlJson = "[{\"role\":\"customer\",\"actions\":[\"View\",\"Upload\"]}]";
+            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            template.setAccessControl(Json.of(accessControlJson));
+
+            // When
+            boolean canUpload = accessControlService.canUpload(template, "CUSTOMER");
+
+            // Then
+            assertTrue(canUpload);
+        }
+
+        @Test
+        @DisplayName("Should deny upload when access_control does not include Upload")
+        void shouldDenyUpload_whenAccessControlDoesNotIncludeUpload() {
+            // Given
+            String accessControlJson = "[{\"role\":\"agent\",\"actions\":[\"View\",\"Download\"]}]";
+            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            template.setAccessControl(Json.of(accessControlJson));
+
+            // When
+            boolean canUpload = accessControlService.canUpload(template, "AGENT");
+
+            // Then
+            assertFalse(canUpload);
         }
     }
 

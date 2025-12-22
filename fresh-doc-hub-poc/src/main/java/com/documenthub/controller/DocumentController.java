@@ -16,7 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -83,7 +83,7 @@ public class DocumentController {
         @RequestPart("createdBy") String createdBy,
 
         @Parameter(description = "The document content", required = true)
-        @RequestPart("content") FilePart content,
+        @RequestPart("content") MultipartFile content,
 
         @Parameter(description = "Document metadata as JSON array")
         @RequestPart(value = "metadata", required = false) String metadataJson,
@@ -121,18 +121,22 @@ public class DocumentController {
         @Parameter(description = "Correlation ID")
         @RequestPart(value = "correlationId", required = false) String correlationId
     ) {
+        String originalFilename = content.getOriginalFilename();
         log.info("Received document upload request - correlationId: {}, requestorId: {}, documentType: {}, fileName: {}",
-            xCorrelationId, xRequestorId, documentType, content.filename());
+            xCorrelationId, xRequestorId, documentType, originalFilename);
 
         return documentManagementProcessor.uploadDocument(
                 content, documentType, createdBy, metadataJson,
                 parseUUID(templateId), referenceKey, referenceKeyType,
                 parseUUID(accountKey), parseUUID(customerKey),
-                category, fileName != null ? fileName : content.filename(),
+                category, fileName != null ? fileName : originalFilename,
                 parseLong(activeStartDate), parseLong(activeEndDate),
-                parseUUID(threadId), parseUUID(correlationId))
+                parseUUID(threadId), parseUUID(correlationId),
+                xRequestorType != null ? xRequestorType.name() : "SYSTEM")
             .map(response -> ResponseEntity.ok(response))
             .doOnError(e -> log.error("Error processing document upload - correlationId: {}", xCorrelationId, e))
+            .onErrorResume(SecurityException.class, e ->
+                Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build()))
             .onErrorResume(IllegalArgumentException.class, e ->
                 Mono.just(ResponseEntity.badRequest().build()))
             .onErrorResume(e ->

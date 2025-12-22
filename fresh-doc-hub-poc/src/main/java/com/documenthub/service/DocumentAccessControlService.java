@@ -166,11 +166,23 @@ public class DocumentAccessControlService {
 
         switch (requestorType.toUpperCase()) {
             case "SYSTEM":
-                return Arrays.asList("View", "Update", "Delete", "Download");
-            case "CUSTOMER":
+                return Arrays.asList("View", "Update", "Delete", "Download", "Upload");
             case "AGENT":
+                return Arrays.asList("View", "Download", "Upload");
+            case "CUSTOMER":
             default:
                 return Arrays.asList("View", "Download");
         }
+    }
+
+    /**
+     * Check if a requestor type has upload permission for a template.
+     *
+     * @param template      The template to check access for
+     * @param requestorType The type of requestor (CUSTOMER, AGENT, SYSTEM)
+     * @return true if upload is permitted
+     */
+    public boolean canUpload(MasterTemplateDefinitionEntity template, String requestorType) {
+        return hasAccess(template, requestorType, "Upload");
     }
 }

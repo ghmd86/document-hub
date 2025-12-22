@@ -8,6 +8,7 @@ import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
+import com.documenthub.service.DocumentAccessControlService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,19 +38,34 @@ public class DocumentUploadProcessor {
     private final MasterTemplateDao masterTemplateDao;
     private final StorageIndexDao storageIndexDao;
     private final EcmsClient ecmsClient;
+    private final DocumentAccessControlService accessControlService;
     private final ObjectMapper objectMapper;
 
     /**
      * Process document upload with FilePart (multipart upload)
+     *
+     * @param filePart      The file to upload
+     * @param request       Upload request metadata
+     * @param userId        ID of the user performing the upload
+     * @param requestorType Type of requestor (CUSTOMER, AGENT, SYSTEM)
      */
     public Mono<DocumentUploadResponse> processUpload(FilePart filePart,
                                                        DocumentUploadRequest request,
-                                                       String userId) {
-        log.info("Processing document upload: templateType={}, fileName={}, userId={}",
-            request.getTemplateType(), request.getFileName(), userId);
+                                                       String userId,
+                                                       String requestorType) {
+        log.info("Processing document upload: templateType={}, fileName={}, userId={}, requestorType={}",
+            request.getTemplateType(), request.getFileName(), userId, requestorType);
 
         return validateAndGetTemplate(request.getTemplateType(), request.getTemplateVersion())
             .flatMap(template -> {
+                // Check upload permission
+                if (!accessControlService.canUpload(template, requestorType)) {
+                    log.warn("Upload permission denied: templateType={}, requestorType={}",
+                        request.getTemplateType(), requestorType);
+                    return Mono.error(new SecurityException(
+                        "Upload not permitted for requestor type: " + requestorType));
+                }
+
                 // Validate required fields
                 List<String> validationErrors = validateRequiredFields(template, request);
                 if (!validationErrors.isEmpty()) {
@@ -71,15 +87,29 @@ public class DocumentUploadProcessor {
 
     /**
      * Process document upload from byte array
+     *
+     * @param fileContent   File content as bytes
+     * @param request       Upload request metadata
+     * @param userId        ID of the user performing the upload
+     * @param requestorType Type of requestor (CUSTOMER, AGENT, SYSTEM)
      */
     public Mono<DocumentUploadResponse> processUpload(byte[] fileContent,
                                                        DocumentUploadRequest request,
-                                                       String userId) {
-        log.info("Processing document upload from bytes: templateType={}, fileName={}, size={}, userId={}",
-            request.getTemplateType(), request.getFileName(), fileContent.length, userId);
+                                                       String userId,
+                                                       String requestorType) {
+        log.info("Processing document upload from bytes: templateType={}, fileName={}, size={}, userId={}, requestorType={}",
+            request.getTemplateType(), request.getFileName(), fileContent.length, userId, requestorType);
 
         return validateAndGetTemplate(request.getTemplateType(), request.getTemplateVersion())
             .flatMap(template -> {
+                // Check upload permission
+                if (!accessControlService.canUpload(template, requestorType)) {
+                    log.warn("Upload permission denied: templateType={}, requestorType={}",
+                        request.getTemplateType(), requestorType);
+                    return Mono.error(new SecurityException(
+                        "Upload not permitted for requestor type: " + requestorType));
+                }
+
                 // Validate required fields
                 List<String> validationErrors = validateRequiredFields(template, request);
                 if (!validationErrors.isEmpty()) {

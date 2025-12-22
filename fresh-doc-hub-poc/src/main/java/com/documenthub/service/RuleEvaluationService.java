@@ -4,6 +4,9 @@ import com.documenthub.model.AccountMetadata;
 import com.documenthub.model.EligibilityCriteria;
 import com.documenthub.model.Rule;
 import com.documenthub.model.TemplateConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.r2dbc.postgresql.codec.Json;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +18,10 @@ import java.util.Map;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RuleEvaluationService {
+
+    private final ObjectMapper objectMapper;
 
     /**
      * Evaluate if account meets eligibility criteria defined in template config
@@ -75,6 +81,37 @@ public class RuleEvaluationService {
             return evaluateWithOR(criteria.getRules(), accountMetadata, requestContext);
         } else {
             return evaluateWithAND(criteria.getRules(), accountMetadata, requestContext);
+        }
+    }
+
+    /**
+     * Evaluate if account meets eligibility criteria from JSON column.
+     * This method reads directly from the eligibility_criteria column.
+     *
+     * @param eligibilityCriteriaJson the eligibility criteria JSON from entity
+     * @param accountMetadata         the account metadata to evaluate against
+     * @param requestContext          additional context from the request
+     * @return true if eligible, false otherwise
+     */
+    public boolean evaluateEligibility(
+        Json eligibilityCriteriaJson,
+        AccountMetadata accountMetadata,
+        Map<String, Object> requestContext
+    ) {
+        if (eligibilityCriteriaJson == null) {
+            log.debug("No eligibility_criteria column, allowing access");
+            return true;
+        }
+
+        try {
+            EligibilityCriteria criteria = objectMapper.readValue(
+                eligibilityCriteriaJson.asString(),
+                EligibilityCriteria.class
+            );
+            return evaluateEligibility(criteria, accountMetadata, requestContext);
+        } catch (Exception e) {
+            log.error("Failed to parse eligibility_criteria: {}", e.getMessage());
+            return false;
         }
     }
 

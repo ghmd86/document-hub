@@ -33,33 +33,43 @@ public class DocumentUploadService {
     private final EcmsClient ecmsClient;
     private final StorageIndexRepository storageIndexRepository;
     private final TemplateCacheService templateCacheService;
+    private final DocumentAccessControlService accessControlService;
     private final ObjectMapper objectMapper;
 
     /**
      * Upload a document with file part (multipart upload)
      *
-     * @param filePart The file to upload
-     * @param request  Upload request metadata
-     * @param userId   ID of the user performing the upload
+     * @param filePart      The file to upload
+     * @param request       Upload request metadata
+     * @param userId        ID of the user performing the upload
+     * @param requestorType Type of requestor (CUSTOMER, AGENT, SYSTEM)
      * @return Upload response with storage index and ECMS document IDs
      */
     public Mono<DocumentUploadResponse> uploadDocument(FilePart filePart,
                                                         DocumentUploadRequest request,
-                                                        String userId) {
-        log.info("Processing document upload: templateType={}, fileName={}, userId={}",
-            request.getTemplateType(), request.getFileName(), userId);
+                                                        String userId,
+                                                        String requestorType) {
+        log.info("Processing document upload: templateType={}, fileName={}, userId={}, requestorType={}",
+            request.getTemplateType(), request.getFileName(), userId, requestorType);
 
-        // First validate the template exists
+        // First validate the template exists and check upload permission
         return validateTemplate(request.getTemplateType(), request.getTemplateVersion())
-            .flatMap(template ->
+            .flatMap(template -> {
+                // Check upload permission
+                if (!accessControlService.canUpload(template, requestorType)) {
+                    log.warn("Upload permission denied: templateType={}, requestorType={}",
+                        request.getTemplateType(), requestorType);
+                    return Mono.error(new SecurityException(
+                        "Upload not permitted for requestor type: " + requestorType));
+                }
                 // Upload to ECMS
-                ecmsClient.uploadDocument(filePart, request)
+                return ecmsClient.uploadDocument(filePart, request)
                     .flatMap(ecmsResponse ->
                         // Create storage index entry
                         createStorageIndexEntry(request, ecmsResponse, template, userId)
                             .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
-                    )
-            )
+                    );
+            })
             .doOnSuccess(resp -> log.info("Document upload completed: storageIndexId={}, ecmsId={}",
                 resp.getStorageIndexId(), resp.getEcmsDocumentId()))
             .doOnError(e -> log.error("Document upload failed", e));
@@ -68,25 +78,34 @@ public class DocumentUploadService {
     /**
      * Upload a document from byte array
      *
-     * @param fileContent File content as bytes
-     * @param request     Upload request metadata
-     * @param userId      ID of the user performing the upload
+     * @param fileContent   File content as bytes
+     * @param request       Upload request metadata
+     * @param userId        ID of the user performing the upload
+     * @param requestorType Type of requestor (CUSTOMER, AGENT, SYSTEM)
      * @return Upload response
      */
     public Mono<DocumentUploadResponse> uploadDocument(byte[] fileContent,
                                                         DocumentUploadRequest request,
-                                                        String userId) {
-        log.info("Processing document upload from bytes: templateType={}, fileName={}, size={}, userId={}",
-            request.getTemplateType(), request.getFileName(), fileContent.length, userId);
+                                                        String userId,
+                                                        String requestorType) {
+        log.info("Processing document upload from bytes: templateType={}, fileName={}, size={}, userId={}, requestorType={}",
+            request.getTemplateType(), request.getFileName(), fileContent.length, userId, requestorType);
 
         return validateTemplate(request.getTemplateType(), request.getTemplateVersion())
-            .flatMap(template ->
-                ecmsClient.uploadDocument(fileContent, request)
+            .flatMap(template -> {
+                // Check upload permission
+                if (!accessControlService.canUpload(template, requestorType)) {
+                    log.warn("Upload permission denied: templateType={}, requestorType={}",
+                        request.getTemplateType(), requestorType);
+                    return Mono.error(new SecurityException(
+                        "Upload not permitted for requestor type: " + requestorType));
+                }
+                return ecmsClient.uploadDocument(fileContent, request)
                     .flatMap(ecmsResponse ->
                         createStorageIndexEntry(request, ecmsResponse, template, userId)
                             .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
-                    )
-            )
+                    );
+            })
             .doOnSuccess(resp -> log.info("Document upload completed: storageIndexId={}, ecmsId={}",
                 resp.getStorageIndexId(), resp.getEcmsDocumentId()))
             .doOnError(e -> log.error("Document upload failed", e));
