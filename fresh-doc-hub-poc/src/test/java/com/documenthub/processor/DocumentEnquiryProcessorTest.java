@@ -1,9 +1,10 @@
-package com.documenthub.service;
+package com.documenthub.processor;
 
+import com.documenthub.dao.MasterTemplateDao;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.model.*;
-import com.documenthub.repository.MasterTemplateRepository;
+import com.documenthub.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,15 +25,15 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for DocumentEnquiryService.
+ * Unit tests for DocumentEnquiryProcessor.
  * Tests the optional accountId functionality and document retrieval scenarios.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class DocumentEnquiryServiceTest {
+public class DocumentEnquiryProcessorTest {
 
     @Mock
-    private MasterTemplateRepository templateRepository;
+    private MasterTemplateDao masterTemplateDao;
 
     @Mock
     private AccountMetadataService accountMetadataService;
@@ -49,7 +50,7 @@ public class DocumentEnquiryServiceTest {
     @Mock
     private DocumentResponseBuilder responseBuilder;
 
-    private DocumentEnquiryService documentEnquiryService;
+    private DocumentEnquiryProcessor documentEnquiryProcessor;
 
     // Test data
     private static final UUID CUSTOMER_ID = UUID.fromString("cccc0000-0000-0000-0000-000000000001");
@@ -59,8 +60,8 @@ public class DocumentEnquiryServiceTest {
 
     @BeforeEach
     void setUp() {
-        documentEnquiryService = new DocumentEnquiryService(
-                templateRepository,
+        documentEnquiryProcessor = new DocumentEnquiryProcessor(
+                masterTemplateDao,
                 accountMetadataService,
                 ruleEvaluationService,
                 dataExtractionService,
@@ -87,7 +88,7 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -111,7 +112,7 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -148,7 +149,7 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -175,7 +176,7 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -202,7 +203,7 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When
-            documentEnquiryService.getDocuments(request, REQUESTOR_TYPE).block();
+            documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE).block();
 
             // Then - verify both fetched accounts were processed (at least once each)
             verify(accountMetadataService, atLeast(1)).getAccountMetadata(ACCOUNT_1);
@@ -224,7 +225,7 @@ public class DocumentEnquiryServiceTest {
             when(responseBuilder.buildEmptyResponse()).thenReturn(emptyResponse);
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -257,7 +258,7 @@ public class DocumentEnquiryServiceTest {
             when(responseBuilder.buildEmptyResponse()).thenReturn(emptyResponse);
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -269,7 +270,7 @@ public class DocumentEnquiryServiceTest {
 
             verify(responseBuilder).buildEmptyResponse();
             verify(accountMetadataService, never()).getAccountsByCustomerId(any());
-            verify(templateRepository, never()).findActiveTemplatesWithFilters(any(), any(), any(), any());
+            verify(masterTemplateDao, never()).findActiveTemplatesWithFilters(any(), any(), any(), any());
         }
 
         @Test
@@ -284,7 +285,7 @@ public class DocumentEnquiryServiceTest {
             when(responseBuilder.buildEmptyResponse()).thenReturn(emptyResponse);
 
             // When
-            Mono<DocumentRetrievalResponse> result = documentEnquiryService.getDocuments(request, REQUESTOR_TYPE);
+            Mono<DocumentRetrievalResponse> result = documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE);
 
             // Then
             StepVerifier.create(result)
@@ -313,7 +314,7 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When
-            documentEnquiryService.getDocuments(request, REQUESTOR_TYPE).block();
+            documentEnquiryProcessor.processEnquiry(request, REQUESTOR_TYPE).block();
 
             // Then - should NOT call getAccountsByCustomerId
             verify(accountMetadataService, never()).getAccountsByCustomerId(any());
@@ -339,10 +340,10 @@ public class DocumentEnquiryServiceTest {
             setupMocksForSuccessfulQuery();
 
             // When - call without requestorType
-            documentEnquiryService.getDocuments(request).block();
+            documentEnquiryProcessor.processEnquiry(request).block();
 
             // Then - should still work with default CUSTOMER requestor type
-            verify(templateRepository).findActiveTemplatesWithFilters(
+            verify(masterTemplateDao).findActiveTemplatesWithFilters(
                     anyString(), anyBoolean(), any(), anyLong()
             );
         }
@@ -358,9 +359,9 @@ public class DocumentEnquiryServiceTest {
         when(accountMetadataService.getAccountMetadata(any(UUID.class)))
                 .thenReturn(Mono.just(accountMetadata));
 
-        // Template repository
+        // Template DAO
         MasterTemplateDefinitionEntity template = createTemplate();
-        when(templateRepository.findActiveTemplatesWithFilters(anyString(), anyBoolean(), any(), anyLong()))
+        when(masterTemplateDao.findActiveTemplatesWithFilters(anyString(), anyBoolean(), any(), anyLong()))
                 .thenReturn(Flux.just(template));
 
         // Data extraction

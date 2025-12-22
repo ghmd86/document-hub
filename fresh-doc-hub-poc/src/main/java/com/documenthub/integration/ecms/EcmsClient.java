@@ -211,6 +211,28 @@ public class EcmsClient {
     }
 
     /**
+     * Download document binary content from ECMS
+     *
+     * @param documentId ECMS document ID (as string)
+     * @return Flux of DataBuffer containing document content
+     */
+    public Mono<reactor.core.publisher.Flux<DataBuffer>> downloadDocument(String documentId) {
+        log.info("Downloading document from ECMS: id={}", documentId);
+
+        return webClient.get()
+            .uri("/documents/{id}", documentId)
+            .accept(MediaType.APPLICATION_OCTET_STREAM)
+            .exchangeToMono(response -> {
+                if (response.statusCode().isError()) {
+                    return handleErrorResponse(response).flatMap(Mono::error);
+                }
+                return Mono.just(response.bodyToFlux(DataBuffer.class));
+            })
+            .doOnSuccess(v -> log.info("Document download initiated: id={}", documentId))
+            .doOnError(e -> log.error("Failed to download document from ECMS: id={}", documentId, e));
+    }
+
+    /**
      * Handle error response from ECMS
      */
     private Mono<Throwable> handleErrorResponse(ClientResponse response) {

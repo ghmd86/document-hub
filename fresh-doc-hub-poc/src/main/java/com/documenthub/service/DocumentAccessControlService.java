@@ -31,6 +31,22 @@ public class DocumentAccessControlService {
     private int linkExpirationSeconds;
 
     /**
+     * Check if a requestor type has access to perform a specific action on a template.
+     *
+     * @param template      The template to check access for
+     * @param requestorType The type of requestor (CUSTOMER, AGENT, SYSTEM)
+     * @param action        The action to check (View, Download, Update, Delete)
+     * @return true if access is permitted
+     */
+    public boolean hasAccess(
+            MasterTemplateDefinitionEntity template,
+            String requestorType,
+            String action) {
+        List<String> permittedActions = getPermittedActions(template, requestorType);
+        return permittedActions.contains(action);
+    }
+
+    /**
      * Get permitted actions for a requestor type based on template access_control.
      */
     public List<String> getPermittedActions(

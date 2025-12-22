@@ -4,7 +4,7 @@ import com.documenthub.model.DocumentListRequest;
 import com.documenthub.model.DocumentRetrievalResponse;
 import com.documenthub.model.ErrorResponse;
 import com.documenthub.model.XRequestorType;
-import com.documenthub.service.DocumentEnquiryService;
+import com.documenthub.processor.DocumentEnquiryProcessor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,7 +34,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentEnquiryController {
 
-    private final DocumentEnquiryService documentEnquiryService;
+    private final DocumentEnquiryProcessor documentEnquiryProcessor;
 
     @PostMapping
     @Operation(summary = "Retrieve document list",
@@ -79,9 +79,9 @@ public class DocumentEnquiryController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        // Call service with requestor type for access control
+        // Call processor with requestor type for access control
         String requestorType = xRequestorType != null ? xRequestorType.getValue() : "CUSTOMER";
-        return documentEnquiryService.getDocuments(body, requestorType)
+        return documentEnquiryProcessor.processEnquiry(body, requestorType)
             .map(response -> {
                 log.info("Successfully retrieved {} documents",
                     response.getDocumentList() != null ? response.getDocumentList().size() : 0);

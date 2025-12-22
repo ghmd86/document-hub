@@ -4,7 +4,7 @@ import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
 import com.documenthub.integration.ecms.EcmsClientException;
 import com.documenthub.model.ErrorResponse;
-import com.documenthub.service.DocumentUploadService;
+import com.documenthub.processor.DocumentUploadProcessor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,8 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -38,7 +36,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentUploadController {
 
-    private final DocumentUploadService documentUploadService;
+    private final DocumentUploadProcessor documentUploadProcessor;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload a document",
@@ -117,92 +115,9 @@ public class DocumentUploadController {
                 buildErrorResponse("Template version is required")));
         }
 
-        return documentUploadService.uploadDocument(file, request, xRequestorId.toString())
+        return documentUploadProcessor.processUpload(file, request, xRequestorId.toString())
             .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
             .doOnError(e -> log.error("Error processing document upload - correlationId: {}",
-                xCorrelationId, e))
-            .onErrorResume(IllegalArgumentException.class, e ->
-                Mono.just(ResponseEntity.badRequest().body(buildErrorResponse(e.getMessage()))))
-            .onErrorResume(EcmsClientException.class, e ->
-                Mono.just(ResponseEntity.status(e.getStatusCode())
-                    .body(buildErrorResponse("ECMS error: " + e.getMessage()))))
-            .onErrorResume(e ->
-                Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(buildErrorResponse("Internal server error"))));
-    }
-
-    @PostMapping(value = "/upload-json", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Upload a document with base64 content",
-               description = "Uploads a document using base64-encoded content in JSON body")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Document uploaded successfully",
-                     content = @Content(schema = @Schema(implementation = DocumentUploadResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Bad Request",
-                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    public Mono<ResponseEntity<DocumentUploadResponse>> uploadDocumentJson(
-        @Parameter(description = "API version", required = true)
-        @RequestHeader(value = "X-version", required = true) Integer xVersion,
-
-        @Parameter(description = "Correlation ID for request tracing", required = true)
-        @RequestHeader(value = "X-correlation-id", required = true) String xCorrelationId,
-
-        @Parameter(description = "ID of the requestor (user ID)", required = true)
-        @RequestHeader(value = "X-requestor-id", required = true) UUID xRequestorId,
-
-        @Parameter(description = "Upload request with base64 content")
-        @RequestBody Base64UploadRequest body
-    ) {
-        log.info("Received JSON document upload request - correlationId: {}, requestorId: {}, fileName: {}",
-            xCorrelationId, xRequestorId, body.getFileName());
-
-        // Validate required fields
-        if (body.getTemplateType() == null || body.getTemplateType().isBlank()) {
-            return Mono.just(ResponseEntity.badRequest().body(
-                buildErrorResponse("Template type is required")));
-        }
-
-        if (body.getTemplateVersion() == null) {
-            return Mono.just(ResponseEntity.badRequest().body(
-                buildErrorResponse("Template version is required")));
-        }
-
-        if (body.getContent() == null || body.getContent().isBlank()) {
-            return Mono.just(ResponseEntity.badRequest().body(
-                buildErrorResponse("Content is required")));
-        }
-
-        // Decode base64 content
-        byte[] fileContent;
-        try {
-            fileContent = java.util.Base64.getDecoder().decode(body.getContent());
-        } catch (IllegalArgumentException e) {
-            return Mono.just(ResponseEntity.badRequest().body(
-                buildErrorResponse("Invalid base64 content")));
-        }
-
-        DocumentUploadRequest request = DocumentUploadRequest.builder()
-            .templateType(body.getTemplateType())
-            .templateVersion(body.getTemplateVersion())
-            .fileName(body.getFileName())
-            .displayName(body.getDisplayName())
-            .accountId(body.getAccountId())
-            .customerId(body.getCustomerId())
-            .referenceKey(body.getReferenceKey())
-            .referenceKeyType(body.getReferenceKeyType())
-            .sharedFlag(body.getSharedFlag())
-            .startDate(body.getStartDate())
-            .endDate(body.getEndDate())
-            .metadata(body.getMetadata())
-            .attributes(body.getAttributes())
-            .tags(body.getTags())
-            .build();
-
-        return documentUploadService.uploadDocument(fileContent, request, xRequestorId.toString())
-            .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
-            .doOnError(e -> log.error("Error processing JSON document upload - correlationId: {}",
                 xCorrelationId, e))
             .onErrorResume(IllegalArgumentException.class, e ->
                 Mono.just(ResponseEntity.badRequest().body(buildErrorResponse(e.getMessage()))))
@@ -248,27 +163,5 @@ public class DocumentUploadController {
             .status("ERROR")
             .message(message)
             .build();
-    }
-
-    /**
-     * Request body for JSON-based upload with base64 content
-     */
-    @lombok.Data
-    public static class Base64UploadRequest {
-        private String templateType;
-        private Integer templateVersion;
-        private String fileName;
-        private String displayName;
-        private String content; // Base64 encoded file content
-        private UUID accountId;
-        private UUID customerId;
-        private String referenceKey;
-        private String referenceKeyType;
-        private Boolean sharedFlag;
-        private Long startDate;
-        private Long endDate;
-        private Map<String, Object> metadata;
-        private List<DocumentUploadRequest.DocumentAttribute> attributes;
-        private List<String> tags;
     }
 }
