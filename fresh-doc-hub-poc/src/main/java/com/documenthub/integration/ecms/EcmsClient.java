@@ -3,19 +3,28 @@ package com.documenthub.integration.ecms;
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
 import com.documenthub.integration.ecms.dto.EcmsErrorResponse;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Client for ECMS (Enterprise Content Management System) API
@@ -30,9 +39,27 @@ public class EcmsClient {
 
     public EcmsClient(WebClient.Builder webClientBuilder, EcmsClientConfig config) {
         this.config = config;
+
+        // Configure connection pool for better performance under load
+        ConnectionProvider connectionProvider = ConnectionProvider.builder("ecms-pool")
+            .maxConnections(50)
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofMinutes(5))
+            .pendingAcquireTimeout(Duration.ofSeconds(60))
+            .evictInBackground(Duration.ofSeconds(120))
+            .build();
+
+        // Configure HTTP client with timeouts
+        HttpClient httpClient = HttpClient.create(connectionProvider)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getConnectTimeoutMs())
+            .doOnConnected(conn -> conn
+                .addHandlerLast(new ReadTimeoutHandler(config.getReadTimeoutMs(), TimeUnit.MILLISECONDS))
+                .addHandlerLast(new WriteTimeoutHandler(config.getReadTimeoutMs(), TimeUnit.MILLISECONDS)));
+
         this.webClient = webClientBuilder
             .baseUrl(config.getBaseUrl())
             .defaultHeader("apiKey", config.getApiKey())
+            .clientConnector(new ReactorClientHttpConnector(httpClient))
             .build();
     }
 
@@ -47,39 +74,11 @@ public class EcmsClient {
         log.info("Uploading document to ECMS: fileName={}", request.getFileName());
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-
-        // Add file content
         builder.asyncPart("content", filePart.content(), DataBuffer.class)
             .filename(request.getFileName());
+        addCommonMultipartFields(builder, request);
 
-        // Add required fields
-        builder.part("name", request.getDisplayName() != null ? request.getDisplayName() : request.getFileName());
-        builder.part("fileName", request.getFileName());
-
-        // Add optional fields
-        if (request.getAttributes() != null && !request.getAttributes().isEmpty()) {
-            for (int i = 0; i < request.getAttributes().size(); i++) {
-                DocumentUploadRequest.DocumentAttribute attr = request.getAttributes().get(i);
-                builder.part("attributes[" + i + "].name", attr.getName());
-                builder.part("attributes[" + i + "].value", attr.getValue());
-            }
-        }
-
-        if (request.getTags() != null && !request.getTags().isEmpty()) {
-            for (int i = 0; i < request.getTags().size(); i++) {
-                builder.part("tags[" + i + "]", request.getTags().get(i));
-            }
-        }
-
-        return webClient.post()
-            .uri("/documents")
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .body(BodyInserters.fromMultipartData(builder.build()))
-            .retrieve()
-            .onStatus(HttpStatus::isError, this::handleErrorResponse)
-            .bodyToMono(EcmsDocumentResponse.class)
-            .doOnSuccess(resp -> log.info("Document uploaded to ECMS successfully: id={}", resp.getId()))
-            .doOnError(e -> log.error("Failed to upload document to ECMS", e));
+        return executeUpload(builder, request.getFileName());
     }
 
     /**
@@ -94,16 +93,22 @@ public class EcmsClient {
             request.getFileName(), fileContent.length);
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-
-        // Add file content as bytes
         builder.part("content", fileContent)
             .filename(request.getFileName());
+        addCommonMultipartFields(builder, request);
 
+        return executeUpload(builder, request.getFileName());
+    }
+
+    /**
+     * Add common multipart fields (name, fileName, attributes, tags) to the builder
+     */
+    private void addCommonMultipartFields(MultipartBodyBuilder builder, DocumentUploadRequest request) {
         // Add required fields
         builder.part("name", request.getDisplayName() != null ? request.getDisplayName() : request.getFileName());
         builder.part("fileName", request.getFileName());
 
-        // Add optional fields
+        // Add optional attributes
         if (request.getAttributes() != null && !request.getAttributes().isEmpty()) {
             for (int i = 0; i < request.getAttributes().size(); i++) {
                 DocumentUploadRequest.DocumentAttribute attr = request.getAttributes().get(i);
@@ -112,12 +117,18 @@ public class EcmsClient {
             }
         }
 
+        // Add optional tags
         if (request.getTags() != null && !request.getTags().isEmpty()) {
             for (int i = 0; i < request.getTags().size(); i++) {
                 builder.part("tags[" + i + "]", request.getTags().get(i));
             }
         }
+    }
 
+    /**
+     * Execute upload with retry logic for transient failures
+     */
+    private Mono<EcmsDocumentResponse> executeUpload(MultipartBodyBuilder builder, String fileName) {
         return webClient.post()
             .uri("/documents")
             .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -125,8 +136,28 @@ public class EcmsClient {
             .retrieve()
             .onStatus(HttpStatus::isError, this::handleErrorResponse)
             .bodyToMono(EcmsDocumentResponse.class)
+            .retryWhen(Retry.backoff(config.getMaxRetries(), Duration.ofMillis(500))
+                .maxBackoff(Duration.ofSeconds(5))
+                .filter(this::isRetryableException)
+                .doBeforeRetry(signal -> log.warn("Retrying ECMS upload, attempt {}: {}",
+                    signal.totalRetries() + 1, signal.failure().getMessage())))
             .doOnSuccess(resp -> log.info("Document uploaded to ECMS successfully: id={}", resp.getId()))
-            .doOnError(e -> log.error("Failed to upload document to ECMS", e));
+            .doOnError(e -> log.error("Failed to upload document to ECMS: fileName={}", fileName, e));
+    }
+
+    /**
+     * Determine if an exception is retryable (transient network/server errors)
+     */
+    private boolean isRetryableException(Throwable ex) {
+        if (ex instanceof EcmsClientException) {
+            int status = ((EcmsClientException) ex).getStatusCode();
+            // Retry on 5xx server errors and 429 (rate limiting)
+            return status >= 500 || status == 429;
+        }
+        // Retry on network timeouts and connection errors
+        return ex instanceof io.netty.channel.ConnectTimeoutException
+            || ex instanceof io.netty.handler.timeout.ReadTimeoutException
+            || ex instanceof java.net.ConnectException;
     }
 
     /**

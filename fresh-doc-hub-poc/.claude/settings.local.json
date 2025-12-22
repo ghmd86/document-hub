@@ -25,7 +25,9 @@
       "Bash(mvn generate-sources:*)",
       "Bash(mvn pmd:check:*)",
       "Bash(mvn pmd:pmd:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(mvn clean test:*)",
+      "Bash(wc:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,7 +6,6 @@ import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
-import com.documenthub.repository.MasterTemplateRepository;
 import com.documenthub.repository.StorageIndexRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +32,7 @@ public class DocumentUploadService {
 
     private final EcmsClient ecmsClient;
     private final StorageIndexRepository storageIndexRepository;
-    private final MasterTemplateRepository masterTemplateRepository;
+    private final TemplateCacheService templateCacheService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -94,10 +93,10 @@ public class DocumentUploadService {
     }
 
     /**
-     * Validate that the template exists and is active
+     * Validate that the template exists and is active (uses cache)
      */
     private Mono<MasterTemplateDefinitionEntity> validateTemplate(String templateType, Integer templateVersion) {
-        return masterTemplateRepository.findByTemplateTypeAndVersion(templateType, templateVersion)
+        return templateCacheService.getTemplate(templateType, templateVersion)
             .switchIfEmpty(Mono.error(new IllegalArgumentException(
                 "Template not found: type=" + templateType + ", version=" + templateVersion)));
     }

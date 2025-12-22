@@ -7,7 +7,6 @@ import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.EcmsClientException;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
-import com.documenthub.repository.MasterTemplateRepository;
 import com.documenthub.repository.StorageIndexRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +45,7 @@ public class DocumentUploadServiceTest {
     private StorageIndexRepository storageIndexRepository;
 
     @Mock
-    private MasterTemplateRepository masterTemplateRepository;
+    private TemplateCacheService templateCacheService;
 
     @Mock
     private FilePart filePart;
@@ -70,7 +69,7 @@ public class DocumentUploadServiceTest {
         uploadService = new DocumentUploadService(
             ecmsClient,
             storageIndexRepository,
-            masterTemplateRepository,
+            templateCacheService,
             objectMapper
         );
     }
@@ -117,7 +116,7 @@ public class DocumentUploadServiceTest {
         void shouldFailWhenTemplateNotFound() {
             // Given
             DocumentUploadRequest request = createUploadRequest(null);
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.empty());
 
             // When/Then
@@ -138,7 +137,7 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -169,7 +168,7 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(null); // Request doesn't set sharedFlag
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -196,7 +195,7 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(false);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -223,7 +222,7 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(true);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -250,7 +249,7 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -283,7 +282,7 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -330,7 +329,7 @@ public class DocumentUploadServiceTest {
                 .build();
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -382,7 +381,7 @@ public class DocumentUploadServiceTest {
                 .build();
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -415,7 +414,7 @@ public class DocumentUploadServiceTest {
             MasterTemplateDefinitionEntity template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.error(new EcmsClientException(500, "ECMS server error")));
@@ -438,7 +437,7 @@ public class DocumentUploadServiceTest {
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
             byte[] fileContent = new byte[]{1, 2, 3, 4, 5};
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -480,7 +479,7 @@ public class DocumentUploadServiceTest {
             fileSize.setUnit("bytes");
             ecmsResponse.setFileSize(fileSize);
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
@@ -517,7 +516,7 @@ public class DocumentUploadServiceTest {
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
             ecmsResponse.setFileSize(null);
 
-            when(masterTemplateRepository.findByTemplateTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
