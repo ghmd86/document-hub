@@ -25,6 +25,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: policyVersion
+    referenceKeyType: DOCUMENT_VERSION
 - id: 22222222-2222-2222-2222-222222222222
   template_type: monthly_statement
   template_version: 1
@@ -38,6 +42,10 @@ templates:
   single_document_flag: false
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: 33333333-3333-3333-3333-333333333333
   template_type: BalanceTransferLetter
   template_version: 1
@@ -52,6 +60,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
 - id: 44444444-4444-4444-4444-444444444444
   template_type: CustomerLetter
   template_version: 1
@@ -66,6 +78,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: AND
     rules:
@@ -78,8 +94,8 @@ templates:
 - id: 55555555-5555-5555-5555-555555555555
   template_type: ElectronicDisclosure
   template_version: 1
-  template_name: Regulatory Disclosure D164
-  template_description: Regulatory disclosure document
+  template_name: Regulatory Disclosure
+  template_description: Regulatory disclosure document matched by disclosure code
   template_category: Disclosure
   line_of_business: ENTERPRISE
   language_code: EN_US
@@ -89,12 +105,34 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
-  eligibility_criteria:
-    operator: AND
-    rules:
-    - field: $metadata.disclosure_code
-      operator: EQUALS
-      value: D164
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: disclosureCode
+    referenceKeyType: DISCLOSURE_CODE
+  data_extraction_config:
+    fieldsToExtract:
+    - disclosureCode
+    fieldSources:
+      disclosureCode:
+        description: Disclosure code from account or product configuration
+        sourceApi: accountDisclosureApi
+        extractionPath: $.disclosureCode
+        requiredInputs:
+        - accountId
+        fieldType: string
+    dataSources:
+      accountDisclosureApi:
+        description: Get disclosure code applicable to the account
+        endpoint:
+          url: http://localhost:8080/api/v1/mock-api/accounts/${accountId}/disclosures
+          method: GET
+          timeout: 5000
+        cache:
+          enabled: true
+          ttlSeconds: 1800
+          keyPattern: disclosures:${accountId}
+        providesFields:
+        - disclosureCode
 - id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
   template_version: 1
@@ -192,6 +230,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: promoCode
+    referenceKeyType: PROMO_CODE
   template_config:
     reprint_policy:
       cooldown_period_days: 30
@@ -275,6 +317,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: campaignCode
+    referenceKeyType: CAMPAIGN_CODE
 - id: 99999999-9999-9999-9999-999999999999
   template_type: RateChangeNotice
   template_version: 1
@@ -289,6 +335,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: noticeId
+    referenceKeyType: NOTICE_ID
 - id: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
   template_type: TaxDocument
   template_version: 1
@@ -302,6 +352,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
   template_type: SavingsOffer
   template_version: 1
@@ -316,6 +370,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: AND
     rules:
@@ -336,6 +394,35 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: feeScheduleVersion
+    referenceKeyType: DOCUMENT_VERSION
+  data_extraction_config:
+    fieldsToExtract:
+    - feeScheduleVersion
+    fieldSources:
+      feeScheduleVersion:
+        description: Fee schedule version applicable to the account
+        sourceApi: accountConfigApi
+        extractionPath: $.feeScheduleVersion
+        requiredInputs:
+        - accountId
+        fieldType: string
+        defaultValue: FEE-SCHEDULE-V3
+    dataSources:
+      accountConfigApi:
+        description: Get account configuration to determine fee schedule version
+        endpoint:
+          url: http://localhost:8080/api/v1/mock-api/accounts/${accountId}/config
+          method: GET
+          timeout: 5000
+        cache:
+          enabled: true
+          ttlSeconds: 3600
+          keyPattern: account-config:${accountId}
+        providesFields:
+        - feeScheduleVersion
 - id: dddddddd-dddd-dddd-dddd-dddddddddddd
   template_type: WelcomeKit
   template_version: 1
@@ -350,6 +437,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: kitVersion
+    referenceKeyType: KIT_VERSION
 - id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
   template_type: RegionalOffer
   template_version: 1
@@ -364,6 +455,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: AND
     rules:
@@ -384,6 +479,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: promoCode
+    referenceKeyType: PROMO_CODE
 - id: f0000000-0000-0000-0000-000000000002
   template_type: ExpiredTemplate
   template_version: 1
@@ -398,6 +497,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1717200000000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: campaignCode
+    referenceKeyType: CAMPAIGN_CODE
 - id: f0000000-0000-0000-0000-000000000003
   template_type: FutureTemplate
   template_version: 1
@@ -412,6 +515,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1767225600000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: campaignCode
+    referenceKeyType: CAMPAIGN_CODE
 - id: f0000000-0000-0000-0000-000000000004
   template_type: CoastalOffer
   template_version: 1
@@ -426,6 +533,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: OR
     rules:
@@ -449,6 +560,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: AND
     rules:
@@ -485,6 +600,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: AND
     rules:
@@ -504,6 +623,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000008
   template_type: DelinquencyNotice
   template_version: 1
@@ -517,6 +640,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000009
   template_type: FraudLetter
   template_version: 1
@@ -530,6 +657,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000010
   template_type: AdverseActionNotice
   template_version: 1
@@ -543,6 +674,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000011
   template_type: EliteCreditOffer
   template_version: 1
@@ -557,6 +692,10 @@ templates:
   single_document_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: offerCode
+    referenceKeyType: OFFER_CODE
   eligibility_criteria:
     operator: AND
     rules:
@@ -594,6 +733,10 @@ templates:
   message_center_doc_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f1000000-0000-0000-0000-000000000002
   template_type: WelcomeKit
   template_version: 1
@@ -609,6 +752,10 @@ templates:
   message_center_doc_flag: true
   communication_type: EMAIL
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: kitVersion
+    referenceKeyType: KIT_VERSION
 - id: f1000000-0000-0000-0000-000000000003
   template_type: SecurityAlert
   template_version: 1
@@ -623,6 +770,10 @@ templates:
   message_center_doc_flag: true
   communication_type: PUSH
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f2000000-0000-0000-0000-000000000001
   template_type: InternalAuditReport
   template_version: 1
@@ -637,6 +788,10 @@ templates:
   message_center_doc_flag: false
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f2000000-0000-0000-0000-000000000002
   template_type: CollectionNotice
   template_version: 1
@@ -651,6 +806,10 @@ templates:
   message_center_doc_flag: false
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f2000000-0000-0000-0000-000000000003
   template_type: RiskAssessment
   template_version: 1
@@ -665,6 +824,10 @@ templates:
   message_center_doc_flag: false
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000001
   template_type: EStatement
   template_version: 1
@@ -679,6 +842,10 @@ templates:
   message_center_doc_flag: true
   communication_type: EMAIL
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000002
   template_type: PaymentReminderSMS
   template_version: 1
@@ -693,6 +860,10 @@ templates:
   message_center_doc_flag: true
   communication_type: SMS
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000003
   template_type: TransactionAlertPush
   template_version: 1
@@ -707,6 +878,10 @@ templates:
   message_center_doc_flag: true
   communication_type: PUSH
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000004
   template_type: MarketingEmail
   template_version: 1
@@ -722,6 +897,10 @@ templates:
   message_center_doc_flag: true
   communication_type: EMAIL
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: campaignCode
+    referenceKeyType: CAMPAIGN_CODE
 - id: f4000000-0000-0000-0000-000000000001
   template_type: CustomerAgreement
   template_version: 1
@@ -736,6 +915,10 @@ templates:
   message_center_doc_flag: true
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
   access_control:
     roles:
       CUSTOMER:
@@ -767,6 +950,10 @@ templates:
   message_center_doc_flag: false
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
   access_control:
     roles:
       CUSTOMER:
@@ -797,6 +984,10 @@ templates:
   message_center_doc_flag: false
   communication_type: LETTER
   start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: accountId
+    referenceKeyType: ACCOUNT_ID
   access_control:
     roles:
       CUSTOMER:
@@ -810,3 +1001,79 @@ templates:
         - DOWNLOAD
         - UPDATE
         - DELETE
+
+# =============================================================================
+# APPLICANT TEMPLATES - Documents for pre-account applicants
+# =============================================================================
+- id: f5000000-0000-0000-0000-000000000001
+  template_type: ApplicationDisclosure
+  template_version: 1
+  template_name: Credit Card Application Disclosure
+  template_description: Required disclosures provided during credit card application
+  template_category: Disclosure
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: applicantId
+    referenceKeyType: APPLICANT_ID
+- id: f5000000-0000-0000-0000-000000000002
+  template_type: ApplicationStatus
+  template_version: 1
+  template_name: Application Status Letter
+  template_description: Letter communicating application approval, denial, or pending status
+  template_category: Application
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: false
+  message_center_doc_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: applicantId
+    referenceKeyType: APPLICANT_ID
+- id: f5000000-0000-0000-0000-000000000003
+  template_type: PreApprovalOffer
+  template_version: 1
+  template_name: Pre-Approval Credit Card Offer
+  template_description: Pre-approved credit card offer for prospective applicants
+  template_category: Promotional
+  line_of_business: CREDIT_CARD
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: applicantId
+    referenceKeyType: APPLICANT_ID
+- id: f5000000-0000-0000-0000-000000000004
+  template_type: IdentityVerification
+  template_version: 1
+  template_name: Identity Verification Request
+  template_description: Request for additional identity verification documents
+  template_category: Verification
+  line_of_business: ENTERPRISE
+  language_code: EN_US
+  active_flag: true
+  shared_document_flag: false
+  single_document_flag: true
+  message_center_doc_flag: true
+  communication_type: LETTER
+  start_date: 1704067200000
+  document_matching_config:
+    matchBy: reference_key
+    referenceKeyField: applicantId
+    referenceKeyType: APPLICANT_ID

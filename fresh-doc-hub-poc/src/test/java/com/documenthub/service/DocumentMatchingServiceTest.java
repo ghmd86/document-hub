@@ -1,5 +1,6 @@
 package com.documenthub.service;
 
+import com.documenthub.config.ReferenceKeyConfig;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.repository.StorageIndexRepository;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -23,6 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 public class DocumentMatchingServiceTest {
 
     @Mock
@@ -31,6 +34,9 @@ public class DocumentMatchingServiceTest {
     @Mock
     private DocumentValidityService validityService;
 
+    @Mock
+    private ReferenceKeyConfig referenceKeyConfig;
+
     private ObjectMapper objectMapper;
     private DocumentMatchingService documentMatchingService;
 
@@ -38,7 +44,9 @@ public class DocumentMatchingServiceTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         documentMatchingService = new DocumentMatchingService(
-                storageRepository, validityService, objectMapper);
+                storageRepository, validityService, referenceKeyConfig, objectMapper);
+        // Default: allow all reference key types in tests
+        when(referenceKeyConfig.isValid(anyString())).thenReturn(true);
     }
 
     @Nested
@@ -247,6 +255,7 @@ public class DocumentMatchingServiceTest {
         void shouldReturnEmpty_whenNoConditionMatches() {
             // Given
             String documentMatchingConfig = "{\"matchBy\":\"conditional\"," +
+                    "\"referenceKeyType\":\"TIER\"," +
                     "\"conditions\":[" +
                     "{\"field\":\"creditScore\",\"operator\":\">=\",\"value\":750,\"referenceKey\":\"PREMIUM\"}" +
                     "]}";
@@ -350,6 +359,7 @@ public class DocumentMatchingServiceTest {
         private void testNumericOperator(String operator, int value, int threshold, boolean shouldMatch) {
             String documentMatchingConfig = String.format(
                     "{\"matchBy\":\"conditional\"," +
+                            "\"referenceKeyType\":\"TEST_TYPE\"," +
                             "\"conditions\":[{\"field\":\"score\",\"operator\":\"%s\",\"value\":%d,\"referenceKey\":\"REF\"}]}",
                     operator, threshold);
             MasterTemplateDefinitionEntity template = createTemplate();
@@ -386,6 +396,7 @@ public class DocumentMatchingServiceTest {
         private void testStringCondition(String operator, String value, String threshold, boolean shouldMatch) {
             String documentMatchingConfig = String.format(
                     "{\"matchBy\":\"conditional\"," +
+                            "\"referenceKeyType\":\"TEST_TYPE\"," +
                             "\"conditions\":[{\"field\":\"text\",\"operator\":\"%s\",\"value\":\"%s\",\"referenceKey\":\"REF\"}]}",
                     operator, threshold);
             MasterTemplateDefinitionEntity template = createTemplate();
@@ -455,10 +466,10 @@ public class DocumentMatchingServiceTest {
         }
 
         @Test
-        @DisplayName("Should return empty when conditions array is missing")
-        void shouldReturnEmpty_whenConditionsArrayMissing() {
+        @DisplayName("Should return error when referenceKeyType is missing for conditional matching")
+        void shouldReturnError_whenReferenceKeyTypeMissing() {
             // Given
-            String documentMatchingConfig = "{\"matchBy\":\"conditional\"}";
+            String documentMatchingConfig = "{\"matchBy\":\"conditional\",\"conditions\":[]}";
             MasterTemplateDefinitionEntity template = createTemplate();
             template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
 
@@ -470,6 +481,28 @@ public class DocumentMatchingServiceTest {
                     template, UUID.randomUUID(), extractedData, null, null);
 
             // Then
+            StepVerifier.create(result)
+                    .expectErrorMatches(e -> e instanceof IllegalArgumentException &&
+                            e.getMessage().contains("referenceKeyType is required"))
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("Should return empty when conditions array is empty")
+        void shouldReturnEmpty_whenConditionsArrayEmpty() {
+            // Given
+            String documentMatchingConfig = "{\"matchBy\":\"conditional\",\"referenceKeyType\":\"TIER\",\"conditions\":[]}";
+            MasterTemplateDefinitionEntity template = createTemplate();
+            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+
+            Map<String, Object> extractedData = new HashMap<>();
+            extractedData.put("creditScore", 800);
+
+            // When
+            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+                    template, UUID.randomUUID(), extractedData, null, null);
+
+            // Then - No condition matches, should return empty
             StepVerifier.create(result)
                     .expectNextMatches(List::isEmpty)
                     .verifyComplete();

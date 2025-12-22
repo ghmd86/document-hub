@@ -1,5 +1,6 @@
 package com.documenthub.service;
 
+import com.documenthub.config.ReferenceKeyConfig;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.repository.StorageIndexRepository;
@@ -26,6 +27,7 @@ public class DocumentMatchingService {
 
     private final StorageIndexRepository storageRepository;
     private final DocumentValidityService validityService;
+    private final ReferenceKeyConfig referenceKeyConfig;
     private final ObjectMapper objectMapper;
 
     /**
@@ -127,10 +129,20 @@ public class DocumentMatchingService {
 
         String referenceKeyField = matchingNode.get("referenceKeyField").asText();
         String referenceKeyType = matchingNode.get("referenceKeyType").asText();
+
+        // Validate reference_key_type is a valid configured value
+        if (!referenceKeyConfig.isValid(referenceKeyType)) {
+            log.error("Invalid reference_key_type '{}' in template '{}'. Allowed values: {}",
+                    referenceKeyType, template.getTemplateType(), referenceKeyConfig.getAllowedTypesString());
+            return Mono.error(new IllegalArgumentException(
+                    "Invalid reference_key_type: '" + referenceKeyType +
+                    "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString()));
+        }
+
         Object referenceKeyValue = extractedData.get(referenceKeyField);
 
         if (referenceKeyValue == null) {
-            log.warn("Reference key '{}' not found", referenceKeyField);
+            log.warn("Reference key '{}' not found in extracted data", referenceKeyField);
             return Mono.just(Collections.emptyList());
         }
 
@@ -149,9 +161,25 @@ public class DocumentMatchingService {
             Long postedToDate) {
 
         JsonNode conditionsNode = matchingNode.get("conditions");
-        String referenceKeyType = matchingNode.has("referenceKeyType")
-                ? matchingNode.get("referenceKeyType").asText()
-                : "CONDITION_MATCH";
+
+        if (!matchingNode.has("referenceKeyType")) {
+            log.error("referenceKeyType is required for conditional matching in template '{}'",
+                    template.getTemplateType());
+            return Mono.error(new IllegalArgumentException(
+                    "referenceKeyType is required in document_matching_config for template: " +
+                    template.getTemplateType()));
+        }
+
+        String referenceKeyType = matchingNode.get("referenceKeyType").asText();
+
+        // Validate reference_key_type is a valid configured value
+        if (!referenceKeyConfig.isValid(referenceKeyType)) {
+            log.error("Invalid reference_key_type '{}' in template '{}'. Allowed values: {}",
+                    referenceKeyType, template.getTemplateType(), referenceKeyConfig.getAllowedTypesString());
+            return Mono.error(new IllegalArgumentException(
+                    "Invalid reference_key_type: '" + referenceKeyType +
+                    "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString()));
+        }
 
         if (conditionsNode == null || !conditionsNode.isArray()) {
             log.warn("No conditions array found");

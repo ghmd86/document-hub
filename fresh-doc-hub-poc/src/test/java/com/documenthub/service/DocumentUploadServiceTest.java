@@ -1,5 +1,6 @@
 package com.documenthub.service;
 
+import com.documenthub.config.ReferenceKeyConfig;
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
@@ -51,6 +52,9 @@ public class DocumentUploadServiceTest {
     private DocumentAccessControlService accessControlService;
 
     @Mock
+    private ReferenceKeyConfig referenceKeyConfig;
+
+    @Mock
     private FilePart filePart;
 
     private ObjectMapper objectMapper;
@@ -76,10 +80,13 @@ public class DocumentUploadServiceTest {
             storageIndexRepository,
             templateCacheService,
             accessControlService,
+            referenceKeyConfig,
             objectMapper
         );
         // Default: allow upload for SYSTEM
         when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE_SYSTEM))).thenReturn(true);
+        // Default: allow all reference key types in tests
+        when(referenceKeyConfig.isValid(anyString())).thenReturn(true);
     }
 
     private MasterTemplateDefinitionEntity createTemplate(boolean sharedDocumentFlag) {

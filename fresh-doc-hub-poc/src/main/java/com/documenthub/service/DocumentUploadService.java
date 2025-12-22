@@ -1,5 +1,6 @@
 package com.documenthub.service;
 
+import com.documenthub.config.ReferenceKeyConfig;
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
@@ -8,6 +9,7 @@ import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
 import com.documenthub.repository.StorageIndexRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class DocumentUploadService {
     private final StorageIndexRepository storageIndexRepository;
     private final TemplateCacheService templateCacheService;
     private final DocumentAccessControlService accessControlService;
+    private final ReferenceKeyConfig referenceKeyConfig;
     private final ObjectMapper objectMapper;
 
     /**
@@ -62,6 +65,15 @@ public class DocumentUploadService {
                     return Mono.error(new SecurityException(
                         "Upload not permitted for requestor type: " + requestorType));
                 }
+
+                // Validate reference_key and reference_key_type based on template's document_matching_config
+                try {
+                    validateReferenceKey(request, template);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Reference key validation failed: {}", e.getMessage());
+                    return Mono.error(e);
+                }
+
                 // Upload to ECMS
                 return ecmsClient.uploadDocument(filePart, request)
                     .flatMap(ecmsResponse ->
@@ -100,6 +112,15 @@ public class DocumentUploadService {
                     return Mono.error(new SecurityException(
                         "Upload not permitted for requestor type: " + requestorType));
                 }
+
+                // Validate reference_key and reference_key_type based on template's document_matching_config
+                try {
+                    validateReferenceKey(request, template);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Reference key validation failed: {}", e.getMessage());
+                    return Mono.error(e);
+                }
+
                 return ecmsClient.uploadDocument(fileContent, request)
                     .flatMap(ecmsResponse ->
                         createStorageIndexEntry(request, ecmsResponse, template, userId)
@@ -118,6 +139,81 @@ public class DocumentUploadService {
         return templateCacheService.getTemplate(templateType, templateVersion)
             .switchIfEmpty(Mono.error(new IllegalArgumentException(
                 "Template not found: type=" + templateType + ", version=" + templateVersion)));
+    }
+
+    /**
+     * Validate reference_key and reference_key_type based on template's document_matching_config.
+     * If the template has document_matching_config, both fields are required.
+     *
+     * @param request  The upload request
+     * @param template The template definition
+     * @throws IllegalArgumentException if validation fails
+     */
+    private void validateReferenceKey(DocumentUploadRequest request, MasterTemplateDefinitionEntity template) {
+        Json documentMatchingConfig = template.getDocumentMatchingConfig();
+
+        // If template has document_matching_config, reference_key and reference_key_type are required
+        if (documentMatchingConfig != null) {
+            try {
+                JsonNode configNode = objectMapper.readTree(documentMatchingConfig.asString());
+
+                // Check if config has matchBy field (indicates active matching configuration)
+                if (configNode.has("matchBy")) {
+                    String expectedKeyType = configNode.has("referenceKeyType")
+                        ? configNode.get("referenceKeyType").asText()
+                        : null;
+
+                    // Validate reference_key is provided
+                    if (request.getReferenceKey() == null || request.getReferenceKey().isBlank()) {
+                        throw new IllegalArgumentException(
+                            "reference_key is required for template '" + template.getTemplateType() +
+                            "' which has document_matching_config with referenceKeyType: " + expectedKeyType);
+                    }
+
+                    // Validate reference_key_type is provided
+                    if (request.getReferenceKeyType() == null || request.getReferenceKeyType().isBlank()) {
+                        throw new IllegalArgumentException(
+                            "reference_key_type is required for template '" + template.getTemplateType() +
+                            "'. Expected type: " + expectedKeyType);
+                    }
+
+                    // Validate reference_key_type is a valid configured value
+                    if (!referenceKeyConfig.isValid(request.getReferenceKeyType())) {
+                        throw new IllegalArgumentException(
+                            "Invalid reference_key_type: '" + request.getReferenceKeyType() +
+                            "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString());
+                    }
+
+                    // Validate reference_key_type matches template's expected type
+                    if (expectedKeyType != null && !expectedKeyType.equals(request.getReferenceKeyType())) {
+                        throw new IllegalArgumentException(
+                            "reference_key_type mismatch for template '" + template.getTemplateType() +
+                            "'. Expected: " + expectedKeyType + ", Provided: " + request.getReferenceKeyType());
+                    }
+
+                    log.debug("Reference key validation passed: referenceKey={}, referenceKeyType={}",
+                        request.getReferenceKey(), request.getReferenceKeyType());
+                }
+            } catch (JsonProcessingException e) {
+                log.warn("Failed to parse document_matching_config for template {}: {}",
+                    template.getTemplateType(), e.getMessage());
+                // Don't fail on parse error, just log warning
+            }
+        } else {
+            // Template has no document_matching_config
+            // If reference_key is provided, reference_key_type must also be provided
+            if (request.getReferenceKey() != null && !request.getReferenceKey().isBlank()) {
+                if (request.getReferenceKeyType() == null || request.getReferenceKeyType().isBlank()) {
+                    throw new IllegalArgumentException(
+                        "reference_key_type is required when reference_key is provided");
+                }
+                if (!referenceKeyConfig.isValid(request.getReferenceKeyType())) {
+                    throw new IllegalArgumentException(
+                        "Invalid reference_key_type: '" + request.getReferenceKeyType() +
+                        "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString());
+                }
+            }
+        }
     }
 
     /**

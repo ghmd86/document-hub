@@ -1,15 +1,11 @@
-# =============================================================================
-# STORAGE INDEX (DOCUMENTS)
-# =============================================================================
-# Auto-generated from data.sql - Review and clean up as needed
-# =============================================================================
-
 documents:
 - id: a0000000-0000-0000-0000-000000000001
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
   template_version: 1
   shared_flag: true
+  reference_key: PP-2024.1
+  reference_key_type: DOCUMENT_VERSION
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000001
   file_name: privacy_policy_2024.pdf
@@ -26,14 +22,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000002
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000002
   file_name: statement_jan_2024.pdf
   doc_creation_date: 1706659200000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000002
     statement_date: '2024-01-31'
     balance: 1234.56
     valid_from: '2024-01-31'
@@ -45,14 +42,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000002
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000003
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000002
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000003
   file_name: statement_jan_2024_acct2.pdf
   doc_creation_date: 1706659200000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000003
     statement_date: '2024-01-31'
     balance: 5678.9
     valid_from: '2024-01-31'
@@ -72,6 +70,8 @@ documents:
     apr_rate: 0.0
     valid_from: '2024-01-01'
     valid_until: '2024-06-30'
+  reference_key: BT-000000000004
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000005
   template_id: 44444444-4444-4444-4444-444444444444
   template_type: CustomerLetter
@@ -88,6 +88,8 @@ documents:
     offer_type: exclusive
     valid_from: '2024-02-01'
     valid_until: '2025-12-31'
+  reference_key: VIP-000000000005
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000006
   template_id: 55555555-5555-5555-5555-555555555555
   template_type: ElectronicDisclosure
@@ -268,6 +270,8 @@ documents:
     discount: 25%
     valid_from: '2024-11-25'
     valid_until: '2024-11-30'
+  reference_key: SEASON-000000000011
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000012
   template_id: 88888888-8888-8888-8888-888888888888
   template_type: SeasonalOffer
@@ -283,6 +287,8 @@ documents:
     discount: 30%
     valid_from: '2024-12-01'
     valid_until: '2024-12-02'
+  reference_key: SEASON-000000000012
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000013
   template_id: 88888888-8888-8888-8888-888888888888
   template_type: SeasonalOffer
@@ -298,6 +304,8 @@ documents:
     discount: 20%
     valid_from: '2025-12-20'
     valid_until: '2025-12-26'
+  reference_key: SEASON-000000000013
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000014
   template_id: 88888888-8888-8888-8888-888888888888
   template_type: SeasonalOffer
@@ -313,6 +321,8 @@ documents:
     discount: 15%
     valid_from: '2026-01-01'
     valid_until: '2026-01-15'
+  reference_key: SEASON-000000000014
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000015
   template_id: 88888888-8888-8888-8888-888888888888
   template_type: SeasonalOffer
@@ -328,6 +338,8 @@ documents:
     discount: 18%
     valid_from: '2025-12-01'
     valid_until: '2025-12-31'
+  reference_key: SEASON-000000000015
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000016
   template_id: 99999999-9999-9999-9999-999999999999
   template_type: RateChangeNotice
@@ -344,6 +356,8 @@ documents:
     new_apr: 21.99
     valid_from: '2024-01-01'
     valid_until: '2024-03-31'
+  reference_key: RATE-000000000016
+  reference_key_type: NOTICE_ID
 - id: a0000000-0000-0000-0000-000000000017
   template_id: 99999999-9999-9999-9999-999999999999
   template_type: RateChangeNotice
@@ -360,6 +374,8 @@ documents:
     new_apr: 22.49
     valid_from: '2025-10-01'
     valid_until: '2025-12-31'
+  reference_key: RATE-000000000017
+  reference_key_type: NOTICE_ID
 - id: a0000000-0000-0000-0000-000000000018
   template_id: 99999999-9999-9999-9999-999999999999
   template_type: RateChangeNotice
@@ -376,6 +392,8 @@ documents:
     new_apr: 23.99
     valid_from: '2026-01-01'
     valid_until: '2026-03-31'
+  reference_key: RATE-000000000018
+  reference_key_type: NOTICE_ID
 - id: a0000000-0000-0000-0000-000000000019
   template_id: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
   template_type: TaxDocument
@@ -430,6 +448,8 @@ documents:
     min_balance: 10000
     valid_from: '2025-01-01'
     valid_until: '2025-12-31'
+  reference_key: SAV-000000000021
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000022
   template_id: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
   template_type: SavingsOffer
@@ -450,6 +470,8 @@ documents:
     - 24
     valid_from: '2024-01-01'
     valid_until: '2024-09-30'
+  reference_key: SAV-000000000022
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000023
   template_id: cccccccc-cccc-cccc-cccc-cccccccccccc
   template_type: FeeSchedule
@@ -541,6 +563,8 @@ documents:
     - security_tips
     valid_from: '2024-01-01'
     valid_until: '2024-12-31'
+  reference_key: WK-2024
+  reference_key_type: KIT_VERSION
 - id: a0000000-0000-0000-0000-000000000028
   template_id: dddddddd-dddd-dddd-dddd-dddddddddddd
   template_type: WelcomeKit
@@ -560,6 +584,8 @@ documents:
     - rewards_overview
     valid_from: '2025-01-01'
     valid_until: '2025-12-31'
+  reference_key: WK-2025
+  reference_key_type: KIT_VERSION
 - id: a0000000-0000-0000-0000-000000000029
   template_id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
   template_type: RegionalOffer
@@ -576,6 +602,8 @@ documents:
     bonus_points: 5000
     valid_from: '2025-12-01'
     valid_until: '2026-02-28'
+  reference_key: REG-000000000029
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000030
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
@@ -589,6 +617,8 @@ documents:
   doc_metadata:
     version: EVERGREEN
     note: This document has no validity period - always valid
+  reference_key: PP-EVERGREEN
+  reference_key_type: DOCUMENT_VERSION
 - id: a0000000-0000-0000-0000-000000000031
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
@@ -603,6 +633,8 @@ documents:
     version: LEGACY
     note: Valid until replaced
     valid_until: '2025-06-30'
+  reference_key: PP-LEGACY
+  reference_key_type: DOCUMENT_VERSION
 - id: a0000000-0000-0000-0000-000000000032
   template_id: f0000000-0000-0000-0000-000000000001
   template_type: InactivePromo
@@ -617,6 +649,8 @@ documents:
     note: This document should NEVER appear - template is inactive
     valid_from: '2024-01-01'
     valid_until: '2026-12-31'
+  reference_key: INACTIVE-000000000032
+  reference_key_type: PROMO_CODE
 - id: a0000000-0000-0000-0000-000000000033
   template_id: f0000000-0000-0000-0000-000000000002
   template_type: ExpiredTemplate
@@ -630,6 +664,8 @@ documents:
   doc_metadata:
     campaign: SUMMER_2024
     note: Template expired, should not appear
+  reference_key: EXPIRED-000000000033
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000034
   template_id: f0000000-0000-0000-0000-000000000003
   template_type: FutureTemplate
@@ -643,6 +679,8 @@ documents:
   doc_metadata:
     campaign: 2026_LAUNCH
     note: Template not yet active, should not appear
+  reference_key: FUTURE-000000000034
+  reference_key_type: CAMPAIGN_CODE
 - id: a0000000-0000-0000-0000-000000000035
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
@@ -657,6 +695,8 @@ documents:
     note: Document marked inaccessible - should not appear
     valid_from: '2024-01-01'
     valid_until: '2026-12-31'
+  reference_key: PP-000000000035
+  reference_key_type: DOCUMENT_VERSION
 - id: a0000000-0000-0000-0000-000000000036
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
@@ -667,6 +707,8 @@ documents:
   file_name: null_metadata_document.pdf
   doc_creation_date: 1704067200000
   accessible_flag: true
+  reference_key: PP-000000000036
+  reference_key_type: DOCUMENT_VERSION
 - id: a0000000-0000-0000-0000-000000000037
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
@@ -682,6 +724,8 @@ documents:
     container: documents
     valid_from: '2024-01-01'
     valid_until: '2026-12-31'
+  reference_key: PP-000000000037
+  reference_key_type: DOCUMENT_VERSION
 - id: a0000000-0000-0000-0000-000000000038
   template_id: 11111111-1111-1111-1111-111111111111
   template_type: PrivacyPolicy
@@ -697,6 +741,8 @@ documents:
     region: UK
     valid_from: '2024-01-01'
     valid_until: '2026-12-31'
+  reference_key: PP-000000000038
+  reference_key_type: DOCUMENT_VERSION
 - id: a0000000-0000-0000-0000-000000000039
   template_id: f0000000-0000-0000-0000-000000000004
   template_type: CoastalOffer
@@ -714,6 +760,8 @@ documents:
     - US_WEST
     valid_from: '2025-01-01'
     valid_until: '2025-12-31'
+  reference_key: COAST-000000000039
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000040
   template_id: f0000000-0000-0000-0000-000000000005
   template_type: PremiumCoastalOffer
@@ -734,6 +782,8 @@ documents:
     - US_WEST
     valid_from: '2025-01-01'
     valid_until: '2025-12-31'
+  reference_key: PREM-COAST-000000000040
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000041
   template_id: f0000000-0000-0000-0000-000000000006
   template_type: CentralOffer
@@ -748,6 +798,8 @@ documents:
     region: US_CENTRAL
     valid_from: '2025-01-01'
     valid_until: '2025-12-31'
+  reference_key: CENTRAL-000000000041
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000042
   template_id: f0000000-0000-0000-0000-000000000007
   template_type: PaymentLetter
@@ -836,14 +888,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000046
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000046
   file_name: statement_feb_2024.pdf
   doc_creation_date: 1709251200000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000046
     statement_date: '2024-02-29'
     balance: 1456.78
     valid_from: '2024-02-29'
@@ -855,14 +908,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000047
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000047
   file_name: statement_mar_2024.pdf
   doc_creation_date: 1711929600000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000047
     statement_date: '2024-03-31'
     balance: 1678.9
     valid_from: '2024-03-31'
@@ -874,14 +928,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000048
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000048
   file_name: statement_apr_2024.pdf
   doc_creation_date: 1714521600000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000048
     statement_date: '2024-04-30'
     balance: 2012.34
     valid_from: '2024-04-30'
@@ -893,14 +948,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000049
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000049
   file_name: statement_may_2024.pdf
   doc_creation_date: 1717200000000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000049
     statement_date: '2024-05-31'
     balance: 1890.12
     valid_from: '2024-05-31'
@@ -912,14 +968,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000050
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000050
   file_name: statement_jun_2024.pdf
   doc_creation_date: 1719792000000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000050
     statement_date: '2024-06-30'
     balance: 2234.56
     valid_from: '2024-06-30'
@@ -931,14 +988,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000051
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000051
   file_name: statement_jul_2024.pdf
   doc_creation_date: 1722470400000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000051
     statement_date: '2024-07-31'
     balance: 1567.89
     valid_from: '2024-07-31'
@@ -950,14 +1008,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000052
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000052
   file_name: statement_aug_2024.pdf
   doc_creation_date: 1725148800000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000052
     statement_date: '2024-08-31'
     balance: 1789.01
     valid_from: '2024-08-31'
@@ -969,14 +1028,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000053
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000053
   file_name: statement_sep_2024.pdf
   doc_creation_date: 1727740800000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000053
     statement_date: '2024-09-30'
     balance: 2345.67
     valid_from: '2024-09-30'
@@ -988,14 +1048,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000054
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000054
   file_name: statement_oct_2024.pdf
   doc_creation_date: 1730419200000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000054
     statement_date: '2024-10-31'
     balance: 1987.65
     valid_from: '2024-10-31'
@@ -1007,14 +1068,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000055
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000055
   file_name: statement_nov_2024.pdf
   doc_creation_date: 1733011200000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000055
     statement_date: '2024-11-30'
     balance: 2678.9
     valid_from: '2024-11-30'
@@ -1026,14 +1088,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: ssss0000-0000-0000-0000-000000000056
-  reference_key_type: STATEMENT_ID
+  reference_key: aaaa0000-0000-0000-0000-000000000001
+  reference_key_type: ACCOUNT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000056
   file_name: statement_dec_2024.pdf
   doc_creation_date: 1735689600000
   accessible_flag: true
   doc_metadata:
+    statement_id: ssss0000-0000-0000-0000-000000000056
     statement_date: '2024-12-31'
     balance: 3012.34
     valid_from: '2024-12-31'
@@ -1054,8 +1117,8 @@ documents:
     apr: 12.99
     valid_from: '2025-01-01'
     valid_until: '2025-12-31'
-
-# Document 58: Terms & Conditions for disclosure code D167 (EXPIRED - was valid in 2023)
+  reference_key: ELITE-000000000057
+  reference_key_type: OFFER_CODE
 - id: a0000000-0000-0000-0000-000000000062
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
@@ -1075,8 +1138,6 @@ documents:
     version: '1.0'
     documentType: CARDHOLDER_AGREEMENT
     status: EXPIRED
-
-# Document 59: Terms & Conditions for disclosure code D168 (FUTURE - effective from 2026)
 - id: a0000000-0000-0000-0000-000000000063
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
@@ -1096,8 +1157,6 @@ documents:
     version: '1.0'
     documentType: CARDHOLDER_AGREEMENT
     status: FUTURE
-
-# Document 60: Terms & Conditions for disclosure code D164 - EXPIRED VERSION (v0.9)
 - id: a0000000-0000-0000-0000-000000000060
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
@@ -1118,8 +1177,6 @@ documents:
     documentType: CARDHOLDER_AGREEMENT
     status: EXPIRED
     supersededBy: v1.0
-
-# Document 61: Terms & Conditions for disclosure code D164 - FUTURE VERSION (v2.0)
 - id: a0000000-0000-0000-0000-000000000066
   template_id: 66666666-6666-6666-6666-666666666666
   template_type: CardholderAgreement
@@ -1139,3 +1196,157 @@ documents:
     version: '2.0'
     documentType: CARDHOLDER_AGREEMENT
     status: FUTURE
+- id: a0000000-0000-0000-0000-000000000070
+  template_id: f5000000-0000-0000-0000-000000000001
+  template_type: ApplicationDisclosure
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000001
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000070
+  file_name: application_disclosure_john_smith.pdf
+  doc_creation_date: 1704067200000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: John Smith
+    application_date: '2024-01-01'
+    product_type: CREDIT_CARD
+    valid_from: '2024-01-01'
+    valid_until: '2031-01-01'
+- id: a0000000-0000-0000-0000-000000000071
+  template_id: f5000000-0000-0000-0000-000000000002
+  template_type: ApplicationStatus
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000001
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000071
+  file_name: application_approved_john_smith.pdf
+  doc_creation_date: 1704153600000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: John Smith
+    status: APPROVED
+    decision_date: '2024-01-02'
+    credit_limit: 5000
+    valid_from: '2024-01-02'
+    valid_until: '2031-01-02'
+- id: a0000000-0000-0000-0000-000000000072
+  template_id: f5000000-0000-0000-0000-000000000003
+  template_type: PreApprovalOffer
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000001
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000072
+  file_name: preapproval_offer_john_smith.pdf
+  doc_creation_date: 1703980800000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: John Smith
+    offer_type: PRE_APPROVED
+    credit_limit_range: 3000-7500
+    apr_range: 15.99-22.99
+    offer_expiry: '2024-03-31'
+    valid_from: '2023-12-31'
+    valid_until: '2024-03-31'
+- id: a0000000-0000-0000-0000-000000000073
+  template_id: f5000000-0000-0000-0000-000000000001
+  template_type: ApplicationDisclosure
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000002
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000073
+  file_name: application_disclosure_jane_doe.pdf
+  doc_creation_date: 1733097600000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: Jane Doe
+    application_date: '2024-12-01'
+    product_type: CREDIT_CARD
+    valid_from: '2024-12-01'
+    valid_until: '2031-12-01'
+- id: a0000000-0000-0000-0000-000000000074
+  template_id: f5000000-0000-0000-0000-000000000002
+  template_type: ApplicationStatus
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000002
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000074
+  file_name: application_pending_jane_doe.pdf
+  doc_creation_date: 1733184000000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: Jane Doe
+    status: PENDING_VERIFICATION
+    decision_date: '2024-12-02'
+    pending_reason: ADDITIONAL_DOCS_REQUIRED
+    valid_from: '2024-12-02'
+    valid_until: '2025-01-02'
+- id: a0000000-0000-0000-0000-000000000075
+  template_id: f5000000-0000-0000-0000-000000000004
+  template_type: IdentityVerification
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000002
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000075
+  file_name: identity_verification_request_jane_doe.pdf
+  doc_creation_date: 1733184000000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: Jane Doe
+    verification_type: ID_DOCUMENT
+    documents_required:
+    - DRIVERS_LICENSE
+    - UTILITY_BILL
+    due_date: '2024-12-15'
+    valid_from: '2024-12-02'
+    valid_until: '2024-12-15'
+- id: a0000000-0000-0000-0000-000000000076
+  template_id: f5000000-0000-0000-0000-000000000001
+  template_type: ApplicationDisclosure
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000003
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000076
+  file_name: application_disclosure_bob_wilson.pdf
+  doc_creation_date: 1730419200000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: Bob Wilson
+    application_date: '2024-11-01'
+    product_type: CREDIT_CARD
+    valid_from: '2024-11-01'
+    valid_until: '2031-11-01'
+- id: a0000000-0000-0000-0000-000000000077
+  template_id: f5000000-0000-0000-0000-000000000002
+  template_type: ApplicationStatus
+  template_version: 1
+  shared_flag: false
+  reference_key: appl-0000-0000-0000-000000000003
+  reference_key_type: APPLICANT_ID
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000077
+  file_name: application_denied_bob_wilson.pdf
+  doc_creation_date: 1730505600000
+  accessible_flag: true
+  doc_metadata:
+    applicant_name: Bob Wilson
+    status: DENIED
+    decision_date: '2024-11-02'
+    denial_reasons:
+    - INSUFFICIENT_CREDIT_HISTORY
+    - HIGH_DEBT_TO_INCOME
+    valid_from: '2024-11-02'
+    valid_until: '2031-11-02'
