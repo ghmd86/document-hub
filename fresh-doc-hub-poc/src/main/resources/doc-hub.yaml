@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Document-Hub
   description: Centralized point for multidomain document retrieval
-  version: 1.0.13
+  version: 1.0.14
 servers:
 - url: https://devapi.creditone.com/private/enterprise/documenthub/document-service/services
 paths:
@@ -486,6 +486,8 @@ components:
           description: Indicates the type of reference key being used
           example: Disclosure_Code
           x-data-classification: public
+
+
         documentTypeCategoryGroup:
           type: array
           x-data-classification: public
@@ -776,12 +778,12 @@ components:
           type: string
           description: Optional type hint for proper indexing and querying
           x-data-classification: public
-          default: STRING
           enum:
           - STRING
           - NUMBER
           - BOOLEAN
           - DATE
+          default: STRING
     Visibility:
       type: string
       x-data-classification: public
@@ -823,15 +825,6 @@ components:
           x-data-classification: public
           items:
             type: string
-        expiresAt:
-          type: integer
-          format: int64
-          description: |
-            Epoch timestamp (seconds) when this download link expires.
-            Client should request a new link if current time exceeds this value.
-            Typical validity: 10 minutes from generation.
-          example: 1740527443
-          x-data-classification: public
     Links_delete:
       type: object
       properties:
