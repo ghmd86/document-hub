@@ -177,6 +177,64 @@ a0000000-0000-0000-0000-000000000006 - Regulatory Disclosure D164
 - [ ] Verify response structure matches API spec
 - [ ] Check logs for any errors or warnings
 
+## Unit Test Coverage
+
+### Test Summary (202 tests total)
+
+| Test Class | Tests | Description |
+|------------|-------|-------------|
+| `StorageIndexDaoTest` | 9 | Single document flag overlap detection |
+| `DocumentEnquiryProcessorTest` | 10 | Document enquiry flow with account/customer |
+| `DocumentManagementProcessorTest` | 8 | Upload flow with single_document_flag |
+| `AccountMetadataServiceTest` | 14 | Account metadata retrieval |
+| `ArrayUnwrappingTest` | 4 | JSON array unwrapping |
+| `ConfigurableDataExtractionServiceTest` | 11 | Data extraction from external APIs |
+| `DocumentAccessControlServiceTest` | 20 | Access control and permissions |
+| `DocumentMatchingServiceTest` | 15 | Document matching logic |
+| `DocumentResponseBuilderTest` | 21 | Response building and pagination |
+| `DocumentUploadServiceTest` | 15 | Upload service |
+| `DocumentValidityServiceTest` | 22 | Document validity checks |
+| `JsonPathExtractionTest` | 6 | JSONPath extraction |
+| `RuleEvaluationServiceTest` | 47 | Rule evaluation engine |
+
+### Single Document Flag Tests (New - December 2025)
+
+**StorageIndexDaoTest:**
+- ✅ `shouldUpdateEndDate` - Verifies end_date update
+- ✅ `shouldReturnOnlyAccessibleDocuments` - Filters inaccessible docs
+- ✅ `shouldReturnEmptyWhenNoAccessibleDocuments` - Empty results
+- ✅ `shouldUpdateDocsWithNullEndDate` - null = overlapping
+- ✅ `shouldUpdateDocsWithEndDateAfterNewStartDate` - end > start = overlapping
+- ✅ `shouldNotUpdateDocsWithEndDateBeforeNewStartDate` - end < start = NOT overlapping
+- ✅ `shouldOnlyUpdateOverlappingDocsWhenMixed` - Mixed scenario
+- ✅ `shouldReturnZeroWhenNoDocumentsFound` - No docs
+- ✅ `shouldTreatAllAsOverlappingWhenNewStartDateIsNull` - null start = all overlap
+
+**DocumentManagementProcessorTest:**
+- ✅ `shouldCloseExistingDocsWhenSingleDocFlagTrue` - Flag true = close
+- ✅ `shouldNotCloseExistingDocsWhenSingleDocFlagFalse` - Flag false = no close
+- ✅ `shouldNotCloseExistingDocsWhenSingleDocFlagNull` - Flag null = no close
+- ✅ `shouldNotCloseWhenReferenceKeyIsNull` - Missing ref_key
+- ✅ `shouldNotCloseWhenReferenceKeyTypeIsNull` - Missing ref_key_type
+- ✅ `shouldUseActiveStartDateAsNewEndDate` - Uses provided start_date
+- ✅ `shouldUseCurrentTimeWhenActiveStartDateIsNull` - Falls back to current time
+- ✅ `shouldProceedWithUploadWhenNoDocsToClose` - Continue even if 0 closed
+
+### Running Tests
+
+```bash
+# Run all tests
+mvn test
+
+# Run specific test class
+mvn test -Dtest="StorageIndexDaoTest"
+
+# Run tests with verbose output
+mvn test -Dtest="**/StorageIndexDaoTest,**/DocumentManagementProcessorTest"
+```
+
+---
+
 ## Notes
 
 - Application uses port 8080

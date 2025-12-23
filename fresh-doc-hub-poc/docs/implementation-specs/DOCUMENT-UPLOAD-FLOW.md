@@ -397,7 +397,135 @@ if (request.getMetadata() != null) {
 return storageIndexDao.save(entity);
 ```
 
-### Step 3: Return Response
+### Step 3: Single Document Flag Handling
+
+When a template has `single_document_flag = true`, the system ensures only one document per `reference_key` is active at any given time.
+
+#### How It Works
+
+**Before uploading a new document:**
+1. Check if template has `single_document_flag = true`
+2. If true, find existing active documents with same `reference_key`, `reference_key_type`, and `template_type`
+3. For each overlapping document, update its `end_date` to the new document's `start_date`
+
+**Overlap Detection:**
+A document is considered "overlapping" if:
+- Its `end_date` is `null` (currently active with no end), OR
+- Its `end_date` is greater than the new document's `start_date`
+
+Documents with `end_date` before the new document's `start_date` are NOT updated (no overlap).
+
+#### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Processor as DocumentUploadProcessor
+    participant StorageDao as StorageIndexDao
+    participant DB as PostgreSQL
+
+    Note over Processor: Check single_document_flag
+
+    alt single_document_flag = true AND reference_key exists
+        Processor->>StorageDao: updateEndDateByReferenceKey(refKey, refKeyType, templateType, newStartDate)
+        StorageDao->>DB: SELECT * FROM storage_index<br/>WHERE reference_key = ? AND accessible_flag = true
+        DB-->>StorageDao: List of existing documents
+
+        loop For each overlapping document
+            Note over StorageDao: Check if end_date is null OR end_date > newStartDate
+            StorageDao->>DB: UPDATE storage_index SET end_date = newStartDate<br/>WHERE storage_index_id = ?
+        end
+
+        StorageDao-->>Processor: Count of updated documents
+    end
+
+    Note over Processor: Proceed with ECMS upload and storage index creation
+```
+
+#### Example Scenario
+
+**Initial State:**
+| Document ID | Reference Key | Start Date | End Date | Status |
+|-------------|---------------|------------|----------|--------|
+| doc-001 | ORDER-123 | 2024-01-01 | null | Active |
+
+**Upload New Document:**
+- New document for `ORDER-123` with `start_date = 2024-06-01`
+- Template has `single_document_flag = true`
+
+**After Upload:**
+| Document ID | Reference Key | Start Date | End Date | Status |
+|-------------|---------------|------------|----------|--------|
+| doc-001 | ORDER-123 | 2024-01-01 | **2024-06-01** | Closed |
+| doc-002 | ORDER-123 | 2024-06-01 | null | Active |
+
+#### Code Implementation
+
+**StorageIndexDao.java:**
+```java
+public Mono<Long> updateEndDateByReferenceKey(
+        String referenceKey,
+        String referenceKeyType,
+        String templateType,
+        Long newDocStartDate) {
+    return findActiveByReferenceKey(referenceKey, referenceKeyType, templateType)
+        .filter(doc -> isOverlapping(doc, newDocStartDate))
+        .flatMap(doc -> updateEndDate(doc, newDocStartDate))
+        .count();
+}
+
+private boolean isOverlapping(StorageIndexEntity doc, Long newDocStartDate) {
+    if (newDocStartDate == null) {
+        return true; // If no start date, consider all as overlapping
+    }
+    return doc.getEndDate() == null || doc.getEndDate() > newDocStartDate;
+}
+```
+
+**DocumentUploadProcessor.java / DocumentManagementProcessor.java:**
+```java
+private Mono<Void> closeExistingDocsIfSingleDoc(
+        MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+    if (!shouldCloseExistingDocs(template, request)) {
+        return Mono.empty();
+    }
+
+    Long newDocStartDate = getStartDateForNewDoc(request);
+    return storageIndexDao.updateEndDateByReferenceKey(
+            request.getReferenceKey(),
+            request.getReferenceKeyType(),
+            template.getTemplateType(),
+            newDocStartDate)
+        .then();
+}
+
+private boolean shouldCloseExistingDocs(
+        MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+    return Boolean.TRUE.equals(template.getSingleDocumentFlag())
+        && request.getReferenceKey() != null
+        && request.getReferenceKeyType() != null;
+}
+```
+
+#### Test Coverage
+
+| Test Class | Tests | Description |
+|------------|-------|-------------|
+| `StorageIndexDaoTest` | 9 | Tests overlap detection and end_date updates |
+| `DocumentManagementProcessorTest` | 8 | Tests upload flow with single_document_flag |
+
+**Key Test Scenarios:**
+- ✅ Update docs with null end_date (overlapping)
+- ✅ Update docs with end_date after new start_date (overlapping)
+- ✅ Skip docs with end_date before new start_date (not overlapping)
+- ✅ Skip when single_document_flag is false/null
+- ✅ Skip when reference_key or reference_key_type is null
+- ✅ Use provided activeStartDate as new end_date
+- ✅ Fall back to current time when activeStartDate is null
+
+---
+
+### Step 4: Return Response
 
 ```json
 {

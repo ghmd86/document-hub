@@ -506,7 +506,31 @@ Flux<MasterTemplateDefinitionEntity> findActiveTemplates(Long currentDate);
 **Technology Stack**: Java 17, Spring Boot 2.7.18, WebFlux, R2DBC, PostgreSQL
 **Status**: ✅ POC Complete and Functional
 
-## Recent Updates (December 4, 2025)
+## Recent Updates (December 23, 2025)
+
+### Single Document Flag - Upload Enforcement
+
+When `single_document_flag = true` on a template, uploading a new document will automatically close overlapping existing documents by updating their `end_date`.
+
+**How It Works:**
+1. Check if template has `single_document_flag = true`
+2. Find existing active documents with same `reference_key`, `reference_key_type`, and `template_type`
+3. For overlapping documents (end_date is null OR end_date > new start_date), set `end_date = new document's start_date`
+
+**Files Modified:**
+- `StorageIndexDao.java` - Added `updateEndDateByReferenceKey()`, `isOverlapping()` methods
+- `DocumentManagementProcessor.java` - Added `closeExistingDocsIfSingleDoc()` logic
+- `DocumentUploadProcessor.java` - Added same logic for FilePart/byte[] uploads
+
+**Test Coverage:**
+- `StorageIndexDaoTest.java` - 9 tests for overlap detection and end_date updates
+- `DocumentManagementProcessorTest.java` - 8 tests for upload flow with single_document_flag
+
+See [DOCUMENT-UPLOAD-FLOW.md](docs/implementation-specs/DOCUMENT-UPLOAD-FLOW.md#step-3-single-document-flag-handling) for detailed documentation.
+
+---
+
+## Previous Updates (December 4, 2025)
 
 1. **PostgreSQL BIT/BOOLEAN Compatibility Fix**
    - Fixed type mismatch in repository queries

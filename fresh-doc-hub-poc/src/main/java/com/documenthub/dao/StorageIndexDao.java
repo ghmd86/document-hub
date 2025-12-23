@@ -131,4 +131,64 @@ public class StorageIndexDao {
         entity.setRecordStatus("ARCHIVED");
         return repository.save(entity);
     }
+
+    /**
+     * Update end_date for existing document.
+     * Used when single_document_flag is true to close the active period of old documents.
+     */
+    public Mono<StorageIndexEntity> updateEndDate(StorageIndexEntity entity, Long newEndDate) {
+        log.debug("Updating end_date for storage index: id={}, newEndDate={}",
+            entity.getStorageIndexId(), newEndDate);
+        entity.setEndDate(newEndDate);
+        return repository.save(entity);
+    }
+
+    /**
+     * Find active documents by reference key and template type.
+     * Used for single_document_flag enforcement during upload.
+     */
+    public Flux<StorageIndexEntity> findActiveByReferenceKey(
+            String referenceKey,
+            String referenceKeyType,
+            String templateType) {
+        log.debug("Finding active documents by reference key: refKey={}, refKeyType={}, templateType={}",
+            referenceKey, referenceKeyType, templateType);
+        return repository.findByReferenceKeyAndTemplate(
+            referenceKey, referenceKeyType, templateType, null, System.currentTimeMillis())
+            .filter(doc -> Boolean.TRUE.equals(doc.getAccessibleFlag()));
+    }
+
+    /**
+     * Update end_date of documents that overlap with the new document's start_date.
+     * Only documents where (end_date is null OR end_date > newDocStartDate) are updated.
+     * Returns the count of updated documents.
+     */
+    public Mono<Long> updateEndDateByReferenceKey(
+            String referenceKey,
+            String referenceKeyType,
+            String templateType,
+            Long newDocStartDate) {
+        log.info("Updating end_date for overlapping docs: refKey={}, templateType={}, newDocStartDate={}",
+            referenceKey, templateType, newDocStartDate);
+        return findActiveByReferenceKey(referenceKey, referenceKeyType, templateType)
+            .filter(doc -> isOverlapping(doc, newDocStartDate))
+            .flatMap(doc -> updateEndDate(doc, newDocStartDate))
+            .count()
+            .doOnSuccess(count -> {
+                if (count > 0) {
+                    log.info("Updated end_date for {} overlapping documents for refKey={}", count, referenceKey);
+                }
+            });
+    }
+
+    /**
+     * Check if existing document overlaps with the new document's start date.
+     * Overlapping means: doc has no end_date OR doc's end_date is after new start_date.
+     */
+    private boolean isOverlapping(StorageIndexEntity doc, Long newDocStartDate) {
+        if (newDocStartDate == null) {
+            return true; // If no start date specified, consider all as overlapping
+        }
+        return doc.getEndDate() == null || doc.getEndDate() > newDocStartDate;
+    }
 }

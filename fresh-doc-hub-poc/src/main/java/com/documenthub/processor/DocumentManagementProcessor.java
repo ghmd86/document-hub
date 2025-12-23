@@ -71,7 +71,40 @@ public class DocumentManagementProcessor {
         }
 
         List<MetadataNode> metadata = parseMetadata(request.getMetadataJson());
-        return uploadToEcmsAndSave(template, request, metadata, fileBytes);
+
+        // If single_document_flag is true, close existing documents by updating their end_date
+        return closeExistingDocsIfSingleDoc(template, request)
+            .then(uploadToEcmsAndSave(template, request, metadata, fileBytes));
+    }
+
+    private Mono<Void> closeExistingDocsIfSingleDoc(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+        if (!shouldCloseExistingDocs(template, request)) {
+            return Mono.empty();
+        }
+
+        Long newDocStartDate = getStartDateForNewDoc(request);
+        log.info("Single document flag is true - closing existing documents for refKey={}, newEndDate={}",
+            request.getReferenceKey(), newDocStartDate);
+        return storageIndexDao.updateEndDateByReferenceKey(
+                request.getReferenceKey(),
+                request.getReferenceKeyType(),
+                template.getTemplateType(),
+                newDocStartDate)
+            .then();
+    }
+
+    private boolean shouldCloseExistingDocs(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+        return Boolean.TRUE.equals(template.getSingleDocumentFlag())
+            && request.getReferenceKey() != null
+            && request.getReferenceKeyType() != null;
+    }
+
+    private Long getStartDateForNewDoc(DocumentUploadRequest request) {
+        return request.getActiveStartDate() != null
+            ? request.getActiveStartDate()
+            : System.currentTimeMillis();
     }
 
     private Mono<InlineResponse200> handleUploadPermissionDenied(String docType, String requestorType) {

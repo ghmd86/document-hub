@@ -73,11 +73,11 @@ public class DocumentUploadProcessor {
                         "Required fields validation failed: " + String.join(", ", validationErrors)));
                 }
 
-                // Upload to ECMS
+                // Upload to ECMS and handle single_document_flag
                 return ecmsClient.uploadDocument(filePart, request)
-                    .flatMap(ecmsResponse ->
-                        createStorageIndexEntry(request, ecmsResponse, template, userId)
-                            .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
+                    .flatMap(ecmsResponse -> closeExistingDocsIfSingleDoc(template, request)
+                        .then(createStorageIndexEntry(request, ecmsResponse, template, userId))
+                        .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
                     );
             })
             .doOnSuccess(resp -> log.info("Document upload completed: storageIndexId={}, ecmsId={}",
@@ -117,11 +117,11 @@ public class DocumentUploadProcessor {
                         "Required fields validation failed: " + String.join(", ", validationErrors)));
                 }
 
-                // Upload to ECMS
+                // Upload to ECMS and handle single_document_flag
                 return ecmsClient.uploadDocument(fileContent, request)
-                    .flatMap(ecmsResponse ->
-                        createStorageIndexEntry(request, ecmsResponse, template, userId)
-                            .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
+                    .flatMap(ecmsResponse -> closeExistingDocsIfSingleDoc(template, request)
+                        .then(createStorageIndexEntry(request, ecmsResponse, template, userId))
+                        .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
                     );
             })
             .doOnSuccess(resp -> log.info("Document upload completed: storageIndexId={}, ecmsId={}",
@@ -338,5 +338,39 @@ public class DocumentUploadProcessor {
             .status("SUCCESS")
             .message("Document uploaded successfully")
             .build();
+    }
+
+    /**
+     * Close existing documents if single_document_flag is true.
+     * Sets their end_date to the start_date of the new document.
+     */
+    private Mono<Void> closeExistingDocsIfSingleDoc(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+        if (!shouldCloseExistingDocs(template, request)) {
+            return Mono.empty();
+        }
+
+        Long newDocStartDate = getStartDateForNewDoc(request);
+        log.info("Single document flag - closing existing docs: refKey={}, newEndDate={}",
+            request.getReferenceKey(), newDocStartDate);
+        return storageIndexDao.updateEndDateByReferenceKey(
+                request.getReferenceKey(),
+                request.getReferenceKeyType(),
+                template.getTemplateType(),
+                newDocStartDate)
+            .then();
+    }
+
+    private boolean shouldCloseExistingDocs(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+        return Boolean.TRUE.equals(template.getSingleDocumentFlag())
+            && request.getReferenceKey() != null
+            && request.getReferenceKeyType() != null;
+    }
+
+    private Long getStartDateForNewDoc(DocumentUploadRequest request) {
+        return request.getStartDate() != null
+            ? request.getStartDate()
+            : System.currentTimeMillis();
     }
 }
