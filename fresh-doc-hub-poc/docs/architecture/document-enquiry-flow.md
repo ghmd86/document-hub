@@ -7,9 +7,10 @@ This document provides detailed visual diagrams of the document-enquiry endpoint
 2. [High-Level Sequence Diagram](#2-high-level-sequence-diagram)
 3. [Data Extraction Flow](#3-data-extraction-flow)
 4. [Access Control & HATEOAS Links](#4-access-control--hateoas-links)
-5. [Document Matching Strategy](#5-document-matching-strategy)
-6. [Complete End-to-End Flow](#6-complete-end-to-end-flow)
-7. [Component Reference](#7-component-reference)
+5. [Eligibility Criteria & Rule Evaluation](#5-eligibility-criteria--rule-evaluation)
+6. [Document Matching Strategy](#6-document-matching-strategy)
+7. [Complete End-to-End Flow](#7-complete-end-to-end-flow)
+8. [Component Reference](#8-component-reference)
 
 ---
 
@@ -481,11 +482,251 @@ If no `access_control` is configured on the template, defaults are applied:
 
 ---
 
-## 5. Document Matching Strategy
+## 5. Eligibility Criteria & Rule Evaluation
+
+The system uses `eligibility_criteria` to determine if an account/customer is eligible to view documents for a specific template. This is evaluated by the `RuleEvaluationService`.
+
+### 5.1 Where Eligibility Criteria Is Stored
+
+Eligibility criteria can be stored in two locations on the `master_template_definition` table:
+
+| Column | Purpose | Usage |
+|--------|---------|-------|
+| `template_config` | New location (preferred) | Contains `eligibility_criteria` object |
+| `access_control` | Legacy location | May contain `eligibilityCriteria` nested inside |
+
+The `RuleEvaluationService` checks both locations, with `template_config.eligibility_criteria` taking precedence.
+
+### 5.2 Eligibility Criteria Structure
+
+```json
+{
+  "eligibility_criteria": {
+    "operator": "AND",
+    "rules": [
+      {
+        "field": "customerSegment",
+        "operator": "EQUALS",
+        "value": "VIP"
+      },
+      {
+        "field": "region",
+        "operator": "IN",
+        "value": ["US_WEST", "US_EAST"]
+      }
+    ]
+  }
+}
+```
+
+### 5.3 Rule Evaluation Flow
+
+```mermaid
+flowchart TD
+    A[RuleEvaluationService.isEligible] --> B{Has template_config?}
+
+    B -->|Yes| C[Parse eligibility_criteria from template_config]
+    B -->|No| D{Has access_control?}
+
+    D -->|Yes| E[Parse eligibilityCriteria from access_control]
+    D -->|No| F[No criteria defined - ALLOW ACCESS]
+
+    C --> G{Has rules?}
+    E --> G
+
+    G -->|No| F
+    G -->|Yes| H{Operator type?}
+
+    H -->|AND| I[All rules must pass]
+    H -->|OR| J[At least one rule must pass]
+
+    I --> K[Evaluate each rule]
+    J --> K
+
+    K --> L{Rule passes?}
+    L -->|Yes AND mode| M{More rules?}
+    L -->|No AND mode| N[DENY ACCESS]
+    L -->|Yes OR mode| O[ALLOW ACCESS]
+    L -->|No OR mode| M
+
+    M -->|Yes| K
+    M -->|No AND mode| O
+    M -->|No OR mode| N
+
+    F --> P[Return eligible = true]
+    O --> P
+    N --> Q[Return eligible = false]
+
+    style F fill:#c8e6c9
+    style O fill:#c8e6c9
+    style P fill:#c8e6c9
+    style N fill:#ffcdd2
+    style Q fill:#ffcdd2
+```
+
+### 5.4 Supported Operators
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `EQUALS` | Exact match | `{"field": "state", "operator": "EQUALS", "value": "CA"}` |
+| `NOT_EQUALS` | Not equal | `{"field": "status", "operator": "NOT_EQUALS", "value": "CLOSED"}` |
+| `IN` | Value in list | `{"field": "region", "operator": "IN", "value": ["US_WEST", "US_EAST"]}` |
+| `NOT_IN` | Value not in list | `{"field": "state", "operator": "NOT_IN", "value": ["NY", "NJ"]}` |
+| `GREATER_THAN` | Numeric > | `{"field": "creditScore", "operator": "GREATER_THAN", "value": 700}` |
+| `GREATER_THAN_OR_EQUAL` | Numeric >= | `{"field": "balance", "operator": "GREATER_THAN_OR_EQUAL", "value": 1000}` |
+| `LESS_THAN` | Numeric < | `{"field": "age", "operator": "LESS_THAN", "value": 65}` |
+| `LESS_THAN_OR_EQUAL` | Numeric <= | `{"field": "debtRatio", "operator": "LESS_THAN_OR_EQUAL", "value": 0.4}` |
+| `CONTAINS` | String contains | `{"field": "email", "operator": "CONTAINS", "value": "@company.com"}` |
+| `STARTS_WITH` | String prefix | `{"field": "accountNumber", "operator": "STARTS_WITH", "value": "CC-"}` |
+| `ENDS_WITH` | String suffix | `{"field": "phone", "operator": "ENDS_WITH", "value": "1234"}` |
+
+### 5.5 Field Resolution
+
+Fields are resolved in this order:
+
+1. **Account Metadata** - From `AccountMetadataService`
+   - `accountType`, `region`, `state`, `customerSegment`, `lineOfBusiness`, `accountId`, `customerId`
+
+2. **Request Context** - From the original request
+   - `accountId`, `customerId`, `correlationId`, `referenceKey`, `referenceKeyType`
+
+3. **Extracted Data** - From `ConfigurableDataExtractionService`
+   - Any field extracted from external API calls (e.g., `creditScore`, `disclosureCode`)
+
+```mermaid
+flowchart LR
+    subgraph "Field Resolution Order"
+        A[Rule Field] --> B{In Account Metadata?}
+        B -->|Yes| C[Use AccountMetadata value]
+        B -->|No| D{In Request Context?}
+        D -->|Yes| E[Use Request value]
+        D -->|No| F{In Extracted Data?}
+        F -->|Yes| G[Use Extracted value]
+        F -->|No| H[Field not found - Rule fails]
+    end
+
+    style C fill:#c8e6c9
+    style E fill:#c8e6c9
+    style G fill:#c8e6c9
+    style H fill:#ffcdd2
+```
+
+### 5.6 Example Configurations
+
+#### Example 1: VIP Customers in Specific Regions
+```json
+{
+  "eligibility_criteria": {
+    "operator": "AND",
+    "rules": [
+      {"field": "customerSegment", "operator": "EQUALS", "value": "VIP"},
+      {"field": "region", "operator": "IN", "value": ["US_WEST", "US_EAST"]}
+    ]
+  }
+}
+```
+**Result**: Only VIP customers in US_WEST or US_EAST can see documents.
+
+#### Example 2: High Credit Score OR High Income
+```json
+{
+  "eligibility_criteria": {
+    "operator": "OR",
+    "rules": [
+      {"field": "creditScore", "operator": "GREATER_THAN_OR_EQUAL", "value": 750},
+      {"field": "annualIncome", "operator": "GREATER_THAN_OR_EQUAL", "value": 150000}
+    ]
+  }
+}
+```
+**Result**: Customers with credit score >= 750 OR annual income >= 150000 can see documents.
+
+#### Example 3: State Exclusions
+```json
+{
+  "eligibility_criteria": {
+    "operator": "AND",
+    "rules": [
+      {"field": "state", "operator": "NOT_IN", "value": ["NY", "NJ", "CT"]}
+    ]
+  }
+}
+```
+**Result**: Customers NOT in NY, NJ, or CT can see documents.
+
+#### Example 4: Using Extracted Data
+```json
+{
+  "data_extraction_config": {
+    "sources": [
+      {
+        "name": "creditApi",
+        "url": "https://api.example.com/credit/${customerId}",
+        "method": "GET",
+        "fields": [
+          {"sourcePath": "$.score", "targetField": "creditScore"}
+        ]
+      }
+    ]
+  },
+  "eligibility_criteria": {
+    "operator": "AND",
+    "rules": [
+      {"field": "creditScore", "operator": "GREATER_THAN_OR_EQUAL", "value": 700}
+    ]
+  }
+}
+```
+**Result**: Credit score is fetched from external API, then used in eligibility evaluation.
+
+### 5.7 Integration with Document Enquiry
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Processor as DocumentEnquiryProcessor
+    participant RuleSvc as RuleEvaluationService
+    participant AcctSvc as AccountMetadataService
+
+    Note over Processor: Processing template for account
+
+    Processor->>AcctSvc: getAccountMetadata(accountId)
+    AcctSvc-->>Processor: AccountMetadata
+
+    Processor->>RuleSvc: isEligible(template, accountMetadata, extractedData)
+
+    RuleSvc->>RuleSvc: Parse eligibility_criteria from template
+
+    loop For each rule
+        RuleSvc->>RuleSvc: resolveFieldValue(field, accountMetadata, extractedData)
+        RuleSvc->>RuleSvc: evaluateRule(fieldValue, operator, expectedValue)
+    end
+
+    alt All/Any rules pass (based on AND/OR)
+        RuleSvc-->>Processor: eligible = true
+        Processor->>Processor: Continue to query documents
+    else Rules failed
+        RuleSvc-->>Processor: eligible = false
+        Processor->>Processor: Skip template for this account
+    end
+```
+
+### 5.8 Test Coverage
+
+The `RuleEvaluationServiceTest` includes 47 tests covering:
+- All operators (EQUALS, IN, GREATER_THAN, etc.)
+- AND/OR logic combinations
+- Field resolution from different sources
+- Edge cases (null values, empty lists, type mismatches)
+- Complex multi-rule scenarios
+
+---
+
+## 6. Document Matching Strategy
 
 The `DocumentMatchingService` handles document query logic based on template configuration.
 
-### 5.1 Matching Decision Flow
+### 6.1 Matching Decision Flow
 
 ```mermaid
 flowchart TD
@@ -543,7 +784,7 @@ flowchart TD
     style J fill:#fff9c4
 ```
 
-### 5.2 Two-Level Date Filtering
+### 6.2 Two-Level Date Filtering
 
 The system applies date filtering at two levels:
 
@@ -556,7 +797,7 @@ The system applies date filtering at two levels:
 1. DB columns `start_date`/`end_date` must be NULL or within range
 2. JSON metadata `valid_from`/`valid_until` must be NULL or within range
 
-### 5.3 Query Filters Applied
+### 6.3 Query Filters Applied
 
 | Filter | Location | Description |
 |--------|----------|-------------|
@@ -569,7 +810,7 @@ The system applies date filtering at two levels:
 
 ---
 
-## 6. Complete End-to-End Flow
+## 7. Complete End-to-End Flow
 
 This comprehensive diagram shows the entire document enquiry process with all filters and validations.
 
@@ -657,7 +898,7 @@ flowchart TB
 
 ---
 
-## 7. Component Reference
+## 8. Component Reference
 
 ### Core Components
 
