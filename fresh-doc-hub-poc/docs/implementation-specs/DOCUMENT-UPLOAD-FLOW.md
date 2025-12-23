@@ -177,23 +177,30 @@ Each template defines required metadata fields in `required_fields` JSON column.
 }
 ```
 
-### Step 3: Check Date Range Availability (P1-002)
+### Step 3: Single Document Flag Behavior
 
-**Critical Validation:** Ensure no overlapping date ranges for the same template type.
+When `single_document_flag = true` on the template, the system ensures only one document per `reference_key` is active at any time.
 
+**How It Works:**
+- When uploading a new document, existing overlapping documents are automatically **closed** (not rejected)
+- Their `end_date` is updated to the new document's `start_date`
+- This prevents date overlap without requiring manual cleanup
+
+**Overlap Detection Query:**
 ```sql
--- Check for overlapping documents
-SELECT COUNT(*) FROM document_hub.storage_index
-WHERE template_type = :templateType
-AND account_key = :accountKey  -- For account-specific docs
-AND (
-    (active_start_date <= :newEndDate AND active_end_date >= :newStartDate)
-)
-AND accessible_flag = true;
+-- Find overlapping documents to close
+SELECT * FROM document_hub.storage_index
+WHERE reference_key = :referenceKey
+AND reference_key_type = :referenceKeyType
+AND template_type = :templateType
+AND accessible_flag = true
+AND (end_date IS NULL OR end_date > :newStartDate);
 ```
 
 **John's Requirement (Day 3):**
-> "When we're uploading, we need to make sure that there shouldn't be any overlapping dates... They had to put checks in to make sure when they're entering a new one, it couldn't overlap an old one."
+> "When we're uploading, we need to make sure that there shouldn't be any overlapping dates..."
+
+**Implementation:** Instead of rejecting uploads, the system closes overlapping documents by setting their `end_date` to the new document's `start_date`. See [Step 3: Single Document Flag Handling](#step-3-single-document-flag-handling) for details.
 
 ---
 
@@ -303,10 +310,11 @@ curl -X POST "https://api.example.com/documents" \
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 5. DATE OVERLAP VALIDATION (P1-002)                             │
-│    - Check for existing documents with overlapping dates        │
-│    - For same template type + account/customer                  │
-│    - Reject if overlap found                                    │
+│ 5. SINGLE DOCUMENT FLAG HANDLING                                │
+│    - Only applies when template.single_document_flag = true     │
+│    - Find overlapping documents (same reference_key/type)       │
+│    - Update their end_date to new document's start_date         │
+│    - Proceed with upload (does NOT reject)                      │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -329,10 +337,11 @@ curl -X POST "https://api.example.com/documents" \
 | INVALID_FIELD_TYPE | 400 | Field value doesn't match expected type |
 | TEMPLATE_NOT_FOUND | 404 | No active template for document type |
 | TEMPLATE_INACTIVE | 400 | Template exists but is not active |
-| DATE_OVERLAP | 409 | Document with overlapping dates exists |
 | FILE_TOO_LARGE | 400 | File exceeds size limit |
 | INVALID_MIME_TYPE | 400 | File type not allowed |
 | VIRUS_DETECTED | 409 | Antivirus scan failed |
+
+**Note**: Date overlap does NOT cause rejection. When `single_document_flag = true`, overlapping documents are automatically closed by updating their `end_date`.
 
 ---
 
