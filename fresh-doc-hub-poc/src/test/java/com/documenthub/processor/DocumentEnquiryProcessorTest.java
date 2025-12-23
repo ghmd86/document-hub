@@ -369,7 +369,7 @@ public class DocumentEnquiryProcessorTest {
                 .thenReturn(Mono.just(Collections.emptyMap()));
 
         // Document matching
-        when(documentMatchingService.queryDocuments(any(), any(), any(), any(), any()))
+        when(documentMatchingService.queryDocuments(any(com.documenthub.dto.DocumentQueryParams.class)))
                 .thenReturn(Mono.just(Collections.emptyList()));
 
         // Response builder

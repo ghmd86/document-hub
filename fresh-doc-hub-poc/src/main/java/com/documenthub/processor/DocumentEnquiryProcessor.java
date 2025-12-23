@@ -1,11 +1,17 @@
 package com.documenthub.processor;
 
 import com.documenthub.dao.MasterTemplateDao;
+import com.documenthub.dto.DocumentQueryParams;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
-import com.documenthub.model.*;
+import com.documenthub.model.AccountMetadata;
+import com.documenthub.model.DocumentDetailsNode;
+import com.documenthub.model.DocumentListRequest;
+import com.documenthub.model.DocumentRetrievalResponse;
 import com.documenthub.service.*;
 import io.r2dbc.postgresql.codec.Json;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -105,22 +111,30 @@ public class DocumentEnquiryProcessor {
             String requestorType,
             List<String> accountIds,
             long startTime) {
-
-        List<String> templateTypes = extractTemplateTypes(request);
-        Boolean messageCenterDocFlag = getMessageCenterDocFlag(request);
-        String communicationType = getCommunicationType(request);
-        Long postedFromDate = request.getPostedFromDate();
-        Long postedToDate = request.getPostedToDate();
-
+        EnquiryContext context = buildEnquiryContext(request, requestorType, accountIds);
         return determineLineOfBusiness(request, accountIds.get(0))
-                .flatMap(lob -> queryTemplates(
-                        lob, templateTypes, messageCenterDocFlag, communicationType))
-                .flatMap(templates -> processTemplates(
-                        templates, accountIds, request, requestorType,
-                        postedFromDate, postedToDate))
-                .map(documents -> buildFinalResponse(
-                        documents, request, startTime))
+                .flatMap(lob -> queryTemplates(lob, context))
+                .flatMap(templates -> processTemplates(templates, context))
+                .map(documents -> buildFinalResponse(documents, request, startTime))
                 .onErrorResume(e -> Mono.just(responseBuilder.buildErrorResponse(e)));
+    }
+
+    private EnquiryContext buildEnquiryContext(
+            DocumentListRequest request, String requestorType, List<String> accountIds) {
+        return EnquiryContext.builder()
+                .request(request)
+                .requestorType(requestorType)
+                .accountIds(accountIds)
+                .templateTypes(extractTemplateTypes(request))
+                .messageCenterDocFlag(getMessageCenterDocFlag(request))
+                .communicationType(getCommunicationType(request))
+                .postedFromDate(request.getPostedFromDate())
+                .postedToDate(request.getPostedToDate())
+                .build();
+    }
+
+    private Mono<List<MasterTemplateDefinitionEntity>> queryTemplates(String lob, EnquiryContext ctx) {
+        return queryTemplates(lob, ctx.getTemplateTypes(), ctx.getMessageCenterDocFlag(), ctx.getCommunicationType());
     }
 
     private Boolean getMessageCenterDocFlag(DocumentListRequest request) {
@@ -178,20 +192,12 @@ public class DocumentEnquiryProcessor {
 
     private Mono<List<DocumentDetailsNode>> processTemplates(
             List<MasterTemplateDefinitionEntity> templates,
-            List<String> accountIds,
-            DocumentListRequest request,
-            String requestorType,
-            Long postedFromDate,
-            Long postedToDate) {
-
+            EnquiryContext context) {
         if (templates.isEmpty()) {
             return Mono.just(Collections.emptyList());
         }
-
-        return Flux.fromIterable(accountIds)
-                .flatMap(accountId -> processAccountTemplates(
-                        templates, accountId, request, requestorType,
-                        postedFromDate, postedToDate))
+        return Flux.fromIterable(context.getAccountIds())
+                .flatMap(accountId -> processAccountTemplates(templates, accountId, context))
                 .collectList()
                 .map(this::flattenDocuments);
     }
@@ -199,42 +205,30 @@ public class DocumentEnquiryProcessor {
     private Flux<List<DocumentDetailsNode>> processAccountTemplates(
             List<MasterTemplateDefinitionEntity> templates,
             String accountId,
-            DocumentListRequest request,
-            String requestorType,
-            Long postedFromDate,
-            Long postedToDate) {
-
+            EnquiryContext context) {
         UUID accountUuid = UUID.fromString(accountId);
-
         return accountMetadataService.getAccountMetadata(accountUuid)
                 .flatMapMany(metadata -> Flux.fromIterable(templates)
-                        .flatMap(template -> processTemplate(
-                                template, accountUuid, metadata, request,
-                                requestorType, postedFromDate, postedToDate)));
+                        .flatMap(template -> processTemplate(template, accountUuid, metadata, context)));
     }
 
     private Mono<List<DocumentDetailsNode>> processTemplate(
             MasterTemplateDefinitionEntity template,
             UUID accountId,
             AccountMetadata accountMetadata,
-            DocumentListRequest request,
-            String requestorType,
-            Long postedFromDate,
-            Long postedToDate) {
-
+            EnquiryContext context) {
         if (!canAccessTemplate(template, accountMetadata)) {
             return Mono.just(Collections.emptyList());
         }
+        return executeDataExtraction(template, context.getRequest())
+                .flatMap(extractedData -> queryAndConvertDocuments(template, accountId, extractedData, context))
+                .onErrorResume(e -> handleTemplateError(template, e));
+    }
 
-        return executeDataExtraction(template, request)
-                .flatMap(extractedData -> queryAndConvertDocuments(
-                        template, accountId, extractedData, requestorType,
-                        postedFromDate, postedToDate))
-                .onErrorResume(e -> {
-                    log.error("Error processing template {}: {}",
-                            template.getTemplateType(), e.getMessage());
-                    return Mono.just(Collections.emptyList());
-                });
+    private Mono<List<DocumentDetailsNode>> handleTemplateError(
+            MasterTemplateDefinitionEntity template, Throwable e) {
+        log.error("Error processing template {}: {}", template.getTemplateType(), e.getMessage());
+        return Mono.just(Collections.emptyList());
     }
 
     private boolean canAccessTemplate(
@@ -273,14 +267,17 @@ public class DocumentEnquiryProcessor {
             MasterTemplateDefinitionEntity template,
             UUID accountId,
             Map<String, Object> extractedData,
-            String requestorType,
-            Long postedFromDate,
-            Long postedToDate) {
-
-        return documentMatchingService.queryDocuments(
-                        template, accountId, extractedData, postedFromDate, postedToDate)
+            EnquiryContext context) {
+        DocumentQueryParams queryParams = DocumentQueryParams.builder()
+                .template(template)
+                .accountId(accountId)
+                .extractedData(extractedData)
+                .postedFromDate(context.getPostedFromDate())
+                .postedToDate(context.getPostedToDate())
+                .build();
+        return documentMatchingService.queryDocuments(queryParams)
                 .map(docs -> applySingleDocumentFlag(docs, template))
-                .map(docs -> responseBuilder.convertToNodes(docs, template, requestorType));
+                .map(docs -> responseBuilder.convertToNodes(docs, template, context.getRequestorType()));
     }
 
     private List<StorageIndexEntity> applySingleDocumentFlag(
@@ -342,5 +339,18 @@ public class DocumentEnquiryProcessor {
                 .filter(type -> !type.isEmpty())
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Data
+    @Builder
+    private static class EnquiryContext {
+        private DocumentListRequest request;
+        private String requestorType;
+        private List<String> accountIds;
+        private List<String> templateTypes;
+        private Boolean messageCenterDocFlag;
+        private String communicationType;
+        private Long postedFromDate;
+        private Long postedToDate;
     }
 }

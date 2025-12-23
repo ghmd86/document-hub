@@ -1,6 +1,7 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
+import com.documenthub.dto.DocumentQueryParams;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.repository.StorageIndexRepository;
@@ -72,7 +73,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, accountId, null, null, null);
+                    buildParams(template, accountId, null));
 
             // Then
             StepVerifier.create(result)
@@ -101,7 +102,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), null, null, null);
+                    buildParams(template, UUID.randomUUID(), null));
 
             // Then
             StepVerifier.create(result)
@@ -139,7 +140,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -165,7 +166,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -203,7 +204,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -239,7 +240,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -267,7 +268,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -299,7 +300,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -334,7 +335,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -377,7 +378,7 @@ public class DocumentMatchingServiceTest {
             }
 
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             StepVerifier.create(result)
                     .expectNextMatches(list -> shouldMatch ? !list.isEmpty() : list.isEmpty())
@@ -414,7 +415,7 @@ public class DocumentMatchingServiceTest {
             }
 
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             StepVerifier.create(result)
                     .expectNextMatches(list -> shouldMatch ? !list.isEmpty() : list.isEmpty())
@@ -438,7 +439,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -457,7 +458,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -478,7 +479,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
             StepVerifier.create(result)
@@ -500,7 +501,7 @@ public class DocumentMatchingServiceTest {
 
             // When
             Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
-                    template, UUID.randomUUID(), extractedData, null, null);
+                    buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then - No condition matches, should return empty
             StepVerifier.create(result)
@@ -524,5 +525,18 @@ public class DocumentMatchingServiceTest {
         entity.setStorageDocumentKey(UUID.randomUUID());
         entity.setFileName("test-file.pdf");
         return entity;
+    }
+
+    private DocumentQueryParams buildParams(
+            MasterTemplateDefinitionEntity template,
+            UUID accountId,
+            Map<String, Object> extractedData) {
+        return DocumentQueryParams.builder()
+                .template(template)
+                .accountId(accountId)
+                .extractedData(extractedData)
+                .postedFromDate(null)
+                .postedToDate(null)
+                .build();
     }
 }

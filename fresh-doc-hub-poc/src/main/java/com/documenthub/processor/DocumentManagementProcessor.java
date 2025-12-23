@@ -2,9 +2,11 @@ package com.documenthub.processor;
 
 import com.documenthub.dao.MasterTemplateDao;
 import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dto.DocumentUploadRequest;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
+import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
 import com.documenthub.model.*;
 import com.documenthub.service.DocumentAccessControlService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,12 +18,10 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,104 +45,107 @@ public class DocumentManagementProcessor {
     /**
      * Upload a document according to the API spec
      */
-    public Mono<InlineResponse200> uploadDocument(
-            MultipartFile content,
-            String documentType,
-            String createdBy,
-            String metadataJson,
-            UUID templateId,
-            String referenceKey,
-            String referenceKeyType,
-            UUID accountKey,
-            UUID customerKey,
-            String category,
-            String fileName,
-            Long activeStartDate,
-            Long activeEndDate,
-            UUID threadId,
-            UUID correlationId,
-            String requestorType) {
+    public Mono<InlineResponse200> uploadDocument(DocumentUploadRequest request, String requestorType) {
+        logUploadRequest(request, requestorType);
 
-        log.info("Processing document upload: documentType={}, fileName={}, createdBy={}, requestorType={}",
-            documentType, fileName, createdBy, requestorType);
-
-        // Find the template by document type
-        return findTemplateByDocumentType(documentType)
-            .flatMap(template -> {
-                // Check upload permission
-                if (!accessControlService.canUpload(template, requestorType)) {
-                    log.warn("Upload permission denied: documentType={}, requestorType={}",
-                        documentType, requestorType);
-                    return Mono.error(new SecurityException(
-                        "Upload not permitted for requestor type: " + requestorType));
-                }
-
-                // Parse metadata
-                List<MetadataNode> metadata = parseMetadata(metadataJson);
-
-                // Get file bytes from MultipartFile
-                byte[] fileBytes;
-                try {
-                    fileBytes = content.getBytes();
-                } catch (java.io.IOException e) {
-                    log.error("Failed to read file content: {}", e.getMessage());
-                    return Mono.error(new IllegalArgumentException("Failed to read file content: " + e.getMessage()));
-                }
-
-                // Upload to ECMS
-                return ecmsClient.uploadDocument(fileBytes, buildUploadRequest(
-                        documentType, fileName, accountKey, customerKey,
-                        referenceKey, referenceKeyType, metadata))
-                    .flatMap(ecmsResponse -> {
-                        // Create storage index entry
-                        UUID storageIndexId = UUID.randomUUID();
-                        LocalDateTime now = LocalDateTime.now();
-                        long currentTimeMs = System.currentTimeMillis();
-
-                        StorageIndexEntity entity = StorageIndexEntity.builder()
-                            .storageIndexId(storageIndexId)
-                            .masterTemplateId(template.getMasterTemplateId())
-                            .templateVersion(template.getTemplateVersion())
-                            .templateType(documentType)
-                            .storageVendor(STORAGE_VENDOR_ECMS)
-                            .storageDocumentKey(ecmsResponse.getId())
-                            .fileName(fileName)
-                            .referenceKey(referenceKey)
-                            .referenceKeyType(referenceKeyType)
-                            .accountKey(accountKey)
-                            .customerKey(customerKey)
-                            .docCreationDate(currentTimeMs)
-                            .accessibleFlag(true)
-                            .sharedFlag(Boolean.TRUE.equals(template.getSharedDocumentFlag()))
-                            .startDate(activeStartDate)
-                            .endDate(activeEndDate)
-                            .createdBy(createdBy)
-                            .createdTimestamp(now)
-                            .archiveIndicator(false)
-                            .versionNumber(1L)
-                            .recordStatus("ACTIVE")
-                            .build();
-
-                        // Set metadata
-                        if (metadata != null && !metadata.isEmpty()) {
-                            try {
-                                String metadataStr = objectMapper.writeValueAsString(metadata);
-                                entity.setDocMetadata(Json.of(metadataStr));
-                            } catch (JsonProcessingException e) {
-                                log.warn("Failed to serialize metadata: {}", e.getMessage());
-                            }
-                        }
-
-                        return storageIndexDao.save(entity)
-                            .map(saved -> {
-                                InlineResponse200 response = new InlineResponse200();
-                                response.setId(saved.getStorageIndexId());
-                                return response;
-                            });
-                    });
-            })
+        return findTemplateByDocumentType(request.getDocumentType())
+            .flatMap(template -> processUpload(template, request, requestorType))
             .doOnSuccess(resp -> log.info("Document upload completed: id={}", resp.getId()))
             .doOnError(e -> log.error("Document upload failed", e));
+    }
+
+    private void logUploadRequest(DocumentUploadRequest request, String requestorType) {
+        log.info("Processing document upload: documentType={}, fileName={}, createdBy={}, requestorType={}",
+            request.getDocumentType(), request.getFileName(), request.getCreatedBy(), requestorType);
+    }
+
+    private Mono<InlineResponse200> processUpload(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request, String requestorType) {
+        if (!accessControlService.canUpload(template, requestorType)) {
+            return handleUploadPermissionDenied(request.getDocumentType(), requestorType);
+        }
+
+        byte[] fileBytes = extractFileBytes(request);
+        if (fileBytes == null) {
+            return Mono.error(new IllegalArgumentException("Failed to read file content"));
+        }
+
+        List<MetadataNode> metadata = parseMetadata(request.getMetadataJson());
+        return uploadToEcmsAndSave(template, request, metadata, fileBytes);
+    }
+
+    private Mono<InlineResponse200> handleUploadPermissionDenied(String docType, String requestorType) {
+        log.warn("Upload permission denied: documentType={}, requestorType={}", docType, requestorType);
+        return Mono.error(new SecurityException("Upload not permitted for requestor type: " + requestorType));
+    }
+
+    private byte[] extractFileBytes(DocumentUploadRequest request) {
+        try {
+            return request.getContent().getBytes();
+        } catch (java.io.IOException e) {
+            log.error("Failed to read file content: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private Mono<InlineResponse200> uploadToEcmsAndSave(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
+            List<MetadataNode> metadata, byte[] fileBytes) {
+        return ecmsClient.uploadDocument(fileBytes, buildEcmsRequest(request, metadata))
+            .flatMap(ecmsResponse -> saveStorageIndex(template, request, metadata, ecmsResponse));
+    }
+
+    private Mono<InlineResponse200> saveStorageIndex(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
+            List<MetadataNode> metadata, EcmsDocumentResponse ecmsResponse) {
+        StorageIndexEntity entity = createStorageEntity(template, request, ecmsResponse);
+        setEntityMetadata(entity, metadata);
+        return storageIndexDao.save(entity).map(this::buildUploadResponse);
+    }
+
+    private StorageIndexEntity createStorageEntity(
+            MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
+            EcmsDocumentResponse ecmsResponse) {
+        return StorageIndexEntity.builder()
+            .storageIndexId(UUID.randomUUID())
+            .masterTemplateId(template.getMasterTemplateId())
+            .templateVersion(template.getTemplateVersion())
+            .templateType(request.getDocumentType())
+            .storageVendor(STORAGE_VENDOR_ECMS)
+            .storageDocumentKey(ecmsResponse.getId())
+            .fileName(request.getFileName())
+            .referenceKey(request.getReferenceKey())
+            .referenceKeyType(request.getReferenceKeyType())
+            .accountKey(request.getAccountKey())
+            .customerKey(request.getCustomerKey())
+            .docCreationDate(System.currentTimeMillis())
+            .accessibleFlag(true)
+            .sharedFlag(Boolean.TRUE.equals(template.getSharedDocumentFlag()))
+            .startDate(request.getActiveStartDate())
+            .endDate(request.getActiveEndDate())
+            .createdBy(request.getCreatedBy())
+            .createdTimestamp(LocalDateTime.now())
+            .archiveIndicator(false)
+            .versionNumber(1L)
+            .recordStatus("ACTIVE")
+            .build();
+    }
+
+    private void setEntityMetadata(StorageIndexEntity entity, List<MetadataNode> metadata) {
+        if (metadata == null || metadata.isEmpty()) {
+            return;
+        }
+        try {
+            entity.setDocMetadata(Json.of(objectMapper.writeValueAsString(metadata)));
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to serialize metadata: {}", e.getMessage());
+        }
+    }
+
+    private InlineResponse200 buildUploadResponse(StorageIndexEntity saved) {
+        InlineResponse200 response = new InlineResponse200();
+        response.setId(saved.getStorageIndexId());
+        return response;
     }
 
     /**
@@ -266,46 +269,39 @@ public class DocumentManagementProcessor {
         }
     }
 
-    /**
-     * Build upload request for ECMS
-     */
-    private com.documenthub.dto.upload.DocumentUploadRequest buildUploadRequest(
-            String documentType,
-            String fileName,
-            UUID accountKey,
-            UUID customerKey,
-            String referenceKey,
-            String referenceKeyType,
-            List<MetadataNode> metadata) {
-
-        Map<String, Object> metadataMap = new HashMap<>();
-        if (metadata != null) {
-            for (MetadataNode node : metadata) {
-                metadataMap.put(node.getKey(), node.getValue());
-            }
-        }
-
+    private com.documenthub.dto.upload.DocumentUploadRequest buildEcmsRequest(
+            DocumentUploadRequest request, List<MetadataNode> metadata) {
         return com.documenthub.dto.upload.DocumentUploadRequest.builder()
-            .templateType(documentType)
-            .templateVersion(1) // Default version
-            .fileName(fileName)
-            .accountId(accountKey)
-            .customerId(customerKey)
-            .referenceKey(referenceKey)
-            .referenceKeyType(referenceKeyType)
-            .metadata(metadataMap)
+            .templateType(request.getDocumentType())
+            .templateVersion(1)
+            .fileName(request.getFileName())
+            .accountId(request.getAccountKey())
+            .customerId(request.getCustomerKey())
+            .referenceKey(request.getReferenceKey())
+            .referenceKeyType(request.getReferenceKeyType())
+            .metadata(convertMetadataToMap(metadata))
             .build();
     }
 
-    /**
-     * Build DocumentDetailsNode from storage index and template
-     */
-    private DocumentDetailsNode buildDocumentDetailsNode(
-            StorageIndexEntity storageIndex,
-            MasterTemplateDefinitionEntity template,
-            String requestorType,
-            boolean includeDownloadUrl) {
+    private Map<String, Object> convertMetadataToMap(List<MetadataNode> metadata) {
+        Map<String, Object> metadataMap = new HashMap<>();
+        if (metadata != null) {
+            metadata.forEach(node -> metadataMap.put(node.getKey(), node.getValue()));
+        }
+        return metadataMap;
+    }
 
+    private DocumentDetailsNode buildDocumentDetailsNode(
+            StorageIndexEntity storageIndex, MasterTemplateDefinitionEntity template,
+            String requestorType, boolean includeDownloadUrl) {
+        DocumentDetailsNode node = createBaseDocumentNode(storageIndex, template);
+        setDocumentMetadata(node, storageIndex);
+        node.setLinks(buildDocumentLinks(storageIndex, template, requestorType));
+        return node;
+    }
+
+    private DocumentDetailsNode createBaseDocumentNode(
+            StorageIndexEntity storageIndex, MasterTemplateDefinitionEntity template) {
         DocumentDetailsNode node = new DocumentDetailsNode();
         node.setDocumentId(storageIndex.getStorageIndexId().toString());
         node.setDisplayName(storageIndex.getFileName());
@@ -314,47 +310,58 @@ public class DocumentManagementProcessor {
         node.setLineOfBusiness(template.getLineOfBusiness());
         node.setMimeType(determineMimeType(storageIndex.getFileName()));
         node.setDatePosted(storageIndex.getDocCreationDate());
-
-        // Parse and set metadata
-        if (storageIndex.getDocMetadata() != null) {
-            try {
-                List<MetadataNode> metadata = objectMapper.readValue(
-                    storageIndex.getDocMetadata().asString(),
-                    new TypeReference<List<MetadataNode>>() {});
-                node.setMetadata(metadata);
-            } catch (JsonProcessingException e) {
-                log.warn("Failed to parse document metadata: {}", e.getMessage());
-            }
-        }
-
-        // Build links
-        Links links = new Links();
-
-        // Download link
-        if (accessControlService.hasAccess(template, requestorType, "Download")) {
-            LinksDownload downloadLink = new LinksDownload();
-            downloadLink.setHref("/documents/" + storageIndex.getStorageIndexId());
-            downloadLink.setType("GET");
-            downloadLink.setRel("download");
-            downloadLink.setTitle("Download this document");
-            downloadLink.setResponseTypes(Arrays.asList("application/pdf", "application/octet-stream"));
-
-            links.setDownload(downloadLink);
-        }
-
-        // Delete link
-        if (accessControlService.hasAccess(template, requestorType, "Delete")) {
-            LinksDelete deleteLink = new LinksDelete();
-            deleteLink.setHref("/documents/" + storageIndex.getStorageIndexId());
-            deleteLink.setType("DELETE");
-            deleteLink.setRel("delete");
-            deleteLink.setTitle("Delete this document");
-            links.setDelete(deleteLink);
-        }
-
-        node.setLinks(links);
-
         return node;
+    }
+
+    private void setDocumentMetadata(DocumentDetailsNode node, StorageIndexEntity storageIndex) {
+        if (storageIndex.getDocMetadata() == null) {
+            return;
+        }
+        try {
+            List<MetadataNode> metadata = objectMapper.readValue(
+                storageIndex.getDocMetadata().asString(),
+                new TypeReference<List<MetadataNode>>() {});
+            node.setMetadata(metadata);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse document metadata: {}", e.getMessage());
+        }
+    }
+
+    private Links buildDocumentLinks(
+            StorageIndexEntity storageIndex, MasterTemplateDefinitionEntity template, String requestorType) {
+        Links links = new Links();
+        addDownloadLink(links, storageIndex, template, requestorType);
+        addDeleteLink(links, storageIndex, template, requestorType);
+        return links;
+    }
+
+    private void addDownloadLink(
+            Links links, StorageIndexEntity storageIndex,
+            MasterTemplateDefinitionEntity template, String requestorType) {
+        if (!accessControlService.hasAccess(template, requestorType, "Download")) {
+            return;
+        }
+        LinksDownload downloadLink = new LinksDownload();
+        downloadLink.setHref("/documents/" + storageIndex.getStorageIndexId());
+        downloadLink.setType("GET");
+        downloadLink.setRel("download");
+        downloadLink.setTitle("Download this document");
+        downloadLink.setResponseTypes(Arrays.asList("application/pdf", "application/octet-stream"));
+        links.setDownload(downloadLink);
+    }
+
+    private void addDeleteLink(
+            Links links, StorageIndexEntity storageIndex,
+            MasterTemplateDefinitionEntity template, String requestorType) {
+        if (!accessControlService.hasAccess(template, requestorType, "Delete")) {
+            return;
+        }
+        LinksDelete deleteLink = new LinksDelete();
+        deleteLink.setHref("/documents/" + storageIndex.getStorageIndexId());
+        deleteLink.setType("DELETE");
+        deleteLink.setRel("delete");
+        deleteLink.setTitle("Delete this document");
+        links.setDelete(deleteLink);
     }
 
     /**

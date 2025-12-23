@@ -1,5 +1,7 @@
 package com.documenthub.controller;
 
+import com.documenthub.dto.DocumentUploadRequest;
+import com.documenthub.dto.RequestContext;
 import com.documenthub.model.*;
 import com.documenthub.processor.DocumentManagementProcessor;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -121,26 +122,38 @@ public class DocumentController {
         @Parameter(description = "Correlation ID")
         @RequestPart(value = "correlationId", required = false) String correlationId
     ) {
-        String originalFilename = content.getOriginalFilename();
-        log.info("Received document upload request - correlationId: {}, requestorId: {}, documentType: {}, fileName: {}",
-            xCorrelationId, xRequestorId, documentType, originalFilename);
+        logUploadRequest(xCorrelationId, xRequestorId, documentType, content);
+        DocumentUploadRequest uploadRequest = buildUploadRequest(
+            content, documentType, createdBy, metadataJson, templateId,
+            referenceKey, referenceKeyType, accountKey, customerKey,
+            category, fileName, activeStartDate, activeEndDate,
+            threadId, correlationId);
+        String requestorType = resolveRequestorType(xRequestorType);
 
-        return documentManagementProcessor.uploadDocument(
-                content, documentType, createdBy, metadataJson,
-                parseUUID(templateId), referenceKey, referenceKeyType,
-                parseUUID(accountKey), parseUUID(customerKey),
-                category, fileName != null ? fileName : originalFilename,
-                parseLong(activeStartDate), parseLong(activeEndDate),
-                parseUUID(threadId), parseUUID(correlationId),
-                xRequestorType != null ? xRequestorType.name() : "SYSTEM")
-            .map(response -> ResponseEntity.ok(response))
-            .doOnError(e -> log.error("Error processing document upload - correlationId: {}", xCorrelationId, e))
-            .onErrorResume(SecurityException.class, e ->
-                Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build()))
-            .onErrorResume(IllegalArgumentException.class, e ->
-                Mono.just(ResponseEntity.badRequest().build()))
-            .onErrorResume(e ->
-                Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
+        return processUpload(uploadRequest, requestorType, xCorrelationId);
+    }
+
+    private void logUploadRequest(String corrId, UUID reqId, String docType, MultipartFile content) {
+        log.info("Received document upload request - correlationId: {}, requestorId: {}, documentType: {}, fileName: {}",
+            corrId, reqId, docType, content.getOriginalFilename());
+    }
+
+    private Mono<ResponseEntity<InlineResponse200>> processUpload(
+            DocumentUploadRequest request, String requestorType, String correlationId) {
+        return documentManagementProcessor.uploadDocument(request, requestorType)
+            .map(ResponseEntity::ok)
+            .doOnError(e -> log.error("Error processing document upload - correlationId: {}", correlationId, e))
+            .onErrorResume(this::handleUploadError);
+    }
+
+    private Mono<ResponseEntity<InlineResponse200>> handleUploadError(Throwable e) {
+        if (e instanceof SecurityException) {
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+        }
+        if (e instanceof IllegalArgumentException) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     /**
@@ -298,6 +311,39 @@ public class DocumentController {
                 Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build()))
             .onErrorResume(e ->
                 Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
+    }
+
+    private DocumentUploadRequest buildUploadRequest(
+            MultipartFile content, String documentType, String createdBy,
+            String metadataJson, String templateId, String referenceKey,
+            String referenceKeyType, String accountKey, String customerKey,
+            String category, String fileName, String activeStartDate,
+            String activeEndDate, String threadId, String correlationId) {
+        return DocumentUploadRequest.builder()
+            .content(content)
+            .documentType(documentType)
+            .createdBy(createdBy)
+            .metadataJson(metadataJson)
+            .templateId(parseUUID(templateId))
+            .referenceKey(referenceKey)
+            .referenceKeyType(referenceKeyType)
+            .accountKey(parseUUID(accountKey))
+            .customerKey(parseUUID(customerKey))
+            .category(category)
+            .fileName(resolveFileName(fileName, content))
+            .activeStartDate(parseLong(activeStartDate))
+            .activeEndDate(parseLong(activeEndDate))
+            .threadId(parseUUID(threadId))
+            .correlationId(parseUUID(correlationId))
+            .build();
+    }
+
+    private String resolveFileName(String fileName, MultipartFile content) {
+        return fileName != null ? fileName : content.getOriginalFilename();
+    }
+
+    private String resolveRequestorType(XRequestorType xRequestorType) {
+        return xRequestorType != null ? xRequestorType.name() : "SYSTEM";
     }
 
     private UUID parseUUID(String value) {

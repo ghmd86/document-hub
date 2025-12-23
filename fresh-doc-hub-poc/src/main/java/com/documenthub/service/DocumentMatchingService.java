@@ -1,11 +1,14 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
+import com.documenthub.dto.DocumentQueryParams;
 import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.repository.StorageIndexRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,64 +34,35 @@ public class DocumentMatchingService {
     private final ObjectMapper objectMapper;
 
     /**
-     * Query documents based on template configuration.
+     * Query documents based on template configuration using DocumentQueryParams.
      */
-    public Mono<List<StorageIndexEntity>> queryDocuments(
-            MasterTemplateDefinitionEntity template,
-            UUID accountId,
-            Map<String, Object> extractedData,
-            Long postedFromDate,
-            Long postedToDate) {
-
-        logQueryStart(template, extractedData, postedFromDate, postedToDate);
-
-        if (hasDocumentMatching(template, extractedData)) {
-            return queryByDocumentMatching(
-                    template, extractedData, postedFromDate, postedToDate);
+    public Mono<List<StorageIndexEntity>> queryDocuments(DocumentQueryParams params) {
+        logQueryStart(params);
+        if (hasDocumentMatching(params.getTemplate(), params.getExtractedData())) {
+            return queryByDocumentMatching(params);
         }
-
-        return queryStandardDocuments(
-                template, accountId, postedFromDate, postedToDate);
+        return queryStandardDocuments(params);
     }
 
-    private void logQueryStart(
-            MasterTemplateDefinitionEntity template,
-            Map<String, Object> extractedData,
-            Long fromDate, Long toDate) {
-
-        log.info("QUERY DOCUMENTS for template: {}", template.getTemplateType());
+    private void logQueryStart(DocumentQueryParams params) {
+        log.info("QUERY DOCUMENTS for template: {}", params.getTemplate().getTemplateType());
         log.info("  extractedData: {}, dates: {}-{}",
-                extractedData != null, fromDate, toDate);
+                params.getExtractedData() != null, params.getPostedFromDate(), params.getPostedToDate());
     }
 
-    private boolean hasDocumentMatching(
-            MasterTemplateDefinitionEntity template,
-            Map<String, Object> extractedData) {
-
-        return template.getDocumentMatchingConfig() != null && extractedData != null;
+    private boolean hasDocumentMatching(MasterTemplateDefinitionEntity template, Map<String, Object> data) {
+        return template.getDocumentMatchingConfig() != null && data != null;
     }
 
-    private Mono<List<StorageIndexEntity>> queryByDocumentMatching(
-            MasterTemplateDefinitionEntity template,
-            Map<String, Object> extractedData,
-            Long postedFromDate,
-            Long postedToDate) {
-
+    private Mono<List<StorageIndexEntity>> queryByDocumentMatching(DocumentQueryParams params) {
         try {
             JsonNode matchingNode = objectMapper.readTree(
-                    template.getDocumentMatchingConfig().asString());
-
+                    params.getTemplate().getDocumentMatchingConfig().asString());
             if (!matchingNode.has("matchBy")) {
                 log.info("  No matchBy field in document_matching_config");
-                return queryBySharedFlag(template, null, postedFromDate, postedToDate);
+                return queryBySharedFlag(params, null);
             }
-
-            String matchBy = matchingNode.get("matchBy").asText();
-
-            return executeMatching(
-                    matchBy, matchingNode, template, extractedData,
-                    postedFromDate, postedToDate);
-
+            return executeMatching(matchingNode.get("matchBy").asText(), matchingNode, params);
         } catch (Exception e) {
             log.error("Failed to parse document_matching_config: {}", e.getMessage());
             return Mono.just(Collections.emptyList());
@@ -96,169 +70,121 @@ public class DocumentMatchingService {
     }
 
     private Mono<List<StorageIndexEntity>> executeMatching(
-            String matchBy,
-            JsonNode matchingNode,
-            MasterTemplateDefinitionEntity template,
-            Map<String, Object> extractedData,
-            Long postedFromDate,
-            Long postedToDate) {
-
+            String matchBy, JsonNode matchingNode, DocumentQueryParams params) {
         switch (matchBy) {
             case "reference_key":
-                return queryByReferenceKey(
-                        matchingNode, template, extractedData,
-                        postedFromDate, postedToDate);
-
+                return queryByReferenceKey(matchingNode, params);
             case "conditional":
-                return queryByConditional(
-                        matchingNode, template, extractedData,
-                        postedFromDate, postedToDate);
-
+                return queryByConditional(matchingNode, params);
             default:
                 log.warn("Unknown matchBy: {}", matchBy);
                 return Mono.just(Collections.emptyList());
         }
     }
 
-    private Mono<List<StorageIndexEntity>> queryByReferenceKey(
-            JsonNode matchingNode,
-            MasterTemplateDefinitionEntity template,
-            Map<String, Object> extractedData,
-            Long postedFromDate,
-            Long postedToDate) {
-
+    private Mono<List<StorageIndexEntity>> queryByReferenceKey(JsonNode matchingNode, DocumentQueryParams params) {
         String referenceKeyField = matchingNode.get("referenceKeyField").asText();
         String referenceKeyType = matchingNode.get("referenceKeyType").asText();
 
-        // Validate reference_key_type is a valid configured value
-        if (!referenceKeyConfig.isValid(referenceKeyType)) {
-            log.error("Invalid reference_key_type '{}' in template '{}'. Allowed values: {}",
-                    referenceKeyType, template.getTemplateType(), referenceKeyConfig.getAllowedTypesString());
-            return Mono.error(new IllegalArgumentException(
-                    "Invalid reference_key_type: '" + referenceKeyType +
-                    "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString()));
+        Mono<Void> validation = validateReferenceKeyType(referenceKeyType, params.getTemplate());
+        if (validation != null) {
+            return validation.then(Mono.just(Collections.emptyList()));
         }
 
-        Object referenceKeyValue = extractedData.get(referenceKeyField);
-
+        Object referenceKeyValue = params.getExtractedData().get(referenceKeyField);
         if (referenceKeyValue == null) {
             log.warn("Reference key '{}' not found in extracted data", referenceKeyField);
             return Mono.just(Collections.emptyList());
         }
 
-        logReferenceKeyQuery(referenceKeyValue, referenceKeyType, template);
-
-        return executeReferenceKeyQuery(
-                referenceKeyValue.toString(), referenceKeyType,
-                template, postedFromDate, postedToDate);
+        logReferenceKeyQuery(referenceKeyValue, referenceKeyType, params.getTemplate());
+        return executeReferenceKeyQuery(referenceKeyValue.toString(), referenceKeyType, params);
     }
 
-    private Mono<List<StorageIndexEntity>> queryByConditional(
-            JsonNode matchingNode,
-            MasterTemplateDefinitionEntity template,
-            Map<String, Object> extractedData,
-            Long postedFromDate,
-            Long postedToDate) {
+    private Mono<Void> validateReferenceKeyType(String refKeyType, MasterTemplateDefinitionEntity template) {
+        if (referenceKeyConfig.isValid(refKeyType)) {
+            return null;
+        }
+        log.error("Invalid reference_key_type '{}' in template '{}'. Allowed values: {}",
+                refKeyType, template.getTemplateType(), referenceKeyConfig.getAllowedTypesString());
+        return Mono.error(new IllegalArgumentException(
+                "Invalid reference_key_type: '" + refKeyType +
+                "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString()));
+    }
 
-        JsonNode conditionsNode = matchingNode.get("conditions");
-
+    private Mono<List<StorageIndexEntity>> queryByConditional(JsonNode matchingNode, DocumentQueryParams params) {
         if (!matchingNode.has("referenceKeyType")) {
-            log.error("referenceKeyType is required for conditional matching in template '{}'",
-                    template.getTemplateType());
-            return Mono.error(new IllegalArgumentException(
-                    "referenceKeyType is required in document_matching_config for template: " +
-                    template.getTemplateType()));
+            return handleMissingRefKeyType(params.getTemplate());
         }
 
         String referenceKeyType = matchingNode.get("referenceKeyType").asText();
-
-        // Validate reference_key_type is a valid configured value
-        if (!referenceKeyConfig.isValid(referenceKeyType)) {
-            log.error("Invalid reference_key_type '{}' in template '{}'. Allowed values: {}",
-                    referenceKeyType, template.getTemplateType(), referenceKeyConfig.getAllowedTypesString());
-            return Mono.error(new IllegalArgumentException(
-                    "Invalid reference_key_type: '" + referenceKeyType +
-                    "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString()));
+        Mono<Void> validation = validateReferenceKeyType(referenceKeyType, params.getTemplate());
+        if (validation != null) {
+            return validation.then(Mono.just(Collections.emptyList()));
         }
 
+        JsonNode conditionsNode = matchingNode.get("conditions");
         if (conditionsNode == null || !conditionsNode.isArray()) {
             log.warn("No conditions array found");
             return Mono.just(Collections.emptyList());
         }
 
-        String matchedKey = evaluateConditions(conditionsNode, extractedData);
-
+        String matchedKey = evaluateConditions(conditionsNode, params.getExtractedData());
         if (matchedKey == null) {
             log.warn("No condition matched");
             return Mono.just(Collections.emptyList());
         }
 
-        logConditionalMatch(matchedKey, referenceKeyType, template);
+        logConditionalMatch(matchedKey, referenceKeyType, params.getTemplate());
+        return executeReferenceKeyQuery(matchedKey, referenceKeyType, params);
+    }
 
-        return executeReferenceKeyQuery(
-                matchedKey, referenceKeyType,
-                template, postedFromDate, postedToDate);
+    private Mono<List<StorageIndexEntity>> handleMissingRefKeyType(MasterTemplateDefinitionEntity template) {
+        log.error("referenceKeyType is required for conditional matching in template '{}'",
+                template.getTemplateType());
+        return Mono.error(new IllegalArgumentException(
+                "referenceKeyType is required in document_matching_config for template: " +
+                template.getTemplateType()));
     }
 
     private Mono<List<StorageIndexEntity>> executeReferenceKeyQuery(
-            String referenceKey,
-            String referenceKeyType,
-            MasterTemplateDefinitionEntity template,
-            Long postedFromDate,
-            Long postedToDate) {
-
+            String referenceKey, String referenceKeyType, DocumentQueryParams params) {
+        MasterTemplateDefinitionEntity template = params.getTemplate();
         return storageRepository.findByReferenceKeyAndTemplateWithDateRange(
                 referenceKey, referenceKeyType,
                 template.getTemplateType(), template.getTemplateVersion(),
-                postedFromDate, postedToDate, System.currentTimeMillis())
+                params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.info("Found {} valid documents", docs.size()));
     }
 
-    private Mono<List<StorageIndexEntity>> queryStandardDocuments(
-            MasterTemplateDefinitionEntity template,
-            UUID accountId,
-            Long postedFromDate,
-            Long postedToDate) {
-
-        return queryBySharedFlag(template, accountId, postedFromDate, postedToDate);
+    private Mono<List<StorageIndexEntity>> queryStandardDocuments(DocumentQueryParams params) {
+        return queryBySharedFlag(params, params.getAccountId());
     }
 
-    private Mono<List<StorageIndexEntity>> queryBySharedFlag(
-            MasterTemplateDefinitionEntity template,
-            UUID accountId,
-            Long postedFromDate,
-            Long postedToDate) {
-
-        if (Boolean.TRUE.equals(template.getSharedDocumentFlag())) {
-            return querySharedDocuments(template, postedFromDate, postedToDate);
+    private Mono<List<StorageIndexEntity>> queryBySharedFlag(DocumentQueryParams params, UUID accountId) {
+        if (Boolean.TRUE.equals(params.getTemplate().getSharedDocumentFlag())) {
+            return querySharedDocuments(params);
         }
-        return queryAccountDocuments(template, accountId, postedFromDate, postedToDate);
+        return queryAccountDocuments(params, accountId);
     }
 
-    private Mono<List<StorageIndexEntity>> querySharedDocuments(
-            MasterTemplateDefinitionEntity template,
-            Long postedFromDate,
-            Long postedToDate) {
-
+    private Mono<List<StorageIndexEntity>> querySharedDocuments(DocumentQueryParams params) {
+        MasterTemplateDefinitionEntity template = params.getTemplate();
         return storageRepository.findSharedDocumentsWithDateRange(
                 template.getTemplateType(), template.getTemplateVersion(),
-                postedFromDate, postedToDate, System.currentTimeMillis())
+                params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.debug("Found {} shared documents", docs.size()));
     }
 
-    private Mono<List<StorageIndexEntity>> queryAccountDocuments(
-            MasterTemplateDefinitionEntity template,
-            UUID accountId,
-            Long postedFromDate,
-            Long postedToDate) {
-
+    private Mono<List<StorageIndexEntity>> queryAccountDocuments(DocumentQueryParams params, UUID accountId) {
+        MasterTemplateDefinitionEntity template = params.getTemplate();
         return storageRepository.findAccountSpecificDocumentsWithDateRange(
                 accountId, template.getTemplateType(), template.getTemplateVersion(),
-                postedFromDate, postedToDate, System.currentTimeMillis())
+                params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.debug("Found {} account documents", docs.size()));
