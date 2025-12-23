@@ -129,6 +129,9 @@ public class StorageIndexDao {
         log.debug("Soft deleting storage index: id={}", entity.getStorageIndexId());
         entity.setArchiveIndicator(true);
         entity.setRecordStatus("ARCHIVED");
+        entity.setArchiveTimestamp(java.time.LocalDateTime.now());
+        entity.setUpdatedTimestamp(java.time.LocalDateTime.now());
+        entity.setUpdatedBy("SYSTEM");
         return repository.save(entity);
     }
 
@@ -140,6 +143,8 @@ public class StorageIndexDao {
         log.debug("Updating end_date for storage index: id={}, newEndDate={}",
             entity.getStorageIndexId(), newEndDate);
         entity.setEndDate(newEndDate);
+        entity.setUpdatedTimestamp(java.time.LocalDateTime.now());
+        entity.setUpdatedBy("SYSTEM");
         return repository.save(entity);
     }
 

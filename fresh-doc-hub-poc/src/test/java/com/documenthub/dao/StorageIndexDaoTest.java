@@ -46,7 +46,7 @@ public class StorageIndexDaoTest {
     class UpdateEndDateTests {
 
         @Test
-        @DisplayName("Should update end_date of document")
+        @DisplayName("Should update end_date and timestamps of document")
         void shouldUpdateEndDate() {
             // Given
             StorageIndexEntity entity = createStorageEntity(null);
@@ -60,12 +60,18 @@ public class StorageIndexDaoTest {
 
             // Then
             StepVerifier.create(result)
-                .expectNextMatches(saved -> newEndDate.equals(saved.getEndDate()))
+                .expectNextMatches(saved ->
+                    newEndDate.equals(saved.getEndDate()) &&
+                    saved.getUpdatedTimestamp() != null &&
+                    "SYSTEM".equals(saved.getUpdatedBy()))
                 .verifyComplete();
 
             ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
             verify(repository).save(captor.capture());
-            assertEquals(newEndDate, captor.getValue().getEndDate());
+            StorageIndexEntity captured = captor.getValue();
+            assertEquals(newEndDate, captured.getEndDate());
+            assertNotNull(captured.getUpdatedTimestamp());
+            assertEquals("SYSTEM", captured.getUpdatedBy());
         }
     }
 
