@@ -419,10 +419,10 @@ flowchart TD
     subgraph "Action Permissions"
         G --> H[Get permitted actions array]
         H --> I{For each action}
-        I -->|View| J[GET /documents/{id}]
-        I -->|Update| K[PUT /documents/{id}]
-        I -->|Delete| L[DELETE /documents/{id}]
-        I -->|Download| M[GET /documents/{id}/download]
+        I -->|View| J["GET /documents/:id"]
+        I -->|Update| K["PUT /documents/:id"]
+        I -->|Delete| L["DELETE /documents/:id"]
+        I -->|Download| M["GET /documents/:id/download"]
     end
 
     subgraph "HATEOAS Link Generation"
