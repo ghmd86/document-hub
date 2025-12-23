@@ -255,24 +255,6 @@ public class DocumentAccessControlServiceTest {
         }
 
         @Test
-        @DisplayName("Should set expiration time on download link")
-        void shouldSetExpirationTime() {
-            // Given
-            StorageIndexEntity document = createStorageEntity();
-            List<String> permittedActions = Arrays.asList("View", "Download");
-            long beforeTime = System.currentTimeMillis() / 1000;
-
-            // When
-            Links links = accessControlService.buildLinksForDocument(document, permittedActions);
-
-            // Then
-            assertNotNull(links.getDownload().getExpiresAt());
-            long expiresAt = links.getDownload().getExpiresAt();
-            assertTrue(expiresAt > beforeTime);
-            assertTrue(expiresAt <= beforeTime + 700); // 600 seconds + some buffer
-        }
-
-        @Test
         @DisplayName("Should set correct response types")
         void shouldSetCorrectResponseTypes() {
             // Given

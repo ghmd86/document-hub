@@ -25,8 +25,13 @@ flowchart TB
         Controller[DocumentEnquiryController]
     end
 
-    subgraph "Orchestration Layer"
-        DocService[DocumentEnquiryService<br/><i>Coordinator</i>]
+    subgraph "Processor Layer"
+        Processor[DocumentEnquiryProcessor<br/><i>Orchestrator</i>]
+    end
+
+    subgraph "DAO Layer"
+        TemplateDao[MasterTemplateDao<br/><i>Template Queries</i>]
+        StorageDao[StorageIndexDao<br/><i>Document Queries</i>]
     end
 
     subgraph "Domain Services"
@@ -49,29 +54,30 @@ flowchart TB
     end
 
     subgraph "Repositories"
-        TemplateRepo[(TemplateRepository)]
+        TemplateRepo[(MasterTemplateRepository)]
         StorageRepo[(StorageIndexRepository)]
     end
 
-    Controller --> DocService
-    DocService --> MatchingSvc
-    DocService --> ResponseBuilder
-    DocService --> ExtractSvc
-    DocService --> AccountSvc
+    Controller --> Processor
+    Processor --> TemplateDao
+    Processor --> MatchingSvc
+    Processor --> ResponseBuilder
+    Processor --> ExtractSvc
+    Processor --> AccountSvc
+
+    TemplateDao --> TemplateRepo
+    StorageDao --> StorageRepo
 
     MatchingSvc --> StorageRepo
-    MatchingSvc --> RuleSvc
+    MatchingSvc --> ValiditySvc
 
     ResponseBuilder --> AccessControl
-    ResponseBuilder --> ValiditySvc
 
     ExtractSvc --> PlanBuilder
     ExtractSvc --> ApiExecutor
     ApiExecutor --> FieldExtractor
 
-    DocService --> TemplateRepo
-
-    style DocService fill:#e1f5fe
+    style Processor fill:#e1f5fe
     style ExtractSvc fill:#fff3e0
     style AccessControl fill:#f3e5f5
     style MatchingSvc fill:#e8f5e9
@@ -90,7 +96,7 @@ flowchart TB
 
 ## 2. High-Level Sequence Diagram
 
-This diagram shows the main interaction flow between the refactored components.
+This diagram shows the main interaction flow between the components based on the actual implementation.
 
 ### Key Filters Applied
 
@@ -111,83 +117,100 @@ sequenceDiagram
     autonumber
     participant Client
     participant Controller as DocumentEnquiryController
-    participant Service as DocumentEnquiryService
+    participant Processor as DocumentEnquiryProcessor
     participant AccountSvc as AccountMetadataService
-    participant TemplateRepo as TemplateRepository
+    participant TemplateDao as MasterTemplateDao
     participant ExtractSvc as ConfigurableDataExtractionService
     participant MatchingSvc as DocumentMatchingService
     participant ResponseBuilder as DocumentResponseBuilder
     participant AccessCtrl as DocumentAccessControlService
 
     Client->>Controller: POST /documents-enquiry
-    Note over Client,Controller: Headers: X-requestor-type (CUSTOMER/BANKER/AGENT)<br/>Body: customerId, accountId[], lineOfBusiness,<br/>messageCenterDocFlag, communicationType
+    Note over Client,Controller: Headers: X-requestor-type (CUSTOMER/AGENT/SYSTEM)<br/>Body: customerId, accountId[], lineOfBusiness,<br/>messageCenterDocFlag, communicationType
 
-    Controller->>Controller: Validate request
-    Controller->>Service: getDocuments(request, requestorType)
+    Controller->>Controller: Validate request headers
+    Controller->>Processor: processEnquiry(request, requestorType)
 
     rect rgb(255, 250, 230)
-        Note over Service,TemplateRepo: STEP 1: TEMPLATE FILTERING
+        Note over Processor,AccountSvc: STEP 1: RESOLVE ACCOUNT IDs
+
+        alt accountId[] provided in request
+            Processor->>Processor: Use request.accountId[]
+        else only customerId provided
+            Processor->>AccountSvc: getAccountsByCustomerId(customerId)
+            AccountSvc-->>Processor: List<AccountMetadata>
+            Processor->>Processor: Extract accountIds from metadata
+        else neither provided
+            Processor-->>Controller: Empty response
+        end
+    end
+
+    rect rgb(255, 245, 238)
+        Note over Processor,TemplateDao: STEP 2: DETERMINE LOB & QUERY TEMPLATES
 
         alt lineOfBusiness in request
-            Service->>Service: Use request.lineOfBusiness
+            Processor->>Processor: Use request.lineOfBusiness
         else lineOfBusiness not provided
-            Service->>AccountSvc: getAccountMetadata(firstAccountId)
-            AccountSvc-->>Service: AccountMetadata
-            Service->>Service: Derive LOB from accountType
+            Processor->>AccountSvc: getAccountMetadata(firstAccountId)
+            AccountSvc-->>Processor: AccountMetadata
+            Processor->>Processor: Derive LOB from metadata
         end
 
-        Service->>TemplateRepo: findActiveTemplatesWithFilters(lob, msgCenterFlag, commType, currentDate)
-        Note over TemplateRepo: WHERE line_of_business = :lob<br/>AND accessible_flag = true<br/>AND message_center_doc_flag = :flag<br/>AND (communication_type = :type OR :type IS NULL)<br/>AND start_date <= :now AND end_date >= :now
-        TemplateRepo-->>Service: List<Template>
+        Processor->>TemplateDao: findActiveTemplatesWithFilters(lob, msgCenterFlag, commType, currentDate)
+        Note over TemplateDao: WHERE line_of_business IN (:lob, 'ENTERPRISE')<br/>AND accessible_flag = true<br/>AND message_center_doc_flag = :flag<br/>AND (communication_type = :type OR :type IS NULL)<br/>AND start_date <= :now AND end_date >= :now
+        TemplateDao-->>Processor: List<Template>
     end
 
     rect rgb(230, 250, 255)
-        Note over Service,MatchingSvc: STEP 2: PROCESS EACH TEMPLATE
+        Note over Processor,MatchingSvc: STEP 3: PROCESS EACH ACCOUNT & TEMPLATE
 
         loop For each accountId
-            Service->>AccountSvc: getAccountMetadata(accountId)
-            AccountSvc-->>Service: AccountMetadata
+            Processor->>AccountSvc: getAccountMetadata(accountId)
+            AccountSvc-->>Processor: AccountMetadata
 
             loop For each Template
-                Service->>Service: Check canAccessTemplate(template, metadata)
-                Note over Service: Validate sharing_scope vs accountType
+                Processor->>Processor: canAccessTemplate(template, metadata)
+                Note over Processor: Check sharing_scope vs accountType<br/>(ALL, CUSTOM_RULES, or specific type)
+
+                alt template not accessible
+                    Processor->>Processor: Skip template
+                end
 
                 alt has data_extraction_config
-                    Service->>ExtractSvc: extractData(configJson, request)
-                    ExtractSvc-->>Service: Map<String, Object> extractedFields
+                    Processor->>ExtractSvc: extractData(configJson, request)
+                    ExtractSvc-->>Processor: Map<String, Object> extractedFields
                 end
 
-                Service->>MatchingSvc: queryDocuments(template, accountId, extractedData, dateRange)
-                Note over MatchingSvc: Apply reference_key matching<br/>or conditional matching<br/>Then filter by doc_metadata validity
-                MatchingSvc-->>Service: List<StorageIndexEntity> (validity filtered)
+                Processor->>MatchingSvc: queryDocuments(template, accountId, extractedData, fromDate, toDate)
+                Note over MatchingSvc: 1. Check document_matching_config<br/>2. Apply reference_key or conditional matching<br/>3. Query StorageIndexRepository<br/>4. Filter by DocumentValidityService
+                MatchingSvc-->>Processor: List<StorageIndexEntity>
 
                 alt single_document_flag = true
-                    Service->>Service: Keep only most recent document
+                    Processor->>Processor: applySingleDocumentFlag()
+                    Note over Processor: Keep only most recent by doc_creation_date
                 end
+
+                Processor->>ResponseBuilder: convertToNodes(documents, template, requestorType)
+                ResponseBuilder->>AccessCtrl: getPermittedActions(template, requestorType)
+                AccessCtrl-->>ResponseBuilder: List<Action> (View, Download, Delete, Update)
+                ResponseBuilder->>AccessCtrl: buildLinksForDocument(document, actions)
+                AccessCtrl-->>ResponseBuilder: Links object with HATEOAS
+                ResponseBuilder-->>Processor: List<DocumentDetailsNode>
             end
         end
     end
 
     rect rgb(240, 255, 240)
-        Note over Service,AccessCtrl: STEP 3: BUILD RESPONSE
+        Note over Processor,ResponseBuilder: STEP 4: BUILD FINAL RESPONSE
 
-        Service->>ResponseBuilder: convertToNodes(documents, template, requestorType)
-
-        ResponseBuilder->>AccessCtrl: getPermittedActions(template, requestorType)
-        Note over AccessCtrl: Check access_control JSON<br/>Return: [View, Update, Delete, Download]
-        AccessCtrl-->>ResponseBuilder: List<String> permittedActions
-
-        ResponseBuilder->>AccessCtrl: buildLinksForDocument(document, permittedActions)
-        Note over AccessCtrl: Generate HATEOAS links<br/>Only for permitted actions
-        AccessCtrl-->>ResponseBuilder: Links object
-
-        ResponseBuilder-->>Service: List<DocumentDetailsNode>
-
-        Service->>ResponseBuilder: buildResponse(docs, total, pageNum, pageSize, processingTime)
-        ResponseBuilder-->>Service: DocumentRetrievalResponse
+        Processor->>Processor: flattenDocuments(allDocuments)
+        Processor->>ResponseBuilder: paginate(documents, pageNumber, pageSize)
+        ResponseBuilder-->>Processor: Paginated list
+        Processor->>ResponseBuilder: buildResponse(docs, total, pageNum, pageSize, processingTime)
+        ResponseBuilder-->>Processor: DocumentRetrievalResponse
     end
 
-    Service-->>Controller: DocumentRetrievalResponse
+    Processor-->>Controller: DocumentRetrievalResponse
     Controller-->>Client: 200 OK + JSON Response
 ```
 
@@ -636,16 +659,23 @@ flowchart TB
 
 ## 7. Component Reference
 
-### Core Services
+### Core Components
 
 | Component | File | Responsibility |
 |-----------|------|----------------|
 | `DocumentEnquiryController` | `controller/DocumentEnquiryController.java` | HTTP handling, request validation |
-| `DocumentEnquiryService` | `service/DocumentEnquiryService.java` | **Orchestrator** - coordinates all services |
+| `DocumentEnquiryProcessor` | `processor/DocumentEnquiryProcessor.java` | **Orchestrator** - coordinates all services |
 | `DocumentMatchingService` | `service/DocumentMatchingService.java` | Document query logic, reference key matching |
 | `DocumentResponseBuilder` | `service/DocumentResponseBuilder.java` | Response construction, pagination |
 | `DocumentAccessControlService` | `service/DocumentAccessControlService.java` | HATEOAS link generation, permission checking |
 | `DocumentValidityService` | `service/DocumentValidityService.java` | Date validation, validity filtering |
+
+### DAO Layer
+
+| Component | File | Responsibility |
+|-----------|------|----------------|
+| `MasterTemplateDao` | `dao/MasterTemplateDao.java` | Template queries with filters |
+| `StorageIndexDao` | `dao/StorageIndexDao.java` | Document storage operations |
 
 ### Data Extraction Services
 

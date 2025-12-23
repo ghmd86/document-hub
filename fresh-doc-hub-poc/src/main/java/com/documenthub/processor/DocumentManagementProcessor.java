@@ -339,12 +339,6 @@ public class DocumentManagementProcessor {
             downloadLink.setTitle("Download this document");
             downloadLink.setResponseTypes(Arrays.asList("application/pdf", "application/octet-stream"));
 
-            if (includeDownloadUrl) {
-                // Set expiration time (10 minutes from now)
-                long expiresAt = Instant.now().plusSeconds(600).getEpochSecond();
-                downloadLink.setExpiresAt(expiresAt);
-            }
-
             links.setDownload(downloadLink);
         }
 

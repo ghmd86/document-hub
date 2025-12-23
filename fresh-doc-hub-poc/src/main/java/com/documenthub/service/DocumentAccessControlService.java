@@ -100,11 +100,6 @@ public class DocumentAccessControlService {
         download.setResponseTypes(Arrays.asList(
                 "application/pdf", "application/octet-stream"));
 
-        long expiresAt = Instant.now()
-                .plusSeconds(linkExpirationSeconds)
-                .getEpochSecond();
-        download.setExpiresAt(expiresAt);
-
         return download;
     }
 

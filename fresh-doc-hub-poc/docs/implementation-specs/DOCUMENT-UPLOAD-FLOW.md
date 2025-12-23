@@ -27,7 +27,7 @@ This document describes the complete flow for uploading documents to Document Hu
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│    Consumer     │────▶│  Document Hub   │────▶│  Storage (S3)   │
+│    Consumer     │────▶│  Document Hub   │────▶│   ECMS (S3)     │
 │  (Vendor/App)   │     │      API        │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
                                │
@@ -36,6 +36,99 @@ This document describes the complete flow for uploading documents to Document Hu
                         │   PostgreSQL    │
                         │  (storage_index)│
                         └─────────────────┘
+```
+
+### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Controller as DocumentController
+    participant Processor as DocumentUploadProcessor
+    participant TemplateDao as MasterTemplateDao
+    participant AccessCtrl as DocumentAccessControlService
+    participant EcmsClient as EcmsClient
+    participant StorageDao as StorageIndexDao
+    participant DB as PostgreSQL
+
+    Client->>Controller: POST /documents (multipart/form-data)
+    Note over Client,Controller: Headers: X-requestor-type, X-requestor-id<br/>Body: documentType, content, metadata, etc.
+
+    Controller->>Controller: Parse multipart request
+    Controller->>Processor: processUpload(filePart, request, userId, requestorType)
+
+    rect rgb(255, 250, 230)
+        Note over Processor,TemplateDao: STEP 1: VALIDATE TEMPLATE
+
+        Processor->>TemplateDao: findByTypeAndVersion(templateType, version)
+        TemplateDao->>DB: SELECT * FROM master_template_definition<br/>WHERE template_type = ? AND template_version = ?<br/>AND accessible_flag = true
+        DB-->>TemplateDao: Template or empty
+        TemplateDao-->>Processor: MasterTemplateDefinitionEntity
+
+        alt Template not found
+            Processor-->>Controller: Error: Template not found
+            Controller-->>Client: 404 Not Found
+        end
+    end
+
+    rect rgb(255, 245, 238)
+        Note over Processor,AccessCtrl: STEP 2: CHECK UPLOAD PERMISSION
+
+        Processor->>AccessCtrl: canUpload(template, requestorType)
+        Note over AccessCtrl: Parse template.access_control JSON<br/>Check if requestorType has Upload action
+        AccessCtrl-->>Processor: boolean (allowed/denied)
+
+        alt Upload not permitted
+            Processor-->>Controller: SecurityException
+            Controller-->>Client: 403 Forbidden
+        end
+    end
+
+    rect rgb(230, 250, 255)
+        Note over Processor: STEP 3: VALIDATE REQUIRED FIELDS
+
+        Processor->>Processor: validateRequiredFields(template, request)
+        Note over Processor: Parse template.required_fields JSON<br/>Check each required field exists in request<br/>Validate field types (uuid, date, string, etc.)
+
+        alt Validation failed
+            Processor-->>Controller: IllegalArgumentException
+            Controller-->>Client: 400 Bad Request
+        end
+    end
+
+    rect rgb(240, 255, 240)
+        Note over Processor,EcmsClient: STEP 4: UPLOAD TO ECMS
+
+        Processor->>EcmsClient: uploadDocument(filePart, request)
+        EcmsClient->>EcmsClient: Build multipart request
+        EcmsClient->>EcmsClient: POST to ECMS API
+        Note over EcmsClient: Includes retry logic<br/>Timeout handling<br/>Circuit breaker
+        EcmsClient-->>Processor: EcmsDocumentResponse (id, link, fileSize)
+    end
+
+    rect rgb(245, 240, 255)
+        Note over Processor,DB: STEP 5: CREATE STORAGE INDEX
+
+        Processor->>Processor: createStorageIndexEntry()
+        Note over Processor: Generate UUID for storage_index_id<br/>Set sharedFlag from template or request<br/>Serialize metadata to JSON
+
+        Processor->>StorageDao: save(StorageIndexEntity)
+        StorageDao->>DB: INSERT INTO storage_index (...)
+        DB-->>StorageDao: Saved entity
+        StorageDao-->>Processor: StorageIndexEntity
+    end
+
+    rect rgb(255, 248, 240)
+        Note over Processor,Controller: STEP 6: BUILD RESPONSE
+
+        Processor->>Processor: buildUploadResponse(storageIndex, ecmsResponse)
+        Note over Processor: Combine storage_index_id<br/>with ECMS document_id and link
+
+        Processor-->>Controller: DocumentUploadResponse
+    end
+
+    Controller-->>Client: 200 OK + { id: uuid }
 ```
 
 ### Upload Sources
@@ -245,84 +338,91 @@ curl -X POST "https://api.example.com/documents" \
 
 ## Storage Flow
 
-### Step 1: Generate Document ID
+### Step 1: Upload to ECMS
+
+The document is uploaded to ECMS (Enterprise Content Management System) via the `EcmsClient`:
 
 ```java
-// Generate unique storage document key
-UUID storageDocumentKey = UUID.randomUUID();
-
-// Generate storage index ID
-UUID storageIndexId = UUID.randomUUID();
+// EcmsClient uploads to ECMS API
+return webClient.post()
+    .uri("/documents")
+    .contentType(MediaType.MULTIPART_FORM_DATA)
+    .body(BodyInserters.fromMultipartData(multipartData))
+    .retrieve()
+    .bodyToMono(EcmsDocumentResponse.class);
 ```
 
-### Step 2: Upload to Storage (S3)
+**ECMS Response:**
+```json
+{
+  "id": "ecms-doc-uuid",
+  "name": "document.pdf",
+  "link": "https://ecms.example.com/documents/ecms-doc-uuid",
+  "fileSize": { "value": 1024, "unit": "KB" }
+}
+```
+
+### Step 2: Create Storage Index Record
 
 ```java
-// Determine storage path
-String storagePath = String.format(
-    "%s/%s/%s/%s.pdf",
-    lineOfBusiness,           // CREDIT_CARD
-    documentType,             // Statement
-    accountKey,               // account UUID
-    storageDocumentKey        // document UUID
-);
+StorageIndexEntity entity = StorageIndexEntity.builder()
+    .storageIndexId(UUID.randomUUID())
+    .masterTemplateId(template.getMasterTemplateId())
+    .templateVersion(request.getTemplateVersion())
+    .templateType(request.getTemplateType())
+    .storageVendor("ECMS")
+    .storageDocumentKey(ecmsResponse.getId())  // ECMS document ID
+    .fileName(request.getFileName())
+    .referenceKey(request.getReferenceKey())
+    .referenceKeyType(request.getReferenceKeyType())
+    .accountKey(request.getAccountId())
+    .customerKey(request.getCustomerId())
+    .docCreationDate(System.currentTimeMillis())
+    .accessibleFlag(true)
+    .sharedFlag(sharedFlag)
+    .startDate(request.getStartDate())
+    .endDate(request.getEndDate())
+    .createdBy(userId)
+    .createdTimestamp(LocalDateTime.now())
+    .archiveIndicator(false)
+    .versionNumber(1L)
+    .recordStatus("ACTIVE")
+    .build();
 
-// Upload to S3
-s3Client.putObject(
-    bucketName,
-    storagePath,
-    content,
-    metadata
-);
+// Set metadata if provided
+if (request.getMetadata() != null) {
+    entity.setDocMetadata(Json.of(objectMapper.writeValueAsString(request.getMetadata())));
+}
+
+return storageIndexDao.save(entity);
 ```
 
-### Step 3: Create Storage Index Record
-
-```sql
-INSERT INTO document_hub.storage_index (
-    storage_index_id,
-    master_template_id,
-    template_version,
-    template_type,
-    storage_vendor,
-    reference_key,
-    reference_key_type,
-    account_key,
-    customer_key,
-    storage_document_key,
-    file_name,
-    doc_creation_date,
-    accessible_flag,
-    doc_metadata,
-    shared_flag,
-    created_by,
-    created_timestamp
-) VALUES (
-    :storageIndexId,
-    :masterTemplateId,
-    :templateVersion,
-    :documentType,
-    'S3',
-    :referenceKey,
-    :referenceKeyType,
-    :accountKey,
-    :customerKey,
-    :storageDocumentKey,
-    :fileName,
-    :docCreationDate,
-    true,                    -- accessible_flag
-    :metadataJson,
-    :isShared,
-    :createdBy,
-    NOW()
-);
-```
-
-### Step 4: Return Response
+### Step 3: Return Response
 
 ```json
 {
-  "id": "f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1"
+  "id": "storage-index-uuid"
+}
+```
+
+**Full Internal Response (DocumentUploadResponse):**
+```json
+{
+  "storageIndexId": "storage-index-uuid",
+  "ecmsDocumentId": "ecms-doc-uuid",
+  "fileName": "statement_2024_01.pdf",
+  "displayName": "statement_2024_01.pdf",
+  "templateType": "Statement",
+  "templateVersion": 1,
+  "accountId": "account-uuid",
+  "customerId": "customer-uuid",
+  "referenceKey": "ACC-12345",
+  "referenceKeyType": "ACCOUNT_ID",
+  "documentLink": "https://ecms.example.com/documents/ecms-doc-uuid",
+  "fileSize": { "value": 1024, "unit": "KB" },
+  "createdAt": "2024-12-22T10:30:00",
+  "status": "SUCCESS",
+  "message": "Document uploaded successfully"
 }
 ```
 
@@ -508,49 +608,77 @@ For documents generated by vendors:
 
 ## Sample Code
 
-### Java Upload Service
+### Java Upload Processor (Actual Implementation)
 
 ```java
-@Service
-public class DocumentUploadService {
+@Component
+@RequiredArgsConstructor
+public class DocumentUploadProcessor {
 
-    public Mono<UploadResponse> uploadDocument(
-        DocumentUploadRequest request,
-        String requestorType,
-        String correlationId
-    ) {
-        return validateRequest(request)
-            .flatMap(this::findTemplate)
-            .flatMap(template -> validateMetadata(request, template))
-            .flatMap(template -> checkDateOverlap(request, template))
-            .flatMap(template -> uploadToStorage(request))
-            .flatMap(storageKey -> createStorageIndex(request, storageKey))
-            .flatMap(this::triggerPostUploadActions)
-            .map(doc -> new UploadResponse(doc.getStorageIndexId()));
+    private final MasterTemplateDao masterTemplateDao;
+    private final StorageIndexDao storageIndexDao;
+    private final EcmsClient ecmsClient;
+    private final DocumentAccessControlService accessControlService;
+    private final ObjectMapper objectMapper;
+
+    public Mono<DocumentUploadResponse> processUpload(
+            FilePart filePart,
+            DocumentUploadRequest request,
+            String userId,
+            String requestorType) {
+
+        return validateAndGetTemplate(request.getTemplateType(), request.getTemplateVersion())
+            .flatMap(template -> {
+                // Step 1: Check upload permission
+                if (!accessControlService.canUpload(template, requestorType)) {
+                    return Mono.error(new SecurityException(
+                        "Upload not permitted for requestor type: " + requestorType));
+                }
+
+                // Step 2: Validate required fields from template config
+                List<String> validationErrors = validateRequiredFields(template, request);
+                if (!validationErrors.isEmpty()) {
+                    return Mono.error(new IllegalArgumentException(
+                        "Required fields validation failed: " + String.join(", ", validationErrors)));
+                }
+
+                // Step 3: Upload to ECMS
+                return ecmsClient.uploadDocument(filePart, request)
+                    .flatMap(ecmsResponse ->
+                        // Step 4: Create storage index entry
+                        createStorageIndexEntry(request, ecmsResponse, template, userId)
+                            .map(storageIndex -> buildUploadResponse(storageIndex, ecmsResponse))
+                    );
+            });
     }
 
-    private Mono<Void> checkDateOverlap(
-        DocumentUploadRequest request,
-        MasterTemplateDefinitionEntity template
-    ) {
-        if (request.getActiveStartDate() == null) {
-            return Mono.empty(); // No date range to check
-        }
+    private Mono<MasterTemplateDefinitionEntity> validateAndGetTemplate(
+            String templateType, Integer templateVersion) {
+        return masterTemplateDao.findByTypeAndVersion(templateType, templateVersion)
+            .switchIfEmpty(Mono.error(new IllegalArgumentException(
+                "Template not found: type=" + templateType + ", version=" + templateVersion)));
+    }
 
-        return storageIndexRepository.findOverlappingDocuments(
-            request.getDocumentType(),
-            request.getAccountKey(),
-            request.getActiveStartDate(),
-            request.getActiveEndDate()
-        ).hasElements()
-         .flatMap(hasOverlap -> {
-             if (hasOverlap) {
-                 return Mono.error(new DateOverlapException(
-                     "Document with overlapping dates already exists"
-                 ));
-             }
-             return Mono.empty();
-         });
+    private List<String> validateRequiredFields(
+            MasterTemplateDefinitionEntity template,
+            DocumentUploadRequest request) {
+        List<String> errors = new ArrayList<>();
+        Json requiredFieldsJson = template.getRequiredFields();
+
+        if (requiredFieldsJson != null) {
+            JsonNode requiredFields = objectMapper.readTree(requiredFieldsJson.asString());
+            for (JsonNode fieldDef : requiredFields) {
+                String fieldName = fieldDef.path("field").asText();
+                boolean required = fieldDef.path("required").asBoolean(true);
+                if (required) {
+                    Object fieldValue = getFieldValue(request, fieldName);
+                    if (fieldValue == null || fieldValue.toString().isBlank()) {
+                        errors.add("Missing required field: " + fieldName);
+                    }
+                }
+            }
+        }
+        return errors;
     }
 }
 ```
