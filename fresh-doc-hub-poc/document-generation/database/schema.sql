@@ -3,9 +3,40 @@
 BEGIN;
 
 
+CREATE TABLE IF NOT EXISTS document_hub.storage_index
+(
+    storage_index_id uuid NOT NULL DEFAULT gen_random_uuid(),
+    master_template_id uuid NOT NULL,
+    storage_vendor character varying COLLATE pg_catalog."default",
+    reference_key character varying COLLATE pg_catalog."default",
+    reference_key_type character varying COLLATE pg_catalog."default",
+    account_key uuid,
+    customer_key uuid,
+    storage_document_key uuid,
+    file_name character varying COLLATE pg_catalog."default",
+    doc_creation_date bigint,
+    accessible_flag boolean NOT NULL DEFAULT true,
+    doc_metadata jsonb,
+    created_by character varying COLLATE pg_catalog."default" NOT NULL,
+    created_timestamp timestamp without time zone NOT NULL DEFAULT now(),
+    updated_by character varying COLLATE pg_catalog."default",
+    updated_timestamp timestamp without time zone,
+    archive_indicator boolean NOT NULL DEFAULT false,
+    archive_timestamp timestamp without time zone,
+    version_number bigint NOT NULL DEFAULT 0,
+    record_status character varying COLLATE pg_catalog."default" NOT NULL DEFAULT 1,
+    template_version integer,
+    template_type character varying COLLATE pg_catalog."default",
+    shared_flag boolean NOT NULL DEFAULT false,
+    generation_vendor_id uuid,
+    start_date bigint,
+    end_date bigint,
+    CONSTRAINT storage_index_pkey PRIMARY KEY (storage_index_id)
+);
+
 CREATE TABLE IF NOT EXISTS document_hub.master_template_definition
 (
-    master_template_id uuid NOT NULL,
+    master_template_id uuid NOT NULL DEFAULT gen_random_uuid(),
     template_version integer NOT NULL,
     legacy_template_id character varying COLLATE pg_catalog."default",
     template_name character varying COLLATE pg_catalog."default" NOT NULL,
@@ -42,49 +73,19 @@ CREATE TABLE IF NOT EXISTS document_hub.master_template_definition
     sharing_scope character varying COLLATE pg_catalog."default",
     workflow character varying(20) COLLATE pg_catalog."default",
     single_document_flag boolean,
-    communication_type character varying(20) COLLATE pg_catalog."default" DEFAULT 'letter'::character varying,
+    communication_type character varying(20) COLLATE pg_catalog."default" DEFAULT 'LETTER'::character varying,
+    document_matching_config jsonb,
+    eligibility_criteria jsonb,
     CONSTRAINT master_template_definition_pkey PRIMARY KEY (master_template_id, template_version),
     CONSTRAINT master_template_definition_key UNIQUE (template_version, line_of_business, template_type)
 );
 
-CREATE TABLE IF NOT EXISTS document_hub.storage_index
-(
-    storage_index_id uuid NOT NULL,
-    master_template_id uuid NOT NULL,
-    storage_vendor character varying COLLATE pg_catalog."default",
-    reference_key character varying COLLATE pg_catalog."default",
-    reference_key_type character varying COLLATE pg_catalog."default",
-    account_key uuid,
-    customer_key uuid,
-    storage_document_key uuid,
-    file_name character varying COLLATE pg_catalog."default",
-    doc_creation_date bigint,
-    accessible_flag boolean NOT NULL DEFAULT true,
-    doc_metadata jsonb,
-    created_by character varying COLLATE pg_catalog."default" NOT NULL,
-    created_timestamp timestamp without time zone NOT NULL DEFAULT now(),
-    updated_by character varying COLLATE pg_catalog."default",
-    updated_timestamp timestamp without time zone,
-    archive_indicator boolean NOT NULL DEFAULT false,
-    archive_timestamp timestamp without time zone,
-    version_number bigint NOT NULL DEFAULT 0,
-    record_status character varying COLLATE pg_catalog."default" NOT NULL DEFAULT 1,
-    template_version integer,
-    template_type character varying COLLATE pg_catalog."default",
-    shared_flag boolean NOT NULL DEFAULT false,
-    generation_vendor_id uuid,
-    start_date bigint,
-    end_date bigint,
-    CONSTRAINT storage_index_pkey PRIMARY KEY (storage_index_id)
-);
-
 CREATE TABLE IF NOT EXISTS document_hub.template_vendor_mapping
 (
-    template_vendor_id uuid NOT NULL,
+    template_vendor_id uuid NOT NULL DEFAULT gen_random_uuid(),
     master_template_id uuid NOT NULL,
     vendor character varying COLLATE pg_catalog."default" NOT NULL,
     vendor_template_key character varying COLLATE pg_catalog."default",
-    reference_key_type character varying COLLATE pg_catalog."default",
     consumer_id uuid,
     template_content bytea,
     start_date bigint,
@@ -107,6 +108,7 @@ CREATE TABLE IF NOT EXISTS document_hub.template_vendor_mapping
     vendor_config jsonb,
     api_config jsonb,
     vendor_mapping_status character varying COLLATE pg_catalog."default",
+    vendor_type character varying(20) COLLATE pg_catalog."default",
     CONSTRAINT template_vendor_mapping_pkey PRIMARY KEY (template_vendor_id)
 );
 
