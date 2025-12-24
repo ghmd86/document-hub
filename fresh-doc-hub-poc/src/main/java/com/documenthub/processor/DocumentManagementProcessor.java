@@ -28,6 +28,56 @@ import java.util.*;
 /**
  * Processor for document management operations.
  * Handles upload, download, delete, and metadata retrieval.
+ *
+ * <h2>Upload Flow Overview</h2>
+ * <pre>
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │                         DOCUMENT UPLOAD FLOW                                │
+ * ├─────────────────────────────────────────────────────────────────────────────┤
+ * │                                                                             │
+ * │  Step 1: TEMPLATE LOOKUP                                                    │
+ * │  ├── Query master_template_definition by documentType                       │
+ * │  ├── Uses efficient indexed query (findLatestActiveTemplateByType)          │
+ * │  └── Returns latest active version within date range                        │
+ * │                                                                             │
+ * │  Step 2: ACCESS CONTROL CHECK                                               │
+ * │  ├── Validate requestorType has Upload permission                           │
+ * │  ├── Check template's role_access configuration                             │
+ * │  └── Reject with SecurityException if not permitted                         │
+ * │                                                                             │
+ * │  Step 3: REQUEST VALIDATION                                                 │
+ * │  ├── Extract file bytes from MultipartFile                                  │
+ * │  ├── Parse metadata JSON into MetadataNode list                             │
+ * │  └── Validate required fields present                                       │
+ * │                                                                             │
+ * │  Step 4: SINGLE DOCUMENT ENFORCEMENT (conditional)                          │
+ * │  ├── Check if template.single_document_flag = true                          │
+ * │  ├── If true: close existing docs by setting end_date                       │
+ * │  └── Uses referenceKey + referenceKeyType to find existing docs             │
+ * │                                                                             │
+ * │  Step 5: ECMS UPLOAD                                                        │
+ * │  ├── Build ECMS request with metadata                                       │
+ * │  ├── Call EcmsClient.uploadDocument()                                       │
+ * │  └── Receive storage_document_key (ECMS document ID)                        │
+ * │                                                                             │
+ * │  Step 6: STORAGE INDEX CREATION                                             │
+ * │  ├── Create StorageIndexEntity with all document metadata                   │
+ * │  ├── Set shared_flag from template.shared_document_flag                     │
+ * │  ├── Save to storage_index table                                            │
+ * │  └── Return storage_index_id as document ID                                 │
+ * │                                                                             │
+ * └─────────────────────────────────────────────────────────────────────────────┘
+ * </pre>
+ *
+ * <h3>Key Components</h3>
+ * <ul>
+ *   <li>{@link MasterTemplateDao} - Template lookup with caching</li>
+ *   <li>{@link DocumentAccessControlService} - Role-based access control</li>
+ *   <li>{@link EcmsClient} - External content management system integration</li>
+ *   <li>{@link StorageIndexDao} - Document index persistence</li>
+ * </ul>
+ *
+ * @see #uploadDocument(DocumentUploadRequest, String)
  */
 @Slf4j
 @Component
@@ -43,13 +93,28 @@ public class DocumentManagementProcessor {
     private final ObjectMapper objectMapper;
 
     /**
-     * Upload a document according to the API spec
+     * Upload a document according to the API spec.
+     *
+     * <p><b>Flow Steps:</b></p>
+     * <ol>
+     *   <li><b>Step 1 - Template Lookup:</b> Find active template by documentType
+     *       via {@link #findTemplateByDocumentType(String)}</li>
+     *   <li><b>Step 2-6:</b> Delegated to {@link #processUpload(MasterTemplateDefinitionEntity,
+     *       DocumentUploadRequest, String)}</li>
+     * </ol>
+     *
+     * @param request The upload request containing file, metadata, and identifiers
+     * @param requestorType The type of requestor (e.g., "CUSTOMER", "EMPLOYEE")
+     * @return Mono containing the upload response with document ID
+     * @throws IllegalArgumentException if template not found for documentType
+     * @throws SecurityException if requestorType lacks upload permission
      */
     public Mono<InlineResponse200> uploadDocument(DocumentUploadRequest request, String requestorType) {
+        // Step 1: Log and lookup template
         logUploadRequest(request, requestorType);
 
-        return findTemplateByDocumentType(request.getDocumentType())
-            .flatMap(template -> processUpload(template, request, requestorType))
+        return findTemplateByDocumentType(request.getDocumentType())  // Step 1: Template lookup
+            .flatMap(template -> processUpload(template, request, requestorType))  // Steps 2-6
             .doOnSuccess(resp -> log.info("Document upload completed: id={}", resp.getId()))
             .doOnError(e -> log.error("Document upload failed", e));
     }
@@ -59,24 +124,45 @@ public class DocumentManagementProcessor {
             request.getDocumentType(), request.getFileName(), request.getCreatedBy(), requestorType);
     }
 
+    /**
+     * Process the upload after template is found.
+     *
+     * <p><b>Steps 2-6 of Upload Flow:</b></p>
+     * <ul>
+     *   <li><b>Step 2 - Access Control:</b> Check if requestorType can upload to this template</li>
+     *   <li><b>Step 3 - Request Validation:</b> Extract file bytes and parse metadata</li>
+     *   <li><b>Step 4 - Single Doc Enforcement:</b> Close existing docs if single_document_flag=true</li>
+     *   <li><b>Step 5 - ECMS Upload:</b> Upload file to external storage</li>
+     *   <li><b>Step 6 - Storage Index:</b> Create index entry and return document ID</li>
+     * </ul>
+     */
     private Mono<InlineResponse200> processUpload(
             MasterTemplateDefinitionEntity template, DocumentUploadRequest request, String requestorType) {
+        // Step 2: Access control check
         if (!accessControlService.canUpload(template, requestorType)) {
             return handleUploadPermissionDenied(request.getDocumentType(), requestorType);
         }
 
+        // Step 3: Request validation - extract file bytes
         byte[] fileBytes = extractFileBytes(request);
         if (fileBytes == null) {
             return Mono.error(new IllegalArgumentException("Failed to read file content"));
         }
 
+        // Step 3: Request validation - parse metadata
         List<MetadataNode> metadata = parseMetadata(request.getMetadataJson());
 
-        // If single_document_flag is true, close existing documents by updating their end_date
+        // Step 4: Single document enforcement (if applicable)
+        // Step 5 & 6: Upload to ECMS and save storage index
         return closeExistingDocsIfSingleDoc(template, request)
             .then(uploadToEcmsAndSave(template, request, metadata, fileBytes));
     }
 
+    /**
+     * Step 4: Single Document Enforcement.
+     * If template has single_document_flag=true, close existing documents
+     * by setting their end_date to the new document's start_date.
+     */
     private Mono<Void> closeExistingDocsIfSingleDoc(
             MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
         if (!shouldCloseExistingDocs(template, request)) {
@@ -121,6 +207,10 @@ public class DocumentManagementProcessor {
         }
     }
 
+    /**
+     * Step 5: Upload to ECMS.
+     * Sends file bytes to external content management system.
+     */
     private Mono<InlineResponse200> uploadToEcmsAndSave(
             MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
             List<MetadataNode> metadata, byte[] fileBytes) {
@@ -128,6 +218,10 @@ public class DocumentManagementProcessor {
             .flatMap(ecmsResponse -> saveStorageIndex(template, request, metadata, ecmsResponse));
     }
 
+    /**
+     * Step 6: Create Storage Index Entry.
+     * Persists document metadata to storage_index table and returns the document ID.
+     */
     private Mono<InlineResponse200> saveStorageIndex(
             MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
             List<MetadataNode> metadata, EcmsDocumentResponse ecmsResponse) {
@@ -277,7 +371,16 @@ public class DocumentManagementProcessor {
     }
 
     /**
-     * Find template by document type (efficient direct query)
+     * Step 1: Template Lookup.
+     * Finds the latest active template for the given documentType using an efficient
+     * indexed database query. Returns the highest version template that is:
+     * <ul>
+     *   <li>active_flag = true</li>
+     *   <li>Within valid date range (start_date <= now <= end_date)</li>
+     * </ul>
+     *
+     * @param documentType The document type (maps to template_type in database)
+     * @return Mono with the template, or error if not found
      */
     private Mono<MasterTemplateDefinitionEntity> findTemplateByDocumentType(String documentType) {
         long currentDate = System.currentTimeMillis();
