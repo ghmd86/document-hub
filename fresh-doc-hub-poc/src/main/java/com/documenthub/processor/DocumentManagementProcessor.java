@@ -277,13 +277,11 @@ public class DocumentManagementProcessor {
     }
 
     /**
-     * Find template by document type
+     * Find template by document type (efficient direct query)
      */
     private Mono<MasterTemplateDefinitionEntity> findTemplateByDocumentType(String documentType) {
         long currentDate = System.currentTimeMillis();
-        return masterTemplateDao.findActiveTemplatesByLineOfBusiness(null, currentDate)
-            .filter(t -> documentType.equals(t.getTemplateType()))
-            .next()
+        return masterTemplateDao.findLatestActiveTemplateByType(documentType, currentDate)
             .switchIfEmpty(Mono.error(new IllegalArgumentException("Template not found for document type: " + documentType)));
     }
 

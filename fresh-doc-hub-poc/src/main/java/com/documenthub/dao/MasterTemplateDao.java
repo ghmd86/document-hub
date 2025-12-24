@@ -109,6 +109,14 @@ public class MasterTemplateDao {
     }
 
     /**
+     * Find the latest active template by type (efficient single query)
+     */
+    public Mono<MasterTemplateDefinitionEntity> findLatestActiveTemplateByType(String templateType, Long currentDate) {
+        log.debug("Finding latest active template by type: {}", templateType);
+        return repository.findLatestActiveTemplateByType(templateType, currentDate);
+    }
+
+    /**
      * Invalidate cache for a template
      */
     public void invalidateCache(String templateType, Integer templateVersion) {

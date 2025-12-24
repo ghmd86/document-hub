@@ -31,6 +31,26 @@ public interface MasterTemplateRepository extends R2dbcRepository<MasterTemplate
     Flux<MasterTemplateDefinitionEntity> findByTemplateType(String templateType);
 
     /**
+     * Find the latest active template by type.
+     * Returns the template with the highest version that is active and within date range.
+     * This is more efficient than fetching all templates and filtering in memory.
+     *
+     * @param templateType The template type to search for
+     * @param currentDate Current epoch time for date range validation
+     */
+    @Query("SELECT * FROM document_hub.master_template_definition " +
+           "WHERE template_type = :templateType " +
+           "AND active_flag = true " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate) " +
+           "ORDER BY template_version DESC " +
+           "LIMIT 1")
+    Mono<MasterTemplateDefinitionEntity> findLatestActiveTemplateByType(
+        String templateType,
+        Long currentDate
+    );
+
+    /**
      * Find template by type and version
      */
     @Query("SELECT * FROM document_hub.master_template_definition " +
