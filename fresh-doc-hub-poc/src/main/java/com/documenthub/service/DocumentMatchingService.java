@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -71,9 +72,15 @@ public class DocumentMatchingService {
 
     private Mono<List<StorageIndexEntity>> executeMatching(
             String matchBy, JsonNode matchingNode, DocumentQueryParams params) {
+
+        // Get matchMode (default to "extracted" for backward compatibility)
+        String matchMode = matchingNode.has("matchMode")
+                ? matchingNode.get("matchMode").asText()
+                : "extracted";
+
         switch (matchBy) {
             case "reference_key":
-                return queryByReferenceKey(matchingNode, params);
+                return queryByReferenceKeyWithMode(matchingNode, params, matchMode);
             case "conditional":
                 return queryByConditional(matchingNode, params);
             default:
@@ -82,14 +89,104 @@ public class DocumentMatchingService {
         }
     }
 
-    private Mono<List<StorageIndexEntity>> queryByReferenceKey(JsonNode matchingNode, DocumentQueryParams params) {
-        String referenceKeyField = matchingNode.get("referenceKeyField").asText();
+    /**
+     * Route to appropriate reference key query based on matchMode.
+     *
+     * @param matchingNode the document_matching_config JSON node
+     * @param params query parameters
+     * @param matchMode one of: "direct", "extracted", "auto_discover"
+     */
+    private Mono<List<StorageIndexEntity>> queryByReferenceKeyWithMode(
+            JsonNode matchingNode, DocumentQueryParams params, String matchMode) {
+
         String referenceKeyType = matchingNode.get("referenceKeyType").asText();
 
         Mono<Void> validation = validateReferenceKeyType(referenceKeyType, params.getTemplate());
         if (validation != null) {
             return validation.then(Mono.just(Collections.emptyList()));
         }
+
+        switch (matchMode) {
+            case "direct":
+                // Use referenceKey from request
+                return queryByDirectReferenceKey(params, referenceKeyType);
+
+            case "auto_discover":
+                // Query by type only, filter by validity, return latest
+                return queryByAutoDiscover(params, referenceKeyType);
+
+            case "extracted":
+            default:
+                // Current behavior - use referenceKeyField from extractedData
+                return queryByReferenceKey(matchingNode, params);
+        }
+    }
+
+    /**
+     * Direct mode: Use referenceKey directly from the enquiry request.
+     */
+    private Mono<List<StorageIndexEntity>> queryByDirectReferenceKey(
+            DocumentQueryParams params, String referenceKeyType) {
+
+        String referenceKey = params.getRequestReferenceKey();
+        if (referenceKey == null || referenceKey.isEmpty()) {
+            log.warn("Direct mode requires referenceKey in request, but none provided");
+            return Mono.just(Collections.emptyList());
+        }
+
+        log.info("DIRECT MATCH: key='{}', type='{}', template='{}'",
+                referenceKey, referenceKeyType, params.getTemplate().getTemplateType());
+        return executeReferenceKeyQuery(referenceKey, referenceKeyType, params);
+    }
+
+    /**
+     * Auto-discover mode: Query by reference key type only (no specific key).
+     * Returns the latest valid document matching the type.
+     */
+    private Mono<List<StorageIndexEntity>> queryByAutoDiscover(
+            DocumentQueryParams params, String referenceKeyType) {
+
+        MasterTemplateDefinitionEntity template = params.getTemplate();
+
+        log.info("AUTO-DISCOVER: type='{}', template='{}'",
+                referenceKeyType, template.getTemplateType());
+
+        return storageRepository.findByReferenceKeyTypeAndTemplateWithDateRange(
+                referenceKeyType,
+                template.getTemplateType(),
+                template.getTemplateVersion(),
+                params.getPostedFromDate(),
+                params.getPostedToDate(),
+                System.currentTimeMillis())
+            .collectList()
+            .map(validityService::filterByValidity)
+            .map(this::keepLatestOnly)
+            .doOnNext(docs -> log.info("Auto-discover found {} document(s)", docs.size()));
+    }
+
+    /**
+     * Keep only the latest document (by doc_creation_date) from a list.
+     * Used by auto_discover mode to return a single result.
+     */
+    private List<StorageIndexEntity> keepLatestOnly(List<StorageIndexEntity> docs) {
+        if (docs.isEmpty()) {
+            return docs;
+        }
+        return docs.stream()
+                .max(Comparator.comparing(d ->
+                        d.getDocCreationDate() != null ? d.getDocCreationDate() : 0L))
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
+    }
+
+    /**
+     * Extracted mode (default): Use referenceKeyField from extractedData.
+     */
+    private Mono<List<StorageIndexEntity>> queryByReferenceKey(JsonNode matchingNode, DocumentQueryParams params) {
+        String referenceKeyField = matchingNode.has("referenceKeyField")
+                ? matchingNode.get("referenceKeyField").asText()
+                : "referenceKey";
+        String referenceKeyType = matchingNode.get("referenceKeyType").asText();
 
         Object referenceKeyValue = params.getExtractedData().get(referenceKeyField);
         if (referenceKeyValue == null) {

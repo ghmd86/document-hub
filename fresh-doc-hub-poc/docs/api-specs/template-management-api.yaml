@@ -2325,7 +2325,7 @@ components:
               keyPattern: "customer:${customerId}"
         documentMatching:
           matchBy: reference_key
-          referenceKeyField: promoCode
+          matchMode: auto_discover
           referenceKeyType: PROMO_CODE
 
     FieldSourceConfig:
@@ -2406,20 +2406,33 @@ components:
       description: |
         Configuration for how documents are matched/queried from storage.
 
-        **Match Strategies:**
+        **Match Strategies (matchBy):**
         - `reference_key`: Use a single field value to query documents
         - `conditional`: Evaluate conditions to select the appropriate reference key
+
+        **Match Modes (matchMode) for reference_key matching:**
+        - `direct`: Use referenceKey directly from the enquiry request
+        - `extracted`: Use referenceKeyField from extracted API data (default)
+        - `auto_discover`: Query by referenceKeyType only, check eligibility, return latest valid document
       properties:
         matchBy:
           type: string
           enum: [reference_key, conditional]
           description: The matching strategy to use
+        matchMode:
+          type: string
+          enum: [direct, extracted, auto_discover]
+          default: extracted
+          description: |
+            How the reference key value is obtained (only for matchBy=reference_key):
+            - `direct`: Client provides referenceKey in the enquiry request
+            - `extracted`: Value comes from extractedData via referenceKeyField (default)
+            - `auto_discover`: No specific key needed - queries by type, checks eligibility, returns latest valid doc
         referenceKeyField:
           type: string
           description: |
             The field name in extractedData containing the reference key value.
-            For reference_key matching: this field's value is used directly.
-            For conditional matching: this is the output field after condition evaluation.
+            Required for `extracted` matchMode. Not used for `direct` or `auto_discover`.
         referenceKeyType:
           type: string
           description: The type of reference key (must match storage_index.reference_key_type)
@@ -2431,7 +2444,7 @@ components:
             $ref: '#/components/schemas/MatchCondition'
       example:
         matchBy: reference_key
-        referenceKeyField: promoCode
+        matchMode: auto_discover
         referenceKeyType: PROMO_CODE
 
     MatchCondition:

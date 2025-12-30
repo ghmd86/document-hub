@@ -9,6 +9,8 @@ import com.documenthub.model.DocumentDetailsNode;
 import com.documenthub.model.DocumentListRequest;
 import com.documenthub.model.DocumentRetrievalResponse;
 import com.documenthub.service.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.Builder;
 import lombok.Data;
@@ -60,6 +62,7 @@ public class DocumentEnquiryProcessor {
     private final ConfigurableDataExtractionService dataExtractionService;
     private final DocumentMatchingService documentMatchingService;
     private final DocumentResponseBuilder responseBuilder;
+    private final ObjectMapper objectMapper;
 
     /**
      * Process document enquiry request (defaults to CUSTOMER requestor).
@@ -326,6 +329,7 @@ public class DocumentEnquiryProcessor {
      * <ol>
      *   <li>Step 4a: Check sharing_scope vs accountType (canAccessTemplate)</li>
      *   <li>Step 4b: Execute data extraction if template has data_extraction_config</li>
+     *   <li>Step 4b.5: Check eligibility for auto_discover templates (if defined)</li>
      *   <li>Step 4c: Query documents via DocumentMatchingService</li>
      *   <li>Step 5: Apply single_document_flag if true</li>
      * </ol>
@@ -340,10 +344,49 @@ public class DocumentEnquiryProcessor {
         if (!canAccessTemplate(template, accountMetadata)) {
             return Mono.just(Collections.emptyList());
         }
-        // Steps 4b, 4c, 5: Extract data, query docs, apply single_document_flag
+        // Steps 4b, 4b.5, 4c, 5: Extract data, check eligibility, query docs, apply single_document_flag
         return executeDataExtraction(template, context.getRequest())
-                .flatMap(extractedData -> queryAndConvertDocuments(template, accountId, extractedData, context))
+                .flatMap(extractedData -> {
+                    // Step 4b.5: Check eligibility for auto_discover templates (if defined)
+                    if (isAutoDiscoverTemplate(template) && hasEligibilityCriteria(template)) {
+                        boolean eligible = ruleEvaluationService.evaluateEligibility(
+                                template.getEligibilityCriteria(),
+                                accountMetadata,
+                                extractedData
+                        );
+                        if (!eligible) {
+                            log.debug("Account {} not eligible for auto_discover template: {}",
+                                    accountId, template.getTemplateType());
+                            return Mono.just(Collections.<DocumentDetailsNode>emptyList());
+                        }
+                    }
+                    return queryAndConvertDocuments(template, accountId, extractedData, context);
+                })
                 .onErrorResume(e -> handleTemplateError(template, e));
+    }
+
+    /**
+     * Check if template uses auto_discover matchMode.
+     */
+    private boolean isAutoDiscoverTemplate(MasterTemplateDefinitionEntity template) {
+        if (template.getDocumentMatchingConfig() == null) {
+            return false;
+        }
+        try {
+            JsonNode config = objectMapper.readTree(
+                    template.getDocumentMatchingConfig().asString());
+            return "auto_discover".equals(config.path("matchMode").asText());
+        } catch (Exception e) {
+            log.debug("Error parsing document_matching_config: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if template has eligibility criteria defined.
+     */
+    private boolean hasEligibilityCriteria(MasterTemplateDefinitionEntity template) {
+        return template.getEligibilityCriteria() != null;
     }
 
     private Mono<List<DocumentDetailsNode>> handleTemplateError(
@@ -432,6 +475,7 @@ public class DocumentEnquiryProcessor {
      * <p><b>How:</b>
      * <ol>
      *   <li>Build DocumentQueryParams with template, account, extractedData, and date filters</li>
+     *   <li>Include requestReferenceKey/Type for 'direct' matchMode support</li>
      *   <li>Call DocumentMatchingService.queryDocuments()</li>
      *   <li>Step 5: Apply single_document_flag if true (keep only latest)</li>
      *   <li>Convert to DocumentDetailsNode with HATEOAS links via ResponseBuilder</li>
@@ -443,12 +487,15 @@ public class DocumentEnquiryProcessor {
             UUID accountId,
             Map<String, Object> extractedData,
             EnquiryContext context) {
+        DocumentListRequest request = context.getRequest();
         DocumentQueryParams queryParams = DocumentQueryParams.builder()
                 .template(template)
                 .accountId(accountId)
                 .extractedData(extractedData)
                 .postedFromDate(context.getPostedFromDate())
                 .postedToDate(context.getPostedToDate())
+                .requestReferenceKey(request.getReferenceKey())
+                .requestReferenceKeyType(request.getReferenceKeyType())
                 .build();
         return documentMatchingService.queryDocuments(queryParams)
                 .map(docs -> applySingleDocumentFlag(docs, template))  // Step 5

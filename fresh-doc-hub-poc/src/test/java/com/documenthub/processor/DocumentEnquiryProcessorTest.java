@@ -5,6 +5,7 @@ import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.model.*;
 import com.documenthub.service.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -50,6 +51,9 @@ public class DocumentEnquiryProcessorTest {
     @Mock
     private DocumentResponseBuilder responseBuilder;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     private DocumentEnquiryProcessor documentEnquiryProcessor;
 
     // Test data
@@ -66,7 +70,8 @@ public class DocumentEnquiryProcessorTest {
                 ruleEvaluationService,
                 dataExtractionService,
                 documentMatchingService,
-                responseBuilder
+                responseBuilder,
+                objectMapper
         );
     }
 

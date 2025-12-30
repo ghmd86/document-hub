@@ -248,12 +248,35 @@ documents:
   file_name: Bay_Area_Exclusive_Offer_2024.pdf
   doc_creation_date: 1704067200000
   accessible_flag: true
+  start_date: 1704067200000
+  end_date: 1735689599000
   doc_metadata:
     promoCode: PROMO-BAYAREA-2024
     offerType: EXCLUSIVE
     region: SF_BAY_AREA
     discountPercent: 15
     valid_from: '2024-01-01'
+    valid_until: '2024-12-31'
+# PROMO-BAYAREA-2025: Newer promo for 2025 - auto_discover should return this as "latest"
+- id: a0000000-0000-0000-0000-000000000010b
+  template_id: 77777777-7777-7777-7777-777777777777
+  template_type: PromoOffer
+  template_version: 1
+  shared_flag: true
+  reference_key: PROMO-BAYAREA-2025
+  reference_key_type: PROMO_CODE
+  storage_vendor: ecms
+  storage_document_key: b0000000-0000-0000-0000-000000000010b
+  file_name: Bay_Area_Exclusive_Offer_2025.pdf
+  doc_creation_date: 1735689600000
+  accessible_flag: true
+  start_date: 1735689600000
+  doc_metadata:
+    promoCode: PROMO-BAYAREA-2025
+    offerType: EXCLUSIVE
+    region: SF_BAY_AREA
+    discountPercent: 20
+    valid_from: '2025-01-01'
     valid_until: '2025-12-31'
 - id: a0000000-0000-0000-0000-000000000011
   template_id: 88888888-8888-8888-8888-888888888888

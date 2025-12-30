@@ -2,7 +2,7 @@
 -- DOCUMENT HUB SEED DATA
 -- =============================================================================
 -- Auto-generated from YAML files
--- Generated: 2025-12-22T15:20:04.847526
+-- Generated: 2025-12-30T12:33:53.523727
 --
 -- Source files:
 --   - templates.yaml
@@ -524,7 +524,7 @@ INSERT INTO document_hub.master_template_definition (
 }',
     '{
   "matchBy": "reference_key",
-  "referenceKeyField": "promoCode",
+  "matchMode": "auto_discover",
   "referenceKeyType": "PROMO_CODE"
 }',
     '{
@@ -2974,6 +2974,8 @@ INSERT INTO document_hub.storage_index (
     file_name,
     doc_creation_date,
     accessible_flag,
+    start_date,
+    end_date,
     doc_metadata,
     created_by,
     created_timestamp
@@ -2990,12 +2992,58 @@ INSERT INTO document_hub.storage_index (
     'Bay_Area_Exclusive_Offer_2024.pdf',
     1704067200000,
     true,
+    1704067200000,
+    1735689599000,
     '{
   "promoCode": "PROMO-BAYAREA-2024",
   "offerType": "EXCLUSIVE",
   "region": "SF_BAY_AREA",
   "discountPercent": 15,
   "valid_from": "2024-01-01",
+  "valid_until": "2024-12-31"
+}',
+    'system',
+    NOW()
+);
+
+-- Document: Bay_Area_Exclusive_Offer_2025.pdf
+INSERT INTO document_hub.storage_index (
+    storage_index_id,
+    master_template_id,
+    template_version,
+    template_type,
+    shared_flag,
+    reference_key,
+    reference_key_type,
+    storage_vendor,
+    storage_document_key,
+    file_name,
+    doc_creation_date,
+    accessible_flag,
+    start_date,
+    doc_metadata,
+    created_by,
+    created_timestamp
+) VALUES (
+    'a0000000-0000-0000-0000-000000000010b',
+    '77777777-7777-7777-7777-777777777777',
+    1,
+    'PromoOffer',
+    true,
+    'PROMO-BAYAREA-2025',
+    'PROMO_CODE',
+    'ecms',
+    'b0000000-0000-0000-0000-000000000010b',
+    'Bay_Area_Exclusive_Offer_2025.pdf',
+    1735689600000,
+    true,
+    1735689600000,
+    '{
+  "promoCode": "PROMO-BAYAREA-2025",
+  "offerType": "EXCLUSIVE",
+  "region": "SF_BAY_AREA",
+  "discountPercent": 20,
+  "valid_from": "2025-01-01",
   "valid_until": "2025-12-31"
 }',
     'system',

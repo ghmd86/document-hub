@@ -19,4 +19,16 @@ public class DocumentQueryParams {
     private Map<String, Object> extractedData;
     private Long postedFromDate;
     private Long postedToDate;
+
+    /**
+     * Reference key from the enquiry request (for 'direct' matchMode).
+     * Used when client explicitly provides the reference key value.
+     */
+    private String requestReferenceKey;
+
+    /**
+     * Reference key type from the enquiry request (for 'direct' matchMode).
+     * Used when client explicitly provides the reference key type.
+     */
+    private String requestReferenceKeyType;
 }

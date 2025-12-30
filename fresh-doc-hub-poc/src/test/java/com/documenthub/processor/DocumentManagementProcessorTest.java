@@ -260,8 +260,8 @@ public class DocumentManagementProcessorTest {
     }
 
     private void setupMocksForSuccessfulUpload(MasterTemplateDefinitionEntity template) {
-        when(masterTemplateDao.findActiveTemplatesByLineOfBusiness(isNull(), anyLong()))
-            .thenReturn(reactor.core.publisher.Flux.just(template));
+        when(masterTemplateDao.findLatestActiveTemplateByType(eq(DOC_TYPE), anyLong()))
+            .thenReturn(Mono.just(template));
         when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE)))
             .thenReturn(true);
 
@@ -296,5 +296,100 @@ public class DocumentManagementProcessorTest {
             .referenceKeyType(REF_KEY_TYPE)
             .createdBy("testUser")
             .build();
+    }
+
+    @Nested
+    @DisplayName("ReferenceKeyType Validation Tests")
+    class ReferenceKeyTypeValidationTests {
+
+        @Test
+        @DisplayName("Should succeed when referenceKeyType matches template config")
+        void shouldSucceedWhenReferenceKeyTypeMatches() {
+            // Given
+            MasterTemplateDefinitionEntity template = createTemplateWithMatchingConfig("ORDER");
+            DocumentUploadRequest request = createUploadRequest();
+
+            setupMocksForSuccessfulUpload(template);
+
+            // When
+            Mono<InlineResponse200> result = processor.uploadDocument(request, REQUESTOR_TYPE);
+
+            // Then
+            StepVerifier.create(result)
+                .expectNextMatches(resp -> resp.getId() != null)
+                .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("Should fail when referenceKeyType does not match template config")
+        void shouldFailWhenReferenceKeyTypeMismatch() {
+            // Given
+            MasterTemplateDefinitionEntity template = createTemplateWithMatchingConfig("PROMO_CODE");
+            DocumentUploadRequest request = createUploadRequest(); // Has REF_KEY_TYPE = "ORDER"
+
+            when(masterTemplateDao.findLatestActiveTemplateByType(eq(DOC_TYPE), anyLong()))
+                .thenReturn(Mono.just(template));
+            when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE)))
+                .thenReturn(true);
+
+            // When
+            Mono<InlineResponse200> result = processor.uploadDocument(request, REQUESTOR_TYPE);
+
+            // Then
+            StepVerifier.create(result)
+                .expectErrorMatches(e -> e instanceof IllegalArgumentException
+                    && e.getMessage().contains("referenceKeyType mismatch"))
+                .verify();
+        }
+
+        @Test
+        @DisplayName("Should fail when template requires referenceKeyType but request has none")
+        void shouldFailWhenReferenceKeyTypeRequiredButMissing() {
+            // Given
+            MasterTemplateDefinitionEntity template = createTemplateWithMatchingConfig("ORDER");
+            DocumentUploadRequest request = createUploadRequest();
+            request.setReferenceKeyType(null);
+
+            when(masterTemplateDao.findLatestActiveTemplateByType(eq(DOC_TYPE), anyLong()))
+                .thenReturn(Mono.just(template));
+            when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE)))
+                .thenReturn(true);
+
+            // When
+            Mono<InlineResponse200> result = processor.uploadDocument(request, REQUESTOR_TYPE);
+
+            // Then
+            StepVerifier.create(result)
+                .expectErrorMatches(e -> e instanceof IllegalArgumentException
+                    && e.getMessage().contains("requires referenceKeyType"))
+                .verify();
+        }
+
+        @Test
+        @DisplayName("Should succeed when template has no document_matching_config")
+        void shouldSucceedWhenNoMatchingConfig() {
+            // Given
+            MasterTemplateDefinitionEntity template = createTemplate(false); // false to skip single_document_flag logic
+            // template has no documentMatchingConfig
+            DocumentUploadRequest request = createUploadRequest();
+
+            setupMocksForSuccessfulUpload(template);
+
+            // When
+            Mono<InlineResponse200> result = processor.uploadDocument(request, REQUESTOR_TYPE);
+
+            // Then
+            StepVerifier.create(result)
+                .expectNextMatches(resp -> resp.getId() != null)
+                .verifyComplete();
+        }
+
+        private MasterTemplateDefinitionEntity createTemplateWithMatchingConfig(String referenceKeyType) {
+            MasterTemplateDefinitionEntity template = createTemplate(false); // false to skip single_document_flag logic
+            String configJson = String.format(
+                "{\"matchBy\":\"reference_key\",\"referenceKeyType\":\"%s\"}", referenceKeyType);
+            template.setDocumentMatchingConfig(io.r2dbc.postgresql.codec.Json.of(configJson));
+            return template;
+        }
     }
 }

@@ -169,4 +169,27 @@ public interface StorageIndexRepository extends R2dbcRepository<StorageIndexEnti
         @Param("postedToDate") Long postedToDate,
         @Param("currentDate") Long currentDate
     );
+
+    /**
+     * Find documents by reference key TYPE only (without specific reference key).
+     * Used for auto_discover matchMode where we query by type and filter by validity.
+     * Returns all documents matching the reference key type, filtered by template and validity period.
+     */
+    @Query("SELECT * FROM document_hub.storage_index " +
+           "WHERE reference_key_type = :referenceKeyType " +
+           "AND accessible_flag = true " +
+           "AND template_type = :templateType " +
+           "AND template_version = :templateVersion " +
+           "AND (:postedFromDate IS NULL OR doc_creation_date >= :postedFromDate) " +
+           "AND (:postedToDate IS NULL OR doc_creation_date <= :postedToDate) " +
+           "AND (start_date IS NULL OR start_date <= :currentDate) " +
+           "AND (end_date IS NULL OR end_date >= :currentDate)")
+    Flux<StorageIndexEntity> findByReferenceKeyTypeAndTemplateWithDateRange(
+        @Param("referenceKeyType") String referenceKeyType,
+        @Param("templateType") String templateType,
+        @Param("templateVersion") Integer templateVersion,
+        @Param("postedFromDate") Long postedFromDate,
+        @Param("postedToDate") Long postedToDate,
+        @Param("currentDate") Long currentDate
+    );
 }

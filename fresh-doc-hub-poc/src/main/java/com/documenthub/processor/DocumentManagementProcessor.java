@@ -11,6 +11,7 @@ import com.documenthub.model.*;
 import com.documenthub.service.DocumentAccessControlService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.Builder;
@@ -112,6 +113,7 @@ public class DocumentManagementProcessor {
      * <p><b>How:</b>
      * <ol>
      *   <li><b>Step 2:</b> Check if requestorType has Upload permission for this template</li>
+     *   <li><b>Step 2b:</b> Validate referenceKeyType matches template config (if configured)</li>
      *   <li><b>Step 3:</b> Extract file bytes from request and parse metadata JSON</li>
      *   <li><b>Step 4:</b> If single_document_flag=true, close existing docs</li>
      *   <li><b>Step 5:</b> Upload to ECMS</li>
@@ -126,6 +128,12 @@ public class DocumentManagementProcessor {
             return handleUploadPermissionDenied(request.getDocumentType(), requestorType);
         }
 
+        // Step 2b: Validate referenceKeyType matches template configuration
+        String validationError = validateReferenceKeyType(template, request);
+        if (validationError != null) {
+            return Mono.error(new IllegalArgumentException(validationError));
+        }
+
         // Step 3: Request validation - extract file bytes and parse metadata
         byte[] fileBytes = extractFileBytes(request);
         if (fileBytes == null) {
@@ -136,6 +144,64 @@ public class DocumentManagementProcessor {
         // Steps 4-6: Single document enforcement, ECMS upload, storage index creation
         return closeExistingDocsIfSingleDoc(template, request)
             .then(uploadToEcmsAndSave(template, request, metadata, fileBytes));
+    }
+
+    /**
+     * Step 2b: Validate referenceKeyType matches template's document_matching_config.
+     *
+     * <p><b>What:</b> Ensures the referenceKeyType in the upload request matches
+     * the template's configured referenceKeyType (if specified).</p>
+     *
+     * <p><b>Why:</b> Prevents uploading documents with mismatched reference key types,
+     * which would cause issues during document enquiry/retrieval.</p>
+     *
+     * <p><b>How:</b>
+     * <ol>
+     *   <li>Parse template's document_matching_config JSON</li>
+     *   <li>If referenceKeyType is configured, compare with request's referenceKeyType</li>
+     *   <li>Return error message if mismatch, null if valid</li>
+     * </ol>
+     * </p>
+     *
+     * @return Error message if validation fails, null if valid
+     */
+    private String validateReferenceKeyType(MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+        if (template.getDocumentMatchingConfig() == null) {
+            return null; // No config, no validation needed
+        }
+
+        try {
+            JsonNode config = objectMapper.readTree(template.getDocumentMatchingConfig().asString());
+            String templateRefKeyType = config.path("referenceKeyType").asText(null);
+
+            if (templateRefKeyType == null || templateRefKeyType.isEmpty()) {
+                return null; // No referenceKeyType configured, no validation needed
+            }
+
+            String requestRefKeyType = request.getReferenceKeyType();
+
+            // If template requires a referenceKeyType, request must provide it
+            if (requestRefKeyType == null || requestRefKeyType.isEmpty()) {
+                return String.format(
+                    "Template '%s' requires referenceKeyType '%s', but none was provided in the request",
+                    template.getTemplateType(), templateRefKeyType);
+            }
+
+            // Validate the types match
+            if (!templateRefKeyType.equals(requestRefKeyType)) {
+                return String.format(
+                    "referenceKeyType mismatch: template '%s' expects '%s', but request provided '%s'",
+                    template.getTemplateType(), templateRefKeyType, requestRefKeyType);
+            }
+
+            log.debug("referenceKeyType validation passed: template={}, type={}",
+                template.getTemplateType(), templateRefKeyType);
+            return null; // Valid
+
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse document_matching_config for validation: {}", e.getMessage());
+            return null; // Don't fail upload due to config parsing issues
+        }
     }
 
     /**

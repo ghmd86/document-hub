@@ -232,7 +232,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: promoCode
+    matchMode: auto_discover
     referenceKeyType: PROMO_CODE
   template_config:
     reprint_policy:
