@@ -184,7 +184,7 @@ paths:
         - $ref: '#/components/parameters/TemplateId'
         - name: version
           in: query
-          description: Specific version to retrieve (default: latest)
+          description: Specific version to retrieve. If not provided, returns the latest version.
           schema:
             type: integer
       responses:
@@ -564,7 +564,7 @@ paths:
         - $ref: '#/components/parameters/TemplateId'
         - name: version
           in: query
-          description: Template version (default: latest)
+          description: Template version. If not provided, uses the latest version.
           schema:
             type: integer
       requestBody:
@@ -613,7 +613,7 @@ paths:
         - $ref: '#/components/parameters/TemplateId'
         - name: version
           in: query
-          description: Template version (default: latest)
+          description: Template version. If not provided, uses the latest version.
           schema:
             type: integer
       responses:
@@ -651,7 +651,7 @@ paths:
         - $ref: '#/components/parameters/TemplateId'
         - name: version
           in: query
-          description: Template version (default: latest)
+          description: Template version. If not provided, uses the latest version.
           schema:
             type: integer
       responses:
@@ -1309,15 +1309,16 @@ components:
           type: string
           description: Human-readable template name
           maxLength: 255
-          example: "Monthly Statement - Credit Card"
+          example: "Bay Area Exclusive Credit Card Offer"
         templateDescription:
           type: string
           description: Template description
           maxLength: 1000
+          example: "Special promotional offer for customers in San Francisco Bay Area zipcodes"
         templateType:
           type: string
-          description: Document type (e.g., Statement, PrivacyPolicy, Notice)
-          example: "Statement"
+          description: Document type (e.g., Statement, PrivacyPolicy, PromoOffer)
+          example: "PromoOffer"
         communicationType:
           $ref: '#/components/schemas/CommunicationType'
         lineOfBusiness:
@@ -1325,20 +1326,20 @@ components:
         category:
           type: string
           description: Template category
-          example: "Regulatory"
+          example: "Promotional"
         languageCode:
           type: string
           description: Language code (ISO 639-1)
           default: "en"
-          example: "en"
+          example: "EN_US"
         owningDepartment:
           type: string
           description: Department responsible for template
-          example: "Compliance"
+          example: "Marketing"
         displayName:
           type: string
           description: Display name shown to customers
-          example: "Credit Card Statement"
+          example: "Exclusive Bay Area Offer"
         notificationNeeded:
           type: boolean
           description: Whether notification should be sent on generation
@@ -1353,24 +1354,29 @@ components:
           default: true
         sharedDocumentFlag:
           type: boolean
-          description: Whether document is shared across accounts
+          description: Whether document is shared across accounts (not account-specific)
           default: false
+          example: true
         sharingScope:
           type: string
           description: Sharing scope for shared documents
           enum: [ALL, CUSTOM_RULES]
+          example: "CUSTOM_RULES"
         singleDocumentFlag:
           type: boolean
           description: Return only single document (latest) vs all matching
           default: true
+          example: true
         startDate:
           type: integer
           format: int64
-          description: Epoch timestamp when template becomes active
+          description: Epoch timestamp (milliseconds) when template becomes active
+          example: 1704067200000
         endDate:
           type: integer
           format: int64
-          description: Epoch timestamp when template expires
+          description: Epoch timestamp (milliseconds) when template expires
+          example: 1735689600000
         templateContent:
           type: string
           description: Template content (HTML, text, etc.)
@@ -1386,10 +1392,65 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccessControlEntry'
+          example:
+            - role: customer
+              actions: [View, Download]
+            - role: agent
+              actions: [View, Download]
+            - role: system
+              actions: [View, Download, Update, Delete]
         dataExtractionConfig:
           $ref: '#/components/schemas/DataExtractionConfig'
         eligibilityCriteria:
           $ref: '#/components/schemas/EligibilityCriteria'
+      example:
+        templateName: "Bay Area Exclusive Credit Card Offer"
+        templateDescription: "Special promotional offer for customers in San Francisco Bay Area zipcodes"
+        templateType: "PromoOffer"
+        communicationType: "LETTER"
+        lineOfBusiness: "CREDIT_CARD"
+        category: "Promotional"
+        languageCode: "EN_US"
+        sharedDocumentFlag: true
+        sharingScope: "CUSTOM_RULES"
+        singleDocumentFlag: true
+        startDate: 1704067200000
+        dataExtractionConfig:
+          fieldsToExtract:
+            - zipcode
+          fieldSources:
+            zipcode:
+              description: "Customer zipcode from address"
+              sourceApi: customerApi
+              extractionPath: "$.customer.address.zipCode"
+              requiredInputs:
+                - customerId
+              fieldType: string
+          dataSources:
+            customerApi:
+              description: "Fetch customer address to get zipcode"
+              endpoint:
+                url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+                method: GET
+                timeout: 5000
+          documentMatching:
+            matchBy: reference_key
+            referenceKeyField: promoCode
+            referenceKeyType: PROMO_CODE
+        eligibilityCriteria:
+          operator: AND
+          rules:
+            - field: zipcode
+              operator: IN
+              value: ["94102", "94103", "94104", "94105", "94107", "94108", "94109", "94110"]
+            - field: accountType
+              operator: EQUALS
+              value: credit_card
+        accessControl:
+          - role: customer
+            actions: [View, Download]
+          - role: agent
+            actions: [View, Download]
 
     UpdateTemplateRequest:
       type: object
@@ -1473,7 +1534,7 @@ components:
       properties:
         baseVersion:
           type: integer
-          description: Version to base new version on (default: latest)
+          description: Version to base new version on. If not provided, uses the latest version.
         changeNotes:
           type: string
           description: Notes describing changes in new version
@@ -1607,50 +1668,68 @@ components:
         templateId:
           type: string
           format: uuid
+          example: "77777777-7777-7777-7777-777777777777"
         version:
           type: integer
+          example: 1
         templateName:
           type: string
+          example: "Bay Area Exclusive Credit Card Offer"
         templateDescription:
           type: string
+          example: "Special promotional offer for customers in San Francisco Bay Area zipcodes"
         templateType:
           type: string
+          example: "PromoOffer"
         communicationType:
           $ref: '#/components/schemas/CommunicationType'
         lineOfBusiness:
           $ref: '#/components/schemas/LineOfBusiness'
         category:
           type: string
+          example: "Promotional"
         languageCode:
           type: string
+          example: "EN_US"
         owningDepartment:
           type: string
+          example: "Marketing"
         displayName:
           type: string
+          example: "Exclusive Bay Area Offer"
         status:
           $ref: '#/components/schemas/TemplateStatus'
         notificationNeeded:
           type: boolean
+          example: false
         regulatoryFlag:
           type: boolean
+          example: false
         messageCenterDocFlag:
           type: boolean
+          example: true
         sharedDocumentFlag:
           type: boolean
+          example: true
         sharingScope:
           type: string
+          example: "CUSTOM_RULES"
         singleDocumentFlag:
           type: boolean
+          example: true
         startDate:
           type: integer
           format: int64
+          example: 1704067200000
         endDate:
           type: integer
           format: int64
+          example: 1735689600000
         workflowType:
           $ref: '#/components/schemas/WorkflowType'
         isLatestVersion:
           type: boolean
+          example: true
         templateVariables:
           type: array
           items:
@@ -1663,18 +1742,73 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccessControlEntry'
+        dataExtractionConfig:
+          $ref: '#/components/schemas/DataExtractionConfig'
+        eligibilityCriteria:
+          $ref: '#/components/schemas/EligibilityCriteria'
         createdBy:
           type: string
+          example: "admin@company.com"
         createdTimestamp:
           type: string
           format: date-time
+          example: "2024-01-01T00:00:00Z"
         updatedBy:
           type: string
+          example: "admin@company.com"
         updatedTimestamp:
           type: string
           format: date-time
+          example: "2024-01-15T10:30:00Z"
         _links:
           $ref: '#/components/schemas/TemplateLinks'
+      example:
+        templateId: "77777777-7777-7777-7777-777777777777"
+        version: 1
+        templateName: "Bay Area Exclusive Credit Card Offer"
+        templateDescription: "Special promotional offer for customers in San Francisco Bay Area zipcodes"
+        templateType: "PromoOffer"
+        communicationType: "LETTER"
+        lineOfBusiness: "CREDIT_CARD"
+        category: "Promotional"
+        languageCode: "EN_US"
+        status: "ACTIVE"
+        sharedDocumentFlag: true
+        sharingScope: "CUSTOM_RULES"
+        singleDocumentFlag: true
+        startDate: 1704067200000
+        isLatestVersion: true
+        dataExtractionConfig:
+          fieldsToExtract:
+            - zipcode
+          documentMatching:
+            matchBy: reference_key
+            referenceKeyField: promoCode
+            referenceKeyType: PROMO_CODE
+        eligibilityCriteria:
+          operator: AND
+          rules:
+            - field: zipcode
+              operator: IN
+              value: ["94102", "94103", "94104", "94105"]
+            - field: accountType
+              operator: EQUALS
+              value: credit_card
+        accessControl:
+          - role: customer
+            actions: [View, Download]
+          - role: agent
+            actions: [View, Download]
+        createdBy: "admin@company.com"
+        createdTimestamp: "2024-01-01T00:00:00Z"
+        updatedTimestamp: "2024-01-15T10:30:00Z"
+        _links:
+          self:
+            href: "/templates/77777777-7777-7777-7777-777777777777"
+            method: "GET"
+          preview:
+            href: "/templates/77777777-7777-7777-7777-777777777777/preview"
+            method: "POST"
 
     TemplateListResponse:
       type: object
@@ -2028,11 +2162,14 @@ components:
       required:
         - name
         - type
+      description: |
+        A variable/placeholder used in the template content that will be substituted
+        with actual values during document generation.
       properties:
         name:
           type: string
-          description: Variable name (e.g., customerName)
-          example: "customerName"
+          description: Variable name (e.g., customerName, accountBalance)
+          example: "promoCode"
         type:
           $ref: '#/components/schemas/VariableType'
         source:
@@ -2040,107 +2177,350 @@ components:
         required:
           type: boolean
           default: true
+          example: true
         defaultValue:
           type: string
+          example: "N/A"
         description:
           type: string
+          example: "Unique promotional code for the offer"
         format:
           type: string
           description: Format pattern (e.g., date format, currency format)
+          example: "PROMO-{REGION}-{YEAR}"
         validation:
           type: string
           description: Validation regex or rule
+          example: "^PROMO-[A-Z]+-[0-9]{4}$"
+      example:
+        name: promoCode
+        type: STRING
+        source: STATIC_CONFIG
+        required: true
+        description: "Unique promotional code for the offer"
+        validation: "^PROMO-[A-Z]+-[0-9]{4}$"
 
     RequiredField:
       type: object
       required:
         - field
         - type
+      description: A field required in the upload request metadata for this template type
       properties:
         field:
           type: string
-          description: Field name required for document generation
+          description: Field name required for document generation/upload
+          example: "promoCode"
         type:
           type: string
           enum: [string, number, date, uuid, boolean]
+          example: "string"
         required:
           type: boolean
           default: true
         description:
           type: string
+          example: "The promotional code associated with this offer document"
+      example:
+        field: promoCode
+        type: string
+        required: true
+        description: "The promotional code associated with this offer document"
 
     AccessControlEntry:
       type: object
       required:
         - role
         - actions
+      description: |
+        Defines what actions a specific role can perform on documents of this template type.
+
+        **Roles:**
+        - `customer`: End-user/account holder
+        - `agent`: Customer service representative
+        - `system`: Internal systems and batch processes
+        - `admin`: Administrative users
+
+        **Actions:**
+        - `View`: Can see document in enquiry results
+        - `Download`: Can download the document content
+        - `Update`: Can modify document metadata
+        - `Delete`: Can soft-delete the document
       properties:
         role:
           type: string
-          description: Role name (customer, agent, system, admin)
+          description: Role name
+          enum: [customer, agent, system, admin]
+          example: "customer"
         actions:
           type: array
           items:
             type: string
             enum: [View, Download, Update, Delete]
+          example: [View, Download]
+      example:
+        role: customer
+        actions: [View, Download]
 
     DataExtractionConfig:
       type: object
-      description: Configuration for extracting data from external APIs
+      description: |
+        Configuration for extracting data from external APIs and matching documents.
+
+        **Document Matching Strategies:**
+        - `reference_key`: Direct lookup using a specific field value (e.g., promoCode, disclosureCode)
+        - `conditional`: Evaluate conditions to determine which reference key to use
+
+        **Reference Key Types:** ACCOUNT_ID, APPLICANT_ID, DOCUMENT_VERSION, DISCLOSURE_CODE,
+        NOTICE_ID, OFFER_CODE, PROMO_CODE, CAMPAIGN_CODE, KIT_VERSION
       properties:
-        steps:
+        fieldsToExtract:
           type: array
+          description: List of field names to extract from API responses
           items:
-            type: object
-            properties:
-              stepId:
-                type: string
-              apiEndpoint:
-                type: string
-              method:
-                type: string
-              extractFields:
-                type: array
-                items:
-                  type: object
-        documentMatching:
+            type: string
+          example: ["zipcode", "accountType", "creditScore"]
+        fieldSources:
+          type: object
+          description: Configuration for each field specifying where and how to extract it
+          additionalProperties:
+            $ref: '#/components/schemas/FieldSourceConfig'
+        dataSources:
+          type: object
+          description: API endpoint configurations keyed by source name
+          additionalProperties:
+            $ref: '#/components/schemas/DataSourceConfig'
+        executionStrategy:
           type: object
           properties:
-            matchBy:
+            mode:
               type: string
-              enum: [reference_key, conditional]
-            referenceKeyField:
-              type: string
-            referenceKeyType:
-              type: string
+              enum: [sequential, parallel]
+              default: sequential
+        documentMatching:
+          $ref: '#/components/schemas/DocumentMatchingConfig'
+      example:
+        fieldsToExtract:
+          - zipcode
+        fieldSources:
+          zipcode:
+            description: "Customer zipcode from address"
+            sourceApi: customerApi
+            extractionPath: "$.customer.address.zipCode"
+            requiredInputs:
+              - customerId
+            fieldType: string
+        dataSources:
+          customerApi:
+            description: "Fetch customer address to get zipcode"
+            endpoint:
+              url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+              method: GET
+              timeout: 5000
+              headers:
+                X-Request-ID: "${correlationId}"
+            cache:
+              enabled: true
+              ttlSeconds: 3600
+              keyPattern: "customer:${customerId}"
+        documentMatching:
+          matchBy: reference_key
+          referenceKeyField: promoCode
+          referenceKeyType: PROMO_CODE
 
-    EligibilityCriteria:
+    FieldSourceConfig:
       type: object
-      description: Rules for determining document eligibility
+      description: Configuration for extracting a single field from an API
       properties:
-        operator:
+        description:
           type: string
-          enum: [AND, OR]
-        rules:
+        sourceApi:
+          type: string
+          description: Reference to a data source defined in dataSources
+        extractionPath:
+          type: string
+          description: JSONPath expression to extract the value
+        requiredInputs:
           type: array
           items:
-            $ref: '#/components/schemas/EligibilityRule'
+            type: string
+        fieldType:
+          type: string
+          enum: [string, number, boolean, date]
+        defaultValue:
+          type: string
+      example:
+        description: "Customer zipcode from address"
+        sourceApi: customerApi
+        extractionPath: "$.customer.address.zipCode"
+        requiredInputs:
+          - customerId
+        fieldType: string
 
-    EligibilityRule:
+    DataSourceConfig:
       type: object
+      description: Configuration for an external API data source
+      properties:
+        description:
+          type: string
+        endpoint:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL with ${placeholder} substitution support
+            method:
+              type: string
+              enum: [GET, POST]
+            timeout:
+              type: integer
+              description: Timeout in milliseconds
+            headers:
+              type: object
+              additionalProperties:
+                type: string
+        cache:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            ttlSeconds:
+              type: integer
+            keyPattern:
+              type: string
+      example:
+        description: "Fetch customer profile data"
+        endpoint:
+          url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+          method: GET
+          timeout: 5000
+          headers:
+            X-Request-ID: "${correlationId}"
+        cache:
+          enabled: true
+          ttlSeconds: 3600
+          keyPattern: "customer:${customerId}"
+
+    DocumentMatchingConfig:
+      type: object
+      description: |
+        Configuration for how documents are matched/queried from storage.
+
+        **Match Strategies:**
+        - `reference_key`: Use a single field value to query documents
+        - `conditional`: Evaluate conditions to select the appropriate reference key
+      properties:
+        matchBy:
+          type: string
+          enum: [reference_key, conditional]
+          description: The matching strategy to use
+        referenceKeyField:
+          type: string
+          description: |
+            The field name in extractedData containing the reference key value.
+            For reference_key matching: this field's value is used directly.
+            For conditional matching: this is the output field after condition evaluation.
+        referenceKeyType:
+          type: string
+          description: The type of reference key (must match storage_index.reference_key_type)
+          enum: [ACCOUNT_ID, APPLICANT_ID, DOCUMENT_VERSION, DISCLOSURE_CODE, NOTICE_ID, OFFER_CODE, PROMO_CODE, CAMPAIGN_CODE, KIT_VERSION]
+        conditions:
+          type: array
+          description: For conditional matching - list of conditions to evaluate
+          items:
+            $ref: '#/components/schemas/MatchCondition'
+      example:
+        matchBy: reference_key
+        referenceKeyField: promoCode
+        referenceKeyType: PROMO_CODE
+
+    MatchCondition:
+      type: object
+      description: A condition for conditional document matching
       properties:
         field:
           type: string
+          description: Field name in extractedData to evaluate
         operator:
           type: string
-          enum: [EQUALS, NOT_EQUALS, IN, NOT_IN, GREATER_THAN, LESS_THAN, CONTAINS, STARTS_WITH, ENDS_WITH]
+          enum: ["==", "!=", ">", ">=", "<", "<=", "contains", "startsWith", "endsWith"]
         value:
           oneOf:
             - type: string
             - type: number
+            - type: boolean
+        referenceKey:
+          type: string
+          description: The reference key value to use if this condition matches
+      example:
+        field: creditScore
+        operator: ">="
+        value: 720
+        referenceKey: "TIER1_OFFER"
+
+    EligibilityCriteria:
+      type: object
+      description: |
+        Rules for determining if a customer/account is eligible to receive a document.
+
+        **Use Cases:**
+        - Geographic targeting (zipcode-based promotions)
+        - Account type restrictions (credit card vs savings)
+        - Credit tier-based offers
+        - Time-based eligibility (account age, enrollment date)
+
+        **Evaluation:** Rules are combined using the specified operator (AND/OR).
+        If eligibility fails, the document is not returned in enquiry results.
+      properties:
+        operator:
+          type: string
+          enum: [AND, OR]
+          description: Logical operator to combine rules
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/EligibilityRule'
+      example:
+        operator: AND
+        rules:
+          - field: zipcode
+            operator: IN
+            value: ["94102", "94103", "94104", "94105", "94107"]
+          - field: accountType
+            operator: EQUALS
+            value: credit_card
+
+    EligibilityRule:
+      type: object
+      description: A single eligibility rule to evaluate
+      properties:
+        field:
+          type: string
+          description: |
+            Field name to evaluate. Can be:
+            - From extractedData (via data_extraction_config)
+            - From request context (accountId, customerId)
+            - From account metadata (accountType, lineOfBusiness)
+          example: zipcode
+        operator:
+          type: string
+          enum: [EQUALS, NOT_EQUALS, IN, NOT_IN, GREATER_THAN, LESS_THAN, GREATER_THAN_OR_EQUALS, LESS_THAN_OR_EQUALS, CONTAINS, STARTS_WITH, ENDS_WITH]
+          description: Comparison operator
+          example: IN
+        value:
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
             - type: array
               items:
                 type: string
+          description: Value(s) to compare against
+          example: ["94102", "94103", "94104"]
+      example:
+        field: zipcode
+        operator: IN
+        value: ["94102", "94103", "94104", "94105", "94107", "94108", "94109", "94110"]
 
     TemplateLinks:
       type: object
