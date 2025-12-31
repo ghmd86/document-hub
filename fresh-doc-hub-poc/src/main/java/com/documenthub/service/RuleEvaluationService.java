@@ -85,8 +85,38 @@ public class RuleEvaluationService {
     }
 
     /**
-     * Evaluate if account meets eligibility criteria from JSON column.
-     * This method reads directly from the eligibility_criteria column.
+     * Evaluate if account meets eligibility criteria from JSON string.
+     * This method parses the eligibility criteria from a JSON string (from DTO).
+     *
+     * @param eligibilityCriteriaJson the eligibility criteria JSON string
+     * @param accountMetadata         the account metadata to evaluate against
+     * @param requestContext          additional context from the request
+     * @return true if eligible, false otherwise
+     */
+    public boolean evaluateEligibility(
+        String eligibilityCriteriaJson,
+        AccountMetadata accountMetadata,
+        Map<String, Object> requestContext
+    ) {
+        if (eligibilityCriteriaJson == null) {
+            log.debug("No eligibility_criteria column, allowing access");
+            return true;
+        }
+
+        try {
+            EligibilityCriteria criteria = objectMapper.readValue(
+                eligibilityCriteriaJson,
+                EligibilityCriteria.class
+            );
+            return evaluateEligibility(criteria, accountMetadata, requestContext);
+        } catch (Exception e) {
+            log.error("Failed to parse eligibility_criteria: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Evaluate if account meets eligibility criteria from Json object (for entity layer).
      *
      * @param eligibilityCriteriaJson the eligibility criteria JSON from entity
      * @param accountMetadata         the account metadata to evaluate against
@@ -99,20 +129,9 @@ public class RuleEvaluationService {
         Map<String, Object> requestContext
     ) {
         if (eligibilityCriteriaJson == null) {
-            log.debug("No eligibility_criteria column, allowing access");
             return true;
         }
-
-        try {
-            EligibilityCriteria criteria = objectMapper.readValue(
-                eligibilityCriteriaJson.asString(),
-                EligibilityCriteria.class
-            );
-            return evaluateEligibility(criteria, accountMetadata, requestContext);
-        } catch (Exception e) {
-            log.error("Failed to parse eligibility_criteria: {}", e.getMessage());
-            return false;
-        }
+        return evaluateEligibility(eligibilityCriteriaJson.asString(), accountMetadata, requestContext);
     }
 
     /**

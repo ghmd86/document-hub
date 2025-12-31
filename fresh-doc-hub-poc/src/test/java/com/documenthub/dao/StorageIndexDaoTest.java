@@ -1,5 +1,6 @@
 package com.documenthub.dao;
 
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.repository.StorageIndexRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,13 +51,16 @@ public class StorageIndexDaoTest {
         void shouldUpdateEndDate() {
             // Given
             StorageIndexEntity entity = createStorageEntity(null);
+            UUID storageIndexId = entity.getStorageIndexId();
             Long newEndDate = System.currentTimeMillis();
 
+            when(repository.findById(storageIndexId))
+                .thenReturn(Mono.just(entity));
             when(repository.save(any(StorageIndexEntity.class)))
                 .thenAnswer(inv -> Mono.just(inv.getArgument(0)));
 
             // When
-            Mono<StorageIndexEntity> result = storageIndexDao.updateEndDate(entity, newEndDate);
+            Mono<StorageIndexDto> result = storageIndexDao.updateEndDate(storageIndexId, newEndDate);
 
             // Then
             StepVerifier.create(result)
@@ -94,7 +98,7 @@ public class StorageIndexDaoTest {
                 .thenReturn(Flux.just(accessibleDoc, inaccessibleDoc));
 
             // When
-            Flux<StorageIndexEntity> result = storageIndexDao.findActiveByReferenceKey(
+            Flux<StorageIndexDto> result = storageIndexDao.findActiveByReferenceKey(
                 REF_KEY, REF_KEY_TYPE, TEMPLATE_TYPE);
 
             // Then
@@ -112,7 +116,7 @@ public class StorageIndexDaoTest {
                 .thenReturn(Flux.empty());
 
             // When
-            Flux<StorageIndexEntity> result = storageIndexDao.findActiveByReferenceKey(
+            Flux<StorageIndexDto> result = storageIndexDao.findActiveByReferenceKey(
                 REF_KEY, REF_KEY_TYPE, TEMPLATE_TYPE);
 
             // Then

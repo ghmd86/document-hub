@@ -1,7 +1,7 @@
 package com.documenthub.service;
 
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.model.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,11 +35,11 @@ public class DocumentResponseBuilder {
     private int maxPageSize;
 
     /**
-     * Convert entities to response nodes with access control.
+     * Convert DTOs to response nodes with access control.
      */
     public List<DocumentDetailsNode> convertToNodes(
-            List<StorageIndexEntity> entities,
-            MasterTemplateDefinitionEntity template,
+            List<StorageIndexDto> documents,
+            MasterTemplateDto template,
             String requestorType) {
 
         List<String> permittedActions = accessControlService
@@ -47,8 +47,8 @@ public class DocumentResponseBuilder {
 
         log.debug("Permitted actions for {}: {}", requestorType, permittedActions);
 
-        return entities.stream()
-                .map(entity -> buildNode(entity, template, permittedActions))
+        return documents.stream()
+                .map(doc -> buildNode(doc, template, permittedActions))
                 .collect(Collectors.toList());
     }
 
@@ -137,30 +137,30 @@ public class DocumentResponseBuilder {
     }
 
     private DocumentDetailsNode buildNode(
-            StorageIndexEntity entity,
-            MasterTemplateDefinitionEntity template,
+            StorageIndexDto doc,
+            MasterTemplateDto template,
             List<String> permittedActions) {
 
         DocumentDetailsNode node = new DocumentDetailsNode();
-        populateBasicFields(node, entity, template);
-        populateMetadata(node, entity);
-        node.setLinks(accessControlService.buildLinksForDocument(entity, permittedActions));
+        populateBasicFields(node, doc, template);
+        populateMetadata(node, doc);
+        node.setLinks(accessControlService.buildLinksForDocument(doc, permittedActions));
 
         return node;
     }
 
     private void populateBasicFields(
             DocumentDetailsNode node,
-            StorageIndexEntity entity,
-            MasterTemplateDefinitionEntity template) {
+            StorageIndexDto doc,
+            MasterTemplateDto template) {
 
-        node.setDocumentId(entity.getStorageIndexId() != null
-                ? entity.getStorageIndexId().toString() : null);
-        node.setDisplayName(entity.getFileName());
+        node.setDocumentId(doc.getStorageIndexId() != null
+                ? doc.getStorageIndexId().toString() : null);
+        node.setDisplayName(doc.getFileName());
         node.setDescription(template.getTemplateDescription());
         node.setDocumentType(template.getTemplateType());
         node.setCategory(template.getTemplateCategory());
-        node.setDatePosted(entity.getDocCreationDate());
+        node.setDatePosted(doc.getDocCreationDate());
 
         if (template.getLineOfBusiness() != null
                 && !template.getLineOfBusiness().isEmpty()) {
@@ -168,23 +168,23 @@ public class DocumentResponseBuilder {
         }
     }
 
-    private void populateMetadata(DocumentDetailsNode node, StorageIndexEntity entity) {
-        if (entity.getDocMetadata() == null) {
+    private void populateMetadata(DocumentDetailsNode node, StorageIndexDto doc) {
+        if (doc.getDocMetadata() == null) {
             return;
         }
 
         try {
-            List<MetadataNode> metadataNodes = parseMetadata(entity);
+            List<MetadataNode> metadataNodes = parseMetadata(doc);
             node.setMetadata(metadataNodes);
         } catch (Exception e) {
             log.warn("Failed to parse metadata for document {}: {}",
-                    entity.getStorageIndexId(), e.getMessage());
+                    doc.getStorageIndexId(), e.getMessage());
         }
     }
 
-    private List<MetadataNode> parseMetadata(StorageIndexEntity entity) throws Exception {
+    private List<MetadataNode> parseMetadata(StorageIndexDto doc) throws Exception {
         List<MetadataNode> metadataNodes = new ArrayList<>();
-        JsonNode metadataJson = objectMapper.readTree(entity.getDocMetadata().asString());
+        JsonNode metadataJson = objectMapper.readTree(doc.getDocMetadata());
 
         metadataJson.fields().forEachRemaining(field -> {
             MetadataNode metaNode = new MetadataNode();

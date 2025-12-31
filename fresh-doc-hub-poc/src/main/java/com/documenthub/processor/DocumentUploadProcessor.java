@@ -2,17 +2,16 @@ package com.documenthub.processor;
 
 import com.documenthub.dao.MasterTemplateDao;
 import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
 import com.documenthub.service.DocumentAccessControlService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.FilePart;
@@ -132,7 +131,7 @@ public class DocumentUploadProcessor {
     /**
      * Validate template exists and is active
      */
-    private Mono<MasterTemplateDefinitionEntity> validateAndGetTemplate(String templateType, Integer templateVersion) {
+    private Mono<MasterTemplateDto> validateAndGetTemplate(String templateType, Integer templateVersion) {
         return masterTemplateDao.findByTypeAndVersion(templateType, templateVersion)
             .switchIfEmpty(Mono.error(new IllegalArgumentException(
                 "Template not found: type=" + templateType + ", version=" + templateVersion)));
@@ -141,11 +140,11 @@ public class DocumentUploadProcessor {
     /**
      * Validate required fields from template configuration against the upload request
      */
-    private List<String> validateRequiredFields(MasterTemplateDefinitionEntity template,
+    private List<String> validateRequiredFields(MasterTemplateDto template,
                                                  DocumentUploadRequest request) {
         List<String> errors = new ArrayList<>();
 
-        Json requiredFieldsJson = template.getRequiredFields();
+        String requiredFieldsJson = template.getRequiredFields();
         if (requiredFieldsJson == null) {
             log.debug("No required fields defined for template: type={}, version={}",
                 template.getTemplateType(), template.getTemplateVersion());
@@ -153,7 +152,7 @@ public class DocumentUploadProcessor {
         }
 
         try {
-            JsonNode requiredFields = objectMapper.readTree(requiredFieldsJson.asString());
+            JsonNode requiredFields = objectMapper.readTree(requiredFieldsJson);
 
             if (requiredFields.isArray()) {
                 for (JsonNode fieldDef : requiredFields) {
@@ -256,9 +255,9 @@ public class DocumentUploadProcessor {
     /**
      * Create a storage index entry for the uploaded document
      */
-    private Mono<StorageIndexEntity> createStorageIndexEntry(DocumentUploadRequest request,
+    private Mono<StorageIndexDto> createStorageIndexEntry(DocumentUploadRequest request,
                                                               EcmsDocumentResponse ecmsResponse,
-                                                              MasterTemplateDefinitionEntity template,
+                                                              MasterTemplateDto template,
                                                               String userId) {
         UUID storageIndexId = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
@@ -268,7 +267,17 @@ public class DocumentUploadProcessor {
         boolean sharedFlag = Boolean.TRUE.equals(template.getSharedDocumentFlag())
             || Boolean.TRUE.equals(request.getSharedFlag());
 
-        StorageIndexEntity entity = StorageIndexEntity.builder()
+        // Build metadata JSON string if provided
+        String metadataJson = null;
+        if (request.getMetadata() != null && !request.getMetadata().isEmpty()) {
+            try {
+                metadataJson = objectMapper.writeValueAsString(request.getMetadata());
+            } catch (JsonProcessingException e) {
+                log.warn("Failed to serialize metadata, skipping: {}", e.getMessage());
+            }
+        }
+
+        StorageIndexDto dto = StorageIndexDto.builder()
             .storageIndexId(storageIndexId)
             .masterTemplateId(template.getMasterTemplateId())
             .templateVersion(request.getTemplateVersion())
@@ -285,6 +294,7 @@ public class DocumentUploadProcessor {
             .sharedFlag(sharedFlag)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
+            .docMetadata(metadataJson)
             .createdBy(userId)
             .createdTimestamp(now)
             .archiveIndicator(false)
@@ -292,26 +302,16 @@ public class DocumentUploadProcessor {
             .recordStatus("ACTIVE")
             .build();
 
-        // Set metadata if provided
-        if (request.getMetadata() != null && !request.getMetadata().isEmpty()) {
-            try {
-                String metadataJson = objectMapper.writeValueAsString(request.getMetadata());
-                entity.setDocMetadata(Json.of(metadataJson));
-            } catch (JsonProcessingException e) {
-                log.warn("Failed to serialize metadata, skipping: {}", e.getMessage());
-            }
-        }
-
         log.debug("Creating storage index entry: id={}, ecmsDocId={}, templateType={}, sharedFlag={}",
             storageIndexId, ecmsResponse.getId(), request.getTemplateType(), sharedFlag);
 
-        return storageIndexDao.save(entity);
+        return storageIndexDao.save(dto);
     }
 
     /**
      * Build the upload response
      */
-    private DocumentUploadResponse buildUploadResponse(StorageIndexEntity storageIndex,
+    private DocumentUploadResponse buildUploadResponse(StorageIndexDto storageIndex,
                                                         EcmsDocumentResponse ecmsResponse) {
         DocumentUploadResponse.FileSize fileSize = null;
         if (ecmsResponse.getFileSize() != null) {
@@ -345,7 +345,7 @@ public class DocumentUploadProcessor {
      * Sets their end_date to the start_date of the new document.
      */
     private Mono<Void> closeExistingDocsIfSingleDoc(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+            MasterTemplateDto template, DocumentUploadRequest request) {
         if (!shouldCloseExistingDocs(template, request)) {
             return Mono.empty();
         }
@@ -362,7 +362,7 @@ public class DocumentUploadProcessor {
     }
 
     private boolean shouldCloseExistingDocs(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+            MasterTemplateDto template, DocumentUploadRequest request) {
         return Boolean.TRUE.equals(template.getSingleDocumentFlag())
             && request.getReferenceKey() != null
             && request.getReferenceKeyType() != null;

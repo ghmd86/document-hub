@@ -1,14 +1,12 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
-import com.documenthub.dto.DocumentQueryParams;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
-import com.documenthub.repository.StorageIndexRepository;
+import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dto.DocumentQueryParamsDto;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,15 +27,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentMatchingService {
 
-    private final StorageIndexRepository storageRepository;
+    private final StorageIndexDao storageIndexDao;
     private final DocumentValidityService validityService;
     private final ReferenceKeyConfig referenceKeyConfig;
     private final ObjectMapper objectMapper;
 
     /**
-     * Query documents based on template configuration using DocumentQueryParams.
+     * Query documents based on template configuration using DocumentQueryParamsDto.
      */
-    public Mono<List<StorageIndexEntity>> queryDocuments(DocumentQueryParams params) {
+    public Mono<List<StorageIndexDto>> queryDocuments(DocumentQueryParamsDto params) {
         logQueryStart(params);
         if (hasDocumentMatching(params.getTemplate(), params.getExtractedData())) {
             return queryByDocumentMatching(params);
@@ -45,20 +43,19 @@ public class DocumentMatchingService {
         return queryStandardDocuments(params);
     }
 
-    private void logQueryStart(DocumentQueryParams params) {
+    private void logQueryStart(DocumentQueryParamsDto params) {
         log.info("QUERY DOCUMENTS for template: {}", params.getTemplate().getTemplateType());
         log.info("  extractedData: {}, dates: {}-{}",
                 params.getExtractedData() != null, params.getPostedFromDate(), params.getPostedToDate());
     }
 
-    private boolean hasDocumentMatching(MasterTemplateDefinitionEntity template, Map<String, Object> data) {
+    private boolean hasDocumentMatching(MasterTemplateDto template, Map<String, Object> data) {
         return template.getDocumentMatchingConfig() != null && data != null;
     }
 
-    private Mono<List<StorageIndexEntity>> queryByDocumentMatching(DocumentQueryParams params) {
+    private Mono<List<StorageIndexDto>> queryByDocumentMatching(DocumentQueryParamsDto params) {
         try {
-            JsonNode matchingNode = objectMapper.readTree(
-                    params.getTemplate().getDocumentMatchingConfig().asString());
+            JsonNode matchingNode = objectMapper.readTree(params.getTemplate().getDocumentMatchingConfig());
             if (!matchingNode.has("matchBy")) {
                 log.info("  No matchBy field in document_matching_config");
                 return queryBySharedFlag(params, null);
@@ -70,8 +67,8 @@ public class DocumentMatchingService {
         }
     }
 
-    private Mono<List<StorageIndexEntity>> executeMatching(
-            String matchBy, JsonNode matchingNode, DocumentQueryParams params) {
+    private Mono<List<StorageIndexDto>> executeMatching(
+            String matchBy, JsonNode matchingNode, DocumentQueryParamsDto params) {
 
         // Get matchMode (default to "extracted" for backward compatibility)
         String matchMode = matchingNode.has("matchMode")
@@ -96,8 +93,8 @@ public class DocumentMatchingService {
      * @param params query parameters
      * @param matchMode one of: "direct", "extracted", "auto_discover"
      */
-    private Mono<List<StorageIndexEntity>> queryByReferenceKeyWithMode(
-            JsonNode matchingNode, DocumentQueryParams params, String matchMode) {
+    private Mono<List<StorageIndexDto>> queryByReferenceKeyWithMode(
+            JsonNode matchingNode, DocumentQueryParamsDto params, String matchMode) {
 
         String referenceKeyType = matchingNode.get("referenceKeyType").asText();
 
@@ -125,8 +122,8 @@ public class DocumentMatchingService {
     /**
      * Direct mode: Use referenceKey directly from the enquiry request.
      */
-    private Mono<List<StorageIndexEntity>> queryByDirectReferenceKey(
-            DocumentQueryParams params, String referenceKeyType) {
+    private Mono<List<StorageIndexDto>> queryByDirectReferenceKey(
+            DocumentQueryParamsDto params, String referenceKeyType) {
 
         String referenceKey = params.getRequestReferenceKey();
         if (referenceKey == null || referenceKey.isEmpty()) {
@@ -143,15 +140,15 @@ public class DocumentMatchingService {
      * Auto-discover mode: Query by reference key type only (no specific key).
      * Returns the latest valid document matching the type.
      */
-    private Mono<List<StorageIndexEntity>> queryByAutoDiscover(
-            DocumentQueryParams params, String referenceKeyType) {
+    private Mono<List<StorageIndexDto>> queryByAutoDiscover(
+            DocumentQueryParamsDto params, String referenceKeyType) {
 
-        MasterTemplateDefinitionEntity template = params.getTemplate();
+        MasterTemplateDto template = params.getTemplate();
 
         log.info("AUTO-DISCOVER: type='{}', template='{}'",
                 referenceKeyType, template.getTemplateType());
 
-        return storageRepository.findByReferenceKeyTypeAndTemplateWithDateRange(
+        return storageIndexDao.findByReferenceKeyTypeAndTemplateWithDateRange(
                 referenceKeyType,
                 template.getTemplateType(),
                 template.getTemplateVersion(),
@@ -168,7 +165,7 @@ public class DocumentMatchingService {
      * Keep only the latest document (by doc_creation_date) from a list.
      * Used by auto_discover mode to return a single result.
      */
-    private List<StorageIndexEntity> keepLatestOnly(List<StorageIndexEntity> docs) {
+    private List<StorageIndexDto> keepLatestOnly(List<StorageIndexDto> docs) {
         if (docs.isEmpty()) {
             return docs;
         }
@@ -182,7 +179,7 @@ public class DocumentMatchingService {
     /**
      * Extracted mode (default): Use referenceKeyField from extractedData.
      */
-    private Mono<List<StorageIndexEntity>> queryByReferenceKey(JsonNode matchingNode, DocumentQueryParams params) {
+    private Mono<List<StorageIndexDto>> queryByReferenceKey(JsonNode matchingNode, DocumentQueryParamsDto params) {
         String referenceKeyField = matchingNode.has("referenceKeyField")
                 ? matchingNode.get("referenceKeyField").asText()
                 : "referenceKey";
@@ -198,7 +195,7 @@ public class DocumentMatchingService {
         return executeReferenceKeyQuery(referenceKeyValue.toString(), referenceKeyType, params);
     }
 
-    private Mono<Void> validateReferenceKeyType(String refKeyType, MasterTemplateDefinitionEntity template) {
+    private Mono<Void> validateReferenceKeyType(String refKeyType, MasterTemplateDto template) {
         if (referenceKeyConfig.isValid(refKeyType)) {
             return null;
         }
@@ -209,7 +206,7 @@ public class DocumentMatchingService {
                 "'. Allowed values: " + referenceKeyConfig.getAllowedTypesString()));
     }
 
-    private Mono<List<StorageIndexEntity>> queryByConditional(JsonNode matchingNode, DocumentQueryParams params) {
+    private Mono<List<StorageIndexDto>> queryByConditional(JsonNode matchingNode, DocumentQueryParamsDto params) {
         if (!matchingNode.has("referenceKeyType")) {
             return handleMissingRefKeyType(params.getTemplate());
         }
@@ -236,7 +233,7 @@ public class DocumentMatchingService {
         return executeReferenceKeyQuery(matchedKey, referenceKeyType, params);
     }
 
-    private Mono<List<StorageIndexEntity>> handleMissingRefKeyType(MasterTemplateDefinitionEntity template) {
+    private Mono<List<StorageIndexDto>> handleMissingRefKeyType(MasterTemplateDto template) {
         log.error("referenceKeyType is required for conditional matching in template '{}'",
                 template.getTemplateType());
         return Mono.error(new IllegalArgumentException(
@@ -244,10 +241,10 @@ public class DocumentMatchingService {
                 template.getTemplateType()));
     }
 
-    private Mono<List<StorageIndexEntity>> executeReferenceKeyQuery(
-            String referenceKey, String referenceKeyType, DocumentQueryParams params) {
-        MasterTemplateDefinitionEntity template = params.getTemplate();
-        return storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+    private Mono<List<StorageIndexDto>> executeReferenceKeyQuery(
+            String referenceKey, String referenceKeyType, DocumentQueryParamsDto params) {
+        MasterTemplateDto template = params.getTemplate();
+        return storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                 referenceKey, referenceKeyType,
                 template.getTemplateType(), template.getTemplateVersion(),
                 params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
@@ -256,20 +253,20 @@ public class DocumentMatchingService {
                 .doOnNext(docs -> log.info("Found {} valid documents", docs.size()));
     }
 
-    private Mono<List<StorageIndexEntity>> queryStandardDocuments(DocumentQueryParams params) {
+    private Mono<List<StorageIndexDto>> queryStandardDocuments(DocumentQueryParamsDto params) {
         return queryBySharedFlag(params, params.getAccountId());
     }
 
-    private Mono<List<StorageIndexEntity>> queryBySharedFlag(DocumentQueryParams params, UUID accountId) {
+    private Mono<List<StorageIndexDto>> queryBySharedFlag(DocumentQueryParamsDto params, UUID accountId) {
         if (Boolean.TRUE.equals(params.getTemplate().getSharedDocumentFlag())) {
             return querySharedDocuments(params);
         }
         return queryAccountDocuments(params, accountId);
     }
 
-    private Mono<List<StorageIndexEntity>> querySharedDocuments(DocumentQueryParams params) {
-        MasterTemplateDefinitionEntity template = params.getTemplate();
-        return storageRepository.findSharedDocumentsWithDateRange(
+    private Mono<List<StorageIndexDto>> querySharedDocuments(DocumentQueryParamsDto params) {
+        MasterTemplateDto template = params.getTemplate();
+        return storageIndexDao.findSharedDocumentsWithDateRange(
                 template.getTemplateType(), template.getTemplateVersion(),
                 params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
                 .collectList()
@@ -277,9 +274,9 @@ public class DocumentMatchingService {
                 .doOnNext(docs -> log.debug("Found {} shared documents", docs.size()));
     }
 
-    private Mono<List<StorageIndexEntity>> queryAccountDocuments(DocumentQueryParams params, UUID accountId) {
-        MasterTemplateDefinitionEntity template = params.getTemplate();
-        return storageRepository.findAccountSpecificDocumentsWithDateRange(
+    private Mono<List<StorageIndexDto>> queryAccountDocuments(DocumentQueryParamsDto params, UUID accountId) {
+        MasterTemplateDto template = params.getTemplate();
+        return storageIndexDao.findAccountSpecificDocumentsWithDateRange(
                 accountId, template.getTemplateType(), template.getTemplateVersion(),
                 params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
                 .collectList()
@@ -363,14 +360,14 @@ public class DocumentMatchingService {
     }
 
     private void logReferenceKeyQuery(
-            Object key, String type, MasterTemplateDefinitionEntity template) {
+            Object key, String type, MasterTemplateDto template) {
 
         log.info("DOCUMENT MATCHING: key='{}', type='{}', template='{}'",
                 key, type, template.getTemplateType());
     }
 
     private void logConditionalMatch(
-            String key, String type, MasterTemplateDefinitionEntity template) {
+            String key, String type, MasterTemplateDto template) {
 
         log.info("CONDITIONAL MATCH: key='{}', type='{}', template='{}'",
                 key, type, template.getTemplateType());

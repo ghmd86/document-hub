@@ -1,6 +1,5 @@
 package com.documenthub.dto;
 
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,8 +12,8 @@ import java.util.UUID;
  */
 @Data
 @Builder
-public class DocumentQueryParams {
-    private MasterTemplateDefinitionEntity template;
+public class DocumentQueryParamsDto {
+    private MasterTemplateDto template;
     private UUID accountId;
     private Map<String, Object> extractedData;
     private Long postedFromDate;

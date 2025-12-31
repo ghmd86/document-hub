@@ -1,8 +1,7 @@
 package com.documenthub.service;
 
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.StorageIndexDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,13 +36,13 @@ public class DocumentValidityServiceTest {
         void shouldReturnAllDocuments_whenAllValid() {
             // Given
             LocalDate today = LocalDate.now();
-            StorageIndexEntity doc1 = createDocumentWithValidity(
+            StorageIndexDto doc1 = createDocumentWithValidity(
                     today.minusDays(10).toString(), today.plusDays(10).toString());
-            StorageIndexEntity doc2 = createDocumentWithValidity(
+            StorageIndexDto doc2 = createDocumentWithValidity(
                     today.minusDays(5).toString(), today.plusDays(5).toString());
 
             // When
-            List<StorageIndexEntity> result = validityService.filterByValidity(
+            List<StorageIndexDto> result = validityService.filterByValidity(
                     Arrays.asList(doc1, doc2));
 
             // Then
@@ -55,13 +54,13 @@ public class DocumentValidityServiceTest {
         void shouldFilterOutExpiredDocuments() {
             // Given
             LocalDate today = LocalDate.now();
-            StorageIndexEntity validDoc = createDocumentWithValidity(
+            StorageIndexDto validDoc = createDocumentWithValidity(
                     today.minusDays(10).toString(), today.plusDays(10).toString());
-            StorageIndexEntity expiredDoc = createDocumentWithValidity(
+            StorageIndexDto expiredDoc = createDocumentWithValidity(
                     today.minusDays(30).toString(), today.minusDays(1).toString());
 
             // When
-            List<StorageIndexEntity> result = validityService.filterByValidity(
+            List<StorageIndexDto> result = validityService.filterByValidity(
                     Arrays.asList(validDoc, expiredDoc));
 
             // Then
@@ -73,13 +72,13 @@ public class DocumentValidityServiceTest {
         void shouldFilterOutNotYetValidDocuments() {
             // Given
             LocalDate today = LocalDate.now();
-            StorageIndexEntity validDoc = createDocumentWithValidity(
+            StorageIndexDto validDoc = createDocumentWithValidity(
                     today.minusDays(10).toString(), today.plusDays(10).toString());
-            StorageIndexEntity futureDoc = createDocumentWithValidity(
+            StorageIndexDto futureDoc = createDocumentWithValidity(
                     today.plusDays(1).toString(), today.plusDays(30).toString());
 
             // When
-            List<StorageIndexEntity> result = validityService.filterByValidity(
+            List<StorageIndexDto> result = validityService.filterByValidity(
                     Arrays.asList(validDoc, futureDoc));
 
             // Then
@@ -90,11 +89,11 @@ public class DocumentValidityServiceTest {
         @DisplayName("Should include documents with no validity dates")
         void shouldIncludeDocumentsWithNoValidityDates() {
             // Given
-            StorageIndexEntity docWithNoValidity = createStorageEntity();
-            docWithNoValidity.setDocMetadata(Json.of("{}"));
+            StorageIndexDto docWithNoValidity = createStorageEntity();
+            docWithNoValidity.setDocMetadata("{}");
 
             // When
-            List<StorageIndexEntity> result = validityService.filterByValidity(
+            List<StorageIndexDto> result = validityService.filterByValidity(
                     Arrays.asList(docWithNoValidity));
 
             // Then
@@ -105,11 +104,11 @@ public class DocumentValidityServiceTest {
         @DisplayName("Should include documents with null metadata")
         void shouldIncludeDocumentsWithNullMetadata() {
             // Given
-            StorageIndexEntity doc = createStorageEntity();
+            StorageIndexDto doc = createStorageEntity();
             doc.setDocMetadata(null);
 
             // When
-            List<StorageIndexEntity> result = validityService.filterByValidity(
+            List<StorageIndexDto> result = validityService.filterByValidity(
                     Arrays.asList(doc));
 
             // Then
@@ -125,7 +124,7 @@ public class DocumentValidityServiceTest {
         @DisplayName("Should return true when document has no metadata")
         void shouldReturnTrue_whenNoMetadata() {
             // Given
-            StorageIndexEntity doc = createStorageEntity();
+            StorageIndexDto doc = createStorageEntity();
             doc.setDocMetadata(null);
 
             // When
@@ -140,7 +139,7 @@ public class DocumentValidityServiceTest {
         void shouldReturnTrue_whenWithinValidityPeriod() {
             // Given
             LocalDate today = LocalDate.now();
-            StorageIndexEntity doc = createDocumentWithValidity(
+            StorageIndexDto doc = createDocumentWithValidity(
                     today.minusDays(5).toString(), today.plusDays(5).toString());
 
             // When
@@ -155,7 +154,7 @@ public class DocumentValidityServiceTest {
         void shouldReturnFalse_whenDocumentExpired() {
             // Given
             LocalDate today = LocalDate.now();
-            StorageIndexEntity doc = createDocumentWithValidity(
+            StorageIndexDto doc = createDocumentWithValidity(
                     today.minusDays(30).toString(), today.minusDays(1).toString());
 
             // When
@@ -170,7 +169,7 @@ public class DocumentValidityServiceTest {
         void shouldReturnFalse_whenDocumentNotYetValid() {
             // Given
             LocalDate today = LocalDate.now();
-            StorageIndexEntity doc = createDocumentWithValidity(
+            StorageIndexDto doc = createDocumentWithValidity(
                     today.plusDays(1).toString(), today.plusDays(30).toString());
 
             // When
@@ -186,8 +185,8 @@ public class DocumentValidityServiceTest {
             // Given
             LocalDate today = LocalDate.now();
             String metadata = "{\"valid_from\":\"" + today.minusDays(5).toString() + "\"}";
-            StorageIndexEntity doc = createStorageEntity();
-            doc.setDocMetadata(Json.of(metadata));
+            StorageIndexDto doc = createStorageEntity();
+            doc.setDocMetadata(metadata);
 
             // When
             boolean result = validityService.isDocumentValid(doc, today);
@@ -202,8 +201,8 @@ public class DocumentValidityServiceTest {
             // Given
             LocalDate today = LocalDate.now();
             String metadata = "{\"valid_until\":\"" + today.plusDays(5).toString() + "\"}";
-            StorageIndexEntity doc = createStorageEntity();
-            doc.setDocMetadata(Json.of(metadata));
+            StorageIndexDto doc = createStorageEntity();
+            doc.setDocMetadata(metadata);
 
             // When
             boolean result = validityService.isDocumentValid(doc, today);
@@ -218,8 +217,8 @@ public class DocumentValidityServiceTest {
             // Given
             LocalDate today = LocalDate.now();
             String metadata = "{\"validFrom\":\"" + today.minusDays(5).toString() + "\"}";
-            StorageIndexEntity doc = createStorageEntity();
-            doc.setDocMetadata(Json.of(metadata));
+            StorageIndexDto doc = createStorageEntity();
+            doc.setDocMetadata(metadata);
 
             // When
             boolean result = validityService.isDocumentValid(doc, today);
@@ -234,8 +233,8 @@ public class DocumentValidityServiceTest {
             // Given
             LocalDate today = LocalDate.now();
             String metadata = "{\"effective_date\":\"" + today.minusDays(5).toString() + "\"}";
-            StorageIndexEntity doc = createStorageEntity();
-            doc.setDocMetadata(Json.of(metadata));
+            StorageIndexDto doc = createStorageEntity();
+            doc.setDocMetadata(metadata);
 
             // When
             boolean result = validityService.isDocumentValid(doc, today);
@@ -250,8 +249,8 @@ public class DocumentValidityServiceTest {
             // Given
             LocalDate today = LocalDate.now();
             String metadata = "{\"expiry_date\":\"" + today.plusDays(5).toString() + "\"}";
-            StorageIndexEntity doc = createStorageEntity();
-            doc.setDocMetadata(Json.of(metadata));
+            StorageIndexDto doc = createStorageEntity();
+            doc.setDocMetadata(metadata);
 
             // When
             boolean result = validityService.isDocumentValid(doc, today);
@@ -264,8 +263,8 @@ public class DocumentValidityServiceTest {
         @DisplayName("Should return true when invalid JSON in metadata")
         void shouldReturnTrue_whenInvalidJsonInMetadata() {
             // Given
-            StorageIndexEntity doc = createStorageEntity();
-            doc.setDocMetadata(Json.of("invalid json"));
+            StorageIndexDto doc = createStorageEntity();
+            doc.setDocMetadata("invalid json");
 
             // When
             boolean result = validityService.isDocumentValid(doc, LocalDate.now());
@@ -340,19 +339,19 @@ public class DocumentValidityServiceTest {
     }
 
     // Helper methods
-    private StorageIndexEntity createStorageEntity() {
-        StorageIndexEntity entity = new StorageIndexEntity();
+    private StorageIndexDto createStorageEntity() {
+        StorageIndexDto entity = new StorageIndexDto();
         entity.setStorageIndexId(UUID.randomUUID());
         entity.setStorageDocumentKey(UUID.randomUUID());
         entity.setFileName("test-file.pdf");
         return entity;
     }
 
-    private StorageIndexEntity createDocumentWithValidity(String validFrom, String validUntil) {
-        StorageIndexEntity entity = createStorageEntity();
+    private StorageIndexDto createDocumentWithValidity(String validFrom, String validUntil) {
+        StorageIndexDto entity = createStorageEntity();
         String metadata = String.format("{\"valid_from\":\"%s\",\"valid_until\":\"%s\"}",
                 validFrom, validUntil);
-        entity.setDocMetadata(Json.of(metadata));
+        entity.setDocMetadata(metadata);
         return entity;
     }
 }

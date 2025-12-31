@@ -1,17 +1,17 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
+import com.documenthub.dao.MasterTemplateDao;
+import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
-import com.documenthub.repository.StorageIndexRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.FilePart;
@@ -33,8 +33,8 @@ public class DocumentUploadService {
     private static final String STORAGE_VENDOR_ECMS = "ECMS";
 
     private final EcmsClient ecmsClient;
-    private final StorageIndexRepository storageIndexRepository;
-    private final TemplateCacheService templateCacheService;
+    private final StorageIndexDao storageIndexDao;
+    private final MasterTemplateDao masterTemplateDao;
     private final DocumentAccessControlService accessControlService;
     private final ReferenceKeyConfig referenceKeyConfig;
     private final ObjectMapper objectMapper;
@@ -135,8 +135,8 @@ public class DocumentUploadService {
     /**
      * Validate that the template exists and is active (uses cache)
      */
-    private Mono<MasterTemplateDefinitionEntity> validateTemplate(String templateType, Integer templateVersion) {
-        return templateCacheService.getTemplate(templateType, templateVersion)
+    private Mono<MasterTemplateDto> validateTemplate(String templateType, Integer templateVersion) {
+        return masterTemplateDao.findByTypeAndVersion(templateType, templateVersion)
             .switchIfEmpty(Mono.error(new IllegalArgumentException(
                 "Template not found: type=" + templateType + ", version=" + templateVersion)));
     }
@@ -149,13 +149,13 @@ public class DocumentUploadService {
      * @param template The template definition
      * @throws IllegalArgumentException if validation fails
      */
-    private void validateReferenceKey(DocumentUploadRequest request, MasterTemplateDefinitionEntity template) {
-        Json documentMatchingConfig = template.getDocumentMatchingConfig();
+    private void validateReferenceKey(DocumentUploadRequest request, MasterTemplateDto template) {
+        String documentMatchingConfig = template.getDocumentMatchingConfig();
 
         // If template has document_matching_config, reference_key and reference_key_type are required
         if (documentMatchingConfig != null) {
             try {
-                JsonNode configNode = objectMapper.readTree(documentMatchingConfig.asString());
+                JsonNode configNode = objectMapper.readTree(documentMatchingConfig);
 
                 // Check if config has matchBy field (indicates active matching configuration)
                 if (configNode.has("matchBy")) {
@@ -219,9 +219,9 @@ public class DocumentUploadService {
     /**
      * Create a storage index entry for the uploaded document
      */
-    private Mono<StorageIndexEntity> createStorageIndexEntry(DocumentUploadRequest request,
+    private Mono<StorageIndexDto> createStorageIndexEntry(DocumentUploadRequest request,
                                                               EcmsDocumentResponse ecmsResponse,
-                                                              MasterTemplateDefinitionEntity template,
+                                                              MasterTemplateDto template,
                                                               String userId) {
         UUID storageIndexId = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
@@ -232,7 +232,17 @@ public class DocumentUploadService {
         boolean sharedFlag = Boolean.TRUE.equals(template.getSharedDocumentFlag())
             || Boolean.TRUE.equals(request.getSharedFlag());
 
-        StorageIndexEntity entity = StorageIndexEntity.builder()
+        // Serialize metadata to JSON string if provided
+        String metadataJson = null;
+        if (request.getMetadata() != null && !request.getMetadata().isEmpty()) {
+            try {
+                metadataJson = objectMapper.writeValueAsString(request.getMetadata());
+            } catch (JsonProcessingException e) {
+                log.warn("Failed to serialize metadata, skipping: {}", e.getMessage());
+            }
+        }
+
+        StorageIndexDto dto = StorageIndexDto.builder()
             .storageIndexId(storageIndexId)
             .masterTemplateId(template.getMasterTemplateId())
             .templateVersion(request.getTemplateVersion())
@@ -249,6 +259,7 @@ public class DocumentUploadService {
             .sharedFlag(sharedFlag)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
+            .docMetadata(metadataJson)
             .createdBy(userId)
             .createdTimestamp(now)
             .archiveIndicator(false)
@@ -256,26 +267,16 @@ public class DocumentUploadService {
             .recordStatus("ACTIVE")
             .build();
 
-        // Set metadata if provided
-        if (request.getMetadata() != null && !request.getMetadata().isEmpty()) {
-            try {
-                String metadataJson = objectMapper.writeValueAsString(request.getMetadata());
-                entity.setDocMetadata(Json.of(metadataJson));
-            } catch (JsonProcessingException e) {
-                log.warn("Failed to serialize metadata, skipping: {}", e.getMessage());
-            }
-        }
-
         log.debug("Creating storage index entry: id={}, ecmsDocId={}, templateType={}, sharedFlag={}",
             storageIndexId, ecmsResponse.getId(), request.getTemplateType(), sharedFlag);
 
-        return storageIndexRepository.save(entity);
+        return storageIndexDao.save(dto);
     }
 
     /**
      * Build the upload response from storage index and ECMS response
      */
-    private DocumentUploadResponse buildUploadResponse(StorageIndexEntity storageIndex,
+    private DocumentUploadResponse buildUploadResponse(StorageIndexDto storageIndex,
                                                         EcmsDocumentResponse ecmsResponse) {
         DocumentUploadResponse.FileSize fileSize = null;
         if (ecmsResponse.getFileSize() != null) {

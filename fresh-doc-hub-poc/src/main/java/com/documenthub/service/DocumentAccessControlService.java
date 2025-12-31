@@ -1,7 +1,7 @@
 package com.documenthub.service;
 
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.model.Links;
 import com.documenthub.model.LinksDownload;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +38,7 @@ public class DocumentAccessControlService {
      * @return true if access is permitted
      */
     public boolean hasAccess(
-            MasterTemplateDefinitionEntity template,
+            MasterTemplateDto template,
             String requestorType,
             String action) {
         List<String> permittedActions = getPermittedActions(template, requestorType);
@@ -50,7 +49,7 @@ public class DocumentAccessControlService {
      * Get permitted actions for a requestor type based on template access_control.
      */
     public List<String> getPermittedActions(
-            MasterTemplateDefinitionEntity template,
+            MasterTemplateDto template,
             String requestorType) {
 
         if (template.getAccessControl() == null) {
@@ -58,8 +57,7 @@ public class DocumentAccessControlService {
         }
 
         try {
-            JsonNode accessControlNode = objectMapper.readTree(
-                    template.getAccessControl().asString());
+            JsonNode accessControlNode = objectMapper.readTree(template.getAccessControl());
             String role = mapRequestorTypeToRole(requestorType);
 
             return extractActionsForRole(accessControlNode, role, requestorType);
@@ -74,7 +72,7 @@ public class DocumentAccessControlService {
      * Delete link is never included in enquiry response.
      */
     public Links buildLinksForDocument(
-            StorageIndexEntity document,
+            StorageIndexDto document,
             List<String> permittedActions) {
 
         Links links = new Links();
@@ -91,7 +89,7 @@ public class DocumentAccessControlService {
                 || permittedActions.contains("View");
     }
 
-    private LinksDownload createDownloadLink(StorageIndexEntity document) {
+    private LinksDownload createDownloadLink(StorageIndexDto document) {
         LinksDownload download = new LinksDownload();
         download.setHref("/documents/" + document.getStorageDocumentKey());
         download.setType("GET");
@@ -177,7 +175,7 @@ public class DocumentAccessControlService {
      * @param requestorType The type of requestor (CUSTOMER, AGENT, SYSTEM)
      * @return true if upload is permitted
      */
-    public boolean canUpload(MasterTemplateDefinitionEntity template, String requestorType) {
+    public boolean canUpload(MasterTemplateDto template, String requestorType) {
         return hasAccess(template, requestorType, "Upload");
     }
 }

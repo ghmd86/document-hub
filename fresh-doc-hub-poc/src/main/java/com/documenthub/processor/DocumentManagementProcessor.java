@@ -3,8 +3,8 @@ package com.documenthub.processor;
 import com.documenthub.dao.MasterTemplateDao;
 import com.documenthub.dao.StorageIndexDao;
 import com.documenthub.dto.DocumentUploadRequest;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
 import com.documenthub.model.*;
@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -122,7 +121,7 @@ public class DocumentManagementProcessor {
      * </p>
      */
     private Mono<InlineResponse200> processUpload(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request, String requestorType) {
+            MasterTemplateDto template, DocumentUploadRequest request, String requestorType) {
         // Step 2: Access control check
         if (!accessControlService.canUpload(template, requestorType)) {
             return handleUploadPermissionDenied(request.getDocumentType(), requestorType);
@@ -165,13 +164,13 @@ public class DocumentManagementProcessor {
      *
      * @return Error message if validation fails, null if valid
      */
-    private String validateReferenceKeyType(MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+    private String validateReferenceKeyType(MasterTemplateDto template, DocumentUploadRequest request) {
         if (template.getDocumentMatchingConfig() == null) {
             return null; // No config, no validation needed
         }
 
         try {
-            JsonNode config = objectMapper.readTree(template.getDocumentMatchingConfig().asString());
+            JsonNode config = objectMapper.readTree(template.getDocumentMatchingConfig());
             String templateRefKeyType = config.path("referenceKeyType").asText(null);
 
             if (templateRefKeyType == null || templateRefKeyType.isEmpty()) {
@@ -223,7 +222,7 @@ public class DocumentManagementProcessor {
      * </p>
      */
     private Mono<Void> closeExistingDocsIfSingleDoc(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+            MasterTemplateDto template, DocumentUploadRequest request) {
         if (!shouldCloseExistingDocs(template, request)) {
             return Mono.empty();
         }
@@ -240,7 +239,7 @@ public class DocumentManagementProcessor {
     }
 
     private boolean shouldCloseExistingDocs(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request) {
+            MasterTemplateDto template, DocumentUploadRequest request) {
         return Boolean.TRUE.equals(template.getSingleDocumentFlag())
             && request.getReferenceKey() != null
             && request.getReferenceKeyType() != null;
@@ -284,7 +283,7 @@ public class DocumentManagementProcessor {
      * </p>
      */
     private Mono<InlineResponse200> uploadToEcmsAndSave(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
+            MasterTemplateDto template, DocumentUploadRequest request,
             List<MetadataNode> metadata, byte[] fileBytes) {
         return ecmsClient.uploadDocument(fileBytes, buildEcmsRequest(request, metadata))
             .flatMap(ecmsResponse -> saveStorageIndex(template, request, metadata, ecmsResponse));
@@ -301,25 +300,34 @@ public class DocumentManagementProcessor {
      *
      * <p><b>How:</b>
      * <ol>
-     *   <li>Create StorageIndexEntity with template, request, and ECMS data</li>
+     *   <li>Create StorageIndexDto with template, request, and ECMS data</li>
      *   <li>Set shared_flag from template.shared_document_flag</li>
-     *   <li>Serialize metadata to JSON and attach to entity</li>
+     *   <li>Serialize metadata to JSON and attach to DTO</li>
      *   <li>Save to database and return storage_index_id</li>
      * </ol>
      * </p>
      */
     private Mono<InlineResponse200> saveStorageIndex(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
+            MasterTemplateDto template, DocumentUploadRequest request,
             List<MetadataNode> metadata, EcmsDocumentResponse ecmsResponse) {
-        StorageIndexEntity entity = createStorageEntity(template, request, ecmsResponse);
-        setEntityMetadata(entity, metadata);
-        return storageIndexDao.save(entity).map(this::buildUploadResponse);
+        StorageIndexDto dto = createStorageDto(template, request, ecmsResponse, metadata);
+        return storageIndexDao.save(dto).map(this::buildUploadResponse);
     }
 
-    private StorageIndexEntity createStorageEntity(
-            MasterTemplateDefinitionEntity template, DocumentUploadRequest request,
-            EcmsDocumentResponse ecmsResponse) {
-        return StorageIndexEntity.builder()
+    private StorageIndexDto createStorageDto(
+            MasterTemplateDto template, DocumentUploadRequest request,
+            EcmsDocumentResponse ecmsResponse, List<MetadataNode> metadata) {
+        // Serialize metadata to JSON string
+        String metadataJson = null;
+        if (metadata != null && !metadata.isEmpty()) {
+            try {
+                metadataJson = objectMapper.writeValueAsString(metadata);
+            } catch (JsonProcessingException e) {
+                log.warn("Failed to serialize metadata: {}", e.getMessage());
+            }
+        }
+
+        return StorageIndexDto.builder()
             .storageIndexId(UUID.randomUUID())
             .masterTemplateId(template.getMasterTemplateId())
             .templateVersion(template.getTemplateVersion())
@@ -336,6 +344,7 @@ public class DocumentManagementProcessor {
             .sharedFlag(Boolean.TRUE.equals(template.getSharedDocumentFlag()))
             .startDate(request.getActiveStartDate())
             .endDate(request.getActiveEndDate())
+            .docMetadata(metadataJson)
             .createdBy(request.getCreatedBy())
             .createdTimestamp(LocalDateTime.now())
             .archiveIndicator(false)
@@ -344,18 +353,7 @@ public class DocumentManagementProcessor {
             .build();
     }
 
-    private void setEntityMetadata(StorageIndexEntity entity, List<MetadataNode> metadata) {
-        if (metadata == null || metadata.isEmpty()) {
-            return;
-        }
-        try {
-            entity.setDocMetadata(Json.of(objectMapper.writeValueAsString(metadata)));
-        } catch (JsonProcessingException e) {
-            log.warn("Failed to serialize metadata: {}", e.getMessage());
-        }
-    }
-
-    private InlineResponse200 buildUploadResponse(StorageIndexEntity saved) {
+    private InlineResponse200 buildUploadResponse(StorageIndexDto saved) {
         InlineResponse200 response = new InlineResponse200();
         response.setId(saved.getStorageIndexId());
         return response;
@@ -408,7 +406,7 @@ public class DocumentManagementProcessor {
                         }
 
                         // Soft delete the storage index entry
-                        return storageIndexDao.softDelete(storageIndex)
+                        return storageIndexDao.softDelete(storageIndex.getStorageIndexId())
                             .then();
                     });
             })
@@ -443,7 +441,7 @@ public class DocumentManagementProcessor {
     /**
      * Find storage index by document ID (which is the storage_index_id or encoded reference)
      */
-    private Mono<StorageIndexEntity> findStorageIndex(String documentId) {
+    private Mono<StorageIndexDto> findStorageIndex(String documentId) {
         // First try to parse as UUID (storage_index_id)
         try {
             UUID storageIndexId = UUID.fromString(documentId);
@@ -478,7 +476,7 @@ public class DocumentManagementProcessor {
      * @param documentType The document type (maps to template_type in database)
      * @return Mono with the template, or error if not found
      */
-    private Mono<MasterTemplateDefinitionEntity> findTemplateByDocumentType(String documentType) {
+    private Mono<MasterTemplateDto> findTemplateByDocumentType(String documentType) {
         long currentDate = System.currentTimeMillis();
         return masterTemplateDao.findLatestActiveTemplateByType(documentType, currentDate)
             .switchIfEmpty(Mono.error(new IllegalArgumentException("Template not found for document type: " + documentType)));
@@ -522,7 +520,7 @@ public class DocumentManagementProcessor {
     }
 
     private DocumentDetailsNode buildDocumentDetailsNode(
-            StorageIndexEntity storageIndex, MasterTemplateDefinitionEntity template,
+            StorageIndexDto storageIndex, MasterTemplateDto template,
             String requestorType, boolean includeDownloadUrl) {
         DocumentDetailsNode node = createBaseDocumentNode(storageIndex, template);
         setDocumentMetadata(node, storageIndex);
@@ -531,7 +529,7 @@ public class DocumentManagementProcessor {
     }
 
     private DocumentDetailsNode createBaseDocumentNode(
-            StorageIndexEntity storageIndex, MasterTemplateDefinitionEntity template) {
+            StorageIndexDto storageIndex, MasterTemplateDto template) {
         DocumentDetailsNode node = new DocumentDetailsNode();
         node.setDocumentId(storageIndex.getStorageIndexId().toString());
         node.setDisplayName(storageIndex.getFileName());
@@ -543,13 +541,13 @@ public class DocumentManagementProcessor {
         return node;
     }
 
-    private void setDocumentMetadata(DocumentDetailsNode node, StorageIndexEntity storageIndex) {
+    private void setDocumentMetadata(DocumentDetailsNode node, StorageIndexDto storageIndex) {
         if (storageIndex.getDocMetadata() == null) {
             return;
         }
         try {
             List<MetadataNode> metadata = objectMapper.readValue(
-                storageIndex.getDocMetadata().asString(),
+                storageIndex.getDocMetadata(),
                 new TypeReference<List<MetadataNode>>() {});
             node.setMetadata(metadata);
         } catch (JsonProcessingException e) {
@@ -558,7 +556,7 @@ public class DocumentManagementProcessor {
     }
 
     private Links buildDocumentLinks(
-            StorageIndexEntity storageIndex, MasterTemplateDefinitionEntity template, String requestorType) {
+            StorageIndexDto storageIndex, MasterTemplateDto template, String requestorType) {
         Links links = new Links();
         addDownloadLink(links, storageIndex, template, requestorType);
         addDeleteLink(links, storageIndex, template, requestorType);
@@ -566,8 +564,8 @@ public class DocumentManagementProcessor {
     }
 
     private void addDownloadLink(
-            Links links, StorageIndexEntity storageIndex,
-            MasterTemplateDefinitionEntity template, String requestorType) {
+            Links links, StorageIndexDto storageIndex,
+            MasterTemplateDto template, String requestorType) {
         if (!accessControlService.hasAccess(template, requestorType, "Download")) {
             return;
         }
@@ -581,8 +579,8 @@ public class DocumentManagementProcessor {
     }
 
     private void addDeleteLink(
-            Links links, StorageIndexEntity storageIndex,
-            MasterTemplateDefinitionEntity template, String requestorType) {
+            Links links, StorageIndexDto storageIndex,
+            MasterTemplateDto template, String requestorType) {
         if (!accessControlService.hasAccess(template, requestorType, "Delete")) {
             return;
         }

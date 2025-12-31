@@ -1,10 +1,9 @@
 package com.documenthub.service;
 
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.model.Links;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,7 +36,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should return default actions when access_control is null")
         void shouldReturnDefaultActions_whenAccessControlNull() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -51,7 +50,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should return all actions for SYSTEM requestor")
         void shouldReturnAllActions_forSystemRequestor() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -69,7 +68,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should return View/Download/Upload for AGENT requestor")
         void shouldReturnViewDownloadUpload_forAgentRequestor() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -83,7 +82,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should return View/Download for null requestor")
         void shouldReturnViewDownload_forNullRequestor() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -99,8 +98,8 @@ public class DocumentAccessControlServiceTest {
             // Given
             String accessControlJson = "[{\"role\":\"customer\",\"actions\":[\"View\",\"Download\"]}," +
                     "{\"role\":\"agent\",\"actions\":[\"View\",\"Update\",\"Download\"]}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             List<String> actions = accessControlService.getPermittedActions(template, "CUSTOMER");
@@ -115,8 +114,8 @@ public class DocumentAccessControlServiceTest {
             // Given
             String accessControlJson = "[{\"role\":\"customer\",\"actions\":[\"View\",\"Download\"]}," +
                     "{\"role\":\"agent\",\"actions\":[\"View\",\"Update\",\"Download\"]}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             List<String> actions = accessControlService.getPermittedActions(template, "AGENT");
@@ -130,8 +129,8 @@ public class DocumentAccessControlServiceTest {
         void shouldReturnDefaultActions_whenRoleNotInConfig() {
             // Given
             String accessControlJson = "[{\"role\":\"customer\",\"actions\":[\"View\"]}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When - requesting as SYSTEM but only customer role is defined
             List<String> actions = accessControlService.getPermittedActions(template, "SYSTEM");
@@ -149,8 +148,8 @@ public class DocumentAccessControlServiceTest {
         void shouldReturnDefaultActions_whenJsonNotArray() {
             // Given
             String accessControlJson = "{\"role\":\"customer\",\"actions\":[\"View\"]}";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             List<String> actions = accessControlService.getPermittedActions(template, "CUSTOMER");
@@ -164,8 +163,8 @@ public class DocumentAccessControlServiceTest {
         void shouldReturnDefaultActions_whenJsonParsingFails() {
             // Given - invalid JSON
             String invalidJson = "not valid json";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(invalidJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(invalidJson);
 
             // When
             List<String> actions = accessControlService.getPermittedActions(template, "CUSTOMER");
@@ -179,8 +178,8 @@ public class DocumentAccessControlServiceTest {
         void shouldHandleEmptyActionsArray() {
             // Given
             String accessControlJson = "[{\"role\":\"customer\",\"actions\":[]}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             List<String> actions = accessControlService.getPermittedActions(template, "CUSTOMER");
@@ -194,8 +193,8 @@ public class DocumentAccessControlServiceTest {
         void shouldHandleMissingActionsField() {
             // Given
             String accessControlJson = "[{\"role\":\"customer\"}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             List<String> actions = accessControlService.getPermittedActions(template, "CUSTOMER");
@@ -213,7 +212,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should build download link when View is permitted")
         void shouldBuildDownloadLink_whenViewPermitted() {
             // Given
-            StorageIndexEntity document = createStorageEntity();
+            StorageIndexDto document = createStorageEntity();
             List<String> permittedActions = Arrays.asList("View");
 
             // When
@@ -230,7 +229,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should build download link when Download is permitted")
         void shouldBuildDownloadLink_whenDownloadPermitted() {
             // Given
-            StorageIndexEntity document = createStorageEntity();
+            StorageIndexDto document = createStorageEntity();
             List<String> permittedActions = Arrays.asList("Download");
 
             // When
@@ -244,7 +243,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should not build download link when neither View nor Download permitted")
         void shouldNotBuildDownloadLink_whenNotPermitted() {
             // Given
-            StorageIndexEntity document = createStorageEntity();
+            StorageIndexDto document = createStorageEntity();
             List<String> permittedActions = Arrays.asList("Update");
 
             // When
@@ -258,7 +257,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should set correct response types")
         void shouldSetCorrectResponseTypes() {
             // Given
-            StorageIndexEntity document = createStorageEntity();
+            StorageIndexDto document = createStorageEntity();
             List<String> permittedActions = Arrays.asList("View", "Download");
 
             // When
@@ -278,7 +277,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should allow upload for SYSTEM requestor by default")
         void shouldAllowUpload_forSystemRequestor() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -292,7 +291,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should allow upload for AGENT requestor by default")
         void shouldAllowUpload_forAgentRequestor() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -306,7 +305,7 @@ public class DocumentAccessControlServiceTest {
         @DisplayName("Should deny upload for CUSTOMER requestor by default")
         void shouldDenyUpload_forCustomerRequestor() {
             // Given
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+            MasterTemplateDto template = new MasterTemplateDto();
             template.setAccessControl(null);
 
             // When
@@ -321,8 +320,8 @@ public class DocumentAccessControlServiceTest {
         void shouldAllowUpload_whenAccessControlGrantsUpload() {
             // Given
             String accessControlJson = "[{\"role\":\"customer\",\"actions\":[\"View\",\"Upload\"]}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             boolean canUpload = accessControlService.canUpload(template, "CUSTOMER");
@@ -336,8 +335,8 @@ public class DocumentAccessControlServiceTest {
         void shouldDenyUpload_whenAccessControlDoesNotIncludeUpload() {
             // Given
             String accessControlJson = "[{\"role\":\"agent\",\"actions\":[\"View\",\"Download\"]}]";
-            MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-            template.setAccessControl(Json.of(accessControlJson));
+            MasterTemplateDto template = new MasterTemplateDto();
+            template.setAccessControl(accessControlJson);
 
             // When
             boolean canUpload = accessControlService.canUpload(template, "AGENT");
@@ -348,8 +347,8 @@ public class DocumentAccessControlServiceTest {
     }
 
     // Helper methods
-    private StorageIndexEntity createStorageEntity() {
-        StorageIndexEntity entity = new StorageIndexEntity();
+    private StorageIndexDto createStorageEntity() {
+        StorageIndexDto entity = new StorageIndexDto();
         entity.setStorageIndexId(UUID.randomUUID());
         entity.setStorageDocumentKey(UUID.randomUUID());
         entity.setFileName("test-file.pdf");

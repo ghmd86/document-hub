@@ -1,6 +1,6 @@
 package com.documenthub.service;
 
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.StorageIndexDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +37,8 @@ public class DocumentValidityService {
     /**
      * Filter documents by validity period.
      */
-    public List<StorageIndexEntity> filterByValidity(
-            List<StorageIndexEntity> documents) {
+    public List<StorageIndexDto> filterByValidity(
+            List<StorageIndexDto> documents) {
 
         LocalDate today = LocalDate.now();
 
@@ -50,14 +50,13 @@ public class DocumentValidityService {
     /**
      * Check if a document is currently valid.
      */
-    public boolean isDocumentValid(StorageIndexEntity document, LocalDate today) {
+    public boolean isDocumentValid(StorageIndexDto document, LocalDate today) {
         if (document.getDocMetadata() == null) {
             return true;
         }
 
         try {
-            JsonNode metadata = objectMapper.readTree(
-                    document.getDocMetadata().asString());
+            JsonNode metadata = objectMapper.readTree(document.getDocMetadata());
 
             return isWithinValidityPeriod(document, metadata, today);
         } catch (Exception e) {
@@ -68,7 +67,7 @@ public class DocumentValidityService {
     }
 
     private boolean isWithinValidityPeriod(
-            StorageIndexEntity document,
+            StorageIndexDto document,
             JsonNode metadata,
             LocalDate today) {
 
@@ -88,7 +87,7 @@ public class DocumentValidityService {
     }
 
     private void logNotYetValid(
-            StorageIndexEntity doc,
+            StorageIndexDto doc,
             LocalDate validFrom,
             LocalDate today) {
 
@@ -97,7 +96,7 @@ public class DocumentValidityService {
     }
 
     private void logExpired(
-            StorageIndexEntity doc,
+            StorageIndexDto doc,
             LocalDate validUntil,
             LocalDate today) {
 

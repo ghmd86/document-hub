@@ -1,10 +1,9 @@
 package com.documenthub.service;
 
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,8 +45,8 @@ public class DocumentResponseBuilderTest {
         @DisplayName("Should convert storage entities to document nodes")
         void shouldConvertEntitiesToNodes() {
             // Given
-            StorageIndexEntity entity = createStorageEntity();
-            MasterTemplateDefinitionEntity template = createTemplate();
+            StorageIndexDto entity = createStorageEntity();
+            MasterTemplateDto template = createTemplate();
             List<String> permittedActions = Arrays.asList("View", "Download");
 
             when(accessControlService.getPermittedActions(any(), anyString()))
@@ -70,7 +69,7 @@ public class DocumentResponseBuilderTest {
         @DisplayName("Should return empty list for empty entities")
         void shouldReturnEmptyListForEmptyEntities() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate();
+            MasterTemplateDto template = createTemplate();
             when(accessControlService.getPermittedActions(any(), anyString()))
                     .thenReturn(Arrays.asList("View", "Download"));
 
@@ -86,8 +85,8 @@ public class DocumentResponseBuilderTest {
         @DisplayName("Should populate lineOfBusiness from template")
         void shouldPopulateLineOfBusiness() {
             // Given
-            StorageIndexEntity entity = createStorageEntity();
-            MasterTemplateDefinitionEntity template = createTemplate();
+            StorageIndexDto entity = createStorageEntity();
+            MasterTemplateDto template = createTemplate();
             template.setLineOfBusiness("CREDIT_CARD");
 
             when(accessControlService.getPermittedActions(any(), anyString()))
@@ -338,8 +337,8 @@ public class DocumentResponseBuilderTest {
     }
 
     // Helper methods
-    private StorageIndexEntity createStorageEntity() {
-        StorageIndexEntity entity = new StorageIndexEntity();
+    private StorageIndexDto createStorageEntity() {
+        StorageIndexDto entity = new StorageIndexDto();
         entity.setStorageIndexId(UUID.randomUUID());
         entity.setStorageDocumentKey(UUID.randomUUID());
         entity.setFileName("test-file.pdf");
@@ -347,8 +346,8 @@ public class DocumentResponseBuilderTest {
         return entity;
     }
 
-    private MasterTemplateDefinitionEntity createTemplate() {
-        MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+    private MasterTemplateDto createTemplate() {
+        MasterTemplateDto template = new MasterTemplateDto();
         template.setTemplateType("TestTemplate");
         template.setTemplateCategory("TestCategory");
         template.setTemplateDescription("Test Description");

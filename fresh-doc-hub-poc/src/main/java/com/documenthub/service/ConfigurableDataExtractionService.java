@@ -75,7 +75,7 @@ public class ConfigurableDataExtractionService {
      * @return Mono containing a map of extracted field names to their values
      */
     public Mono<Map<String, Object>> extractData(
-            Json dataExtractionConfigJson,
+            String dataExtractionConfigJson,
             DocumentListRequest request) {
 
         log.info("Starting data extraction");
@@ -103,6 +103,18 @@ public class ConfigurableDataExtractionService {
     }
 
     /**
+     * Overload for backward compatibility with Json type (for entity layer).
+     */
+    public Mono<Map<String, Object>> extractData(
+            Json dataExtractionConfigJson,
+            DocumentListRequest request) {
+        if (dataExtractionConfigJson == null) {
+            return Mono.just(Collections.emptyMap());
+        }
+        return extractData(dataExtractionConfigJson.asString(), request);
+    }
+
+    /**
      * Parses the PostgreSQL JSON column into a DataExtractionConfig object.
      *
      * <p><b>What:</b> Converts raw JSON into a strongly-typed configuration object.</p>
@@ -117,8 +129,8 @@ public class ConfigurableDataExtractionService {
      * @return Parsed DataExtractionConfig object
      * @throws Exception If JSON parsing fails
      */
-    private DataExtractionConfig parseConfig(Json configJson) throws Exception {
-        JsonNode configNode = objectMapper.readTree(configJson.asString());
+    private DataExtractionConfig parseConfig(String configJson) throws Exception {
+        JsonNode configNode = objectMapper.readTree(configJson);
         DataExtractionConfig config = objectMapper.treeToValue(
                 configNode, DataExtractionConfig.class);
 

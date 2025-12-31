@@ -54,7 +54,7 @@ public class ConfigurableDataExtractionServiceTest {
             DocumentListRequest request = new DocumentListRequest();
 
             // When
-            Mono<Map<String, Object>> result = extractionService.extractData(null, request);
+            Mono<Map<String, Object>> result = extractionService.extractData((String) null, request);
 
             // Then
             StepVerifier.create(result)

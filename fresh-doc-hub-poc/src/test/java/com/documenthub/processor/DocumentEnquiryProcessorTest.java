@@ -1,8 +1,8 @@
 package com.documenthub.processor;
 
 import com.documenthub.dao.MasterTemplateDao;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.model.*;
 import com.documenthub.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -365,16 +365,16 @@ public class DocumentEnquiryProcessorTest {
                 .thenReturn(Mono.just(accountMetadata));
 
         // Template DAO
-        MasterTemplateDefinitionEntity template = createTemplate();
+        MasterTemplateDto template = createTemplate();
         when(masterTemplateDao.findActiveTemplatesWithFilters(anyString(), anyBoolean(), any(), anyLong()))
                 .thenReturn(Flux.just(template));
 
         // Data extraction
-        when(dataExtractionService.extractData(any(), any()))
+        when(dataExtractionService.extractData(any(String.class), any(DocumentListRequest.class)))
                 .thenReturn(Mono.just(Collections.emptyMap()));
 
         // Document matching
-        when(documentMatchingService.queryDocuments(any(com.documenthub.dto.DocumentQueryParams.class)))
+        when(documentMatchingService.queryDocuments(any(com.documenthub.dto.DocumentQueryParamsDto.class)))
                 .thenReturn(Mono.just(Collections.emptyList()));
 
         // Response builder
@@ -402,14 +402,14 @@ public class DocumentEnquiryProcessorTest {
                 .build();
     }
 
-    private MasterTemplateDefinitionEntity createTemplate() {
-        MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
-        template.setTemplateType("TEST_TEMPLATE");
-        template.setLineOfBusiness("CREDIT_CARD");
-        template.setTemplateCategory("TEST");
-        template.setActiveFlag(true);
-        template.setMessageCenterDocFlag(true);
-        return template;
+    private MasterTemplateDto createTemplate() {
+        return MasterTemplateDto.builder()
+                .templateType("TEST_TEMPLATE")
+                .lineOfBusiness("CREDIT_CARD")
+                .templateCategory("TEST")
+                .activeFlag(true)
+                .messageCenterDocFlag(true)
+                .build();
     }
 
     private DocumentRetrievalResponse createEmptyResponse() {

@@ -1,7 +1,7 @@
 package com.documenthub.controller;
 
 import com.documenthub.dto.DocumentUploadRequest;
-import com.documenthub.dto.RequestContext;
+import com.documenthub.dto.RequestContextDto;
 import com.documenthub.model.*;
 import com.documenthub.processor.DocumentManagementProcessor;
 import io.swagger.v3.oas.annotations.Operation;

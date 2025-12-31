@@ -1,14 +1,15 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.dto.upload.DocumentUploadRequest;
 import com.documenthub.dto.upload.DocumentUploadResponse;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.EcmsClientException;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
-import com.documenthub.repository.StorageIndexRepository;
+import com.documenthub.dao.MasterTemplateDao;
+import com.documenthub.dao.StorageIndexDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,10 +44,10 @@ public class DocumentUploadServiceTest {
     private EcmsClient ecmsClient;
 
     @Mock
-    private StorageIndexRepository storageIndexRepository;
+    private StorageIndexDao storageIndexDao;
 
     @Mock
-    private TemplateCacheService templateCacheService;
+    private MasterTemplateDao masterTemplateDao;
 
     @Mock
     private DocumentAccessControlService accessControlService;
@@ -77,8 +78,8 @@ public class DocumentUploadServiceTest {
         objectMapper = new ObjectMapper();
         uploadService = new DocumentUploadService(
             ecmsClient,
-            storageIndexRepository,
-            templateCacheService,
+            storageIndexDao,
+            masterTemplateDao,
             accessControlService,
             referenceKeyConfig,
             objectMapper
@@ -89,8 +90,8 @@ public class DocumentUploadServiceTest {
         when(referenceKeyConfig.isValid(anyString())).thenReturn(true);
     }
 
-    private MasterTemplateDefinitionEntity createTemplate(boolean sharedDocumentFlag) {
-        return MasterTemplateDefinitionEntity.builder()
+    private MasterTemplateDto createTemplate(boolean sharedDocumentFlag) {
+        return MasterTemplateDto.builder()
             .masterTemplateId(TEMPLATE_ID)
             .templateType(TEMPLATE_TYPE)
             .templateVersion(TEMPLATE_VERSION)
@@ -131,7 +132,7 @@ public class DocumentUploadServiceTest {
         void shouldFailWhenTemplateNotFound() {
             // Given
             DocumentUploadRequest request = createUploadRequest(null);
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.empty());
 
             // When/Then
@@ -148,15 +149,15 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should proceed when template exists")
         void shouldProceedWhenTemplateExists() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then
@@ -179,10 +180,10 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should deny upload when requestor lacks permission")
         void shouldDenyUploadWhenNoPermission() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE_CUSTOMER)))
                 .thenReturn(false);
@@ -201,16 +202,16 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should allow upload when requestor has permission")
         void shouldAllowUploadWhenHasPermission() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(accessControlService.canUpload(any(), eq("AGENT"))).thenReturn(true);
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then
@@ -231,15 +232,15 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should inherit sharedFlag=true from template")
         void shouldInheritSharedFlagFromTemplate() {
             // Given: Template has sharedDocumentFlag=true
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest(null); // Request doesn't set sharedFlag
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -248,8 +249,8 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify sharedFlag is set to true
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
             assertTrue(captor.getValue().getSharedFlag(),
                 "sharedFlag should be true when template has sharedDocumentFlag=true");
         }
@@ -258,15 +259,15 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should enforce sharedFlag=true from template even when request says false")
         void shouldEnforceTemplateSahredFlagOverRequest() {
             // Given: Template has sharedDocumentFlag=true, request has sharedFlag=false
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest(false);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -275,8 +276,8 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify sharedFlag is still true (template enforces it)
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
             assertTrue(captor.getValue().getSharedFlag(),
                 "sharedFlag should be true when template has sharedDocumentFlag=true, regardless of request");
         }
@@ -285,15 +286,15 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should allow request to set sharedFlag=true for non-shared template")
         void shouldAllowRequestToSetSharedFlagTrue() {
             // Given: Template has sharedDocumentFlag=false, request has sharedFlag=true
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(true);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -302,8 +303,8 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify sharedFlag is true from request
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
             assertTrue(captor.getValue().getSharedFlag(),
                 "sharedFlag should be true when request sets sharedFlag=true");
         }
@@ -312,15 +313,15 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should default sharedFlag to false when template and request are both false/null")
         void shouldDefaultSharedFlagToFalse() {
             // Given: Template has sharedDocumentFlag=false, request has sharedFlag=null
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -329,8 +330,8 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify sharedFlag is false
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
             assertFalse(captor.getValue().getSharedFlag(),
                 "sharedFlag should be false when both template and request don't specify shared");
         }
@@ -339,7 +340,7 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should handle null sharedDocumentFlag in template as false")
         void shouldHandleNullTemplateSharedFlag() {
             // Given: Template has sharedDocumentFlag=null
-            MasterTemplateDefinitionEntity template = MasterTemplateDefinitionEntity.builder()
+            MasterTemplateDto template = MasterTemplateDto.builder()
                 .masterTemplateId(TEMPLATE_ID)
                 .templateType(TEMPLATE_TYPE)
                 .templateVersion(TEMPLATE_VERSION)
@@ -349,11 +350,11 @@ public class DocumentUploadServiceTest {
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -362,8 +363,8 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify sharedFlag is false
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
             assertFalse(captor.getValue().getSharedFlag(),
                 "sharedFlag should be false when template sharedDocumentFlag is null");
         }
@@ -380,7 +381,7 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should create storage index with correct fields")
         void shouldCreateStorageIndexWithCorrectFields() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = DocumentUploadRequest.builder()
                 .templateType(TEMPLATE_TYPE)
                 .templateVersion(TEMPLATE_VERSION)
@@ -396,11 +397,11 @@ public class DocumentUploadServiceTest {
                 .build();
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -409,9 +410,9 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify all fields are set correctly
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
-            StorageIndexEntity saved = captor.getValue();
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
+            StorageIndexDto saved = captor.getValue();
 
             assertNotNull(saved.getStorageIndexId());
             assertEquals(TEMPLATE_ID, saved.getMasterTemplateId());
@@ -439,7 +440,7 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should store metadata as JSON")
         void shouldStoreMetadataAsJson() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = DocumentUploadRequest.builder()
                 .templateType(TEMPLATE_TYPE)
                 .templateVersion(TEMPLATE_VERSION)
@@ -448,11 +449,11 @@ public class DocumentUploadServiceTest {
                 .build();
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -461,8 +462,8 @@ public class DocumentUploadServiceTest {
                 .verifyComplete();
 
             // Then: Verify metadata is set
-            ArgumentCaptor<StorageIndexEntity> captor = ArgumentCaptor.forClass(StorageIndexEntity.class);
-            verify(storageIndexRepository).save(captor.capture());
+            ArgumentCaptor<StorageIndexDto> captor = ArgumentCaptor.forClass(StorageIndexDto.class);
+            verify(storageIndexDao).save(captor.capture());
             assertNotNull(captor.getValue().getDocMetadata());
         }
     }
@@ -478,10 +479,10 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should propagate ECMS errors")
         void shouldPropagateEcmsErrors() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.error(new EcmsClientException(500, "ECMS server error")));
@@ -492,23 +493,23 @@ public class DocumentUploadServiceTest {
                 .verify();
 
             // Verify storage was never saved
-            verify(storageIndexRepository, never()).save(any());
+            verify(storageIndexDao, never()).save(any());
         }
 
         @Test
         @DisplayName("Should pass correct data to ECMS client")
         void shouldPassCorrectDataToEcmsClient() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
             byte[] fileContent = new byte[]{1, 2, 3, 4, 5};
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When
@@ -538,7 +539,7 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should build complete success response")
         void shouldBuildCompleteSuccessResponse() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
             EcmsDocumentResponse.FileSize fileSize = new EcmsDocumentResponse.FileSize();
@@ -546,11 +547,11 @@ public class DocumentUploadServiceTest {
             fileSize.setUnit("bytes");
             ecmsResponse.setFileSize(fileSize);
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then
@@ -578,16 +579,16 @@ public class DocumentUploadServiceTest {
         @DisplayName("Should handle null fileSize from ECMS")
         void shouldHandleNullFileSizeFromEcms() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest(null);
             EcmsDocumentResponse ecmsResponse = createEcmsResponse();
             ecmsResponse.setFileSize(null);
 
-            when(templateCacheService.getTemplate(TEMPLATE_TYPE, TEMPLATE_VERSION))
+            when(masterTemplateDao.findByTypeAndVersion(TEMPLATE_TYPE, TEMPLATE_VERSION))
                 .thenReturn(Mono.just(template));
             when(ecmsClient.uploadDocument(any(byte[].class), any()))
                 .thenReturn(Mono.just(ecmsResponse));
-            when(storageIndexRepository.save(any()))
+            when(storageIndexDao.save(any()))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
             // When/Then

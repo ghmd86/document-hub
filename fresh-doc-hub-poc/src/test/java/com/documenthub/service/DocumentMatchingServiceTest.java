@@ -1,12 +1,11 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
-import com.documenthub.dto.DocumentQueryParams;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
-import com.documenthub.repository.StorageIndexRepository;
+import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dto.DocumentQueryParamsDto;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.*;
 public class DocumentMatchingServiceTest {
 
     @Mock
-    private StorageIndexRepository storageRepository;
+    private StorageIndexDao storageIndexDao;
 
     @Mock
     private DocumentValidityService validityService;
@@ -45,7 +44,7 @@ public class DocumentMatchingServiceTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         documentMatchingService = new DocumentMatchingService(
-                storageRepository, validityService, referenceKeyConfig, objectMapper);
+                storageIndexDao, validityService, referenceKeyConfig, objectMapper);
         // Default: allow all reference key types in tests
         when(referenceKeyConfig.isValid(anyString())).thenReturn(true);
     }
@@ -58,21 +57,21 @@ public class DocumentMatchingServiceTest {
         @DisplayName("Should query account documents when no document matching config")
         void shouldQueryAccountDocuments_whenNoDocumentMatchingConfig() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate();
+            MasterTemplateDto template = createTemplate();
             template.setDocumentMatchingConfig(null);
             template.setSharedDocumentFlag(false);
 
             UUID accountId = UUID.randomUUID();
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findAccountSpecificDocumentsWithDateRange(
+            when(storageIndexDao.findAccountSpecificDocumentsWithDateRange(
                     any(), anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, accountId, null));
 
             // Then
@@ -80,7 +79,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageRepository).findAccountSpecificDocumentsWithDateRange(
+            verify(storageIndexDao).findAccountSpecificDocumentsWithDateRange(
                     eq(accountId), eq("TestTemplate"), any(), any(), any(), anyLong());
         }
 
@@ -88,20 +87,20 @@ public class DocumentMatchingServiceTest {
         @DisplayName("Should query shared documents when shared flag is true")
         void shouldQuerySharedDocuments_whenSharedFlagTrue() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate();
+            MasterTemplateDto template = createTemplate();
             template.setDocumentMatchingConfig(null);
             template.setSharedDocumentFlag(true);
 
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findSharedDocumentsWithDateRange(
+            when(storageIndexDao.findSharedDocumentsWithDateRange(
                     anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), null));
 
             // Then
@@ -109,7 +108,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageRepository).findSharedDocumentsWithDateRange(
+            verify(storageIndexDao).findSharedDocumentsWithDateRange(
                     eq("TestTemplate"), any(), any(), any(), anyLong());
         }
     }
@@ -124,22 +123,22 @@ public class DocumentMatchingServiceTest {
             // Given
             String documentMatchingConfig = "{\"matchBy\":\"reference_key\"," +
                     "\"referenceKeyField\":\"disclosureCode\",\"referenceKeyType\":\"DISCLOSURE\"}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("disclosureCode", "DISC-001");
 
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                     anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -147,7 +146,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageRepository).findByReferenceKeyAndTemplateWithDateRange(
+            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
                     eq("DISC-001"), eq("DISCLOSURE"), eq("TestTemplate"),
                     any(), any(), any(), anyLong());
         }
@@ -158,14 +157,14 @@ public class DocumentMatchingServiceTest {
             // Given
             String documentMatchingConfig = "{\"matchBy\":\"reference_key\"," +
                     "\"referenceKeyField\":\"disclosureCode\",\"referenceKeyType\":\"DISCLOSURE\"}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             // Note: disclosureCode is NOT in extractedData
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -188,22 +187,22 @@ public class DocumentMatchingServiceTest {
                     "{\"field\":\"creditScore\",\"operator\":\">=\",\"value\":750,\"referenceKey\":\"PREMIUM\"}," +
                     "{\"field\":\"creditScore\",\"operator\":\">=\",\"value\":650,\"referenceKey\":\"STANDARD\"}" +
                     "]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("creditScore", 800);
 
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                     anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -211,7 +210,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageRepository).findByReferenceKeyAndTemplateWithDateRange(
+            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
                     eq("PREMIUM"), eq("TIER"), anyString(), any(), any(), any(), anyLong());
         }
 
@@ -224,22 +223,22 @@ public class DocumentMatchingServiceTest {
                     "{\"field\":\"creditScore\",\"operator\":\">=\",\"value\":750,\"referenceKey\":\"PREMIUM\"}," +
                     "{\"field\":\"creditScore\",\"operator\":\">=\",\"value\":650,\"referenceKey\":\"STANDARD\"}" +
                     "]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("creditScore", 700); // Between 650 and 750
 
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                     anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -247,7 +246,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageRepository).findByReferenceKeyAndTemplateWithDateRange(
+            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
                     eq("STANDARD"), eq("TIER"), anyString(), any(), any(), any(), anyLong());
         }
 
@@ -260,14 +259,14 @@ public class DocumentMatchingServiceTest {
                     "\"conditions\":[" +
                     "{\"field\":\"creditScore\",\"operator\":\">=\",\"value\":750,\"referenceKey\":\"PREMIUM\"}" +
                     "]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("creditScore", 600); // Below 750
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -284,22 +283,22 @@ public class DocumentMatchingServiceTest {
                     "\"referenceKeyType\":\"STATE_DOC\",\"conditions\":[" +
                     "{\"field\":\"state\",\"operator\":\"==\",\"value\":\"CA\",\"referenceKey\":\"CA-DOC\"}" +
                     "]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("state", "CA");
 
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                     anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -307,7 +306,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageRepository).findByReferenceKeyAndTemplateWithDateRange(
+            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
                     eq("CA-DOC"), eq("STATE_DOC"), anyString(), any(), any(), any(), anyLong());
         }
 
@@ -319,22 +318,22 @@ public class DocumentMatchingServiceTest {
                     "\"referenceKeyType\":\"VIP\",\"conditions\":[" +
                     "{\"field\":\"isVip\",\"operator\":\"==\",\"value\":true,\"referenceKey\":\"VIP-DOC\"}" +
                     "]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("isVip", true);
 
-            List<StorageIndexEntity> documents = Arrays.asList(createStorageEntity());
+            List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                     anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -363,21 +362,21 @@ public class DocumentMatchingServiceTest {
                             "\"referenceKeyType\":\"TEST_TYPE\"," +
                             "\"conditions\":[{\"field\":\"score\",\"operator\":\"%s\",\"value\":%d,\"referenceKey\":\"REF\"}]}",
                     operator, threshold);
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("score", value);
 
             if (shouldMatch) {
-                when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+                when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                         anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                         .thenReturn(Flux.just(createStorageEntity()));
                 when(validityService.filterByValidity(any()))
                         .thenReturn(Arrays.asList(createStorageEntity()));
             }
 
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             StepVerifier.create(result)
@@ -400,21 +399,21 @@ public class DocumentMatchingServiceTest {
                             "\"referenceKeyType\":\"TEST_TYPE\"," +
                             "\"conditions\":[{\"field\":\"text\",\"operator\":\"%s\",\"value\":\"%s\",\"referenceKey\":\"REF\"}]}",
                     operator, threshold);
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("text", value);
 
             if (shouldMatch) {
-                when(storageRepository.findByReferenceKeyAndTemplateWithDateRange(
+                when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
                         anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
                         .thenReturn(Flux.just(createStorageEntity()));
                 when(validityService.filterByValidity(any()))
                         .thenReturn(Arrays.asList(createStorageEntity()));
             }
 
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             StepVerifier.create(result)
@@ -432,13 +431,13 @@ public class DocumentMatchingServiceTest {
         void shouldReturnEmpty_whenUnknownMatchByType() {
             // Given
             String documentMatchingConfig = "{\"matchBy\":\"unknown_type\"}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -451,13 +450,13 @@ public class DocumentMatchingServiceTest {
         @DisplayName("Should return empty list when invalid JSON config")
         void shouldReturnEmpty_whenInvalidJsonConfig() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of("invalid json"));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig("invalid json");
 
             Map<String, Object> extractedData = new HashMap<>();
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -471,14 +470,14 @@ public class DocumentMatchingServiceTest {
         void shouldReturnError_whenReferenceKeyTypeMissing() {
             // Given
             String documentMatchingConfig = "{\"matchBy\":\"conditional\",\"conditions\":[]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("creditScore", 800);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then
@@ -493,14 +492,14 @@ public class DocumentMatchingServiceTest {
         void shouldReturnEmpty_whenConditionsArrayEmpty() {
             // Given
             String documentMatchingConfig = "{\"matchBy\":\"conditional\",\"referenceKeyType\":\"TIER\",\"conditions\":[]}";
-            MasterTemplateDefinitionEntity template = createTemplate();
-            template.setDocumentMatchingConfig(Json.of(documentMatchingConfig));
+            MasterTemplateDto template = createTemplate();
+            template.setDocumentMatchingConfig(documentMatchingConfig);
 
             Map<String, Object> extractedData = new HashMap<>();
             extractedData.put("creditScore", 800);
 
             // When
-            Mono<List<StorageIndexEntity>> result = documentMatchingService.queryDocuments(
+            Mono<List<StorageIndexDto>> result = documentMatchingService.queryDocuments(
                     buildParams(template, UUID.randomUUID(), extractedData));
 
             // Then - No condition matches, should return empty
@@ -511,27 +510,27 @@ public class DocumentMatchingServiceTest {
     }
 
     // Helper methods
-    private MasterTemplateDefinitionEntity createTemplate() {
-        MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+    private MasterTemplateDto createTemplate() {
+        MasterTemplateDto template = new MasterTemplateDto();
         template.setTemplateType("TestTemplate");
         template.setTemplateVersion(1);
         template.setSharedDocumentFlag(false);
         return template;
     }
 
-    private StorageIndexEntity createStorageEntity() {
-        StorageIndexEntity entity = new StorageIndexEntity();
+    private StorageIndexDto createStorageEntity() {
+        StorageIndexDto entity = new StorageIndexDto();
         entity.setStorageIndexId(UUID.randomUUID());
         entity.setStorageDocumentKey(UUID.randomUUID());
         entity.setFileName("test-file.pdf");
         return entity;
     }
 
-    private DocumentQueryParams buildParams(
-            MasterTemplateDefinitionEntity template,
+    private DocumentQueryParamsDto buildParams(
+            MasterTemplateDto template,
             UUID accountId,
             Map<String, Object> extractedData) {
-        return DocumentQueryParams.builder()
+        return DocumentQueryParamsDto.builder()
                 .template(template)
                 .accountId(accountId)
                 .extractedData(extractedData)

@@ -3,8 +3,8 @@ package com.documenthub.processor;
 import com.documenthub.dao.MasterTemplateDao;
 import com.documenthub.dao.StorageIndexDao;
 import com.documenthub.dto.DocumentUploadRequest;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.integration.ecms.EcmsClient;
 import com.documenthub.integration.ecms.dto.EcmsDocumentResponse;
 import com.documenthub.model.InlineResponse200;
@@ -72,7 +72,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should close existing docs when single_document_flag is true")
         void shouldCloseExistingDocsWhenSingleDocFlagTrue() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest();
 
             setupMocksForSuccessfulUpload(template);
@@ -96,7 +96,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should NOT close existing docs when single_document_flag is false")
         void shouldNotCloseExistingDocsWhenSingleDocFlagFalse() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false);
+            MasterTemplateDto template = createTemplate(false);
             DocumentUploadRequest request = createUploadRequest();
 
             setupMocksForSuccessfulUpload(template);
@@ -117,7 +117,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should NOT close existing docs when single_document_flag is null")
         void shouldNotCloseExistingDocsWhenSingleDocFlagNull() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(null);
+            MasterTemplateDto template = createTemplate(null);
             DocumentUploadRequest request = createUploadRequest();
 
             setupMocksForSuccessfulUpload(template);
@@ -138,7 +138,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should NOT close when reference_key is null")
         void shouldNotCloseWhenReferenceKeyIsNull() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest();
             request.setReferenceKey(null);
 
@@ -160,7 +160,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should NOT close when reference_key_type is null")
         void shouldNotCloseWhenReferenceKeyTypeIsNull() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest();
             request.setReferenceKeyType(null);
 
@@ -182,7 +182,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should use activeStartDate as new end_date for existing docs")
         void shouldUseActiveStartDateAsNewEndDate() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest();
             Long startDate = 1234567890L;
             request.setActiveStartDate(startDate);
@@ -208,7 +208,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should use current time when activeStartDate is null")
         void shouldUseCurrentTimeWhenActiveStartDateIsNull() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest();
             request.setActiveStartDate(null);
 
@@ -238,7 +238,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should proceed with upload even when no docs to close")
         void shouldProceedWithUploadWhenNoDocsToClose() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(true);
+            MasterTemplateDto template = createTemplate(true);
             DocumentUploadRequest request = createUploadRequest();
 
             setupMocksForSuccessfulUpload(template);
@@ -255,11 +255,11 @@ public class DocumentManagementProcessorTest {
                 .verifyComplete();
 
             verify(ecmsClient).uploadDocument(any(byte[].class), any());
-            verify(storageIndexDao).save(any(StorageIndexEntity.class));
+            verify(storageIndexDao).save(any(StorageIndexDto.class));
         }
     }
 
-    private void setupMocksForSuccessfulUpload(MasterTemplateDefinitionEntity template) {
+    private void setupMocksForSuccessfulUpload(MasterTemplateDto template) {
         when(masterTemplateDao.findLatestActiveTemplateByType(eq(DOC_TYPE), anyLong()))
             .thenReturn(Mono.just(template));
         when(accessControlService.canUpload(any(), eq(REQUESTOR_TYPE)))
@@ -270,12 +270,12 @@ public class DocumentManagementProcessorTest {
         when(ecmsClient.uploadDocument(any(byte[].class), any()))
             .thenReturn(Mono.just(ecmsResponse));
 
-        when(storageIndexDao.save(any(StorageIndexEntity.class)))
+        when(storageIndexDao.save(any(StorageIndexDto.class)))
             .thenAnswer(inv -> Mono.just(inv.getArgument(0)));
     }
 
-    private MasterTemplateDefinitionEntity createTemplate(Boolean singleDocFlag) {
-        MasterTemplateDefinitionEntity template = new MasterTemplateDefinitionEntity();
+    private MasterTemplateDto createTemplate(Boolean singleDocFlag) {
+        MasterTemplateDto template = new MasterTemplateDto();
         template.setMasterTemplateId(UUID.randomUUID());
         template.setTemplateType(DOC_TYPE);
         template.setTemplateVersion(1);
@@ -306,7 +306,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should succeed when referenceKeyType matches template config")
         void shouldSucceedWhenReferenceKeyTypeMatches() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplateWithMatchingConfig("ORDER");
+            MasterTemplateDto template = createTemplateWithMatchingConfig("ORDER");
             DocumentUploadRequest request = createUploadRequest();
 
             setupMocksForSuccessfulUpload(template);
@@ -324,7 +324,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should fail when referenceKeyType does not match template config")
         void shouldFailWhenReferenceKeyTypeMismatch() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplateWithMatchingConfig("PROMO_CODE");
+            MasterTemplateDto template = createTemplateWithMatchingConfig("PROMO_CODE");
             DocumentUploadRequest request = createUploadRequest(); // Has REF_KEY_TYPE = "ORDER"
 
             when(masterTemplateDao.findLatestActiveTemplateByType(eq(DOC_TYPE), anyLong()))
@@ -346,7 +346,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should fail when template requires referenceKeyType but request has none")
         void shouldFailWhenReferenceKeyTypeRequiredButMissing() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplateWithMatchingConfig("ORDER");
+            MasterTemplateDto template = createTemplateWithMatchingConfig("ORDER");
             DocumentUploadRequest request = createUploadRequest();
             request.setReferenceKeyType(null);
 
@@ -369,7 +369,7 @@ public class DocumentManagementProcessorTest {
         @DisplayName("Should succeed when template has no document_matching_config")
         void shouldSucceedWhenNoMatchingConfig() {
             // Given
-            MasterTemplateDefinitionEntity template = createTemplate(false); // false to skip single_document_flag logic
+            MasterTemplateDto template = createTemplate(false); // false to skip single_document_flag logic
             // template has no documentMatchingConfig
             DocumentUploadRequest request = createUploadRequest();
 
@@ -384,11 +384,11 @@ public class DocumentManagementProcessorTest {
                 .verifyComplete();
         }
 
-        private MasterTemplateDefinitionEntity createTemplateWithMatchingConfig(String referenceKeyType) {
-            MasterTemplateDefinitionEntity template = createTemplate(false); // false to skip single_document_flag logic
+        private MasterTemplateDto createTemplateWithMatchingConfig(String referenceKeyType) {
+            MasterTemplateDto template = createTemplate(false); // false to skip single_document_flag logic
             String configJson = String.format(
                 "{\"matchBy\":\"reference_key\",\"referenceKeyType\":\"%s\"}", referenceKeyType);
-            template.setDocumentMatchingConfig(io.r2dbc.postgresql.codec.Json.of(configJson));
+            template.setDocumentMatchingConfig(configJson);
             return template;
         }
     }

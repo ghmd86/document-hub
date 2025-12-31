@@ -1,9 +1,9 @@
 package com.documenthub.processor;
 
 import com.documenthub.dao.MasterTemplateDao;
-import com.documenthub.dto.DocumentQueryParams;
-import com.documenthub.entity.MasterTemplateDefinitionEntity;
-import com.documenthub.entity.StorageIndexEntity;
+import com.documenthub.dto.DocumentQueryParamsDto;
+import com.documenthub.dto.MasterTemplateDto;
+import com.documenthub.dto.StorageIndexDto;
 import com.documenthub.model.AccountMetadata;
 import com.documenthub.model.DocumentDetailsNode;
 import com.documenthub.model.DocumentListRequest;
@@ -11,7 +11,6 @@ import com.documenthub.model.DocumentRetrievalResponse;
 import com.documenthub.service.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.r2dbc.postgresql.codec.Json;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -187,7 +186,7 @@ public class DocumentEnquiryProcessor {
                 .build();
     }
 
-    private Mono<List<MasterTemplateDefinitionEntity>> queryTemplates(String lob, EnquiryContext ctx) {
+    private Mono<List<MasterTemplateDto>> queryTemplates(String lob, EnquiryContext ctx) {
         return queryTemplates(lob, ctx.getTemplateTypes(), ctx.getMessageCenterDocFlag(), ctx.getCommunicationType());
     }
 
@@ -251,7 +250,7 @@ public class DocumentEnquiryProcessor {
      * </ol>
      * </p>
      */
-    private Mono<List<MasterTemplateDefinitionEntity>> queryTemplates(
+    private Mono<List<MasterTemplateDto>> queryTemplates(
             String lineOfBusiness,
             List<String> templateTypes,
             Boolean messageCenterDocFlag,
@@ -295,7 +294,7 @@ public class DocumentEnquiryProcessor {
      * </p>
      */
     private Mono<List<DocumentDetailsNode>> processTemplates(
-            List<MasterTemplateDefinitionEntity> templates,
+            List<MasterTemplateDto> templates,
             EnquiryContext context) {
         if (templates.isEmpty()) {
             return Mono.just(Collections.emptyList());
@@ -307,7 +306,7 @@ public class DocumentEnquiryProcessor {
     }
 
     private Flux<List<DocumentDetailsNode>> processAccountTemplates(
-            List<MasterTemplateDefinitionEntity> templates,
+            List<MasterTemplateDto> templates,
             String accountId,
             EnquiryContext context) {
         UUID accountUuid = UUID.fromString(accountId);
@@ -336,7 +335,7 @@ public class DocumentEnquiryProcessor {
      * </p>
      */
     private Mono<List<DocumentDetailsNode>> processTemplate(
-            MasterTemplateDefinitionEntity template,
+            MasterTemplateDto template,
             UUID accountId,
             AccountMetadata accountMetadata,
             EnquiryContext context) {
@@ -368,13 +367,12 @@ public class DocumentEnquiryProcessor {
     /**
      * Check if template uses auto_discover matchMode.
      */
-    private boolean isAutoDiscoverTemplate(MasterTemplateDefinitionEntity template) {
+    private boolean isAutoDiscoverTemplate(MasterTemplateDto template) {
         if (template.getDocumentMatchingConfig() == null) {
             return false;
         }
         try {
-            JsonNode config = objectMapper.readTree(
-                    template.getDocumentMatchingConfig().asString());
+            JsonNode config = objectMapper.readTree(template.getDocumentMatchingConfig());
             return "auto_discover".equals(config.path("matchMode").asText());
         } catch (Exception e) {
             log.debug("Error parsing document_matching_config: {}", e.getMessage());
@@ -385,12 +383,12 @@ public class DocumentEnquiryProcessor {
     /**
      * Check if template has eligibility criteria defined.
      */
-    private boolean hasEligibilityCriteria(MasterTemplateDefinitionEntity template) {
+    private boolean hasEligibilityCriteria(MasterTemplateDto template) {
         return template.getEligibilityCriteria() != null;
     }
 
     private Mono<List<DocumentDetailsNode>> handleTemplateError(
-            MasterTemplateDefinitionEntity template, Throwable e) {
+            MasterTemplateDto template, Throwable e) {
         log.error("Error processing template {}: {}", template.getTemplateType(), e.getMessage());
         return Mono.just(Collections.emptyList());
     }
@@ -413,7 +411,7 @@ public class DocumentEnquiryProcessor {
      * </p>
      */
     private boolean canAccessTemplate(
-            MasterTemplateDefinitionEntity template,
+            MasterTemplateDto template,
             AccountMetadata accountMetadata) {
 
         String sharingScope = template.getSharingScope();
@@ -447,14 +445,14 @@ public class DocumentEnquiryProcessor {
      * @see ConfigurableDataExtractionService
      */
     private Mono<Map<String, Object>> executeDataExtraction(
-            MasterTemplateDefinitionEntity template,
+            MasterTemplateDto template,
             DocumentListRequest request) {
 
         if (template.getDataExtractionConfig() == null) {
             return Mono.just(Collections.emptyMap());
         }
 
-        Json configJson = template.getDataExtractionConfig();
+        String configJson = template.getDataExtractionConfig();
         return dataExtractionService.extractData(configJson, request)
                 .doOnSuccess(data -> log.info("Extracted {} fields", data.size()))
                 .onErrorResume(e -> {
@@ -474,7 +472,7 @@ public class DocumentEnquiryProcessor {
      *
      * <p><b>How:</b>
      * <ol>
-     *   <li>Build DocumentQueryParams with template, account, extractedData, and date filters</li>
+     *   <li>Build DocumentQueryParamsDto with template, account, extractedData, and date filters</li>
      *   <li>Include requestReferenceKey/Type for 'direct' matchMode support</li>
      *   <li>Call DocumentMatchingService.queryDocuments()</li>
      *   <li>Step 5: Apply single_document_flag if true (keep only latest)</li>
@@ -483,12 +481,12 @@ public class DocumentEnquiryProcessor {
      * </p>
      */
     private Mono<List<DocumentDetailsNode>> queryAndConvertDocuments(
-            MasterTemplateDefinitionEntity template,
+            MasterTemplateDto template,
             UUID accountId,
             Map<String, Object> extractedData,
             EnquiryContext context) {
         DocumentListRequest request = context.getRequest();
-        DocumentQueryParams queryParams = DocumentQueryParams.builder()
+        DocumentQueryParamsDto queryParams = DocumentQueryParamsDto.builder()
                 .template(template)
                 .accountId(accountId)
                 .extractedData(extractedData)
@@ -520,9 +518,9 @@ public class DocumentEnquiryProcessor {
      * </ol>
      * </p>
      */
-    private List<StorageIndexEntity> applySingleDocumentFlag(
-            List<StorageIndexEntity> documents,
-            MasterTemplateDefinitionEntity template) {
+    private List<StorageIndexDto> applySingleDocumentFlag(
+            List<StorageIndexDto> documents,
+            MasterTemplateDto template) {
 
         if (documents.isEmpty()) {
             return documents;

@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 @Data
 @Builder
-public class RequestContext {
+public class RequestContextDto {
     private Integer version;
     private String correlationId;
     private UUID requestorId;
