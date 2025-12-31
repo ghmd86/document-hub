@@ -1,0 +1,15 @@
+layer 'Controllers' ('..controller..')
+layer 'Processors' ('..processor..')
+layer 'Services' ('..service..')
+layer 'DAOs' ('..dao..')
+layer 'Repository' ('..repository..')
+layer 'Entities' ('..model..')
+layer 'Configs' ('..config..')
+layer 'Tasks' ('..task..')
+layer 'Steps' ('..step..')
+where layer 'Controllers' may not be accessed by any layer
+where layer 'Services' may only be accessed by layers ['Processors']
+where layer 'DAOs' may only be accessed by layers ['Processors', 'Configs', 'Steps', 'Tasks']
+where layer 'Entities' may only be accessed by layers ['Repository', 'DAOs', 'Configs']
+where layer 'Repository' may only be accessed by layers ['DAOs']' was violated
+DTO should end with Response, Request, Dto
