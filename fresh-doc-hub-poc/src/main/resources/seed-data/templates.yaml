@@ -44,8 +44,8 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
-    referenceKeyType: ACCOUNT_ID
+    matchMode: direct
+    referenceKeyType: STATEMENT_ID
 - id: 33333333-3333-3333-3333-333333333333
   template_type: BalanceTransferLetter
   template_version: 1
@@ -735,8 +735,8 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
-    referenceKeyType: ACCOUNT_ID
+    matchMode: direct
+    referenceKeyType: STATEMENT_ID
 - id: f1000000-0000-0000-0000-000000000002
   template_type: WelcomeKit
   template_version: 1
@@ -844,8 +844,8 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
-    referenceKeyType: ACCOUNT_ID
+    matchMode: direct
+    referenceKeyType: STATEMENT_ID
 - id: f3000000-0000-0000-0000-000000000002
   template_type: PaymentReminderSMS
   template_version: 1

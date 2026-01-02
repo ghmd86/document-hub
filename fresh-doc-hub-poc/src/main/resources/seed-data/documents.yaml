@@ -22,15 +22,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-01-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000002
   file_name: statement_jan_2024.pdf
   doc_creation_date: 1706659200000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000002
+    statement_id: STMT-2024-01-ACCT001
     statement_date: '2024-01-31'
     balance: 1234.56
     valid_from: '2024-01-31'
@@ -42,15 +42,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000002
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000002
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-01-ACCT002
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000003
   file_name: statement_jan_2024_acct2.pdf
   doc_creation_date: 1706659200000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000003
+    statement_id: STMT-2024-01-ACCT002
     statement_date: '2024-01-31'
     balance: 5678.9
     valid_from: '2024-01-31'
@@ -911,15 +911,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-02-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000046
   file_name: statement_feb_2024.pdf
   doc_creation_date: 1709251200000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000046
+    statement_id: STMT-2024-02-ACCT001
     statement_date: '2024-02-29'
     balance: 1456.78
     valid_from: '2024-02-29'
@@ -931,15 +931,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-03-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000047
   file_name: statement_mar_2024.pdf
   doc_creation_date: 1711929600000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000047
+    statement_id: STMT-2024-03-ACCT001
     statement_date: '2024-03-31'
     balance: 1678.9
     valid_from: '2024-03-31'
@@ -951,15 +951,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-04-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000048
   file_name: statement_apr_2024.pdf
   doc_creation_date: 1714521600000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000048
+    statement_id: STMT-2024-04-ACCT001
     statement_date: '2024-04-30'
     balance: 2012.34
     valid_from: '2024-04-30'
@@ -971,15 +971,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-05-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000049
   file_name: statement_may_2024.pdf
   doc_creation_date: 1717200000000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000049
+    statement_id: STMT-2024-05-ACCT001
     statement_date: '2024-05-31'
     balance: 1890.12
     valid_from: '2024-05-31'
@@ -991,15 +991,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-06-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000050
   file_name: statement_jun_2024.pdf
   doc_creation_date: 1719792000000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000050
+    statement_id: STMT-2024-06-ACCT001
     statement_date: '2024-06-30'
     balance: 2234.56
     valid_from: '2024-06-30'
@@ -1011,15 +1011,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-07-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000051
   file_name: statement_jul_2024.pdf
   doc_creation_date: 1722470400000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000051
+    statement_id: STMT-2024-07-ACCT001
     statement_date: '2024-07-31'
     balance: 1567.89
     valid_from: '2024-07-31'
@@ -1031,15 +1031,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-08-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000052
   file_name: statement_aug_2024.pdf
   doc_creation_date: 1725148800000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000052
+    statement_id: STMT-2024-08-ACCT001
     statement_date: '2024-08-31'
     balance: 1789.01
     valid_from: '2024-08-31'
@@ -1051,15 +1051,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-09-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000053
   file_name: statement_sep_2024.pdf
   doc_creation_date: 1727740800000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000053
+    statement_id: STMT-2024-09-ACCT001
     statement_date: '2024-09-30'
     balance: 2345.67
     valid_from: '2024-09-30'
@@ -1071,15 +1071,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-10-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000054
   file_name: statement_oct_2024.pdf
   doc_creation_date: 1730419200000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000054
+    statement_id: STMT-2024-10-ACCT001
     statement_date: '2024-10-31'
     balance: 1987.65
     valid_from: '2024-10-31'
@@ -1091,15 +1091,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-11-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000055
   file_name: statement_nov_2024.pdf
   doc_creation_date: 1733011200000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000055
+    statement_id: STMT-2024-11-ACCT001
     statement_date: '2024-11-30'
     balance: 2678.9
     valid_from: '2024-11-30'
@@ -1111,15 +1111,15 @@ documents:
   shared_flag: false
   account_key: aaaa0000-0000-0000-0000-000000000001
   customer_key: cccc0000-0000-0000-0000-000000000001
-  reference_key: aaaa0000-0000-0000-0000-000000000001
-  reference_key_type: ACCOUNT_ID
+  reference_key: STMT-2024-12-ACCT001
+  reference_key_type: STATEMENT_ID
   storage_vendor: ecms
   storage_document_key: b0000000-0000-0000-0000-000000000056
   file_name: statement_dec_2024.pdf
   doc_creation_date: 1735689600000
   accessible_flag: true
   doc_metadata:
-    statement_id: ssss0000-0000-0000-0000-000000000056
+    statement_id: STMT-2024-12-ACCT001
     statement_date: '2024-12-31'
     balance: 3012.34
     valid_from: '2024-12-31'
