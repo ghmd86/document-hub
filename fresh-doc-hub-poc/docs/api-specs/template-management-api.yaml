@@ -2452,13 +2452,171 @@ components:
         - `reference_key`: Use a single field value to query documents
         - `conditional`: Evaluate conditions to select the appropriate reference key
 
-        **Match Modes (matchMode) for reference_key matching:**
+        ---
 
-        | Mode | Description | Use Case |
-        |------|-------------|----------|
-        | `direct` | Client provides referenceKey in request | Client knows exact document key |
-        | `extracted` | Value from extractedData via referenceKeyField | Key comes from API call |
-        | `auto_discover` | Query by type only, return latest valid doc | Find applicable docs automatically |
+        ## Match Modes Explained
+
+        The `matchMode` determines HOW the reference key value is obtained for document lookup.
+
+        ### 1. DIRECT Mode
+
+        **What:** The client provides the reference key value directly in the enquiry request.
+
+        **When to use:**
+        - Client already knows the exact document identifier
+        - Reference key is a request parameter (accountId, statementId)
+        - No external API call needed to determine the key
+
+        **Flow:**
+        ```
+        Request: { accountId: "ACC-123", referenceKeyType: "ACCOUNT_ID" }
+                          |
+                          v
+        Query: WHERE reference_key = 'ACC-123' AND reference_key_type = 'ACCOUNT_ID'
+                          |
+                          v
+        Result: Documents for account ACC-123
+        ```
+
+        **Example templates:** Statements, Tax Documents, Payment Letters, Security Alerts
+
+        **Config:**
+        ```yaml
+        document_matching_config:
+          matchBy: reference_key
+          matchMode: direct
+          referenceKeyType: ACCOUNT_ID
+        ```
+
+        ---
+
+        ### 2. EXTRACTED Mode
+
+        **What:** The reference key value is extracted from an external API response using `dataExtractionConfig`.
+
+        **When to use:**
+        - Reference key is NOT in the request but must be fetched from another system
+        - Value depends on account configuration (e.g., which disclosure code applies)
+        - Chained API calls needed (e.g., get pricingId then get disclosureCode)
+
+        **Flow:**
+        ```
+        Request: { accountId: "ACC-123" }
+                          |
+                          v
+        API Call: GET /accounts/ACC-123/config --> { disclosureCode: "DISC-2024-V3" }
+                          |
+                          v
+        Extract: disclosureCode = "DISC-2024-V3"
+                          |
+                          v
+        Query: WHERE reference_key = 'DISC-2024-V3' AND reference_key_type = 'DISCLOSURE_CODE'
+                          |
+                          v
+        Result: Disclosure document version V3
+        ```
+
+        **Example templates:** Regulatory Disclosures, Cardholder Agreements, Fee Schedules
+
+        **Config:**
+        ```yaml
+        document_matching_config:
+          matchBy: reference_key
+          matchMode: extracted
+          referenceKeyField: disclosureCode    # Field name in extractedData
+          referenceKeyType: DISCLOSURE_CODE
+        data_extraction_config:
+          fieldsToExtract: [disclosureCode]
+          # ... API configuration to fetch disclosureCode
+        ```
+
+        ---
+
+        ### 3. AUTO_DISCOVER Mode
+
+        **What:** System automatically finds applicable documents by querying by type only,
+        checking eligibility criteria, and returning the latest valid document.
+
+        **When to use:**
+        - Documents should be "pushed" to eligible customers (not pulled by key)
+        - Promotional offers based on customer attributes (location, credit score, segment)
+        - Time-sensitive documents (valid within date range)
+        - Customer does not know/need to know the specific document key
+
+        **Flow:**
+        ```
+        Request: { customerId: "CUST-456" }
+                          |
+                          v
+        API Call: GET /customers/CUST-456 --> { zipcode: "94102", creditScore: 780 }
+                          |
+                          v
+        Eligibility Check: zipcode IN ['94102'...] AND creditScore >= 700 --> PASS
+                          |
+                          v
+        Query: WHERE reference_key_type = 'PROMO_CODE'
+               AND start_date <= now AND end_date >= now
+                          |
+                          v
+        Filter: Keep only valid (not expired) documents
+                          |
+                          v
+        Result: Latest applicable promotional offer
+        ```
+
+        **Example templates:** Promotional Offers, Seasonal Campaigns, Regional Exclusives
+
+        **Config:**
+        ```yaml
+        document_matching_config:
+          matchBy: reference_key
+          matchMode: auto_discover
+          referenceKeyType: PROMO_CODE
+        eligibility_criteria:
+          operator: AND
+          rules:
+            - field: zipcode
+              operator: IN
+              value: ["94102", "94103", "94104"]
+            - field: creditScore
+              operator: GREATER_THAN_OR_EQUAL
+              value: 700
+        data_extraction_config:
+          fieldsToExtract: [zipcode, creditScore]
+          # ... API configuration to fetch customer data for eligibility check
+        ```
+
+        ---
+
+        ## Comparison Table
+
+        | Aspect | direct | extracted | auto_discover |
+        |--------|--------|-----------|---------------|
+        | Reference key source | Request parameter | External API | None (query by type) |
+        | Requires dataExtractionConfig | No | Yes | Optional (for eligibility) |
+        | Requires referenceKeyField | No | Yes | No |
+        | Uses eligibility_criteria | Optional | Optional | Recommended |
+        | Returns | All matching docs | All matching docs | Latest valid doc only |
+        | Client knows document key | Yes | No | No |
+        | Use case | Account-specific docs | Config-driven docs | Targeted promotions |
+
+        ---
+
+        ## Decision Guide
+
+        ```
+        Does the client provide the reference key in the request?
+        |
+        +-- YES --> Use 'direct' mode
+        |
+        +-- NO
+            |
+            +-- Is there a specific key that determines which document?
+                |
+                +-- YES --> Use 'extracted' mode (fetch key from API)
+                |
+                +-- NO --> Use 'auto_discover' mode (find applicable docs)
+        ```
       properties:
         matchBy:
           type: string

@@ -27,6 +27,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: policyVersion
     referenceKeyType: DOCUMENT_VERSION
 - id: 22222222-2222-2222-2222-222222222222
@@ -62,6 +63,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
 - id: 44444444-4444-4444-4444-444444444444
@@ -80,6 +82,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -107,6 +110,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: disclosureCode
     referenceKeyType: DISCLOSURE_CODE
   data_extraction_config:
@@ -152,6 +156,7 @@ templates:
     rules: []
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: disclosureCode
     referenceKeyType: DISCLOSURE_CODE
   data_extraction_config:
@@ -319,6 +324,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: campaignCode
     referenceKeyType: CAMPAIGN_CODE
 - id: 99999999-9999-9999-9999-999999999999
@@ -337,6 +343,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: noticeId
     referenceKeyType: NOTICE_ID
 - id: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
@@ -354,7 +361,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
   template_type: SavingsOffer
@@ -372,6 +379,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -396,6 +404,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: feeScheduleVersion
     referenceKeyType: DOCUMENT_VERSION
   data_extraction_config:
@@ -439,6 +448,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: kitVersion
     referenceKeyType: KIT_VERSION
 - id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
@@ -457,6 +467,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -481,6 +492,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: promoCode
     referenceKeyType: PROMO_CODE
 - id: f0000000-0000-0000-0000-000000000002
@@ -499,6 +511,7 @@ templates:
   start_date: 1717200000000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: campaignCode
     referenceKeyType: CAMPAIGN_CODE
 - id: f0000000-0000-0000-0000-000000000003
@@ -517,6 +530,7 @@ templates:
   start_date: 1767225600000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: campaignCode
     referenceKeyType: CAMPAIGN_CODE
 - id: f0000000-0000-0000-0000-000000000004
@@ -535,6 +549,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -562,6 +577,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -602,6 +618,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -625,7 +642,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000008
   template_type: DelinquencyNotice
@@ -642,7 +659,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000009
   template_type: FraudLetter
@@ -659,7 +676,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000010
   template_type: AdverseActionNotice
@@ -676,7 +693,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f0000000-0000-0000-0000-000000000011
   template_type: EliteCreditOffer
@@ -694,6 +711,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: offerCode
     referenceKeyType: OFFER_CODE
   eligibility_criteria:
@@ -754,6 +772,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: kitVersion
     referenceKeyType: KIT_VERSION
 - id: f1000000-0000-0000-0000-000000000003
@@ -772,7 +791,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f2000000-0000-0000-0000-000000000001
   template_type: InternalAuditReport
@@ -790,7 +809,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f2000000-0000-0000-0000-000000000002
   template_type: CollectionNotice
@@ -808,7 +827,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f2000000-0000-0000-0000-000000000003
   template_type: RiskAssessment
@@ -826,7 +845,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000001
   template_type: EStatement
@@ -862,7 +881,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000003
   template_type: TransactionAlertPush
@@ -880,7 +899,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
 - id: f3000000-0000-0000-0000-000000000004
   template_type: MarketingEmail
@@ -899,6 +918,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: campaignCode
     referenceKeyType: CAMPAIGN_CODE
 - id: f4000000-0000-0000-0000-000000000001
@@ -917,7 +937,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
   access_control:
     roles:
@@ -952,7 +972,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
   access_control:
     roles:
@@ -986,7 +1006,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
-    referenceKeyField: accountId
+    matchMode: direct
     referenceKeyType: ACCOUNT_ID
   access_control:
     roles:
@@ -1021,6 +1041,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: applicantId
     referenceKeyType: APPLICANT_ID
 - id: f5000000-0000-0000-0000-000000000002
@@ -1039,6 +1060,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: applicantId
     referenceKeyType: APPLICANT_ID
 - id: f5000000-0000-0000-0000-000000000003
@@ -1057,6 +1079,7 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: applicantId
     referenceKeyType: APPLICANT_ID
 - id: f5000000-0000-0000-0000-000000000004
@@ -1075,5 +1098,6 @@ templates:
   start_date: 1704067200000
   document_matching_config:
     matchBy: reference_key
+    matchMode: extracted
     referenceKeyField: applicantId
     referenceKeyType: APPLICANT_ID
