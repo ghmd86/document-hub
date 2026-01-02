@@ -1401,6 +1401,8 @@ components:
               actions: [View, Download, Update, Delete]
         dataExtractionConfig:
           $ref: '#/components/schemas/DataExtractionConfig'
+        documentMatchingConfig:
+          $ref: '#/components/schemas/DocumentMatchingConfig'
         eligibilityCriteria:
           $ref: '#/components/schemas/EligibilityCriteria'
       example:
@@ -1433,10 +1435,10 @@ components:
                 url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
                 method: GET
                 timeout: 5000
-          documentMatching:
-            matchBy: reference_key
-            referenceKeyField: promoCode
-            referenceKeyType: PROMO_CODE
+        documentMatchingConfig:
+          matchBy: reference_key
+          matchMode: auto_discover
+          referenceKeyType: PROMO_CODE
         eligibilityCriteria:
           operator: AND
           rules:
@@ -1502,6 +1504,8 @@ components:
             $ref: '#/components/schemas/AccessControlEntry'
         dataExtractionConfig:
           $ref: '#/components/schemas/DataExtractionConfig'
+        documentMatchingConfig:
+          $ref: '#/components/schemas/DocumentMatchingConfig'
         eligibilityCriteria:
           $ref: '#/components/schemas/EligibilityCriteria'
 
@@ -1744,6 +1748,8 @@ components:
             $ref: '#/components/schemas/AccessControlEntry'
         dataExtractionConfig:
           $ref: '#/components/schemas/DataExtractionConfig'
+        documentMatchingConfig:
+          $ref: '#/components/schemas/DocumentMatchingConfig'
         eligibilityCriteria:
           $ref: '#/components/schemas/EligibilityCriteria'
         createdBy:
@@ -1781,10 +1787,19 @@ components:
         dataExtractionConfig:
           fieldsToExtract:
             - zipcode
-          documentMatching:
-            matchBy: reference_key
-            referenceKeyField: promoCode
-            referenceKeyType: PROMO_CODE
+          fieldSources:
+            zipcode:
+              sourceApi: customerApi
+              extractionPath: "$.customer.address.zipCode"
+          dataSources:
+            customerApi:
+              endpoint:
+                url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+                method: GET
+        documentMatchingConfig:
+          matchBy: reference_key
+          matchMode: auto_discover
+          referenceKeyType: PROMO_CODE
         eligibilityCriteria:
           operator: AND
           rules:
@@ -2265,21 +2280,27 @@ components:
     DataExtractionConfig:
       type: object
       description: |
-        Configuration for extracting data from external APIs and matching documents.
+        Configuration for extracting data from external APIs before document matching.
 
-        **Document Matching Strategies:**
-        - `reference_key`: Direct lookup using a specific field value (e.g., promoCode, disclosureCode)
-        - `conditional`: Evaluate conditions to determine which reference key to use
+        **What:** Defines which fields to extract and from which API endpoints.
 
-        **Reference Key Types:** ACCOUNT_ID, APPLICANT_ID, DOCUMENT_VERSION, DISCLOSURE_CODE,
-        NOTICE_ID, OFFER_CODE, PROMO_CODE, CAMPAIGN_CODE, KIT_VERSION
+        **Why:** Templates may need contextual data (e.g., zipcode, creditScore, accountStatus)
+        that isn't provided in the enquiry request. This config specifies how to fetch that data.
+
+        **How:**
+        1. `fieldsToExtract` lists the fields needed
+        2. `fieldSources` maps each field to its API source and JSONPath
+        3. `dataSources` defines the API endpoints
+        4. During enquiry, the system calls these APIs and extracts the values
+
+        **Note:** This is separate from `documentMatchingConfig` which defines HOW to query documents.
       properties:
         fieldsToExtract:
           type: array
           description: List of field names to extract from API responses
           items:
             type: string
-          example: ["zipcode", "accountType", "creditScore"]
+          example: ["zipcode", "creditScore", "accountStatus"]
         fieldSources:
           type: object
           description: Configuration for each field specifying where and how to extract it
@@ -2292,16 +2313,19 @@ components:
             $ref: '#/components/schemas/DataSourceConfig'
         executionStrategy:
           type: object
+          description: How to execute multiple API calls
           properties:
             mode:
               type: string
               enum: [sequential, parallel]
               default: sequential
-        documentMatching:
-          $ref: '#/components/schemas/DocumentMatchingConfig'
+              description: |
+                - `sequential`: Call APIs one after another (use when APIs depend on each other)
+                - `parallel`: Call APIs concurrently (faster, use when APIs are independent)
       example:
         fieldsToExtract:
           - zipcode
+          - creditScore
         fieldSources:
           zipcode:
             description: "Customer zipcode from address"
@@ -2310,9 +2334,16 @@ components:
             requiredInputs:
               - customerId
             fieldType: string
+          creditScore:
+            description: "Customer credit score"
+            sourceApi: creditApi
+            extractionPath: "$.creditProfile.score"
+            requiredInputs:
+              - customerId
+            fieldType: number
         dataSources:
           customerApi:
-            description: "Fetch customer address to get zipcode"
+            description: "Fetch customer profile including address"
             endpoint:
               url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
               method: GET
@@ -2323,10 +2354,14 @@ components:
               enabled: true
               ttlSeconds: 3600
               keyPattern: "customer:${customerId}"
-        documentMatching:
-          matchBy: reference_key
-          matchMode: auto_discover
-          referenceKeyType: PROMO_CODE
+          creditApi:
+            description: "Fetch customer credit profile"
+            endpoint:
+              url: "http://localhost:8080/api/v1/mock-api/credit/${customerId}"
+              method: GET
+              timeout: 3000
+        executionStrategy:
+          mode: parallel
 
     FieldSourceConfig:
       type: object
@@ -2406,14 +2441,24 @@ components:
       description: |
         Configuration for how documents are matched/queried from storage.
 
+        **What:** Defines the strategy for finding documents that match the enquiry criteria.
+
+        **Why:** Different document types require different matching strategies:
+        - Some documents are looked up by a specific key (e.g., disclosure code)
+        - Some are discovered based on eligibility rules (e.g., promotional offers)
+        - Some use conditional logic to determine which document applies
+
         **Match Strategies (matchBy):**
         - `reference_key`: Use a single field value to query documents
         - `conditional`: Evaluate conditions to select the appropriate reference key
 
         **Match Modes (matchMode) for reference_key matching:**
-        - `direct`: Use referenceKey directly from the enquiry request
-        - `extracted`: Use referenceKeyField from extracted API data (default)
-        - `auto_discover`: Query by referenceKeyType only, check eligibility, return latest valid document
+
+        | Mode | Description | Use Case |
+        |------|-------------|----------|
+        | `direct` | Client provides referenceKey in request | Client knows exact document key |
+        | `extracted` | Value from extractedData via referenceKeyField | Key comes from API call |
+        | `auto_discover` | Query by type only, return latest valid doc | Find applicable docs automatically |
       properties:
         matchBy:
           type: string
@@ -2439,13 +2484,51 @@ components:
           enum: [ACCOUNT_ID, APPLICANT_ID, DOCUMENT_VERSION, DISCLOSURE_CODE, NOTICE_ID, OFFER_CODE, PROMO_CODE, CAMPAIGN_CODE, KIT_VERSION]
         conditions:
           type: array
-          description: For conditional matching - list of conditions to evaluate
+          description: For conditional matching - list of conditions to evaluate in order (first match wins)
           items:
             $ref: '#/components/schemas/MatchCondition'
-      example:
-        matchBy: reference_key
-        matchMode: auto_discover
-        referenceKeyType: PROMO_CODE
+      examples:
+        direct_mode:
+          summary: Direct mode - client provides key
+          description: Use when the client knows the exact reference key
+          value:
+            matchBy: reference_key
+            matchMode: direct
+            referenceKeyType: DISCLOSURE_CODE
+        extracted_mode:
+          summary: Extracted mode - key from API
+          description: Use when the reference key must be fetched from an external API
+          value:
+            matchBy: reference_key
+            matchMode: extracted
+            referenceKeyField: disclosureCode
+            referenceKeyType: DISCLOSURE_CODE
+        auto_discover_mode:
+          summary: Auto-discover mode - find applicable docs
+          description: Use for promotional offers or documents that should be auto-discovered based on eligibility
+          value:
+            matchBy: reference_key
+            matchMode: auto_discover
+            referenceKeyType: PROMO_CODE
+        conditional_mode:
+          summary: Conditional mode - select key based on rules
+          description: Use when different documents apply based on customer attributes (e.g., credit tiers)
+          value:
+            matchBy: conditional
+            referenceKeyType: CREDIT_TIER
+            conditions:
+              - field: creditScore
+                operator: ">="
+                value: 750
+                referenceKey: "TIER1_PREMIUM"
+              - field: creditScore
+                operator: ">="
+                value: 650
+                referenceKey: "TIER2_STANDARD"
+              - field: creditScore
+                operator: ">="
+                value: 0
+                referenceKey: "TIER3_BASIC"
 
     MatchCondition:
       type: object
@@ -2476,32 +2559,99 @@ components:
       description: |
         Rules for determining if a customer/account is eligible to receive a document.
 
-        **Use Cases:**
+        **What:** Defines rules that must pass for a document to be returned in enquiry results.
+
+        **Why:** Enables targeted document delivery based on customer attributes:
         - Geographic targeting (zipcode-based promotions)
         - Account type restrictions (credit card vs savings)
         - Credit tier-based offers
+        - Customer segment targeting (VIP, standard)
         - Time-based eligibility (account age, enrollment date)
 
-        **Evaluation:** Rules are combined using the specified operator (AND/OR).
-        If eligibility fails, the document is not returned in enquiry results.
+        **How:**
+        1. Rules are evaluated against extracted data and account metadata
+        2. Rules are combined using the specified operator (AND/OR)
+        3. If eligibility fails, the document is NOT returned in enquiry results
+        4. If no eligibility criteria defined, document is always eligible
+
+        **Field Sources:** Rule fields can reference:
+        - Extracted data from `dataExtractionConfig` (e.g., zipcode, creditScore)
+        - Account metadata (accountType, lineOfBusiness, region, state)
+        - Request context (customerId, accountId)
       properties:
         operator:
           type: string
           enum: [AND, OR]
-          description: Logical operator to combine rules
+          default: AND
+          description: |
+            Logical operator to combine rules:
+            - `AND`: All rules must pass (default)
+            - `OR`: At least one rule must pass
         rules:
           type: array
           items:
             $ref: '#/components/schemas/EligibilityRule'
-      example:
-        operator: AND
-        rules:
-          - field: zipcode
-            operator: IN
-            value: ["94102", "94103", "94104", "94105", "94107"]
-          - field: accountType
-            operator: EQUALS
-            value: credit_card
+      examples:
+        geographic_targeting:
+          summary: Bay Area zipcode targeting
+          description: Only show document to customers in San Francisco Bay Area
+          value:
+            operator: AND
+            rules:
+              - field: zipcode
+                operator: IN
+                value: ["94102", "94103", "94104", "94105", "94107", "94108", "94109", "94110", "94111", "94112"]
+        credit_tier_eligibility:
+          summary: Premium credit tier only
+          description: Only show to customers with excellent credit
+          value:
+            operator: AND
+            rules:
+              - field: creditScore
+                operator: GREATER_THAN_OR_EQUAL
+                value: 750
+              - field: accountType
+                operator: EQUALS
+                value: credit_card
+        vip_or_high_balance:
+          summary: VIP customers OR high balance
+          description: Show to VIP segment or customers with high balance (using OR)
+          value:
+            operator: OR
+            rules:
+              - field: customerSegment
+                operator: EQUALS
+                value: VIP
+              - field: accountBalance
+                operator: GREATER_THAN
+                value: 100000
+        region_exclusion:
+          summary: Exclude certain states
+          description: Show to all customers except those in excluded states
+          value:
+            operator: AND
+            rules:
+              - field: state
+                operator: NOT_IN
+                value: ["NY", "NJ", "CT"]
+        combined_criteria:
+          summary: Complex eligibility rules
+          description: Multiple criteria for targeted promotion
+          value:
+            operator: AND
+            rules:
+              - field: zipcode
+                operator: IN
+                value: ["94102", "94103", "94104"]
+              - field: accountType
+                operator: EQUALS
+                value: credit_card
+              - field: creditScore
+                operator: GREATER_THAN_OR_EQUAL
+                value: 680
+              - field: accountTenureMonths
+                operator: GREATER_THAN
+                value: 12
 
     EligibilityRule:
       type: object
