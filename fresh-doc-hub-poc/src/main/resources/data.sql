@@ -3025,7 +3025,7 @@ INSERT INTO document_hub.storage_index (
     created_by,
     created_timestamp
 ) VALUES (
-    'a0000000-0000-0000-0000-000000000010b',
+    'a0000000-0000-0000-0000-00000000010b',
     '77777777-7777-7777-7777-777777777777',
     1,
     'PromoOffer',
@@ -3033,7 +3033,7 @@ INSERT INTO document_hub.storage_index (
     'PROMO-BAYAREA-2025',
     'PROMO_CODE',
     'ecms',
-    'b0000000-0000-0000-0000-000000000010b',
+    'b0000000-0000-0000-0000-00000000010b',
     'Bay_Area_Exclusive_Offer_2025.pdf',
     1735689600000,
     true,

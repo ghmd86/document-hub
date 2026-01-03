@@ -1,7 +1,7 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
-import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dao.StorageIndexCriteriaDao;
 import com.documenthub.dto.DocumentQueryParamsDto;
 import com.documenthub.dto.MasterTemplateDto;
 import com.documenthub.dto.StorageIndexDto;
@@ -16,18 +16,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Service for document matching logic.
  * Handles reference key and conditional matching.
+ *
+ * Uses Criteria API via StorageIndexCriteriaDao for dynamic query building.
  */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class DocumentMatchingService {
 
-    private final StorageIndexDao storageIndexDao;
+    private final StorageIndexCriteriaDao criteriaDao;
     private final DocumentValidityService validityService;
     private final ReferenceKeyConfig referenceKeyConfig;
     private final ObjectMapper objectMapper;
@@ -58,7 +59,7 @@ public class DocumentMatchingService {
             JsonNode matchingNode = objectMapper.readTree(params.getTemplate().getDocumentMatchingConfig());
             if (!matchingNode.has("matchBy")) {
                 log.info("  No matchBy field in document_matching_config");
-                return queryBySharedFlag(params, null);
+                return queryBySharedFlag(params);
             }
             return executeMatching(matchingNode.get("matchBy").asText(), matchingNode, params);
         } catch (Exception e) {
@@ -143,18 +144,10 @@ public class DocumentMatchingService {
     private Mono<List<StorageIndexDto>> queryByAutoDiscover(
             DocumentQueryParamsDto params, String referenceKeyType) {
 
-        MasterTemplateDto template = params.getTemplate();
-
         log.info("AUTO-DISCOVER: type='{}', template='{}'",
-                referenceKeyType, template.getTemplateType());
+                referenceKeyType, params.getTemplate().getTemplateType());
 
-        return storageIndexDao.findByReferenceKeyTypeAndTemplateWithDateRange(
-                referenceKeyType,
-                template.getTemplateType(),
-                template.getTemplateVersion(),
-                params.getPostedFromDate(),
-                params.getPostedToDate(),
-                System.currentTimeMillis())
+        return criteriaDao.findByReferenceKeyType(referenceKeyType, params)
             .collectList()
             .map(validityService::filterByValidity)
             .map(this::keepLatestOnly)
@@ -243,42 +236,33 @@ public class DocumentMatchingService {
 
     private Mono<List<StorageIndexDto>> executeReferenceKeyQuery(
             String referenceKey, String referenceKeyType, DocumentQueryParamsDto params) {
-        MasterTemplateDto template = params.getTemplate();
-        return storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                referenceKey, referenceKeyType,
-                template.getTemplateType(), template.getTemplateVersion(),
-                params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
+
+        return criteriaDao.findByReferenceKey(referenceKey, referenceKeyType, params)
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.info("Found {} valid documents", docs.size()));
     }
 
     private Mono<List<StorageIndexDto>> queryStandardDocuments(DocumentQueryParamsDto params) {
-        return queryBySharedFlag(params, params.getAccountId());
+        return queryBySharedFlag(params);
     }
 
-    private Mono<List<StorageIndexDto>> queryBySharedFlag(DocumentQueryParamsDto params, UUID accountId) {
+    private Mono<List<StorageIndexDto>> queryBySharedFlag(DocumentQueryParamsDto params) {
         if (Boolean.TRUE.equals(params.getTemplate().getSharedDocumentFlag())) {
             return querySharedDocuments(params);
         }
-        return queryAccountDocuments(params, accountId);
+        return queryAccountDocuments(params);
     }
 
     private Mono<List<StorageIndexDto>> querySharedDocuments(DocumentQueryParamsDto params) {
-        MasterTemplateDto template = params.getTemplate();
-        return storageIndexDao.findSharedDocumentsWithDateRange(
-                template.getTemplateType(), template.getTemplateVersion(),
-                params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
+        return criteriaDao.findSharedDocuments(params)
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.debug("Found {} shared documents", docs.size()));
     }
 
-    private Mono<List<StorageIndexDto>> queryAccountDocuments(DocumentQueryParamsDto params, UUID accountId) {
-        MasterTemplateDto template = params.getTemplate();
-        return storageIndexDao.findAccountSpecificDocumentsWithDateRange(
-                accountId, template.getTemplateType(), template.getTemplateVersion(),
-                params.getPostedFromDate(), params.getPostedToDate(), System.currentTimeMillis())
+    private Mono<List<StorageIndexDto>> queryAccountDocuments(DocumentQueryParamsDto params) {
+        return criteriaDao.findAccountDocuments(params)
                 .collectList()
                 .map(validityService::filterByValidity)
                 .doOnNext(docs -> log.debug("Found {} account documents", docs.size()));

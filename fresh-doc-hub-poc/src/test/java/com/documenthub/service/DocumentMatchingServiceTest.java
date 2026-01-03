@@ -1,7 +1,7 @@
 package com.documenthub.service;
 
 import com.documenthub.config.ReferenceKeyConfig;
-import com.documenthub.dao.StorageIndexDao;
+import com.documenthub.dao.StorageIndexCriteriaDao;
 import com.documenthub.dto.DocumentQueryParamsDto;
 import com.documenthub.dto.MasterTemplateDto;
 import com.documenthub.dto.StorageIndexDto;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 public class DocumentMatchingServiceTest {
 
     @Mock
-    private StorageIndexDao storageIndexDao;
+    private StorageIndexCriteriaDao criteriaDao;
 
     @Mock
     private DocumentValidityService validityService;
@@ -44,7 +44,7 @@ public class DocumentMatchingServiceTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         documentMatchingService = new DocumentMatchingService(
-                storageIndexDao, validityService, referenceKeyConfig, objectMapper);
+                criteriaDao, validityService, referenceKeyConfig, objectMapper);
         // Default: allow all reference key types in tests
         when(referenceKeyConfig.isValid(anyString())).thenReturn(true);
     }
@@ -64,8 +64,7 @@ public class DocumentMatchingServiceTest {
             UUID accountId = UUID.randomUUID();
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findAccountSpecificDocumentsWithDateRange(
-                    any(), anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findAccountDocuments(any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -79,8 +78,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageIndexDao).findAccountSpecificDocumentsWithDateRange(
-                    eq(accountId), eq("TestTemplate"), any(), any(), any(), anyLong());
+            verify(criteriaDao).findAccountDocuments(any(DocumentQueryParamsDto.class));
         }
 
         @Test
@@ -93,8 +91,7 @@ public class DocumentMatchingServiceTest {
 
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findSharedDocumentsWithDateRange(
-                    anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findSharedDocuments(any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -108,8 +105,7 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageIndexDao).findSharedDocumentsWithDateRange(
-                    eq("TestTemplate"), any(), any(), any(), anyLong());
+            verify(criteriaDao).findSharedDocuments(any(DocumentQueryParamsDto.class));
         }
     }
 
@@ -131,8 +127,7 @@ public class DocumentMatchingServiceTest {
 
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                    anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -146,9 +141,8 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
-                    eq("DISC-001"), eq("DISCLOSURE"), eq("TestTemplate"),
-                    any(), any(), any(), anyLong());
+            verify(criteriaDao).findByReferenceKey(
+                    eq("DISC-001"), eq("DISCLOSURE"), any(DocumentQueryParamsDto.class));
         }
 
         @Test
@@ -195,8 +189,7 @@ public class DocumentMatchingServiceTest {
 
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                    anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -210,8 +203,8 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
-                    eq("PREMIUM"), eq("TIER"), anyString(), any(), any(), any(), anyLong());
+            verify(criteriaDao).findByReferenceKey(
+                    eq("PREMIUM"), eq("TIER"), any(DocumentQueryParamsDto.class));
         }
 
         @Test
@@ -231,8 +224,7 @@ public class DocumentMatchingServiceTest {
 
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                    anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -246,8 +238,8 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
-                    eq("STANDARD"), eq("TIER"), anyString(), any(), any(), any(), anyLong());
+            verify(criteriaDao).findByReferenceKey(
+                    eq("STANDARD"), eq("TIER"), any(DocumentQueryParamsDto.class));
         }
 
         @Test
@@ -291,8 +283,7 @@ public class DocumentMatchingServiceTest {
 
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                    anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -306,8 +297,8 @@ public class DocumentMatchingServiceTest {
                     .expectNextMatches(list -> list.size() == 1)
                     .verifyComplete();
 
-            verify(storageIndexDao).findByReferenceKeyAndTemplateWithDateRange(
-                    eq("CA-DOC"), eq("STATE_DOC"), anyString(), any(), any(), any(), anyLong());
+            verify(criteriaDao).findByReferenceKey(
+                    eq("CA-DOC"), eq("STATE_DOC"), any(DocumentQueryParamsDto.class));
         }
 
         @Test
@@ -326,8 +317,7 @@ public class DocumentMatchingServiceTest {
 
             List<StorageIndexDto> documents = Arrays.asList(createStorageEntity());
 
-            when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                    anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+            when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                     .thenReturn(Flux.fromIterable(documents));
             when(validityService.filterByValidity(any()))
                     .thenReturn(documents);
@@ -369,8 +359,7 @@ public class DocumentMatchingServiceTest {
             extractedData.put("score", value);
 
             if (shouldMatch) {
-                when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                        anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+                when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                         .thenReturn(Flux.just(createStorageEntity()));
                 when(validityService.filterByValidity(any()))
                         .thenReturn(Arrays.asList(createStorageEntity()));
@@ -406,8 +395,7 @@ public class DocumentMatchingServiceTest {
             extractedData.put("text", value);
 
             if (shouldMatch) {
-                when(storageIndexDao.findByReferenceKeyAndTemplateWithDateRange(
-                        anyString(), anyString(), anyString(), any(), any(), any(), anyLong()))
+                when(criteriaDao.findByReferenceKey(anyString(), anyString(), any(DocumentQueryParamsDto.class)))
                         .thenReturn(Flux.just(createStorageEntity()));
                 when(validityService.filterByValidity(any()))
                         .thenReturn(Arrays.asList(createStorageEntity()));
