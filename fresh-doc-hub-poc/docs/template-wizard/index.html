@@ -966,6 +966,42 @@
                     </div>
                 </div>
 
+                <!-- Document Settings Section -->
+                <div class="section-divider" style="margin-top: 24px;"><span>Document Settings</span></div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Communication Type</label>
+                        <select id="communicationType">
+                            <option value="LETTER" selected>Letter</option>
+                            <option value="EMAIL">Email</option>
+                            <option value="SMS">SMS</option>
+                            <option value="PUSH">Push Notification</option>
+                            <option value="FAX">Fax</option>
+                        </select>
+                        <small style="color: #718096;">How this document is delivered</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Workflow</label>
+                        <select id="workflow">
+                            <option value="">None</option>
+                            <option value="APPROVAL">Approval Required</option>
+                            <option value="REVIEW">Review Only</option>
+                            <option value="AUTO">Auto-process</option>
+                        </select>
+                        <small style="color: #718096;">Processing workflow for this template</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="singleDocumentFlag" style="width: auto;">
+                            Single Document
+                        </label>
+                        <small style="color: #718096;">Only one document per account/customer?</small>
+                    </div>
+                </div>
+
                 <!-- Legacy Information Section -->
                 <div class="section-divider" style="margin-top: 24px;"><span>Legacy Information (Optional)</span></div>
 
@@ -1401,6 +1437,22 @@
                         <span class="review-label">Status:</span>
                         <span class="review-value" id="reviewStatus">-</span>
                     </div>
+                    <div class="review-item">
+                        <span class="review-label">Communication:</span>
+                        <span class="review-value" id="reviewCommunicationType">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Workflow:</span>
+                        <span class="review-value" id="reviewWorkflow">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Single Document:</span>
+                        <span class="review-value" id="reviewSingleDoc">-</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-label">Document Matching:</span>
+                        <span class="review-value" id="reviewDocMatching">-</span>
+                    </div>
                 </div>
 
                 <div class="review-section" id="reviewLegacySection" style="display: none;">
@@ -1489,6 +1541,10 @@
             regulatoryFlag: false,
             notificationNeeded: false,
             messageCenterDocFlag: true,
+            // New columns
+            communicationType: 'LETTER',
+            singleDocumentFlag: false,
+            workflow: '',
             // Legacy fields
             legacyTemplateId: '',
             legacyTemplateName: '',
@@ -2142,6 +2198,10 @@
                 templateData.regulatoryFlag = document.getElementById('regulatoryFlag').checked;
                 templateData.notificationNeeded = document.getElementById('notificationNeeded').checked;
                 templateData.messageCenterDocFlag = document.getElementById('messageCenterDocFlag').checked;
+                // Document settings
+                templateData.communicationType = document.getElementById('communicationType').value;
+                templateData.workflow = document.getElementById('workflow').value;
+                templateData.singleDocumentFlag = document.getElementById('singleDocumentFlag').checked;
                 // Legacy fields
                 templateData.legacyTemplateId = document.getElementById('legacyTemplateId').value.trim();
                 templateData.legacyTemplateName = document.getElementById('legacyTemplateName').value.trim();
@@ -2449,6 +2509,31 @@
             if (templateData.messageCenterDocFlag) flagParts.push('<span style="color: #38a169;">● Message Center</span>');
             document.getElementById('reviewFlags').innerHTML = flagParts.length > 0 ? flagParts.join(' &nbsp; ') : 'None';
 
+            // Document Settings
+            const commTypeLabels = {
+                'LETTER': 'Letter',
+                'EMAIL': 'Email',
+                'SMS': 'SMS',
+                'PUSH': 'Push Notification',
+                'FAX': 'Fax'
+            };
+            document.getElementById('reviewCommunicationType').textContent = commTypeLabels[templateData.communicationType] || templateData.communicationType || 'Letter';
+            document.getElementById('reviewWorkflow').textContent = templateData.workflow || 'None';
+            document.getElementById('reviewSingleDoc').textContent = templateData.singleDocumentFlag ? 'Yes' : 'No';
+
+            // Document Matching Config
+            let docMatchingText = 'Not configured';
+            if (templateData.referenceKeyType) {
+                docMatchingText = `Match by: reference_key (${templateData.referenceKeyType})`;
+            } else if (templateData.ownership === 'account') {
+                docMatchingText = 'Match by: account_key';
+            } else if (templateData.ownership === 'customer') {
+                docMatchingText = 'Match by: customer_key';
+            } else if (templateData.ownership === 'shared') {
+                docMatchingText = 'Shared document (no matching)';
+            }
+            document.getElementById('reviewDocMatching').textContent = docMatchingText;
+
             // Legacy Information
             if (templateData.legacyTemplateId || templateData.legacyTemplateName || templateData.templateTypeOld) {
                 document.getElementById('reviewLegacySection').style.display = 'block';
@@ -2524,6 +2609,20 @@
                 templateConfig.api_endpoint = api.endpoint;
             }
 
+            // Build document_matching_config from reference key settings
+            let documentMatchingConfig = null;
+            if (templateData.referenceKeyType) {
+                documentMatchingConfig = {
+                    matchBy: 'reference_key',
+                    referenceKeyType: templateData.referenceKeyType,
+                    referenceKeySource: templateData.referenceKeySource
+                };
+            } else if (templateData.ownership === 'account') {
+                documentMatchingConfig = { matchBy: 'account_key' };
+            } else if (templateData.ownership === 'customer') {
+                documentMatchingConfig = { matchBy: 'customer_key' };
+            }
+
             const config = {
                 template_type: templateType,
                 template_version: templateData.templateVersion,
@@ -2536,6 +2635,9 @@
                 active_flag: templateData.activeFlag,
                 shared_document_flag: templateData.ownership === 'shared',
                 sharing_scope: templateData.sharingScope,
+                single_document_flag: templateData.singleDocumentFlag || false,
+                communication_type: templateData.communicationType || 'LETTER',
+                workflow: templateData.workflow || null,
                 start_date: templateData.startDate || null,
                 end_date: templateData.endDate || null,
                 owning_dept: templateData.owningDept || null,
@@ -2555,6 +2657,7 @@
                     }))
                 },
                 template_config: templateConfig,
+                document_matching_config: documentMatchingConfig,
                 eligibility_criteria: null
             };
 
@@ -2646,6 +2749,12 @@ ${config.api_spec_source.selected_fields.map(f => `--   - ${f.name}: ${f.path}`)
                 eligibilityCriteria = `'${JSON.stringify(criteria).replace(/'/g, "''")}'`;
             }
 
+            // Build document_matching_config
+            let documentMatchingConfig = 'NULL';
+            if (config.document_matching_config) {
+                documentMatchingConfig = `'${JSON.stringify(config.document_matching_config).replace(/'/g, "''")}'`;
+            }
+
             const sql = `-- Generated Template SQL
 -- Template: ${templateData.name}
 -- Generated: ${new Date().toISOString()}
@@ -2666,10 +2775,14 @@ INSERT INTO document_hub.master_template_definition (
     active_flag,
     shared_document_flag,
     sharing_scope,
+    single_document_flag,
+    communication_type,
+    workflow,
     start_date,
     end_date,
     data_extraction_config,
     template_config,
+    document_matching_config,
     eligibility_criteria,
     owning_dept,
     regulatory_flag,
@@ -2694,10 +2807,14 @@ INSERT INTO document_hub.master_template_definition (
     ${templateData.activeFlag},
     ${templateData.ownership === 'shared'},
     '${templateData.sharingScope}',
+    ${templateData.singleDocumentFlag || false},
+    '${templateData.communicationType || 'LETTER'}',
+    ${templateData.workflow ? `'${templateData.workflow}'` : 'NULL'},
     ${startDateEpoch},
     ${endDateEpoch},
     '${JSON.stringify(config.data_extraction_config).replace(/'/g, "''")}',
     '${JSON.stringify(templateConfig).replace(/'/g, "''")}',
+    ${documentMatchingConfig},
     ${eligibilityCriteria},
     ${templateData.owningDept ? `'${templateData.owningDept.replace(/'/g, "''")}'` : 'NULL'},
     ${templateData.regulatoryFlag},
