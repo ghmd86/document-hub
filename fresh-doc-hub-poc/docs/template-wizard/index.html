@@ -2081,6 +2081,45 @@
                     alert('Please select a line of business.');
                     return false;
                 }
+            } else if (currentStep === 3) {
+                // Validate that required fields for the category are checked
+                const category = document.getElementById('templateCategory').value || 'Other';
+                const fields = fieldsByCategory[category] || fieldsByCategory['Other'];
+                const requiredFields = fields.filter(f => f.required);
+
+                for (const field of requiredFields) {
+                    const checkbox = document.querySelector(`.field-item input[data-name="${field.name}"]`);
+                    if (checkbox && !checkbox.checked) {
+                        alert(`Required field "${field.label}" must be selected for ${category} documents.`);
+                        return false;
+                    }
+                }
+
+                // Validate reference key configuration
+                const refKeyType = document.getElementById('referenceKeyType').value;
+                if (refKeyType && refKeyType !== '') {
+                    const refSource = document.querySelector('input[name="refKeySource"]:checked');
+                    if (!refSource) {
+                        alert('Please select where the reference key comes from.');
+                        return false;
+                    }
+                }
+            } else if (currentStep === 5) {
+                // Validate conditional access has at least one rule
+                const ownership = document.querySelector('input[name="ownership"]:checked')?.value;
+                if (ownership === 'conditional') {
+                    const hasRules = Array.from(document.querySelectorAll('.rule-row')).some(row => {
+                        const field = row.querySelector('.rule-field')?.value;
+                        const operator = row.querySelector('.rule-operator')?.value;
+                        const value = row.querySelector('.rule-value')?.value;
+                        return field && operator && value;
+                    });
+
+                    if (!hasRules) {
+                        alert('Conditional Access requires at least one access rule. Please add a condition or select a different ownership type.');
+                        return false;
+                    }
+                }
             }
             return true;
         }
@@ -2479,10 +2518,16 @@
                 };
             }
 
+            // Add API endpoint to template_config if available
+            if (api && api.endpoint) {
+                templateConfig.api_endpoint = api.endpoint;
+            }
+
             const config = {
                 template_type: templateType,
                 template_version: templateData.templateVersion,
-                template_name: templateData.name,
+                template_name: templateType,
+                display_name: templateData.name,
                 template_description: templateData.description,
                 template_category: templateData.category,
                 line_of_business: templateData.lineOfBusiness,
@@ -2492,7 +2537,6 @@
                 sharing_scope: templateData.sharingScope,
                 start_date: templateData.startDate || null,
                 end_date: templateData.endDate || null,
-                accessible_flag: templateData.accessibleFlag,
                 owning_dept: templateData.owningDept || null,
                 regulatory_flag: templateData.regulatoryFlag,
                 notification_needed: templateData.notificationNeeded,
@@ -2501,7 +2545,6 @@
                 legacy_template_id: templateData.legacyTemplateId || null,
                 legacy_template_name: templateData.legacyTemplateName || null,
                 template_type_old: templateData.templateTypeOld || null,
-                mock_api_url: api?.endpoint || null,
                 data_extraction_config: {
                     fields: templateData.fields.map(f => ({
                         name: f.name,
@@ -2510,11 +2553,13 @@
                         label: f.label
                     }))
                 },
-                template_config: templateConfig
+                template_config: templateConfig,
+                eligibility_criteria: null
             };
 
+            // Build eligibility_criteria separately (stored in its own column)
             if (templateData.rules.length > 0 && api) {
-                config.template_config.eligibility_criteria = templateData.rules.map(r => {
+                config.eligibility_criteria = templateData.rules.map(r => {
                     const rule = {
                         field: r.field,
                         source: 'API_CALL',
@@ -2563,6 +2608,12 @@
             // Build template_config with field paths if available
             let templateConfig = config.template_config || {};
 
+            // Add API endpoint to template_config if available
+            const api = predefinedApis[templateData.sourceApi];
+            if (api && api.endpoint) {
+                templateConfig.api_endpoint = api.endpoint;
+            }
+
             // Add API spec source info as a comment
             let apiSourceComment = '';
             if (config.api_spec_source) {
@@ -2581,14 +2632,31 @@ ${config.api_spec_source.selected_fields.map(f => `--   - ${f.name}: ${f.path}`)
                 ? new Date(templateData.endDate).getTime()
                 : 'NULL';
 
+            // Build eligibility_criteria if rules exist
+            let eligibilityCriteria = 'NULL';
+            if (templateData.rules.length > 0 && api) {
+                const criteria = templateData.rules.map(r => ({
+                    field: r.field,
+                    source: 'API_CALL',
+                    operator: r.operator,
+                    values: r.values,
+                    api_endpoint: api.endpoint
+                }));
+                eligibilityCriteria = `'${JSON.stringify(criteria).replace(/'/g, "''")}'`;
+            }
+
             const sql = `-- Generated Template SQL
 -- Template: ${templateData.name}
 -- Generated: ${new Date().toISOString()}
 ${apiSourceComment}
+-- Note: This SQL is generated for master_template_definition table
+-- Columns match the database schema
+
 INSERT INTO document_hub.master_template_definition (
     master_template_id,
     template_version,
     template_name,
+    display_name,
     template_description,
     template_category,
     line_of_business,
@@ -2599,10 +2667,9 @@ INSERT INTO document_hub.master_template_definition (
     sharing_scope,
     start_date,
     end_date,
-    mock_api_url,
     data_extraction_config,
     template_config,
-    accessible_flag,
+    eligibility_criteria,
     owning_dept,
     regulatory_flag,
     notification_needed,
@@ -2616,6 +2683,7 @@ INSERT INTO document_hub.master_template_definition (
 ) VALUES (
     gen_random_uuid(),
     ${templateData.templateVersion},
+    '${templateType}',
     '${templateData.name.replace(/'/g, "''")}',
     '${(templateData.description || '').replace(/'/g, "''")}',
     '${templateData.category}',
@@ -2627,10 +2695,9 @@ INSERT INTO document_hub.master_template_definition (
     '${templateData.sharingScope}',
     ${startDateEpoch},
     ${endDateEpoch},
-    ${config.mock_api_url ? `'${config.mock_api_url}'` : 'NULL'},
     '${JSON.stringify(config.data_extraction_config).replace(/'/g, "''")}',
     '${JSON.stringify(templateConfig).replace(/'/g, "''")}',
-    ${templateData.accessibleFlag},
+    ${eligibilityCriteria},
     ${templateData.owningDept ? `'${templateData.owningDept.replace(/'/g, "''")}'` : 'NULL'},
     ${templateData.regulatoryFlag},
     ${templateData.notificationNeeded},
