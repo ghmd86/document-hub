@@ -8,6 +8,17 @@ An interactive HTML wizard for creating document templates without requiring tec
 2. Follow the 6-step process to create your template
 3. Download the generated SQL or copy the JSON configuration
 
+## Onboarding Process Flow
+
+For a complete view of the end-to-end template onboarding process (from business request to production deployment), see:
+
+**[Onboarding Process Flow](onboarding-process.html)** - Visual documentation showing:
+- 5-phase workflow (Request → Configuration → Technical Setup → Validation → Deployment)
+- Business and IT team responsibilities
+- Typical timeline (6 days)
+- Deliverables and artifacts
+- Interactive checklist with progress tracking
+
 ## Features
 
 ### Step 1: Basic Information
@@ -69,6 +80,7 @@ Manually register a new API with:
 | File | Description |
 |------|-------------|
 | `index.html` | The main wizard application |
+| `onboarding-process.html` | Visual onboarding process flow documentation |
 | `open-wizard.bat` | Windows batch file to open the wizard |
 | `sample-api-spec.json` | Sample OpenAPI 3.0 spec for testing |
 | `README.md` | This documentation file |
