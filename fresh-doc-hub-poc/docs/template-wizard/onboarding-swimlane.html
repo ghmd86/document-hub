@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Onboarding Process - Swimlane Diagram</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .diagram-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .diagram-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 24px 32px;
+            text-align: center;
+        }
+
+        .diagram-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .diagram-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .swimlane-diagram {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .swimlane {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            min-height: 180px;
+        }
+
+        .swimlane:last-child {
+            border-bottom: none;
+        }
+
+        .lane-header {
+            width: 120px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            border-right: 2px solid #e0e0e0;
+        }
+
+        .lane-header.business {
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #2e7d32;
+        }
+
+        .lane-header.it {
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+        }
+
+        .lane-header.shared {
+            background: linear-gradient(180deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #e65100;
+        }
+
+        .lane-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            gap: 0;
+            overflow-x: auto;
+        }
+
+        .process-step {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .step-box {
+            width: 140px;
+            min-height: 80px;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .step-box.start {
+            background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+            color: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            min-height: 70px;
+        }
+
+        .step-box.end {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            color: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            min-height: 70px;
+        }
+
+        .step-box.task {
+            background: white;
+            border: 2px solid #90caf9;
+            color: #1565c0;
+        }
+
+        .step-box.task.business {
+            border-color: #a5d6a7;
+            color: #2e7d32;
+        }
+
+        .step-box.task.it {
+            border-color: #90caf9;
+            color: #1565c0;
+        }
+
+        .step-box.decision {
+            background: #fff9c4;
+            border: 2px solid #ffc107;
+            color: #f57f17;
+            transform: rotate(45deg);
+            width: 80px;
+            height: 80px;
+            min-height: 80px;
+            border-radius: 4px;
+        }
+
+        .step-box.decision .step-content {
+            transform: rotate(-45deg);
+        }
+
+        .step-box.subprocess {
+            background: white;
+            border: 2px solid #ce93d8;
+            color: #7b1fa2;
+            border-left: 8px solid #ce93d8;
+            border-right: 8px solid #ce93d8;
+        }
+
+        .step-box.document {
+            background: white;
+            border: 2px solid #90caf9;
+            color: #1565c0;
+            border-radius: 4px 4px 20px 20px;
+        }
+
+        .step-icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .step-label {
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .arrow {
+            width: 50px;
+            height: 2px;
+            background: #90a4ae;
+            position: relative;
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            border: 5px solid transparent;
+            border-left: 8px solid #90a4ae;
+        }
+
+        .arrow.down {
+            width: 2px;
+            height: 40px;
+            margin: 5px 0;
+        }
+
+        .arrow.down::after {
+            right: -4px;
+            top: auto;
+            bottom: -1px;
+            border: 5px solid transparent;
+            border-top: 8px solid #90a4ae;
+        }
+
+        .arrow.yes {
+            background: #4caf50;
+        }
+
+        .arrow.yes::after {
+            border-left-color: #4caf50;
+        }
+
+        .arrow.no {
+            background: #f44336;
+        }
+
+        .arrow.no::after {
+            border-left-color: #f44336;
+        }
+
+        .arrow-label {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .arrow-label.yes { color: #4caf50; }
+        .arrow-label.no { color: #f44336; }
+
+        .phase-divider {
+            width: 2px;
+            background: #e0e0e0;
+            margin: 0 15px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .phase-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #607d8b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: #fafafa;
+            border-top: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #616161;
+        }
+
+        .legend-shape {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .legend-shape.start-end {
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+        }
+
+        .legend-shape.task {
+            background: white;
+            border: 2px solid #90caf9;
+        }
+
+        .legend-shape.decision {
+            background: #fff9c4;
+            border: 2px solid #ffc107;
+            transform: rotate(45deg);
+            width: 18px;
+            height: 18px;
+        }
+
+        .legend-shape.document {
+            background: white;
+            border: 2px solid #90caf9;
+            border-radius: 2px 2px 8px 8px;
+        }
+
+        .legend-shape.subprocess {
+            background: white;
+            border: 2px solid #ce93d8;
+            border-left-width: 5px;
+            border-right-width: 5px;
+        }
+
+        .timeline-section {
+            padding: 20px 32px;
+            background: #fafafa;
+        }
+
+        .timeline-section h3 {
+            font-size: 14px;
+            color: #616161;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-bar {
+            display: flex;
+            height: 30px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timeline-phase {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .timeline-phase.p1 { background: #4caf50; flex: 1; }
+        .timeline-phase.p2 { background: #2196f3; flex: 2; }
+        .timeline-phase.p3 { background: #ff9800; flex: 2; }
+        .timeline-phase.p4 { background: #9c27b0; flex: 1; }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #607d8b;
+        }
+
+        .control-btn.secondary:hover {
+            background: #455a64;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .controls {
+                display: none;
+            }
+            .diagram-container {
+                box-shadow: none;
+            }
+        }
+
+        /* Vertical connector for cross-lane flows */
+        .vertical-connector {
+            position: absolute;
+            width: 2px;
+            background: #90a4ae;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <div class="diagram-header">
+            <h1>Template Onboarding Process</h1>
+            <p>Swimlane Diagram - Business and IT Collaboration Workflow</p>
+        </div>
+
+        <div class="swimlane-diagram">
+            <!-- Phase Labels Row -->
+            <div style="display: flex; padding: 15px 0 5px 122px; gap: 0; background: #fafafa; border-bottom: 1px solid #e0e0e0;">
+                <div style="width: 200px; text-align: center;">
+                    <span style="background: #4caf50; color: white; padding: 4px 16px; border-radius: 12px; font-size: 11px; font-weight: 600;">PHASE 1: Request</span>
+                </div>
+                <div style="width: 400px; text-align: center;">
+                    <span style="background: #2196f3; color: white; padding: 4px 16px; border-radius: 12px; font-size: 11px; font-weight: 600;">PHASE 2: Configuration</span>
+                </div>
+                <div style="width: 350px; text-align: center;">
+                    <span style="background: #ff9800; color: white; padding: 4px 16px; border-radius: 12px; font-size: 11px; font-weight: 600;">PHASE 3: Technical Setup</span>
+                </div>
+                <div style="width: 300px; text-align: center;">
+                    <span style="background: #9c27b0; color: white; padding: 4px 16px; border-radius: 12px; font-size: 11px; font-weight: 600;">PHASE 4: Deployment</span>
+                </div>
+            </div>
+
+            <!-- Business Lane -->
+            <div class="swimlane">
+                <div class="lane-header business">Business Team</div>
+                <div class="lane-content">
+                    <!-- Start -->
+                    <div class="process-step">
+                        <div class="step-box start">
+                            <span class="step-label">Start</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Submit Request -->
+                    <div class="process-step">
+                        <div class="step-box task business">
+                            <span class="step-icon">📝</span>
+                            <span class="step-label">Submit Template Request</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Define Requirements -->
+                    <div class="process-step">
+                        <div class="step-box document">
+                            <span class="step-icon">📋</span>
+                            <span class="step-label">Define Requirements</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Use Wizard -->
+                    <div class="process-step">
+                        <div class="step-box subprocess">
+                            <span class="step-icon">🧙</span>
+                            <span class="step-label">Use Template Wizard</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Define Access Rules -->
+                    <div class="process-step">
+                        <div class="step-box task business">
+                            <span class="step-icon">🔐</span>
+                            <span class="step-label">Define Access Rules</span>
+                        </div>
+                    </div>
+
+                    <!-- Spacer for IT activities -->
+                    <div style="width: 400px; flex-shrink: 0;"></div>
+
+                    <!-- UAT -->
+                    <div class="process-step">
+                        <div class="step-box task business">
+                            <span class="step-icon">✅</span>
+                            <span class="step-label">UAT Testing</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- UAT Decision -->
+                    <div class="process-step">
+                        <div class="step-box decision">
+                            <div class="step-content">
+                                <span class="step-label">UAT OK?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spacer -->
+                    <div style="width: 180px; flex-shrink: 0;"></div>
+
+                    <!-- Go-Live Confirmation -->
+                    <div class="process-step">
+                        <div class="step-box task business">
+                            <span class="step-icon">📢</span>
+                            <span class="step-label">Go-Live Confirm</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- End -->
+                    <div class="process-step">
+                        <div class="step-box end">
+                            <span class="step-label">End</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IT Lane -->
+            <div class="swimlane">
+                <div class="lane-header it">IT Team</div>
+                <div class="lane-content">
+                    <!-- Spacer for Business activities -->
+                    <div style="width: 530px; flex-shrink: 0;"></div>
+
+                    <!-- Review Config -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">👁️</span>
+                            <span class="step-label">Review Config</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Config OK Decision -->
+                    <div class="process-step">
+                        <div class="step-box decision">
+                            <div class="step-content">
+                                <span class="step-label">Valid?</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="arrow yes">
+                        <span class="arrow-label yes">Yes</span>
+                    </div>
+
+                    <!-- Insert to DB -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">🗄️</span>
+                            <span class="step-label">Insert to DEV DB</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Integration Test -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">🧪</span>
+                            <span class="step-label">Integration Test</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Load Test Data -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">📊</span>
+                            <span class="step-label">Load Test Data</span>
+                        </div>
+                    </div>
+
+                    <!-- Spacer for UAT -->
+                    <div style="width: 250px; flex-shrink: 0;"></div>
+
+                    <!-- Create Migration -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">📦</span>
+                            <span class="step-label">Create Migration</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Deploy to PROD -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">🚀</span>
+                            <span class="step-label">Deploy to PROD</span>
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <!-- Smoke Test -->
+                    <div class="process-step">
+                        <div class="step-box task it">
+                            <span class="step-icon">📡</span>
+                            <span class="step-label">Smoke Test</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-shape start-end"></div>
+                <span>Start/End</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-shape task"></div>
+                <span>Task/Activity</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-shape decision"></div>
+                <span>Decision</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-shape document"></div>
+                <span>Document</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-shape subprocess"></div>
+                <span>Subprocess</span>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-section">
+            <h3>Typical Timeline</h3>
+            <div class="timeline-bar">
+                <div class="timeline-phase p1">Day 1</div>
+                <div class="timeline-phase p2">Day 2-3</div>
+                <div class="timeline-phase p3">Day 4-5</div>
+                <div class="timeline-phase p4">Day 6</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn secondary" onclick="window.print()">🖨️ Print / PDF</button>
+        <button class="control-btn" onclick="exportAsSVG()">📥 Export SVG</button>
+    </div>
+
+    <script>
+        function exportAsSVG() {
+            // Create a simple export notification
+            alert('To export as SVG/PNG:\n\n1. Print to PDF (Ctrl+P)\n2. Or use browser DevTools to capture\n3. Or use a screenshot tool\n\nFor editable format, import this HTML into Draw.io or Lucidchart.');
+        }
+    </script>
+</body>
+</html>
