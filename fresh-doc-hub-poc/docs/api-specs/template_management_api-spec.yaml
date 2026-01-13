@@ -1,0 +1,1514 @@
+openapi: "3.0.3"
+info:
+  title: Template Management API
+  description: |
+    Template, Template vendor management and versioning system.
+  version: 1.0.1
+
+servers:
+  # Added by API Auto Mocking Plugin
+
+  - description: SwaggerHub API Auto Mocking
+    url: "https://virtserver.swaggerhub.com/CreditOneBank/template-management-service/1.0.1"
+  - url: "https://devapi.creditone.com/private/enterprise/template-management-service/1.0.1"
+    description: Server url
+
+tags:
+  - name: Templates
+    description: Template management and versioning
+
+paths:
+  # ============================================================================
+  # Templates
+  # ============================================================================
+  /templates:
+    post:
+      tags:
+        - Templates
+      summary: Create template
+      description: Create a new document template
+      operationId: createTemplate
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatePageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      tags:
+        - Templates
+      summary: List templates
+      description: Retrieve all templates with optional filtering
+      operationId: listTemplates
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - name: templateType
+          in: query
+          description: Filter by template type
+          schema:
+            type: string
+        - name: templateCategory
+          in: query
+          description: Filter by template category
+          schema:
+            type: string
+        - name: isSharedDocument
+          in: query
+          description: Filter shared templates
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Search in template name and code
+          schema:
+            type: string
+        - name: lineOfBusiness
+          in: query
+          description: Filter templates based on line of business
+          schema:
+            type: string
+        - name: activeFlag
+          in: query
+          description: Filter active templates
+          schema:
+            type: boolean
+        - name: owningDept
+          in: query
+          description: Filter templates based on department
+          schema:
+            type: string
+        - name: communicationType
+          in: query
+          description: Filter templates based on communication Type
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatePageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /templates/{templateId}:
+    get:
+      tags:
+        - Templates
+      summary: Get templates by ID
+      description: Retrieve all versions of a specific template with full details
+      operationId: getTemplatesById
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/templateIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Template retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatePageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /templates/{templateId}/versions/{templateVersion}:
+    get:
+      tags:
+        - Templates
+      summary: Get template with versionId
+      description: Get template with versionId of a master template
+      operationId: getTemplateConfig
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/templateIdParam'
+        - $ref: '#/components/parameters/TemplateVersionParam'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatePageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /templates/{templateId}/version/{templateVersion}:
+    patch:
+      tags:
+        - Templates
+      summary: Update template
+      description: Update an existing template
+      operationId: updateTemplate
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/templateIdParam'
+        - $ref: '#/components/parameters/TemplateVersionParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
+      responses:
+        '200':
+          description: Template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+
+    delete:
+      tags:
+        - Templates
+      summary: Delete template
+      description: Delete a template (soft delete)
+      operationId: deleteTemplate
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/templateIdParam'
+        - $ref: '#/components/parameters/TemplateVersionParam'
+      responses:
+        '204':
+          description: Template deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /templates/vendors:
+    post:
+      tags:
+        - Templates
+      summary: Create template vendor mapping
+      description: Create a Vendor template mapping that indicates a vendor can generate document using this template.
+      operationId: postTemplateVendorMapping
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/TemplateVersionParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateVendorMappingRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVendorPageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags:
+        - Templates
+      summary: Retrieve template vendor mappings
+      description: Retrieve all template vendor mappings with optional filtering.
+      operationId: getTemplateVendorMapping
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/XVendorVersionId'
+        - $ref: '#/components/parameters/templateIdQuery'
+        - name: vendor
+          in: query
+          required: false
+          schema:
+            type: string
+            example: SmartComm | Assentis | Handlebar | LPS
+        - name: isActive
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: isPrimary
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVendorPageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /templates/vendors/{vendorId}:
+    get:
+      tags:
+        - Templates
+      summary: Retrieve template vendor mappings
+      description: Retrieve template vendor mapping by template vendor Id.
+      operationId: getTemplateVendorMappingById
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/TemplateVendorIdParam'
+        - $ref: '#/components/parameters/XVendorVersionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVendorResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      tags:
+        - Templates
+      summary: Update template vendor mapping
+      description: Update a Vendor template mapping that indicates a vendor can generate document using this template.
+      operationId: putTemplateVendorMapping
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/TemplateVendorIdParam'
+        - $ref: '#/components/parameters/XVendorVersionId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateVendorMapping'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVendorResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Templates
+      summary: Delete template vendor mapping
+      description: Delete template vendor mapping by template vendor Id.
+      operationId: deleteTemplateVendorMapping
+      parameters:
+        - $ref: '#/components/parameters/XRequestorIdParam'
+        - $ref: '#/components/parameters/XRequestorTypeParam'
+        - $ref: '#/components/parameters/XCorrelationIdParam'
+        - $ref: '#/components/parameters/XVersionParam'
+        - $ref: '#/components/parameters/TemplateVendorIdParam'
+        - $ref: '#/components/parameters/XVendorVersionId'
+      responses:
+        '204':
+          description: Template vendor mapping deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Unauthorized access to endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+# ==============================================================================
+# Components
+# ==============================================================================
+components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number (zero-based)
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    SizeParam:
+      name: size
+      in: query
+      description: Page size
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    SortParam:
+      name: sort
+      in: query
+      description: Sort order (field,direction)
+      schema:
+        type: string
+        default: created_at,desc
+
+    XVendorVersionId:
+      name: templateVersion
+      in: query
+      description: 'Template version'
+      schema:
+        type: integer
+
+
+    templateIdParam:
+      name: templateId
+      in: path
+      required: true
+      description: Template UUID
+      schema:
+        type: string
+        format: uuid
+
+    TemplateVersionParam:
+      name: templateVersion
+      in: path
+      required: true
+      description: Template version
+      schema:
+        type: integer
+
+    TemplateVersionQueryParam:
+      name: templateVersion
+      in: query
+      required: true
+      description: Template version
+      schema:
+        type: integer
+
+    TemplateVendorIdParam:
+      name: templateVendorId
+      in: path
+      required: true
+      description: Template vendor mapping UUID
+      schema:
+        type: string
+        format: UUID
+
+    XCorrelationIdParam:
+      name: X-correlation-Id
+      in: header
+      description: Correlation Id
+      required: true
+      deprecated: false
+      style: simple
+      explode: false
+      schema:
+        type: string
+
+    XRequestorIdParam:
+      name: X-requestor-Id
+      in: header
+      description: Requestor Id
+      required: false
+      deprecated: false
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: UUID
+
+    XRequestorTypeParam:
+      name: X-requestor-type
+      in: header
+      description: Requestor Type
+      required: false
+      deprecated: false
+      style: simple
+      explode: false
+      schema:
+        enum:
+          - AGENT
+          - SYSTEM
+    XVersionParam:
+      name: X-version
+      in: header
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+
+    templateIdQuery:
+      name: templateId
+      in: query
+      required: false
+      description: Template UUID
+      schema:
+        type: string
+        format: uuid
+
+
+
+  schemas:
+    # ========================================================================
+    # Template Schemas
+    # ========================================================================
+    TemplateRequest:
+      allOf:
+        - type: object
+          properties:
+            templateId:
+              type: string
+              format: UUID
+              description: 'Unique identifier of the master template.'
+              example: '550e8400-e29b-41d4-a716-446655440000'
+        - $ref: '#/components/schemas/TemplateLegacyDetails'
+        - $ref: '#/components/schemas/Template'
+
+    TemplateResponse:
+      allOf:
+        - type: object
+          required:
+            - templateId
+            - templateVersion
+          properties:
+            templateId:
+              type: string
+              format: UUID
+            templateVersion:
+              type: integer
+        - $ref: '#/components/schemas/TemplateLegacyDetails'
+        - $ref: '#/components/schemas/Template'
+
+    TemplatePageResponse:
+      type: object
+      properties:
+        templateList:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateResponse'
+        pagination:
+          $ref: "https://api.swaggerhub.com/domains/CreditOneBank/enterprise_core_responses/0.0.1#/components/schemas/PaginationResponse"
+          description: "Pagination metadata for the document list.\nUses enterprise PaginationResponse schema.\n"
+          example:
+            pageSize: 10
+            totalItems: 100
+            totalPages: 10
+            pageNumber: 2
+
+    TemplateLegacyDetails:
+      type: object
+      properties:
+        legacyTemplateId:
+          type: string
+          description: 'Template ID from the legacy system.'
+          example: 'LT-78945'
+        legacyTemplateName:
+          type: string
+          description: 'Template name used in the legacy system.'
+          example: 'Customer_KYC_Document_Template'
+
+    Template:
+      type: object
+      required:
+        - templateType
+        - lineOfBusiness
+        - displayName
+        - startDate
+      properties:
+        displayName:
+          type: string
+          description: 'Name of the document displayed in UI'
+          example: 'Customer KYC Document'
+        templateName:
+          type: string
+          description: 'Template name used in the legacy system.'
+          example: 'CUSTOMER_KYC_TEMPLATE'
+        templateDescription:
+          type: string
+          description: 'Short description of the template purpose.'
+          example: 'Template used to generate and store customer KYC documents.'
+        templateCategory:
+          type: string
+          description: 'Category under which the template is grouped.'
+          example: 'Document'
+        lineOfBusiness:
+          type: string
+          description: 'Business line associated with the template.'
+          example: 'Retail Banking'
+        templateType:
+          type: string
+          description: 'Type of template (e.g., monthly_statement).'
+          example: "PromoOffer"
+        languageCode:
+          type: string
+          description: Language code (ISO 639-1)
+          default: "en"
+          example: "EN_US"
+        owningDept:
+          type: string
+          description: 'Department responsible for the template.'
+          example: "Marketing"
+        notificationRequired:
+          type: boolean
+          description: Whether notification should be sent on generation
+          default: false
+        active:
+          type: boolean
+          description: 'Specifies whether the template is currently active.'
+        regulatory:
+          type: boolean
+          description: 'Indicates if the document is regulatory in nature.'
+        messageCenterDoc:
+          type: boolean
+          description: 'Determines if the document appears in the message center.'
+        sharedDocument:
+          type: boolean
+          description: 'Specifies if the document can be shared across users.'
+        sharingScope:
+          type: string
+          description: 'Defines the scope of document sharing.'
+          example: 'private'
+        communicationType:
+          type: string
+          description: 'Type of communication (e.g., transactional, promotional).'
+          example: 'transactional'
+        dataExtractionConfig:
+          type: object
+          description: 'Configuration for extracting additional data during document generation.'
+          properties:
+            fieldsToExtract:
+              type: array
+              description: 'List of field names to extract from API responses'
+              items:
+                type: string
+              example: ["zipcode", "creditScore", "accountStatus"]
+            fieldSources:
+              type: object
+              description: 'Configuration for each field specifying where and how to extract it'
+              additionalProperties:
+                $ref: '#/components/schemas/FieldSourceConfig'
+            dataSources:
+              type: object
+              description: 'API endpoint configurations keyed by source name'
+              additionalProperties:
+                $ref: '#/components/schemas/DataSourceConfig'
+            executionStrategy:
+              type: object
+              description: 'How to execute multiple API calls'
+              properties:
+                mode:
+                  type: string
+                  enum: [sequential, parallel]
+                  default: sequential
+                  description:
+                    "- 'sequential': 'Call APIs one after another (use when APIs depend on each other)'
+                    - 'parallel': 'Call APIs concurrently (faster, use when APIs are independent)'"
+          example:
+            fieldsToExtract:
+              - zipcode
+              - creditScore
+            fieldSources:
+              zipcode:
+              description: 'Customer zipcode from address'
+              sourceApi:
+                customerApi: '$.customer.address.zipCode'
+                requiredInputs:
+                  - customerId
+                fieldType: string
+              creditScore:
+                description: "Customer credit score"
+                sourceApi: creditApi
+                extractionPath: "$.creditProfile.score"
+                requiredInputs:
+                  - customerId
+                fieldType: number
+              dataSources:
+                customerApi:
+                  description: "Fetch customer profile including address"
+                  endpoint:
+                    url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+                    method: GET
+                    timeout: 5000
+                    headers:
+                      X-Request-ID: "${correlationId}"
+                  cache:
+                    enabled: true
+                    ttlSeconds: 3600
+                    keyPattern: "customer:${customerId}"
+                creditApi:
+                  description: "Fetch customer credit profile"
+                  endpoint:
+                    url: "http://localhost:8080/api/v1/mock-api/credit/${customerId}"
+                    method: GET
+                    timeout: 3000
+              executionStrategy:
+                mode: parallel
+        accessControl:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlEntry'
+          example:
+            - role: customer
+              actions: [View, Download]
+            - role: agent
+              actions: [View, Download]
+            - role: system
+              actions: [View, Download, Update, Delete]
+        channels:
+          type: object
+          additionalProperties: true
+          description: 'Delivery channels (e.g., EMAIL) and their configurations.'
+          example: '[ { "type": "EMAIL", "enabled": true, "config": {"priority": "high"} }]'
+        requiredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/requiredField'
+        templateVariables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+        templateConfig:
+          type: object
+          additionalProperties: true
+          description: 'Defines dynamic placeholders used in the template, including their data type, source system, API details, validation rules.'
+          example: '[{ "reprint_policy":{
+            "cooldown_period_days": 12}
+                   }]'
+        DocumentMatchingConfig:
+          type: object
+          description: Configuration for how documents are matched from storage
+          required:
+            - matchBy
+            - matchMode
+            - referenceKeyType
+          properties:
+            matchBy:
+              type: string
+              description: Strategy used to match documents
+              enum:
+                - reference_key
+            matchMode:
+              type: string
+              description: How the reference key value is obtained
+              enum:
+                - direct
+                - extracted
+                - auto_discover
+
+            referenceKeyType:
+              type: string
+              description: Type of reference key used to query documents
+              example: ACCOUNT_ID
+
+            referenceKeyField:
+              type: string
+              description: Field name from extracted data (used only in EXTRACTED mode)
+              example: disclosureCode
+          example:
+            matchBy: reference_key
+            matchMode: auto_discover
+            referenceKeyType: PROMO_CODE
+        eligibilityCriteria:
+          type: object
+          additionalProperties: true
+          description: 'Defines the rules and conditions that must be satisfied (based on input or derived data) to determine whether a template is eligible for document generation or processing.'
+          example: '[{ operator: AND
+                       
+                    }]'
+        startDate:
+          $ref: '#/components/schemas/EpochDateTime'
+        endDate:
+          $ref: '#/components/schemas/EpochDateTime'
+        createdBy:
+          type: string
+          description: 'Identifies the user or system that created the template record.'
+          example: 'admin'
+        workflow:
+          type: string
+          description: 'Department responsible for the template.'
+          example: 'draft'
+        recordStatus:
+          type: number
+          format: int64
+          description: 'Indicates the current state of the template record (for example: active, inactive, archived, or draft).'
+        singleDocument:
+          type: boolean
+          description: 'Indicates if only a single document is generated per request.'
+    requiredField:
+      type: object
+      required:
+        - field
+        - type
+      description: 'A field required in the upload request metadata for this template type'
+      properties:
+        field:
+          type: string
+          description: 'Field name required for document generation/upload'
+          example: 'promoCode'
+        type:
+          type: string
+          enum: [string, number, date, uuid, boolean]
+          example: 'string'
+        required:
+          type: boolean
+          default: true
+        description:
+          type: string
+          example: 'The promotional code associated with this offer document'
+      example:
+        field: promoCode
+        type: string
+        required: true
+        description: 'The promotional code associated with this offer document'
+    FieldSourceConfig:
+      type: object
+      description: 'Configuration for extracting a single field from an API'
+      properties:
+        description:
+          type: string
+        sourceApi:
+          type: string
+          description: 'Reference to a data source defined in dataSources'
+        extractionPath:
+          type: string
+          description: 'JSONPath expression to extract the value'
+        requiredInputs:
+          type: array
+          items:
+            type: string
+        fieldType:
+          type: string
+          enum: [string, number, boolean, date]
+        defaultValue:
+          type: string
+      example:
+        description: "Customer zipcode from address"
+        sourceApi: customerApi
+        extractionPath: "$.customer.address.zipCode"
+        requiredInputs:
+          - customerId
+        fieldType: string
+    DataSourceConfig:
+      type: object
+      description: 'Configuration for an external API data source'
+      properties:
+        description:
+          type: string
+        endpoint:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL with ${placeholder} substitution support
+            method:
+              type: string
+              enum: [GET, POST]
+            timeout:
+              type: integer
+              description: Timeout in milliseconds
+            headers:
+              type: object
+              additionalProperties:
+                type: string
+            # FIX: Indented 'cache' to be inside 'properties'
+            cache:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                ttlSeconds:
+                  type: integer
+                keyPattern:
+                  type: string
+      example:
+        description: "Fetch customer profile data"
+        endpoint:
+          url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+          method: GET
+          timeout: 5000
+          headers:
+            X-Request-ID: "${correlationId}"
+          cache:
+            enabled: true
+            ttlSeconds: 3600
+            keyPattern: "customer:${customerId}"
+    AccessControlEntry:
+      type: object
+      description: 'Defines what actions a specific role can perform on documents of this template type.'
+      required:
+        - role
+        - actions
+      properties:
+        role:
+          type: string
+          description: |
+            The role name granting access.
+            * `customer` - End-user/account holder
+            * `agent` - Customer service representative
+            * `system` - Internal systems and batch processes
+            * `admin` - Administrative users
+          enum:
+            - customer
+            - agent
+            - system
+            - admin
+          example: customer
+        actions:
+          type: array
+          description: |
+            List of permitted actions for this role.
+            * `View` - Can see document in enquiry results
+            * `Download` - Can download the document content
+            * `Update` - Can modify document metadata
+            * `Delete` - Can soft-delete the document
+          items:
+            type: string
+            enum:
+              - View
+              - Download
+              - Update
+              - Delete
+          example:
+            - View
+            - Download
+      example:
+        role: customer
+        actions:
+          - view
+          - download
+    TemplateVariable:
+      type: object
+      required:
+        - name
+        - type
+      description: 'A variable/placeholder used in the template content.'
+      properties:
+        name:
+          type: string
+          description: 'Variable name (e.g customerName)'
+          example: "promoCode"
+        type:
+          $ref: '#/components/schemas/VariableType'
+        source:
+          $ref: '#/components/schemas/VariableSource'
+        required:
+          type: boolean
+          default: true
+          example: true
+        defaultValue:
+          type: string
+          example: "N/A"
+        description:
+          type: string
+          example: 'Unique promotional code for the offer'
+        format:
+          type: 'string'
+          description: 'Format pattern (e.g., date format, currency format)'
+          example: 'PROMO-{REGION}-{YEAR}'
+        # FIX: 'validation' is now a sibling of 'format', not a child
+        validation:
+          type: 'string'
+          description: 'Validation regex or rule'
+          example: '^PROMO-[A-Z]+-[0-9]{4}$'
+      example:
+        name: promoCode
+        type: string
+        source: STATIC_CONFIG
+        description: 'Unique promotional code for the offer'
+        validation: "^PROMO-[A-Z]+-[0-9]{4}$"
+    VariableType:
+      type: string
+      description: Template variable type
+      enum:
+        - STRING
+        - NUMBER
+        - DATE
+        - BOOLEAN
+        - CURRENCY
+        - LIST
+        - OBJECT
+    VariableSource:
+      type: string
+      description: Variable data source
+      enum:
+        - CUSTOMER_API
+        - ACCOUNT_API
+        - PRODUCT_API
+        - STATIC_CONFIG
+        - CALCULATED
+        - USER_INPUT
+
+
+    TemplateVendorPageResponse:
+      type: object
+      properties:
+        vendorList:
+          type: array
+          items:
+            allOf:
+              - type: object
+              - $ref: '#/components/schemas/TemplateVendorMappingtemplateDetails'
+              - $ref: '#/components/schemas/TemplateVendorMapping'
+        pagination:
+          $ref: "https://api.swaggerhub.com/domains/CreditOneBank/enterprise_core_responses/0.0.1#/components/schemas/PaginationResponse"
+          description: "Pagination metadata for the document list.\nUses enterprise PaginationResponse schema.\n"
+          example:
+            pageSize: 10
+            totalItems: 100
+            totalPages: 10
+            pageNumber: 2
+
+    TemplateVendorMappingRequest:
+      allOf:
+        - $ref: '#/components/schemas/TemplateVendorMappingtemplateDetails'
+        - $ref: '#/components/schemas/TemplateVendorMapping'
+
+    TemplateVendorMappingtemplateDetails:
+      type: object
+      required:
+        - templateId
+      properties:
+        templateId:
+          type: string
+          format: UUID
+          description: 'Unique identifier of the master template.'
+          example: '550e8400-e29b-41d4-a716-446655440000'
+        templateVersion:
+          type: integer
+
+    TemplateVendorMapping:
+      type: object
+      required:
+        - vendor
+        - vendorTemplateKey
+        - referenceKeyType
+        - startDate
+      properties:
+        vendor:
+          type: string
+          description: 'Name of the vendor providing template generation or delivery services (e.g., SmartComm, Assentis).'
+          example: SmartComm | Assentis | Handlebar | LPS
+        vendorType:
+          type: string
+          description: 'Type of service provided by the vendor (Generation, Print, Email, SMS, Push).'
+          example: GENERATION, PRINT, EMAIL, SMS, PUSH
+        vendorTemplateKey:
+          type: string
+          description: 'Unique key used by the vendor to identify the template.'
+          example: '123199888'
+        vendorTemplateName:
+          type: string
+          description: 'Display name of the template in the vendor system.'
+          example: 'ECMS Customer KYC Template'
+        referenceKeyType:
+          type: string
+          description: 'Type of reference key used to associate the template with business context.'
+          example: 'RESOURCEID'
+        consumerId:
+          type: string
+          format: UUID
+          description: 'Identifier of the consuming system or application.'
+          example: 'DOCUMENT_HUB'
+        templateContent:
+          type: string
+          format: binary
+          description: 'Vendor-specific template content or definition.'
+          example: '<html><body><h1>KYC Document</h1><p>Customer Name: {{customerName}}</p></body></html>'
+        startDate:
+          $ref: '#/components/schemas/EpochDateTime'
+        endDate:
+          $ref: '#/components/schemas/EpochDateTime'
+        vendorMappingVersion:
+          type: integer
+          description: 'Version number of the vendor-template mapping.'
+        schemaInfo:
+          type: object
+          additionalProperties: true
+          description: 'Schema definition or metadata used for template validation.'
+          example: '[{
+                      "customerData": {"type": "object", "required": ["name", "address"]
+                      }}]'
+        templateFields:
+          type: object
+          additionalProperties: true
+          description: 'Fields required or supported by the vendor template.'
+          example: '[{
+                  "customerId": {
+                  "type": "string",
+                  "required": true,
+                  "source": "REQUEST",
+                  "description": "Unique identifier of the customer"
+                }}]'
+        vendorConfig:
+          type: object
+          additionalProperties: true
+          description: 'Vendor-specific configuration parameters.'
+          example: '[{"vendorConfig": {
+                    "vendorId": "ECMS",
+                    "vendorName": "Enterprise Content Management System",
+                    "vendorType": "DOCUMENT_STORAGE",
+                    "apiBaseUrl": "https://ecms.company.com/api",
+                    "authenticationType": "OAUTH2",
+                    "clientId": "ecms-client-id",
+                    "timeoutInSeconds": 30,
+                    "retryCount": 3,
+                    "active": true
+                   }}]'
+        apiConfig:
+          type: object
+          additionalProperties: true
+          description: 'API configuration details for vendor integration.'
+          example: '[{"base_url": "https://vendor-api.com/v1",
+                      "auth_type": "oauth2",
+                      "timeout_seconds": 30,
+                      "retry_policy": {
+                          "max_attempts": 3,
+                          "backoff": "exponential"
+                      },
+                      "headers": {
+                          "X-Client-ID": "client-123"
+                      }
+              }]'
+        active:
+          type: boolean
+          description: 'Indicates whether the vendor template mapping is currently active.'
+        primary:
+          type: boolean
+          description: 'Specifies whether this vendor is the primary option for the template.'
+        createdBy:
+          type: string
+          description: 'User or system that created the vendor mapping record.'
+          example: 'system'
+        vendorMappingStatus:
+          type: string
+          description: 'Current state of the vendor mapping (e.g., Draft, Approved, Active).'
+          enum:
+            - Draft
+            - Pending
+            - Approved
+            - Archived
+          default: Draft
+
+    # ========================================================================
+    # Common Schemas
+    # ========================================================================
+
+    ErrorResponse:
+      type: "object"
+      properties:
+        errorMsg:
+          type: "array"
+          items:
+            type: "string"
+            example: "01 - This is a descriptive error message"
+          x-data-classification: "public"
+        statusCode:
+          $ref: "#/components/schemas/Int32"
+          x-data-classification: "public"
+        timestamp:
+          type: "string"
+          description: "Epoch time\n"
+          example: "1736770074"
+          x-data-classification: "public"
+    Int32:
+      type: "integer"
+      format: "int32"
+      example: 1
+      default: 1
+      x-data-classification: "public"
+    EpochDateTime:
+      type: integer
+      description: The EpochDateTime captures the timestamps of the application process in the system. It specifies the specific date and time in standard format.
+      format: int64
+      nullable: true
+      example: 1694476800000
+      x-data-classification: none

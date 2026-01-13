@@ -1,0 +1,11 @@
+These are the current onboarding of templates in the Assentis:
+1. We receive an intake to create or update content:  https://app.smartsheet.com/b/form/4bfa0f63cf694c43ae7150b7750594d4
+2. We draft it and get it approved by the business/requestor.
+3. Then it goes into SharePoint for Marketing and Compliance approvals.
+4. Upon approval, we build it in Assentis and include it in the next available prod upload.
+5. For non-Assentis content, we coordinate with HOV and/or create Jira tickets/CIIs to complete the build.
+
+
+We have to build the Onboarding for SmartComm or Handlebars.
+Under SmartComm we would have two features:
+1. The Backoffice uses draft editor to fill out the template information and send it to the 
