@@ -471,7 +471,7 @@ paths:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/SizeParam'
         - $ref: '#/components/parameters/SortParam'
-        - $ref: '#/components/parameters/XVendorVersionId'
+        - $ref: '#/components/parameters/VendorVersionId'
         - $ref: '#/components/parameters/templateIdQuery'
         - name: vendor
           in: query
@@ -546,7 +546,7 @@ paths:
         - $ref: '#/components/parameters/XCorrelationIdParam'
         - $ref: '#/components/parameters/XVersionParam'
         - $ref: '#/components/parameters/TemplateVendorIdParam'
-        - $ref: '#/components/parameters/XVendorVersionId'
+        - $ref: '#/components/parameters/VendorVersionId'
       responses:
         '200':
           description: OK
@@ -603,7 +603,7 @@ paths:
         - $ref: '#/components/parameters/XCorrelationIdParam'
         - $ref: '#/components/parameters/XVersionParam'
         - $ref: '#/components/parameters/TemplateVendorIdParam'
-        - $ref: '#/components/parameters/XVendorVersionId'
+        - $ref: '#/components/parameters/VendorVersionId'
 
       requestBody:
         required: true
@@ -667,7 +667,7 @@ paths:
         - $ref: '#/components/parameters/XCorrelationIdParam'
         - $ref: '#/components/parameters/XVersionParam'
         - $ref: '#/components/parameters/TemplateVendorIdParam'
-        - $ref: '#/components/parameters/XVendorVersionId'
+        - $ref: '#/components/parameters/VendorVersionId'
       responses:
         '204':
           description: Template vendor mapping deleted successfully
@@ -740,7 +740,7 @@ components:
         type: string
         default: created_at,desc
 
-    XVendorVersionId:
+    VendorVersionId:
       name: templateVersion
       in: query
       description: 'Template version'
@@ -774,13 +774,14 @@ components:
         type: integer
 
     TemplateVendorIdParam:
-      name: templateVendorId
+    TemplateVendorIdParam:
+      name: vendorId
       in: path
       required: true
       description: Template vendor mapping UUID
       schema:
         type: string
-        format: UUID
+        format: uuid
 
     XCorrelationIdParam:
       name: X-correlation-Id
@@ -803,7 +804,7 @@ components:
       explode: false
       schema:
         type: string
-        format: UUID
+        format: uuid
 
     XRequestorTypeParam:
       name: X-requestor-type
@@ -814,6 +815,7 @@ components:
       style: simple
       explode: false
       schema:
+        type: string
         enum:
           - AGENT
           - SYSTEM
@@ -847,7 +849,7 @@ components:
           properties:
             templateId:
               type: string
-              format: UUID
+              format: uuid
               description: 'Unique identifier of the master template.'
               example: '550e8400-e29b-41d4-a716-446655440000'
         - $ref: '#/components/schemas/TemplateLegacyDetails'
@@ -862,7 +864,7 @@ components:
           properties:
             templateId:
               type: string
-              format: UUID
+              format: uuid
             templateVersion:
               type: integer
         - $ref: '#/components/schemas/TemplateLegacyDetails'
@@ -982,28 +984,21 @@ components:
               additionalProperties:
                 $ref: '#/components/schemas/DataSourceConfig'
             executionStrategy:
-              type: object
-              description: 'How to execute multiple API calls'
-              properties:
-                mode:
-                  type: string
-                  enum: [sequential, parallel]
-                  default: sequential
-                  description:
-                    "- 'sequential': 'Call APIs one after another (use when APIs depend on each other)'
-                    - 'parallel': 'Call APIs concurrently (faster, use when APIs are independent)'"
+              $ref: '#/components/schemas/ExecutionStrategy'
           example:
             fieldsToExtract:
               - zipcode
               - creditScore
             fieldSources:
               zipcode:
-              description: 'Customer zipcode from address'
-              sourceApi:
-                customerApi: '$.customer.address.zipCode'
+                description: 'Customer zipcode from address'
+                sourceApi: customerApi
+                fallbackApi: backupCustomerApi
+                extractionPath: '$.customer.address.zipCode'
                 requiredInputs:
                   - customerId
                 fieldType: string
+                validationPattern: "^[0-9]{5}$"
               creditScore:
                 description: "Customer credit score"
                 sourceApi: creditApi
@@ -1011,27 +1006,38 @@ components:
                 requiredInputs:
                   - customerId
                 fieldType: number
-              dataSources:
-                customerApi:
-                  description: "Fetch customer profile including address"
-                  endpoint:
-                    url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
-                    method: GET
-                    timeout: 5000
-                    headers:
-                      X-Request-ID: "${correlationId}"
-                  cache:
-                    enabled: true
-                    ttlSeconds: 3600
-                    keyPattern: "customer:${customerId}"
-                creditApi:
-                  description: "Fetch customer credit profile"
-                  endpoint:
-                    url: "http://localhost:8080/api/v1/mock-api/credit/${customerId}"
-                    method: GET
-                    timeout: 3000
-              executionStrategy:
-                mode: parallel
+                defaultValue: 0
+            dataSources:
+              customerApi:
+                description: "Fetch customer profile including address"
+                endpoint:
+                  url: "http://localhost:8080/api/v1/mock-api/customers/${customerId}"
+                  method: GET
+                  timeout: 5000
+                  headers:
+                    X-Request-ID: "${correlationId}"
+                cache:
+                  enabled: true
+                  ttlSeconds: 3600
+                  keyPattern: "customer:${customerId}"
+                retry:
+                  maxAttempts: 3
+                  delayMs: 1000
+                providesFields:
+                  - zipcode
+                  - customerName
+              creditApi:
+                description: "Fetch customer credit profile"
+                endpoint:
+                  url: "http://localhost:8080/api/v1/mock-api/credit/${customerId}"
+                  method: GET
+                  timeout: 3000
+                providesFields:
+                  - creditScore
+            executionStrategy:
+              mode: parallel
+              continueOnError: false
+              timeout: 30000
         accessControl:
           type: array
           items:
@@ -1063,12 +1069,11 @@ components:
           example: '[{ "reprint_policy":{
             "cooldown_period_days": 12}
                    }]'
-        DocumentMatchingConfig:
+        documentMatchingConfig:
           type: object
           description: Configuration for how documents are matched from storage
           required:
             - matchBy
-            - matchMode
             - referenceKeyType
           properties:
             matchBy:
@@ -1076,23 +1081,27 @@ components:
               description: Strategy used to match documents
               enum:
                 - reference_key
+                - conditional
             matchMode:
               type: string
-              description: How the reference key value is obtained
+              description: How the reference key value is obtained (used only in reference_key mode)
               enum:
                 - direct
                 - extracted
                 - auto_discover
-
             referenceKeyType:
               type: string
               description: Type of reference key used to query documents
               example: ACCOUNT_ID
-
             referenceKeyField:
               type: string
               description: Field name from extracted data (used only in EXTRACTED mode)
               example: disclosureCode
+            conditions:
+              type: array
+              description: 'Conditions for conditional matching mode (used only when matchBy is conditional)'
+              items:
+                $ref: '#/components/schemas/MatchCondition'
           example:
             matchBy: reference_key
             matchMode: auto_discover
@@ -1155,60 +1164,57 @@ components:
       properties:
         description:
           type: string
+          description: 'Description of what this field represents'
         sourceApi:
           type: string
-          description: 'Reference to a data source defined in dataSources'
+          description: 'Primary API ID to fetch from (references dataSources key)'
+        fallbackApi:
+          type: string
+          description: 'Fallback API ID if primary fails'
         extractionPath:
           type: string
-          description: 'JSONPath expression to extract the value'
+          description: 'JSONPath expression to extract the value from API response'
         requiredInputs:
           type: array
+          description: 'Input fields required to call the API'
           items:
             type: string
         fieldType:
           type: string
-          enum: [string, number, boolean, date]
+          description: 'Field data type'
+          enum: [string, integer, decimal, number, boolean, date]
         defaultValue:
+          description: 'Default value if extraction fails (can be any type)'
+        validationPattern:
           type: string
+          description: 'Regex pattern for field validation'
       example:
         description: "Customer zipcode from address"
         sourceApi: customerApi
+        fallbackApi: backupCustomerApi
         extractionPath: "$.customer.address.zipCode"
         requiredInputs:
           - customerId
         fieldType: string
+        validationPattern: "^[0-9]{5}(-[0-9]{4})?$"
     DataSourceConfig:
       type: object
       description: 'Configuration for an external API data source'
       properties:
         description:
           type: string
+          description: 'Description of what this API provides'
         endpoint:
-          type: object
-          properties:
-            url:
-              type: string
-              description: URL with ${placeholder} substitution support
-            method:
-              type: string
-              enum: [GET, POST]
-            timeout:
-              type: integer
-              description: Timeout in milliseconds
-            headers:
-              type: object
-              additionalProperties:
-                type: string
-            # FIX: Indented 'cache' to be inside 'properties'
-            cache:
-              type: object
-              properties:
-                enabled:
-                  type: boolean
-                ttlSeconds:
-                  type: integer
-                keyPattern:
-                  type: string
+          $ref: '#/components/schemas/EndpointConfig'
+        cache:
+          $ref: '#/components/schemas/CacheConfig'
+        retry:
+          $ref: '#/components/schemas/RetryConfig'
+        providesFields:
+          type: array
+          description: 'List of fields this API provides'
+          items:
+            type: string
       example:
         description: "Fetch customer profile data"
         endpoint:
@@ -1217,10 +1223,139 @@ components:
           timeout: 5000
           headers:
             X-Request-ID: "${correlationId}"
-          cache:
-            enabled: true
-            ttlSeconds: 3600
-            keyPattern: "customer:${customerId}"
+        cache:
+          enabled: true
+          ttlSeconds: 3600
+          keyPattern: "customer:${customerId}"
+        retry:
+          maxAttempts: 3
+          delayMs: 1000
+        providesFields:
+          - customerName
+          - zipCode
+          - email
+
+    EndpointConfig:
+      type: object
+      description: 'API endpoint configuration'
+      properties:
+        url:
+          type: string
+          description: 'API URL with ${placeholder} substitution support'
+        method:
+          type: string
+          description: 'HTTP method'
+          enum: [GET, POST, PUT, DELETE]
+        timeout:
+          type: integer
+          description: 'Timeout in milliseconds'
+        headers:
+          type: object
+          description: 'HTTP headers with placeholder support'
+          additionalProperties:
+            type: string
+        body:
+          type: string
+          description: 'Request body template for POST/PUT (with placeholders)'
+      example:
+        url: "http://localhost:8080/api/v1/customers/${customerId}"
+        method: GET
+        timeout: 5000
+        headers:
+          X-Request-ID: "${correlationId}"
+          Authorization: "Bearer ${auth.token}"
+
+    CacheConfig:
+      type: object
+      description: 'Caching configuration for API responses'
+      properties:
+        enabled:
+          type: boolean
+          description: 'Enable caching'
+        ttlSeconds:
+          type: integer
+          description: 'Cache TTL in seconds'
+        keyPattern:
+          type: string
+          description: 'Cache key pattern with placeholders'
+      example:
+        enabled: true
+        ttlSeconds: 3600
+        keyPattern: "customer:${customerId}"
+
+    RetryConfig:
+      type: object
+      description: 'Retry configuration for failed API calls'
+      properties:
+        maxAttempts:
+          type: integer
+          description: 'Maximum retry attempts'
+        delayMs:
+          type: integer
+          description: 'Delay between retries in milliseconds'
+      example:
+        maxAttempts: 3
+        delayMs: 1000
+
+    ExecutionStrategy:
+      type: object
+      description: 'Execution strategy for API calls'
+      properties:
+        mode:
+          type: string
+          description: 'Execution mode for API calls'
+          enum: [sequential, parallel]
+          default: sequential
+        continueOnError:
+          type: boolean
+          description: 'Continue execution if one API fails'
+          default: false
+        timeout:
+          type: integer
+          description: 'Overall execution timeout in milliseconds'
+      example:
+        mode: parallel
+        continueOnError: true
+        timeout: 30000
+
+    MatchCondition:
+      type: object
+      description: 'Condition for conditional document matching'
+      required:
+        - field
+        - operator
+        - value
+        - referenceKey
+      properties:
+        field:
+          type: string
+          description: 'Field to evaluate (e.g., creditScore, accountType)'
+          example: creditScore
+        operator:
+          type: string
+          description: 'Comparison operator'
+          enum:
+            - "="
+            - "!="
+            - ">"
+            - "<"
+            - ">="
+            - "<="
+            - IN
+            - NOT_IN
+        value:
+          description: 'Value to compare against (can be string, number, or array for IN/NOT_IN)'
+          example: 700
+        referenceKey:
+          type: string
+          description: 'Reference key to use if condition matches'
+          example: TIER_1
+      example:
+        field: creditScore
+        operator: ">="
+        value: 700
+        referenceKey: TIER_1
+
     AccessControlEntry:
       type: object
       description: 'Defines what actions a specific role can perform on documents of this template type.'
@@ -1359,7 +1494,7 @@ components:
       properties:
         templateId:
           type: string
-          format: UUID
+          format: uuid
           description: 'Unique identifier of the master template.'
           example: '550e8400-e29b-41d4-a716-446655440000'
         templateVersion:
@@ -1395,7 +1530,7 @@ components:
           example: 'RESOURCEID'
         consumerId:
           type: string
-          format: UUID
+          format: uuid
           description: 'Identifier of the consuming system or application.'
           example: 'DOCUMENT_HUB'
         templateContent:
@@ -1477,6 +1612,20 @@ components:
             - Approved
             - Archived
           default: Draft
+
+    TemplateVendorResponse:
+      allOf:
+        - type: object
+          required:
+            - vendorId
+          properties:
+            vendorId:
+              type: string
+              format: uuid
+              description: 'Unique identifier of the vendor mapping.'
+              example: '550e8400-e29b-41d4-a716-446655440001'
+        - $ref: '#/components/schemas/TemplateVendorMappingtemplateDetails'
+        - $ref: '#/components/schemas/TemplateVendorMapping'
 
     # ========================================================================
     # Common Schemas
