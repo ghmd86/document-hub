@@ -17,6 +17,9 @@ tags:
   - name: Templates
     description: Template management and versioning
 
+security:
+  - BearerAuth: []
+
 paths:
   # ============================================================================
   # Templates
@@ -297,7 +300,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /templates/{templateId}/versions/{templateVersion}:
     patch:
       tags:
         - Templates
@@ -421,12 +423,12 @@ paths:
             schema:
               $ref: '#/components/schemas/TemplateVendorMappingRequest'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Template vendor mapping created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TemplateVendorPageResponse'
+                $ref: '#/components/schemas/TemplateVendorResponse'
         '400':
           description: Bad request
           content:
@@ -719,6 +721,13 @@ paths:
 # Components
 # ==============================================================================
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
+
   parameters:
     PageParam:
       name: page
@@ -780,7 +789,6 @@ components:
       schema:
         type: integer
 
-    TemplateVendorIdParam:
     TemplateVendorIdParam:
       name: vendorId
       in: path
