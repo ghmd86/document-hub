@@ -885,7 +885,71 @@ COMMENT ON COLUMN document_hub.template_vendor_mapping.required_inputs IS
   'Array of required input parameters for template population';
 ```
 
-### 5.2 Updated Column Purposes
+### 5.2 XML Schema Registry Table
+
+The master XSD schema (schema_core_v12.xsd) needs to be stored and versioned. Store in **DCMS** with a reference in the database:
+
+```sql
+CREATE TABLE document_hub.xml_schema_registry (
+    schema_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    schema_name VARCHAR(100) NOT NULL,              -- e.g., 'schema_core'
+    schema_version VARCHAR(20) NOT NULL,            -- e.g., 'v12'
+    dcms_document_id VARCHAR(100) NOT NULL,         -- DCMS reference for the XSD file
+    description TEXT,                               -- Schema description
+    is_active BOOLEAN DEFAULT true,
+    created_by VARCHAR(100),
+    created_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(100),
+    updated_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(schema_name, schema_version)
+);
+
+COMMENT ON TABLE document_hub.xml_schema_registry IS
+  'Registry of XML schemas stored in DCMS for template XML generation';
+COMMENT ON COLUMN document_hub.xml_schema_registry.dcms_document_id IS
+  'Reference to the XSD file stored in DCMS';
+
+-- Insert current schema
+INSERT INTO document_hub.xml_schema_registry (schema_name, schema_version, dcms_document_id, description, is_active)
+VALUES ('schema_core', 'v12', 'DCMS-XSD-001', 'Master XML schema for all template types', true);
+```
+
+#### Schema Registry Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         XML SCHEMA MANAGEMENT                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────────┐ │
+│  │ template_vendor │      │ xml_schema_     │      │       DCMS          │ │
+│  │ _mapping        │─────►│ registry        │─────►│                     │ │
+│  │                 │      │                 │      │  schema_core_v12.xsd│ │
+│  │ xml_schema_     │      │ schema_name     │      │  schema_core_v13.xsd│ │
+│  │ version='v12'   │      │ schema_version  │      │  (actual XSD files) │ │
+│  │                 │      │ dcms_document_id│      │                     │ │
+│  └─────────────────┘      └─────────────────┘      └─────────────────────┘ │
+│                                                                             │
+│  Usage Flow:                                                                │
+│  1. Get xml_schema_version from template_vendor_mapping                     │
+│  2. Lookup dcms_document_id from xml_schema_registry                        │
+│  3. Fetch XSD from DCMS (cached in Redis/memory)                            │
+│  4. Generate XML and validate against schema                                │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Why Store in DCMS?
+
+| Consideration | DCMS Approach |
+|---------------|---------------|
+| **Versioning** | DCMS handles document versioning |
+| **Access Control** | Consistent with other document access |
+| **Caching** | Fetch once, cache in Redis/memory |
+| **Updates** | No redeployment needed for schema changes |
+| **Audit Trail** | DCMS provides audit logging |
+
+### 5.3 Updated Column Purposes
 
 | Table | Column | Purpose |
 |-------|--------|---------|
