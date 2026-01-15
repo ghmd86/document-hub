@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="schema_core_v12.xsd">
+    <template>
+        <resourceId>123123123</resourceId> <!-- SmartComm resource ID-->
+        <templateId>PR027</templateId>  <!-- PR027 DV Solicited - CO Optional - Goodwill Approved
+        Declined-->
+        <letterReferenceNumber>A321316842</letterReferenceNumber> <!-- Unique identifier for each letter sent -->
+        <employeeId>320045065</employeeId>
+        <displayName>PR027</displayName>
+        <date>2010-12-30</date>
+    </template>
+    <recipient>
+        <name>Jane Smith</name>
+        <recipientAddress>
+            <addressLine1>456 Oak Avenue</addressLine1>
+            <addressLine2>Suite 1222</addressLine2>
+            <city>Somewhere</city>
+            <state>CA</state>
+            <zipcode>90210</zipcode>
+        </recipientAddress>
+    </recipient>
+    <entity>
+        <last4digit>2333</last4digit>
+        <caseNumber>123454</caseNumber>
+        <agencyOrExec>OCC</agencyOrExec> <!-- BBB | CFBP/OCC | CFPB | Exec | OCC | OGA-->
+        <onOrDated>on</onOrDated> <!-- on | dated -->
+        <communicationReceivedDate>2019-12-19</communicationReceivedDate>
+        <otherGovtAgency>Agency Name</otherGovtAgency> <!-- If the agencyOrExec is OGA -->
+        <primaryAccount>
+            <reservationNumber>1301239</reservationNumber> <!-- Reservation Number -->
+            <solicitationName>Solicitation Name</solicitationName> <!-- Solicitation Name-->
+            <solicitationDate>2019-12-22</solicitationDate> <!-- Solicitation Mail Date -->
+            <fulfillment>automated phone system</fulfillment> <!-- Fulfillment Type-->
+            <accountHolderDetails>
+                <name>Applicant Name</name> <!-- Applicant Name -->
+                <dateOfBirth>2000-12-30</dateOfBirth> <!-- Applicant DOB / DOB on Application -->
+                <sSNLast4>9999</sSNLast4> <!-- applicantSSNLast4 -->
+                <primaryEmail>test@test.com</primaryEmail> <!-- Applicant Primary Email -->
+                <primaryPhone>9987776667</primaryPhone> <!-- Applicant Primary Phone -->
+                <address>
+                    <addressLine1>8777 Test Rd</addressLine1>
+                    <addressLine2>Suite 111</addressLine2>
+                    <city>City</city>
+                    <state>State</state>
+                    <zipcode>123999</zipcode>
+                </address>
+            </accountHolderDetails>
+            <recentActivity>purchase</recentActivity> <!-- Recent activity on account -->
+            <recentActivityAmount>123.09</recentActivityAmount> <!-- Recent Activity Amount.
+            Previously: amount1 -->
+            <recentActivityDate>2019-12-12</recentActivityDate> <!-- Recent Activity Date.
+            Previously: date1 -->
+            <accountOpenDate>2012-12-31</accountOpenDate> <!-- Open Date -->
+            <initialCreditLimit>123</initialCreditLimit> <!-- Initial Credit Limit -->
+            <accountStatus>Valid</accountStatus>
+            <debtValidationStatus>Valid</debtValidationStatus> <!-- Account Status -->
+            <routingNumber>122000993</routingNumber> <!-- Routing number -->
+            <last4chkAccount>1987</last4chkAccount> <!-- Last 4 Digits Checking Account Number -->
+            <last4savAccount>7890</last4savAccount> <!-- Last 4 Digits Savings Account Number -->
+            <chargeOffDate>2019-10-12</chargeOffDate>  <!-- Date Account Charged Off -->
+            <chargeOffBalance>9899</chargeOffBalance>  <!-- Charge off Balance-->
+            <chargeOffReason>non-payment for more than 180 days</chargeOffReason>
+            <totalBalance>88.33</totalBalance> <!-- Total Balance -->
+            <stmtsSentSeparately>true</stmtsSentSeparately>
+            <cardAgreement>true</cardAgreement>
+            <enclosedSeparateCover>separate cover</enclosedSeparateCover>
+            <gwCoOptions>Not reporting</gwCoOptions>
+            <gwDelinquencyDates>Date1 and Date2</gwDelinquencyDates>
+            <statementDates>
+                <date>2010-01-12</date>
+                <date>2012-12-10</date>
+            </statementDates>
+            <yearMonths>
+                <yearMonth>2010-12</yearMonth>
+                <yearMonth>2011-10</yearMonth>
+                <yearMonth>2018-09</yearMonth>
+            </yearMonths>
+            <otherDetails name="otherPaymentType">Other</otherDetails> <!-- Other Pmnt Type -->
+            <otherDetails name="merchant">Merchant Name</otherDetails> <!-- Merchant name-->
+        </primaryAccount>
+    </entity>
+    <agency>
+        <agencyName>Agency Name INC.</agencyName>
+        <agencyAddress>
+            <addressLine1>99 Agency Lane</addressLine1>
+            <addressLine2>Suite 2129</addressLine2>
+            <city>City</city>
+            <state>State</state>
+            <zipcode>124433</zipcode>
+        </agencyAddress>
+        <phoneNumber>123903333</phoneNumber>
+        <faxNumber>233335455</faxNumber>
+    </agency>
+    <courtesyWe>As a courtesy, we</courtesyWe>
+    <miniMiranda>true</miniMiranda>
+    <addBBBCaseNumber>true</addBBBCaseNumber>
+    <caseNumberBBB>123123</caseNumberBBB>
+    <deptContactName>Customer Service</deptContactName>
+</data>

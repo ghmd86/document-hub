@@ -1,0 +1,14 @@
+Help me out in creating Jira story and designing. 
+Requirement is as following:
+- Draft editor will search for document types for that particular vendor.
+- Once it select the document type the agent would need to be provisioned to search the information for customer. For that we need to design an endpoint that can do this.
+- Once we have that response from search we should be returning the response which will populate the template fields.
+- We have created an XML schema (./schema_core_v12.xsd) which is the master schema that would be used to populate all the templates.
+- We have different set of variables for each different templates, for example:
+	- ./example_PR024_v12.xml
+	- ./example_PR027_v12.xml
+	- ./example_RF002_v12.xml
+- We will be master_template_definition and template_vendor_mapping table to configure these information.
+- My initial thought was that we can use the master_template_definition.template_variables to store what variables are required and from which API we would fetch those variables.
+- In the template_vendor_mapping I thought we would store mapping of how we are going to build the response needed to populate the draft editor. Need help what information need to go where and do we need any extra columns for storing information.
+- We can use similar logic we did for data_extraction_config logic for fetching the data for /document-enquiry endpoint. 
